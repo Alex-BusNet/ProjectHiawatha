@@ -21,6 +21,7 @@ A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex P
 
 ###Future Implementations
 Note: These may not, and most likely will not, be in the final submission
+
 1. Multiplayer
 2. Diplomacy
 3. Unique units and buildings
