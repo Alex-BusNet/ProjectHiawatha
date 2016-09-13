@@ -1,0 +1,9 @@
+#ifndef TILEIMPROVEMENT_H
+#define TILEIMPROVEMENT_H
+
+enum TileImprovement
+{
+    FARM, ROAD, TRADE_POST, PLANTATION, MINE, NONE
+};
+
+#endif // TILEIMPROVEMENT_H

@@ -1,0 +1,4 @@
+enum TileType
+{
+    WATER, GRASS, DESERT, MOUNTAIN, ICE, COAST, HILL, FOREST
+};
