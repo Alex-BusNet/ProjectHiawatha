@@ -10,8 +10,8 @@ Renderer::Renderer()
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
     //not the number of tiles on screen.
-    mapSizeX = 20; // max= 32
-    mapSizeY = 10; //max = 40;
+    mapSizeX = 32; // max= 32
+    mapSizeY = 40; //max = 40;
 }
 
 void Renderer::DrawMap(QPainter &painter)
@@ -84,6 +84,24 @@ void Renderer::DrawHex(QPainter &painter)
 
         painter.drawText((*(board.at(i))).GetTextCenter(), QString("%1, %2").arg((*(board.at(i))).GetTileID().column).arg((*(board.at(i))).GetTileID().row));
     }
+}
+
+void Renderer::DrawHexScene(QGraphicsScene *scene)
+{
+    for(int i = 0; i < board.size(); i++)
+    {
+         scene->addPolygon((*(board.at(i))).GetTilePolygon());
+    }
+}
+
+Tile * Renderer::GetTileAt(int index)
+{
+    return this->board.at(index);
+}
+
+int Renderer::GetBoardSize()
+{
+    return this->board.size();
 }
 
 void Renderer::InitMap()
@@ -159,7 +177,7 @@ void Renderer::InitHexMap()
 
     for(int i = 0; i < (mapSizeY); i++)
     {
-        qDebug() << "i: " << i;
+//        qDebug() << "i: " << i;
 
         if((i % 2) != 0)
         {

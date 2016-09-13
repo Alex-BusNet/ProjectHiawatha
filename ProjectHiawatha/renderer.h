@@ -12,6 +12,10 @@ public:
     Renderer();
     void DrawMap(QPainter &painter);
     void DrawHex(QPainter &painter);
+    void DrawHexScene(QGraphicsScene *scene);
+
+    Tile *GetTileAt(int index);
+    int GetBoardSize();
 
     void InitMap();
     void InitHexMap();

@@ -20,6 +20,8 @@ public:
 private slots:
     void on_newMap_clicked();
 
+    void on_exit_clicked();
+
 private:
     Ui::MainWindow *ui;
     GameWindow *game;

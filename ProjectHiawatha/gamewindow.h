@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <qevent.h>
 #include "renderer.h"
+#include <QGraphicsView>
 
 class GameWindow : public QWidget
 {
@@ -17,6 +18,11 @@ private:
     void paintEvent(QPaintEvent *event);
     QTimer *updateTimer;
     void mouseMoveEvent(QMouseEvent *event);
+
+    QGraphicsScene *game;
+    QGraphicsView gameView;
+    QGraphicsPolygonItem *tile;
+    QGraphicsRectItem *tileRect;
 signals:
 
 public slots:

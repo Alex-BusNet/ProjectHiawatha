@@ -33,7 +33,7 @@ Tile::Tile()
     posX = 0;
     posY = 0;
 
-    rect = new QRect(posX, posY, sizeX, sizeY);
+    rect = QRect(posX, posY, sizeX, sizeY);
 
     //Size of Hex tiles in px
     hexPosX = 12;
@@ -61,6 +61,7 @@ Tile::Tile()
             << this->points[5]
             << this->points[6];
 
+    this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
 }
 
 Tile::Tile(TileType type)
@@ -82,7 +83,7 @@ Tile::Tile(TileType type)
     posX = 0;
     posY = 0;
 
-    rect = new QRect(posX, posY, sizeX, sizeY);
+    rect = QRect(posX, posY, sizeX, sizeY);
 
     //Size of Hex tiles in px
     hexPosX = 12;
@@ -130,7 +131,7 @@ Tile::Tile(TileType type, Yield yield)
     posX = 0;
     posY = 0;
 
-    rect = new QRect(posX, posY, sizeX, sizeY);
+    rect = QRect(posX, posY, sizeX, sizeY);
 
     //Size of Hex tiles in px
     hexPosX = 12;
@@ -260,6 +261,11 @@ QPolygon Tile::GetTilePolygon()
     return this->poly;
 }
 
+QRect Tile::GetTileRect()
+{
+    return this->rect;
+}
+
 float Tile::GetHexPosX()
 {
     return this->hexPosX;
@@ -295,13 +301,13 @@ void Tile::SetTileTexture(TileType type)
     switch(type)
     {
     case WATER:
-        tileTexture = QPixmap("../ProjectHiawatha/Assets/TexturesTerrainHex.dds");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/TexturesTerrainHex.dds");
         break;
     case GRASS:
-        tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
         break;
     default:
-        tileTexture = QPixmap("../ProjectHiawatha/Assets/TexturesTerrainHex.dds");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/TexturesTerrainHex.dds");
         break;
     }
 }

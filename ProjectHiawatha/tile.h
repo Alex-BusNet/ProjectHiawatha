@@ -60,7 +60,9 @@ public:
     QPoint GetHexPoint(int index);
     QPoint GetCenter();
     QPoint GetTextCenter();
+
     QPolygon GetTilePolygon();
+    QRect GetTileRect();
 
     float GetHexPosX();
     float GetHexPosY();
@@ -88,7 +90,7 @@ private:
     int sizeY;
     int posX;
     int posY;
-    QRect *rect;
+    QRect rect;
 
     //==Hex tiles==
     QPoint points[7];

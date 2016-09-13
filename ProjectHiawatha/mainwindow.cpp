@@ -31,6 +31,11 @@ void MainWindow::on_newMap_clicked()
     }
 
     game = new GameWindow();
-    game->show();
+//    game->show();
 }
 
+
+void MainWindow::on_exit_clicked()
+{
+    this->close();
+}
