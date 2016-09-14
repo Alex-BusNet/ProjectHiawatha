@@ -16,19 +16,16 @@ public:
 
 private:
     Renderer *renderer;
-    void paintEvent(QPaintEvent *event);
     QTimer *updateTimer;
     void mouseMoveEvent(QMouseEvent *event);
+//    void paintEvent(QPaintEvent *event);
 
     QGraphicsScene *game;
     QGraphicsView gameView;
 
     QGraphicsPolygonItem *tile;
-    QGraphicsRectItem *tileRect;
     QGraphicsPixmapItem *tilePixmap;
-    QGraphicsPixmapItem *pixmap;
-    QGraphicsItem *item;
-    QGraphicsTextItem *text;
+
 signals:
 
 public slots:
