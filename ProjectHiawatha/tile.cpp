@@ -36,8 +36,8 @@ Tile::Tile()
     rect = QRect(posX, posY, sizeX, sizeY);
 
     //Size of Hex tiles in px
-    hexPosX = 12;
-    hexPosY = 0.0;
+    hexPosX = 400;
+    hexPosY = 100;
     hexVertOffset = 22;
     hexHorOffset = 74;
     hexRowOffset = 37;
@@ -87,7 +87,7 @@ Tile::Tile(TileType type)
 
     //Size of Hex tiles in px
     hexPosX = 12;
-    hexPosY = 0.0;
+    hexPosY = 0;
     hexVertOffset = 22;
     hexHorOffset = 74;
     hexRowOffset = 37;
@@ -135,7 +135,7 @@ Tile::Tile(TileType type, Yield yield)
 
     //Size of Hex tiles in px
     hexPosX = 12;
-    hexPosY = 0.0;
+    hexPosY = 0;
     hexVertOffset = 22;
     hexHorOffset = 74;
     hexRowOffset = 37;
@@ -158,6 +158,48 @@ Tile::Tile(TileType type, Yield yield)
             << this->points[4]
             << this->points[5]
             << this->points[6];
+}
+
+Tile::Tile(int posX, int posY)
+{
+    this->type = GRASS;
+    this->yield = Yield();
+    this->improvement = NONE;
+
+    IsWorked = false;
+    HasRoad = false;
+    HasCity = false;
+    ContainsUnit = false;
+
+    //Size of Hex tiles in px
+    //For some reason, there is an extra tile being drawn.
+    //This tile isn't getting a coordinate, but the last point
+    // of every tile thereafter is connected to the last point
+    // on the 'ghost' tile.
+    hexVertOffset = 22;
+    hexHorOffset = 74;
+    hexRowOffset = 37;
+
+    points[0] = QPoint(posX, posY);
+    points[1] = QPoint((posX + 25), posY);
+    points[2] = QPoint((posX + 37), (posY + 22));
+    points[3] = QPoint((posX + 25), (posY + 44));
+    points[4] = QPoint(posX, (posY + 44));
+    points[5] = QPoint((posX - 12), (posY + 22));
+    points[6] = QPoint(posX, posY);
+
+    center = QPoint(posX + 12, posY + 22);
+    textCenter = QPoint(posX + 1, posY + 22);
+
+    this->poly << this->points[0]
+            << this->points[1]
+            << this->points[2]
+            << this->points[3]
+            << this->points[4]
+            << this->points[5]
+            << this->points[6];
+
+    this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
 }
 
 Tile::~Tile()
@@ -322,6 +364,15 @@ void Tile::SetHexPos(int x, int y)
     this->points[5] = QPoint((x - 12), (y + 22));
     this->points[6] = QPoint(x, y);
 
+    this->center = QPoint(x + 12, y + 22);
+    this->textCenter = QPoint(x + 1, y + 20);
+
+}
+
+void Tile::SetHexPoly()
+{
+    this->poly.clear();
+
     this->poly << this->points[0]
             << this->points[1]
             << this->points[2]
@@ -329,10 +380,6 @@ void Tile::SetHexPos(int x, int y)
             << this->points[4]
             << this->points[5]
             << this->points[6];
-
-    this->center = QPoint(x + 12, y + 22);
-    this->textCenter = QPoint(x + 1, y + 20);
-
 }
 
 void Tile::PrintHexPoints()

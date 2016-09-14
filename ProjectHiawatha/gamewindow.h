@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <qevent.h>
 #include "renderer.h"
+#include <QGraphicsItem>
 #include <QGraphicsView>
 
 class GameWindow : public QWidget
@@ -21,8 +22,13 @@ private:
 
     QGraphicsScene *game;
     QGraphicsView gameView;
+
     QGraphicsPolygonItem *tile;
     QGraphicsRectItem *tileRect;
+    QGraphicsPixmapItem *tilePixmap;
+    QGraphicsPixmapItem *pixmap;
+    QGraphicsItem *item;
+    QGraphicsTextItem *text;
 signals:
 
 public slots:

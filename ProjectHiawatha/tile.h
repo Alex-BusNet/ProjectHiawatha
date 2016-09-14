@@ -13,9 +13,10 @@ typedef struct {int column; int row;} TileID;
 class Tile
 {
 public:
-    Tile();
+
     Tile(TileType type);
     Tile(TileType type, Yield yield);
+    Tile(int posX, int posY);
     ~Tile();
 
     bool HasRoad;
@@ -74,10 +75,18 @@ public:
     void SetTileTexture(TileType type);
 
     void SetHexPos(int x, int y);
+    void SetHexPoly();
 
     void PrintHexPoints();
 
 private:
+    //=========================
+    // DO NOT USE THIS C'TOR
+    //
+    Tile();
+    //
+    //=========================
+
     TileType type;
     Yield yield;
     TileImprovement improvement;

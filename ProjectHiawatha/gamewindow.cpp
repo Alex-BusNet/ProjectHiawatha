@@ -5,14 +5,14 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 {
     qDebug() << "Game Window c'tor called";
 
-//    QWidget::setFixedSize(1200, 900);
+    QWidget::setFixedSize(1200, 900);
 
 //    updateTimer = new QTimer();
 //    updateTimer->setInterval(500);
 //    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
 //    updateTimer->start();
 
-//    QWidget::setMouseTracking(true);
+    QWidget::setMouseTracking(true);
 
     qDebug() << "Creating new Renderer";
 
@@ -25,9 +25,10 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 
     qDebug() << "Done." << endl;
 
-//    QGraphicsScene game;
-//    QGraphicsView gameView(game);
-
+    /*
+     * All of this needs to be moved to Renderer::DrawHexScene()
+     * the function parameters also need to be adjusted. -Port
+    */
     game = new QGraphicsScene(this);
     gameView.setScene(game);
 
@@ -42,17 +43,19 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
     for(int i = 0; i < renderer->GetBoardSize(); i++)
     {
         tile = game->addPolygon(renderer->GetTileAt(i)->GetTilePolygon());
-//        tileRect = game->addRect(renderer->GetTileAt(i)->GetTileRect());
+        tilePixmap = game->addPixmap(renderer->GetTileAt(i)->GetTileTexture());
+        tilePixmap->setScale(0.32f);
+        tilePixmap->setPos(0, 1.3);
     }
 }
 
-void GameWindow::paintEvent(QPaintEvent *event)
-{
+//void GameWindow::paintEvent(QPaintEvent *event)
+//{
 //    QPainter paint(this);
 //    renderer->DrawMap(paint);
 //    renderer->DrawHex(paint);
 //    renderer->DrawHexScene(game);
-}
+//}
 
 void GameWindow::mouseMoveEvent(QMouseEvent *event)
 {
@@ -73,12 +76,6 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
         //Scroll up to top of map
     }
 }
-
-//void GameWindow::updateGameWindow()
-//{
-//    QPainter paint(this);
-//    renderer->DrawHex(paint);
-//}
 
 
 

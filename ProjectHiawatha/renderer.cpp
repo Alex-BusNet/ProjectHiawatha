@@ -3,15 +3,17 @@
 #include <QPen>
 #include <QDebug>
 
+#ifndef MAXSIZE
+#define MAXSIZE 100
+#endif
+
 Renderer::Renderer()
 {
-    qDebug() << "Renderer c'tor called.";
-
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
-    //not the number of tiles on screen.
-    mapSizeX = 32; // max= 32
-    mapSizeY = 40; //max = 40;
+    // not the number of tiles on screen.
+    mapSizeX = 30; //max = 32
+    mapSizeY = 39;  //max = 40
 }
 
 void Renderer::DrawMap(QPainter &painter)
@@ -119,7 +121,7 @@ void Renderer::InitMap()
     {
         for(int j = 0; j < mapSizeX; j++)
         {
-            tile = new Tile();
+            tile = new Tile(posX, posY);
 
             if(j > 3 && (((i > 3) && (i < 23)) || ((i > 26) && (i < 39))))
             {
@@ -148,9 +150,6 @@ void Renderer::InitMap()
                 tile->SetTileType(WATER);
             }
 
-            tile->SetPosX(posX);
-            tile->SetPosY(posY);
-
             board.push_back(tile);
 
             posX += 21;
@@ -166,7 +165,7 @@ void Renderer::InitHexMap()
 {
     qDebug() << "InitHexMap() called";
 
-    Tile * tile;
+    Tile *tile;
     float posX = 12;
     float posY = 0;
     float rowOffset = 37;
@@ -177,8 +176,6 @@ void Renderer::InitHexMap()
 
     for(int i = 0; i < (mapSizeY); i++)
     {
-//        qDebug() << "i: " << i;
-
         if((i % 2) != 0)
         {
             odd = true;
@@ -192,13 +189,11 @@ void Renderer::InitHexMap()
 
         for(int j = 0; j < (mapSizeX / 2); j++)
         {
-            tile = new Tile();
+            tile = new Tile(posX, posY);
 
             tile->SetTileTexture(GRASS);
 
-            tile->SetHexPos(posX, posY);
             tile->SetTileID(row, column, tile);
-//            tile->PrintHexPoints();
 
             board.push_back(tile);
 
