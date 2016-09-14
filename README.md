@@ -2,13 +2,13 @@
 A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
 
 ##Contents:
-[Tasks](#tasks)
+[Primary Goals](#primary-goals)
 
-[Future Implementations](#future-implementations)
+[Secondary Goals](#secondary-gaols)
 
 [Software](#software)
 
-###Tasks
+###Primary Goals
 1. Procedural/Random Map Generation <b>(Alex),</b>
 2. AI <b>(Sam)</b>
 3. Units <b>(Paul)</b>
@@ -19,7 +19,7 @@ A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex P
 8. GUIs <b>(early, functional UI: Alex)</b>
 9. Strategic and Luxury Resources <b>(et al)</b>
 
-###Future Implementations
+###Secondary Goals
 Note: These may not, and most likely will not, be in the final submission
 
 1. Multiplayer
