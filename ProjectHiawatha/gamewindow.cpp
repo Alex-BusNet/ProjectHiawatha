@@ -20,13 +20,13 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 
     qDebug() << "Done.\nInitializing Map";
 
-    renderer->InitHexMap();
-//    renderer->InitMap();
+    map = new Map();
+    map->InitHexMap();
 
     qDebug() << "Done." << endl;
 
     /*=================================================================
-     * All of this needs to be moved to Renderer::DrawHexScene()
+     * Some of this needs to be moved to Renderer::DrawHexScene()
      * the function parameters also need to be adjusted. -Port
     */
     game = new QGraphicsScene(this);
@@ -40,23 +40,18 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 
     gameView.show();
 
-    for(int i = 0; i < renderer->GetBoardSize(); i++)
+    for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        tile = game->addPolygon(renderer->GetTileAt(i)->GetTilePolygon());
-        tilePixmap = game->addPixmap(renderer->GetTileAt(i)->GetTileTexture());
+        tile = game->addPolygon(map->GetTileAt(i)->GetTilePolygon());
+
+        // This is going to change. I have an idea of how
+        // I may be able to make this work. -Port
+        tilePixmap = game->addPixmap(map->GetTileAt(i)->GetTileTexture());
         tilePixmap->setScale(0.32f);
         tilePixmap->setPos(0, 1.3);
     }
     //==================================================================
 }
-
-//void GameWindow::paintEvent(QPaintEvent *event)
-//{
-//    QPainter paint(this);
-//    renderer->DrawMap(paint);
-//    renderer->DrawHex(paint);
-//    renderer->DrawHexScene(game);
-//}
 
 void GameWindow::mouseMoveEvent(QMouseEvent *event)
 {

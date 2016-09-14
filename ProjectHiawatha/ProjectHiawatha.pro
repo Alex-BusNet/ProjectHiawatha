@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     tile.cpp \
     yield.cpp \
     renderer.cpp \
-    gamewindow.cpp
+    gamewindow.cpp \
+    map.cpp
 
 HEADERS  += mainwindow.h \
     tile.h \
@@ -25,6 +26,7 @@ HEADERS  += mainwindow.h \
     yield.h \
     renderer.h \
     gamewindow.h \
-    tileimprovement.h
+    tileimprovement.h \
+    map.h
 
 FORMS    += mainwindow.ui

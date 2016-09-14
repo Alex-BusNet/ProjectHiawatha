@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "map.h"
 #include "tile.h"
 #include <QGraphicsView>
 #include <QPainter>
@@ -10,18 +11,17 @@ class Renderer
 {
 public:
     Renderer();
-    void DrawMap(QPainter &painter);
-    void DrawHex(QPainter &painter);
-    void DrawHexScene(QGraphicsScene *scene);
 
-    Tile *GetTileAt(int index);
-    int GetBoardSize();
+    //I'm going to change these functions so that they are
+    // more useful and not wasting space.
+    void DrawMap(Map *map, QPainter &painter);
+    void DrawHex(Map *map, QPainter &painter);
+    void DrawHexScene(Map *map, QGraphicsView *view, QGraphicsScene *scene);
 
+    // To be Deprecated
     void InitMap();
-    void InitHexMap();
 
 private:
-    QVector<Tile*> board;
     //QVector<City*> cities;
     //QVector<Unit*> units;
 

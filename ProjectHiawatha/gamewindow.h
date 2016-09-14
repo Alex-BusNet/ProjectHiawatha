@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <qevent.h>
+#include "map.h"
 #include "renderer.h"
 #include <QGraphicsItem>
 #include <QGraphicsView>
@@ -16,9 +17,10 @@ public:
 
 private:
     Renderer *renderer;
+    Map *map;
     QTimer *updateTimer;
+
     void mouseMoveEvent(QMouseEvent *event);
-//    void paintEvent(QPaintEvent *event);
 
     QGraphicsScene *game;
     QGraphicsView gameView;
