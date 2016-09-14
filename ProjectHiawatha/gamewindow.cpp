@@ -25,7 +25,7 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 
     qDebug() << "Done." << endl;
 
-    /*
+    /*=================================================================
      * All of this needs to be moved to Renderer::DrawHexScene()
      * the function parameters also need to be adjusted. -Port
     */
@@ -47,6 +47,7 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
         tilePixmap->setScale(0.32f);
         tilePixmap->setPos(0, 1.3);
     }
+    //==================================================================
 }
 
 //void GameWindow::paintEvent(QPaintEvent *event)
