@@ -64,6 +64,15 @@ void Map::InitHexMap()
     }
 }
 
+void Map::InitTerrain()
+{
+    for(int i = 0; i < board.size(); i++)
+    {
+        QPixmap *pix = new QPixmap(board.at(i)->GetTileTexture());
+        terrain.push_back(pix);
+    }
+}
+
 Tile *Map::GetTileAt(int index)
 {
     return this->board.at(index);
@@ -72,4 +81,9 @@ Tile *Map::GetTileAt(int index)
 int Map::GetBoardSize()
 {
     return this->board.size();
+}
+
+QPixmap *Map::GetTilePixmap(int index)
+{
+    return terrain.at(index);
 }

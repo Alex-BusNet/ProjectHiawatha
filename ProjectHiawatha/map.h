@@ -20,6 +20,7 @@ public:
 
     Tile* GetTileAt(int index);
     int GetBoardSize();
+    QPixmap *GetTilePixmap(int index);
 
 private:
     QVector<Tile*> board;

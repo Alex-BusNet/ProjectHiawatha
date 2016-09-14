@@ -61,6 +61,7 @@ public:
     QPoint GetHexPoint(int index);
     QPoint GetCenter();
     QPoint GetTextCenter();
+    QPoint GetTexturePoint();
 
     QPolygon GetTilePolygon();
     QRect GetTileRect();
@@ -105,6 +106,7 @@ private:
     QPoint points[7];
     QPoint center;
     QPoint textCenter;
+    QPoint texturePoint;
 
     int hexPosX;
     int hexPosY;

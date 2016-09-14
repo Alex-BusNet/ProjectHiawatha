@@ -52,6 +52,7 @@ Tile::Tile()
 
     center = QPoint(hexPosX + 12, hexPosY + 22);
     textCenter = QPoint(hexPosX + 1, hexPosY + 22);
+    texturePoint = QPoint(hexPosX - 12, hexPosY + 1);
 
     this->poly << this->points[0]
             << this->points[1]
@@ -190,6 +191,7 @@ Tile::Tile(int posX, int posY)
 
     center = QPoint(posX + 12, posY + 22);
     textCenter = QPoint(posX + 1, posY + 22);
+    texturePoint = QPoint(posX - 12, posY + 1);
 
     this->poly << this->points[0]
             << this->points[1]
@@ -298,6 +300,11 @@ QPoint Tile::GetTextCenter()
     return this->textCenter;
 }
 
+QPoint Tile::GetTexturePoint()
+{
+    return this->texturePoint;
+}
+
 QPolygon Tile::GetTilePolygon()
 {
     return this->poly;
@@ -366,7 +373,7 @@ void Tile::SetHexPos(int x, int y)
 
     this->center = QPoint(x + 12, y + 22);
     this->textCenter = QPoint(x + 1, y + 20);
-
+    this->texturePoint = QPoint(x - 12, y + 1);
 }
 
 void Tile::SetHexPoly()

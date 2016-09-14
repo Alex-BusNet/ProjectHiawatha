@@ -6,6 +6,11 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
     qDebug() << "Game Window c'tor called";
 
     QWidget::setFixedSize(1200, 900);
+//    QWidget::setWindowFlags(Qt::FramelessWindowHint);
+
+    exitGame = new QPushButton("Exit To Menu");
+    connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
+    exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
 
 //    updateTimer = new QTimer();
 //    updateTimer->setInterval(500);
@@ -22,6 +27,7 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 
     map = new Map();
     map->InitHexMap();
+    map->InitTerrain();
 
     qDebug() << "Done." << endl;
 
@@ -40,15 +46,17 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
 
     gameView.show();
 
+    proxy = game->addWidget(exitGame);
+
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         tile = game->addPolygon(map->GetTileAt(i)->GetTilePolygon());
 
         // This is going to change. I have an idea of how
         // I may be able to make this work. -Port
-        tilePixmap = game->addPixmap(map->GetTileAt(i)->GetTileTexture());
+        tilePixmap = game->addPixmap((*(map->GetTilePixmap(i))));
         tilePixmap->setScale(0.32f);
-        tilePixmap->setPos(0, 1.3);
+        tilePixmap->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
     //==================================================================
 }
@@ -71,6 +79,11 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
     {
         //Scroll up to top of map
     }
+}
+
+void GameWindow::closeGame()
+{
+    gameView.hide();
 }
 
 

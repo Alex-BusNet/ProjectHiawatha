@@ -7,7 +7,10 @@
 #include "map.h"
 #include "renderer.h"
 #include <QGraphicsItem>
+#include <QGraphicsProxyWidget>
 #include <QGraphicsView>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 class GameWindow : public QWidget
 {
@@ -28,10 +31,16 @@ private:
     QGraphicsPolygonItem *tile;
     QGraphicsPixmapItem *tilePixmap;
 
+    QPushButton *exitGame;
+    QHBoxLayout *hLayout;
+    QVBoxLayout *vLayout;
+
+    QGraphicsProxyWidget *proxy;
+
 signals:
 
 public slots:
-//    void updateGameWindow();
+    void closeGame();
 };
 
 #endif // GAMEWINDOW_H
