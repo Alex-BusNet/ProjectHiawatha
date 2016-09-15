@@ -30,6 +30,9 @@ private:
     //May be changed later
     int mapSizeX;
     int mapSizeY;
+
+    void GenerateMap();
+    void CleanMap();
 };
 
 #endif // MAP_H

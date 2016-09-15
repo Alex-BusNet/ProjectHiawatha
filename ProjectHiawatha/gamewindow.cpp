@@ -11,6 +11,7 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
+    exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
 
 //    updateTimer = new QTimer();
 //    updateTimer->setInterval(500);
@@ -38,14 +39,16 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
     game = new QGraphicsScene(this);
     gameView.setScene(game);
 
-    gameView.setMinimumWidth(1200);
-    gameView.setMinimumHeight(900);
+//    gameView.setMinimumWidth(1200);
+//    gameView.setMinimumHeight(900);
 
-    gameView.setMaximumHeight(900);
-    gameView.setMaximumWidth(1200);
+//    gameView.setMaximumHeight(900);
+//    gameView.setMaximumWidth(1200);
+
+    gameView.setWindowFlags(Qt::FramelessWindowHint);
+    gameView.setWindowState(Qt::WindowFullScreen);
 
     gameView.show();
-
     proxy = game->addWidget(exitGame);
 
     for(int i = 0; i < map->GetBoardSize(); i++)

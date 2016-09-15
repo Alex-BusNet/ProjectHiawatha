@@ -6,8 +6,8 @@ Map::Map()
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
     // not the number of tiles on screen.
-    mapSizeX = 30; //max = 32
-    mapSizeY = 39;  //max = 40
+    mapSizeX = 51; //maxOnScreen = 51
+    mapSizeY = 48;  //maxOnScreen = 48 (for now)
 }
 
 void Map::InitHexMap()
@@ -40,7 +40,14 @@ void Map::InitHexMap()
         {
             tile = new Tile(posX, posY);
 
-            tile->SetTileTexture(GRASS);
+            if(odd)
+            {
+                tile->SetTileTexture(WATER);
+            }
+            else
+            {
+                tile->SetTileTexture(GRASS);
+            }
 
             tile->SetTileID(row, column, tile);
 
@@ -60,8 +67,9 @@ void Map::InitHexMap()
         }
         row++;
         posY += 22;
-
     }
+
+    GenerateMap();
 }
 
 void Map::InitTerrain()
@@ -86,4 +94,26 @@ int Map::GetBoardSize()
 QPixmap *Map::GetTilePixmap(int index)
 {
     return terrain.at(index);
+}
+
+void Map::GenerateMap()
+{
+    double randDbl;
+
+    for(int i = 0; i < board.size(); i++)
+    {
+        randDbl = static_cast<double>(rand() / static_cast<double>(RAND_MAX));
+        if (randDbl < 0.3)
+        {
+            board.at(i)->SetTileTexture(WATER);
+        }
+        else if(randDbl < 0.6)
+        {
+            board.at(i)->SetTileTexture(GRASS);
+        }
+        else
+        {
+            board.at(i)->SetTileTexture(DESERT);
+        }
+    }
 }

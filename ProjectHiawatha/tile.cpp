@@ -173,10 +173,6 @@ Tile::Tile(int posX, int posY)
     ContainsUnit = false;
 
     //Size of Hex tiles in px
-    //For some reason, there is an extra tile being drawn.
-    //This tile isn't getting a coordinate, but the last point
-    // of every tile thereafter is connected to the last point
-    // on the 'ghost' tile.
     hexVertOffset = 22;
     hexHorOffset = 74;
     hexRowOffset = 37;
@@ -191,7 +187,7 @@ Tile::Tile(int posX, int posY)
 
     center = QPoint(posX + 12, posY + 22);
     textCenter = QPoint(posX + 1, posY + 22);
-    texturePoint = QPoint(posX - 12, posY + 1);
+    texturePoint = QPointF(posX - 11.8, posY + 1.3);
 
     this->poly << this->points[0]
             << this->points[1]
@@ -300,7 +296,7 @@ QPoint Tile::GetTextCenter()
     return this->textCenter;
 }
 
-QPoint Tile::GetTexturePoint()
+QPointF Tile::GetTexturePoint()
 {
     return this->texturePoint;
 }
@@ -350,13 +346,26 @@ void Tile::SetTileTexture(TileType type)
     switch(type)
     {
     case WATER:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/TexturesTerrainHex.dds");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/water_flat.png");
         break;
     case GRASS:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass_flat.png");
+        break;
+    case DESERT:
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/desert_flat.png");
+        break;
+    case MOUNTAIN:
+        break;
+    case ICE:
+        break;
+    case COAST:
+        break;
+    case HILL:
+        break;
+    case FOREST:
         break;
     default:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/TexturesTerrainHex.dds");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/water_flat.png");
         break;
     }
 }
@@ -373,7 +382,7 @@ void Tile::SetHexPos(int x, int y)
 
     this->center = QPoint(x + 12, y + 22);
     this->textCenter = QPoint(x + 1, y + 20);
-    this->texturePoint = QPoint(x - 12, y + 1);
+    this->texturePoint = QPointF(x - 11.8, y + 1.3);
 }
 
 void Tile::SetHexPoly()
