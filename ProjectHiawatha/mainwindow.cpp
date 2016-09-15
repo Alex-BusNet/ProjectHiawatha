@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     game = NULL;
+    fullscreen = false;
 
     QPixmap bkgnd("../ProjectHiawatha/Assets/Menu/Background/stolenInternet.jpg");
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
@@ -30,7 +31,7 @@ void MainWindow::on_newMap_clicked()
         delete game;
     }
 
-    game = new GameWindow();
+    game = new GameWindow(0, fullscreen);
 //    game->show();
 }
 
@@ -38,4 +39,9 @@ void MainWindow::on_newMap_clicked()
 void MainWindow::on_exit_clicked()
 {
     this->close();
+}
+
+void MainWindow::on_fullscreen_clicked()
+{
+    this->fullscreen = !(this->fullscreen);
 }

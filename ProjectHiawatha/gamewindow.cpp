@@ -1,20 +1,31 @@
 #include "gamewindow.h"
 #include <QDebug>
 
-GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
+GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 {
     qDebug() << "Game Window c'tor called";
 
-    QWidget::setFixedSize(1200, 900);
-//    QWidget::setWindowFlags(Qt::FramelessWindowHint);
+    if(!fullscreen)
+    {
+        QWidget::setFixedSize(1200, 900);
+    }
+    else
+    {
+        QWidget::setFixedSize(1920, 1080);
+    }
 
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
-    exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
     exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
 
+    renderPlusOne = new QPushButton("Render Scale++");
+    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(renderPlus()));
+
+    renderMinusOne = new QPushButton("Render Scale--");
+    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(renderMinus()));
+
 //    updateTimer = new QTimer();
-//    updateTimer->setInterval(500);
+//    updateTimer->setInterval(50);
 //    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
 //    updateTimer->start();
 
@@ -38,18 +49,28 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
     */
     game = new QGraphicsScene(this);
     gameView.setScene(game);
+    exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
+    renderPlusOne->setGeometry(this->width() - 100, this->height() - 100, 90, 30);
+    renderMinusOne->setGeometry(this->width() - 100, this->height() - 150, 90, 30);
 
-//    gameView.setMinimumWidth(1200);
-//    gameView.setMinimumHeight(900);
+    gameView.installEventFilter(this);
 
-//    gameView.setMaximumHeight(900);
-//    gameView.setMaximumWidth(1200);
+    if(!fullscreen)
+    {
+        gameView.setMinimumWidth(1200);
+        gameView.setMinimumHeight(900);
+
+        gameView.setMaximumHeight(900);
+        gameView.setMaximumWidth(1200);
+    }
+    else
+    {
+        gameView.setWindowState(Qt::WindowFullScreen);
+    }
 
     gameView.setWindowFlags(Qt::FramelessWindowHint);
-    gameView.setWindowState(Qt::WindowFullScreen);
-
+    gameView.setEnabled(true);
     gameView.show();
-    proxy = game->addWidget(exitGame);
 
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
@@ -61,11 +82,17 @@ GameWindow::GameWindow(QWidget *parent) : QWidget(parent)
         tilePixmap->setScale(0.32f);
         tilePixmap->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
+
+    proxy = game->addWidget(exitGame);
+    proxy = game->addWidget(renderPlusOne);
+    proxy = game->addWidget(renderMinusOne);
     //==================================================================
 }
 
 void GameWindow::mouseMoveEvent(QMouseEvent *event)
 {
+    qDebug() << "Mouse Move Event";
+
     if(event->pos().x() > 1150)
     {
         //Scroll to the right (continuous)
@@ -84,10 +111,64 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+void GameWindow::wheelEvent(QGraphicsSceneWheelEvent *e)
+{
+        qDebug() << "Wheel Event: " << e->delta();
+
+//        for(int i = 0; i < map->GetBoardSize(); i++)
+//        {
+//            map->GetTileAt(i)->SetRenderScale(e->delta());
+//        }
+}
+
+bool GameWindow::eventFilter(QObject *watched, QEvent *event)
+{
+//    qDebug() << "Event filter object: " << watched->metaObject()->className();
+//    qDebug() << "Event type: " << event->type();
+
+    if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::Wheel)
+    {
+//        for(int i = 0; i < map->GetBoardSize(); i++)
+//        {
+//            map->GetTileAt(i)->SetRenderScale(2);
+//        }
+
+        return true;
+    }
+    else if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::MouseMove)
+    {
+        qDebug() << "Mouse Move Event Filter";
+    }
+
+    return false;
+}
+
 void GameWindow::closeGame()
 {
     gameView.hide();
 }
+
+void GameWindow::renderPlus()
+{
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        map->GetTileAt(i)->IncreaseRenderScale(1);
+    }
+
+}
+
+void GameWindow::renderMinus()
+{
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        map->GetTileAt(i)->IncreaseRenderScale(-1);
+    }
+}
+
+//void GameWindow::updateGameWindow()
+//{
+//    gameView.scene()->update(gameView.sceneRect());
+//}
 
 
 

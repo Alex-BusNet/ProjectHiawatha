@@ -173,21 +173,26 @@ Tile::Tile(int posX, int posY)
     ContainsUnit = false;
 
     //Size of Hex tiles in px
-    hexVertOffset = 22;
-    hexHorOffset = 74;
-    hexRowOffset = 37;
+    this->renderScale = 1;
+
+    hexVertOffset = 22 * renderScale;
+    hexHorOffset = 74 * renderScale;
+    hexRowOffset = 37 * renderScale;
+
+    posX *= renderScale;
+    posY *= renderScale;
 
     points[0] = QPoint(posX, posY);
-    points[1] = QPoint((posX + 25), posY);
-    points[2] = QPoint((posX + 37), (posY + 22));
-    points[3] = QPoint((posX + 25), (posY + 44));
-    points[4] = QPoint(posX, (posY + 44));
-    points[5] = QPoint((posX - 12), (posY + 22));
+    points[1] = QPoint(posX + (25 * renderScale), posY);
+    points[2] = QPoint((posX + hexRowOffset), (posY + hexVertOffset));
+    points[3] = QPoint(posX + (25 * renderScale), posY + (hexVertOffset * 2));
+    points[4] = QPoint(posX, posY + (hexVertOffset * 2));
+    points[5] = QPoint(posX - (12 * renderScale), (posY + hexVertOffset));
     points[6] = QPoint(posX, posY);
 
-    center = QPoint(posX + 12, posY + 22);
-    textCenter = QPoint(posX + 1, posY + 22);
-    texturePoint = QPointF(posX - 11.8, posY + 1.3);
+    center = QPoint(posX + (12 * renderScale), posY + hexVertOffset);
+    textCenter = QPoint(posX + (1 * renderScale), posY + hexVertOffset);
+    texturePoint = QPointF(posX - (11.8 * renderScale), posY + (1.3 * renderScale));
 
     this->poly << this->points[0]
             << this->points[1]
@@ -372,23 +377,33 @@ void Tile::SetTileTexture(TileType type)
 
 void Tile::SetHexPos(int x, int y)
 {
-    this->points[0] = QPoint(x, y);
-    this->points[1] = QPoint((x + 25), y);
-    this->points[2] = QPoint((x + 37), (y + 22));
-    this->points[3] = QPoint((x + 25), (y + 44));
-    this->points[4] = QPoint(x, (y + 44));
-    this->points[5] = QPoint((x - 12), (y + 22));
-    this->points[6] = QPoint(x, y);
+//    this->points[0] = QPoint(x, y);
+//    this->points[1] = QPoint((x + 25), y);
+//    this->points[2] = QPoint((x + 37), (y + 22));
+//    this->points[3] = QPoint((x + 25), (y + 44));
+//    this->points[4] = QPoint(x, (y + 44));
+//    this->points[5] = QPoint((x - 12), (y + 22));
+//    this->points[6] = QPoint(x, y);
 
-    this->center = QPoint(x + 12, y + 22);
-    this->textCenter = QPoint(x + 1, y + 20);
-    this->texturePoint = QPointF(x - 11.8, y + 1.3);
+//    this->center = QPoint(x + 12, y + 22);
+//    this->textCenter = QPoint(x + 1, y + 20);
+//    this->texturePoint = QPointF(x - 11.8, y + 1.3);
+
+    points[0] = QPoint(x, y);
+    points[1] = QPoint(x + (25 * renderScale), y);
+    points[2] = QPoint((x + hexRowOffset), (y + hexVertOffset));
+    points[3] = QPoint(x + (25 * renderScale), (y + hexVertOffset * 2));
+    points[4] = QPoint(x, (y + hexVertOffset * 2));
+    points[5] = QPoint(x - (12 * renderScale), (y + hexVertOffset));
+    points[6] = QPoint(x, y);
+
+    center = QPoint(x + (12 * renderScale), y + hexVertOffset);
+    textCenter = QPoint(x + (1 * renderScale), y + hexVertOffset);
+    texturePoint = QPointF(x - (11.8 * renderScale), y + (1.3 * renderScale));
 }
 
 void Tile::SetHexPoly()
 {
-    this->poly.clear();
-
     this->poly << this->points[0]
             << this->points[1]
             << this->points[2]
@@ -396,6 +411,22 @@ void Tile::SetHexPoly()
             << this->points[4]
             << this->points[5]
             << this->points[6];
+}
+
+void Tile::IncreaseRenderScale(int scale)
+{
+//    if((renderScale + scale < 10) && (renderScale + scale > 0));
+//    {
+//        this->renderScale += scale;
+//    }
+    renderScale = renderScale + scale;
+    SetHexPos(12, 1);
+    SetHexPoly();
+}
+
+int Tile::GetRenderScale()
+{
+    return this->renderScale;
 }
 
 void Tile::PrintHexPoints()

@@ -32,6 +32,7 @@ private:
     int mapSizeY;
 
     void GenerateMap();
+    void GenerateMapEdge();
     void CleanMap();
 };
 

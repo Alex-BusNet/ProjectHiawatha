@@ -6,8 +6,10 @@ Map::Map()
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
     // not the number of tiles on screen.
-    mapSizeX = 51; //maxOnScreen = 51
-    mapSizeY = 48;  //maxOnScreen = 48 (for now)
+    mapSizeX = 31; //maxOnScreen = 51
+    mapSizeY = 39;  //maxOnScreen = 48 (for now)
+
+    //31 tiles X 39 tiles for using the screen in 1200 X 900 px mode;
 }
 
 void Map::InitHexMap()
@@ -116,4 +118,9 @@ void Map::GenerateMap()
             board.at(i)->SetTileTexture(DESERT);
         }
     }
+}
+
+void Map::GenerateMapEdge()
+{
+
 }

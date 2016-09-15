@@ -80,7 +80,7 @@ void Renderer::DrawHexScene(Map *map, QGraphicsView *view, QGraphicsScene *scene
 {
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        scene->addPolygon(map->GetTileAt(i)->GetTilePolygon());
+    scene->addPolygon(map->GetTileAt(i)->GetTilePolygon());
     }
 }
 

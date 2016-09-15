@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
+#include <QGraphicsSceneWheelEvent>
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -16,14 +17,16 @@ class GameWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GameWindow(QWidget *parent = 0);
+    explicit GameWindow(QWidget *parent = 0, bool fullscreen = false);
 
 private:
     Renderer *renderer;
     Map *map;
-    QTimer *updateTimer;
+//    QTimer *updateTimer;
 
     void mouseMoveEvent(QMouseEvent *event);
+    void wheelEvent(QGraphicsSceneWheelEvent *e);
+    bool eventFilter(QObject *watched, QEvent *event);
 
     QGraphicsScene *game;
     QGraphicsView gameView;
@@ -32,8 +35,8 @@ private:
     QGraphicsPixmapItem *tilePixmap;
 
     QPushButton *exitGame;
-    QHBoxLayout *hLayout;
-    QVBoxLayout *vLayout;
+    QPushButton *renderPlusOne;
+    QPushButton *renderMinusOne;
 
     QGraphicsProxyWidget *proxy;
 
@@ -41,6 +44,9 @@ signals:
 
 public slots:
     void closeGame();
+    void renderPlus();
+    void renderMinus();
+//    void updateGameWindow();
 };
 
 #endif // GAMEWINDOW_H
