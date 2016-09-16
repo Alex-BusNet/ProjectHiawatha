@@ -42,15 +42,6 @@ void Map::InitHexMap()
         {
             tile = new Tile(posX, posY);
 
-            if(odd)
-            {
-                tile->SetTileTexture(WATER);
-            }
-            else
-            {
-                tile->SetTileTexture(GRASS);
-            }
-
             tile->SetTileID(row, column, tile);
 
             board.push_back(tile);

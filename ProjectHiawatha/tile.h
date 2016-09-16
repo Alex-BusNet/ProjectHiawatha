@@ -17,6 +17,8 @@ public:
     Tile(TileType type);
     Tile(TileType type, Yield yield);
     Tile(int posX, int posY);
+    Tile(int posX, int posY, int rScale);
+
     ~Tile();
 
     bool HasRoad;
@@ -48,6 +50,7 @@ public:
     void SetYield(Yield yield);
     void SetTileImprovement(TileImprovement improvement);
     void SetTileID(int x, int column, Tile *tile);
+    void SetTileID(TileID id);
 
     int GetSizeX();
     int GetSizeY();
@@ -90,6 +93,7 @@ private:
     Tile();
     //
     //=========================
+
 
     TileType type;
     Yield yield;

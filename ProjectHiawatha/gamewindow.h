@@ -31,14 +31,14 @@ private:
     QGraphicsScene *game;
     QGraphicsView gameView;
 
-    QGraphicsPolygonItem *tile;
-    QGraphicsPixmapItem *tilePixmap;
+    QVector<QGraphicsPolygonItem*> tile;
+    QVector<QGraphicsPixmapItem*> tilePixmap;
 
     QPushButton *exitGame;
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
 
-    QGraphicsProxyWidget *proxy;
+    QVector<QGraphicsProxyWidget*> proxy;
 
 signals:
 

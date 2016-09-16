@@ -29,7 +29,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 //    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
 //    updateTimer->start();
 
-    QWidget::setMouseTracking(true);
+//    QWidget::setMouseTracking(true);
 
     qDebug() << "Creating new Renderer";
 
@@ -49,11 +49,15 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     */
     game = new QGraphicsScene(this);
     gameView.setScene(game);
+
     exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
     renderPlusOne->setGeometry(this->width() - 100, this->height() - 100, 90, 30);
     renderMinusOne->setGeometry(this->width() - 100, this->height() - 150, 90, 30);
 
-    gameView.installEventFilter(this);
+//    gameView.installEventFilter(this);
+    gameView.setMouseTracking(true);
+    gameView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gameView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     if(!fullscreen)
     {
@@ -69,23 +73,23 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     }
 
     gameView.setWindowFlags(Qt::FramelessWindowHint);
-    gameView.setEnabled(true);
+
     gameView.show();
 
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        tile = game->addPolygon(map->GetTileAt(i)->GetTilePolygon());
+        tile.push_back(game->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
 
         // This is going to change. I have an idea of how
         // I may be able to make this work. -Port
-        tilePixmap = game->addPixmap((*(map->GetTilePixmap(i))));
-        tilePixmap->setScale(0.32f);
-        tilePixmap->setPos(map->GetTileAt(i)->GetTexturePoint());
+        tilePixmap.push_back(game->addPixmap((*(map->GetTilePixmap(i)))));
+        tilePixmap.at(i)->setScale(0.32f * (*(map->GetTileAt(i))).GetRenderScale());
+        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 
-    proxy = game->addWidget(exitGame);
-    proxy = game->addWidget(renderPlusOne);
-    proxy = game->addWidget(renderMinusOne);
+    proxy.push_back(game->addWidget(exitGame));
+    proxy.push_back(game->addWidget(renderPlusOne));
+    proxy.push_back(game->addWidget(renderMinusOne));
     //==================================================================
 }
 
@@ -155,6 +159,13 @@ void GameWindow::renderPlus()
         map->GetTileAt(i)->IncreaseRenderScale(1);
     }
 
+    qDebug() << "Render Scale: " << map->GetTileAt(0)->GetRenderScale();
+
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        tilePixmap.at(i)->setScale(0.32f * (*(map->GetTileAt(i))).GetRenderScale());
+        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+    }
 }
 
 void GameWindow::renderMinus()
@@ -162,6 +173,14 @@ void GameWindow::renderMinus()
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         map->GetTileAt(i)->IncreaseRenderScale(-1);
+    }
+
+    qDebug() << "Render Scale: " << map->GetTileAt(0)->GetRenderScale();
+
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        tilePixmap.at(i)->setScale(0.32f * (*(map->GetTileAt(i))).GetRenderScale());
+        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 }
 
