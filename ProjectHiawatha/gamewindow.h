@@ -44,8 +44,9 @@ signals:
 
 public slots:
     void closeGame();
-    void renderPlus();
-    void renderMinus();
+
+    void zoomIn();
+    void zoomOut();
 //    void updateGameWindow();
 };
 

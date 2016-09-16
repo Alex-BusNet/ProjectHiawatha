@@ -17,7 +17,6 @@ public:
     Tile(TileType type);
     Tile(TileType type, Yield yield);
     Tile(int posX, int posY);
-    Tile(int posX, int posY, int rScale);
 
     ~Tile();
 
@@ -81,9 +80,6 @@ public:
     void SetHexPos(int x, int y);
     void SetHexPoly();
 
-    void IncreaseRenderScale(int scale);
-    int GetRenderScale();
-
     void PrintHexPoints();
 
 private:
@@ -120,7 +116,6 @@ private:
     int hexVertOffset;
     int hexHorOffset;
     int hexRowOffset;
-    int renderScale;
 
     QPolygon poly;
 

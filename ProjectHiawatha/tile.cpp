@@ -65,50 +65,6 @@ Tile::Tile()
     this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
 }
 
-Tile::Tile(int posX, int posY, int rScale)
-{
-    this->type = GRASS;
-    this->yield = Yield();
-    this->improvement = NONE;
-
-    IsWorked = false;
-    HasRoad = false;
-    HasCity = false;
-    ContainsUnit = false;
-
-    //Size of Hex tiles in px
-    this->renderScale = rScale;
-
-    hexVertOffset = 22 * renderScale;
-    hexHorOffset = 74 * renderScale;
-    hexRowOffset = 37 * renderScale;
-
-    posX *= renderScale;
-    posY *= renderScale;
-
-    points[0] = QPoint(posX, posY);
-    points[1] = QPoint(posX + (25 * renderScale), posY);
-    points[2] = QPoint((posX + hexRowOffset), (posY + hexVertOffset));
-    points[3] = QPoint(posX + (25 * renderScale), posY + (hexVertOffset * 2));
-    points[4] = QPoint(posX, posY + (hexVertOffset * 2));
-    points[5] = QPoint(posX - (12 * renderScale), (posY + hexVertOffset));
-    points[6] = QPoint(posX, posY);
-
-    center = QPoint(posX + (12 * renderScale), posY + hexVertOffset);
-    textCenter = QPoint(posX + (1 * renderScale), posY + hexVertOffset);
-    texturePoint = QPointF(posX - (11.8 * renderScale), posY + (1.3 * renderScale));
-
-    this->poly << this->points[0]
-            << this->points[1]
-            << this->points[2]
-            << this->points[3]
-            << this->points[4]
-            << this->points[5]
-            << this->points[6];
-
-    this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
-}
-
 Tile::Tile(TileType type)
 {
     qDebug() << "Tile(TileType) c'tor called";
@@ -217,26 +173,21 @@ Tile::Tile(int posX, int posY)
     ContainsUnit = false;
 
     //Size of Hex tiles in px
-    this->renderScale = 1;
-
-    hexVertOffset = 22 * renderScale;
-    hexHorOffset = 74 * renderScale;
-    hexRowOffset = 37 * renderScale;
-
-    posX *= renderScale;
-    posY *= renderScale;
+    hexVertOffset = 22;
+    hexHorOffset = 74;
+    hexRowOffset = 37;
 
     points[0] = QPoint(posX, posY);
-    points[1] = QPoint(posX + (25 * renderScale), posY);
+    points[1] = QPoint(posX + 25, posY);
     points[2] = QPoint((posX + hexRowOffset), (posY + hexVertOffset));
-    points[3] = QPoint(posX + (25 * renderScale), posY + (hexVertOffset * 2));
+    points[3] = QPoint(posX + 25, posY + (hexVertOffset * 2));
     points[4] = QPoint(posX, posY + (hexVertOffset * 2));
-    points[5] = QPoint(posX - (12 * renderScale), (posY + hexVertOffset));
+    points[5] = QPoint(posX - 12, (posY + hexVertOffset));
     points[6] = QPoint(posX, posY);
 
-    center = QPoint(posX + (12 * renderScale), posY + hexVertOffset);
-    textCenter = QPoint(posX + (1 * renderScale), posY + hexVertOffset);
-    texturePoint = QPointF(posX - (11.8 * renderScale), posY + (1.3 * renderScale));
+    center = QPoint(posX + 12, posY + hexVertOffset);
+    textCenter = QPoint(posX + 1, posY + hexVertOffset);
+    texturePoint = QPointF(posX - 11.8, posY + 1.3);
 
     this->poly << this->points[0]
             << this->points[1]
@@ -426,32 +377,17 @@ void Tile::SetTileTexture(TileType type)
 
 void Tile::SetHexPos(int x, int y)
 {
-//    this->points[0] = QPoint(x, y);
-//    this->points[1] = QPoint((x + 25), y);
-//    this->points[2] = QPoint((x + 37), (y + 22));
-//    this->points[3] = QPoint((x + 25), (y + 44));
-//    this->points[4] = QPoint(x, (y + 44));
-//    this->points[5] = QPoint((x - 12), (y + 22));
-//    this->points[6] = QPoint(x, y);
+    this->points[0] = QPoint(x, y);
+    this->points[1] = QPoint((x + 25), y);
+    this->points[2] = QPoint((x + 37), (y + 22));
+    this->points[3] = QPoint((x + 25), (y + 44));
+    this->points[4] = QPoint(x, (y + 44));
+    this->points[5] = QPoint((x - 12), (y + 22));
+    this->points[6] = QPoint(x, y);
 
-//    this->center = QPoint(x + 12, y + 22);
-//    this->textCenter = QPoint(x + 1, y + 20);
-//    this->texturePoint = QPointF(x - 11.8, y + 1.3);
-
-    x *= renderScale;
-    y *= renderScale;
-
-    points[0] = QPoint(x, y);
-    points[1] = QPoint(x + (25 * renderScale), y);
-    points[2] = QPoint((x + hexRowOffset), (y + hexVertOffset));
-    points[3] = QPoint(x + (25 * renderScale), y + (hexVertOffset * 2));
-    points[4] = QPoint(x, (y + hexVertOffset * 2));
-    points[5] = QPoint(x - (12 * renderScale), (y + hexVertOffset));
-    points[6] = QPoint(x, y);
-
-    center = QPoint(x + (12 * renderScale), y + hexVertOffset);
-    textCenter = QPoint(x + (1 * renderScale), y + hexVertOffset);
-    texturePoint = QPointF(x - (11 * renderScale), y + (1.3 * renderScale));
+    this->center = QPoint(x + 12, y + 22);
+    this->textCenter = QPoint(x + 1, y + 20);
+    this->texturePoint = QPointF(x - 11.8, y + 1.3);
 }
 
 void Tile::SetHexPoly()
@@ -465,25 +401,6 @@ void Tile::SetHexPoly()
             << this->points[4]
             << this->points[5]
             << this->points[6];
-}
-
-void Tile::IncreaseRenderScale(int scale)
-{
-    renderScale = renderScale + scale;
-
-    if(renderScale == 0)
-    {
-        renderScale = 1;
-    }
-    else if(renderScale > 10)
-    {
-        renderScale = 10;
-    }
-}
-
-int Tile::GetRenderScale()
-{
-    return this->renderScale;
 }
 
 void Tile::PrintHexPoints()

@@ -18,11 +18,13 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
 
-    renderPlusOne = new QPushButton("Render Scale++");
-    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(renderPlus()));
+    renderPlusOne = new QPushButton("Zoom in");
+    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(zoomIn()));
+    renderPlusOne->setShortcut(QKeySequence(Qt::Key_Up));
 
-    renderMinusOne = new QPushButton("Render Scale--");
-    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(renderMinus()));
+    renderMinusOne = new QPushButton("Zoom out");
+    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
+    renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
 
 //    updateTimer = new QTimer();
 //    updateTimer->setInterval(50);
@@ -58,6 +60,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     gameView.setMouseTracking(true);
     gameView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gameView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gameView.setDragMode(QGraphicsView::ScrollHandDrag);
 
     if(!fullscreen)
     {
@@ -83,7 +86,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
         // This is going to change. I have an idea of how
         // I may be able to make this work. -Port
         tilePixmap.push_back(game->addPixmap((*(map->GetTilePixmap(i)))));
-        tilePixmap.at(i)->setScale(0.32f * (*(map->GetTileAt(i))).GetRenderScale());
+        tilePixmap.at(i)->setScale(0.32f);
         tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 
@@ -118,25 +121,13 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
 void GameWindow::wheelEvent(QGraphicsSceneWheelEvent *e)
 {
         qDebug() << "Wheel Event: " << e->delta();
-
-//        for(int i = 0; i < map->GetBoardSize(); i++)
-//        {
-//            map->GetTileAt(i)->SetRenderScale(e->delta());
-//        }
 }
 
 bool GameWindow::eventFilter(QObject *watched, QEvent *event)
 {
-//    qDebug() << "Event filter object: " << watched->metaObject()->className();
-//    qDebug() << "Event type: " << event->type();
-
     if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::Wheel)
     {
-//        for(int i = 0; i < map->GetBoardSize(); i++)
-//        {
-//            map->GetTileAt(i)->SetRenderScale(2);
-//        }
-
+        qDebug() << "Wheel Event Filtrer";
         return true;
     }
     else if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::MouseMove)
@@ -152,36 +143,14 @@ void GameWindow::closeGame()
     gameView.hide();
 }
 
-void GameWindow::renderPlus()
+void GameWindow::zoomIn()
 {
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        map->GetTileAt(i)->IncreaseRenderScale(1);
-    }
-
-    qDebug() << "Render Scale: " << map->GetTileAt(0)->GetRenderScale();
-
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        tilePixmap.at(i)->setScale(0.32f * (*(map->GetTileAt(i))).GetRenderScale());
-        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
-    }
+    gameView.scale(1.2, 1.2);
 }
 
-void GameWindow::renderMinus()
+void GameWindow::zoomOut()
 {
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        map->GetTileAt(i)->IncreaseRenderScale(-1);
-    }
-
-    qDebug() << "Render Scale: " << map->GetTileAt(0)->GetRenderScale();
-
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        tilePixmap.at(i)->setScale(0.32f * (*(map->GetTileAt(i))).GetRenderScale());
-        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
-    }
+    gameView.scale(1/ 1.2, 1 / 1.2);
 }
 
 //void GameWindow::updateGameWindow()
