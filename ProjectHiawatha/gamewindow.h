@@ -25,7 +25,7 @@ private:
 //    QTimer *updateTimer;
 
     void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QGraphicsSceneWheelEvent *e);
+    void wheelEvent(QWheelEvent *e);
     bool eventFilter(QObject *watched, QEvent *event);
 
     QGraphicsScene *game;
@@ -39,6 +39,8 @@ private:
     QPushButton *renderMinusOne;
 
     QVector<QGraphicsProxyWidget*> proxy;
+
+    int zoomScale;
 
 signals:
 
