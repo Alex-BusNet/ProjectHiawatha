@@ -26,7 +26,7 @@ private:
 
     void mouseMoveEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *e);
-    bool eventFilter(QObject *watched, QEvent *event);
+//    bool eventFilter(QObject *watched, QEvent *event);
 
     QGraphicsScene *game;
     QGraphicsView gameView;

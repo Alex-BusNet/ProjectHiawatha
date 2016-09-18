@@ -56,7 +56,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     renderPlusOne->setGeometry(this->width() - 100, this->height() - 100, 90, 30);
     renderMinusOne->setGeometry(this->width() - 100, this->height() - 150, 90, 30);
 
-    gameView.installEventFilter(this);
+//    gameView.installEventFilter(this);
     gameView.setMouseTracking(true);
     gameView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -79,6 +79,8 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     gameView.setWindowFlags(Qt::FramelessWindowHint);
 
     gameView.show();
+
+    gameView.activateWindow();
 
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
@@ -123,34 +125,44 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
 
 void GameWindow::wheelEvent(QWheelEvent *e)
 {
-        qDebug() << "Wheel Event: " << e->delta();
+        qDebug() << "Wheel Event: " << e->delta() << "ZoomScale: " << zoomScale;
         if(e->delta() > 0)
         {
-            zoomIn();
+            if(zoomScale < 7)
+            {
+                gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+                gameView.scale(1.2, 1.2);
+                zoomScale++;
+            }
         }
         else if (e->delta() < 0)
         {
-            zoomOut();
+            if(zoomScale > 1)
+            {
+                gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+                gameView.scale(1/ 1.2, 1 / 1.2);
+                zoomScale--;
+            }
         }
 }
 
-bool GameWindow::eventFilter(QObject *watched, QEvent *event)
-{
-    qDebug() << "Event Filter type: " << event->type();
+//bool GameWindow::eventFilter(QObject *watched, QEvent *event)
+//{
+//    qDebug() << "Event Filter type: " << event->type();
 
-    if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::Wheel)
-    {
-        this->wheelEvent(static_cast<QWheelEvent*>(event));
-        return true;
-    }
-    else if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::MouseMove)
-    {
-        qDebug() << "Mouse Move Event Filter";
-        return true;
-    }
+//    if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::Wheel)
+//    {
+//        this->wheelEvent(static_cast<QWheelEvent*>(event));
+//        return true;
+//    }
+//    else if((watched->metaObject()->className() == gameView.metaObject()->className()) && event->type() == QEvent::MouseMove)
+//    {
+//        qDebug() << "Mouse Move Event Filter";
+//        return true;
+//    }
 
-    return false;
-}
+//    return false;
+//}
 
 void GameWindow::closeGame()
 {
