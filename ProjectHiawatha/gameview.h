@@ -1,0 +1,37 @@
+#ifndef GAMEVIEW_H
+#define GAMEVIEW_H
+
+#include <QEvent>
+#include <QGraphicsItem>
+#include <QGraphicsView>
+#include <QWheelEvent>
+
+
+
+class GameView : public QGraphicsView
+{
+public:
+    GameView(QWidget *widget = 0, bool fullscreen = false);
+
+    QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
+    QGraphicsPixmapItem* addPixmap(const QPixmap &pixmap);
+    QGraphicsProxyWidget* addWidget(QWidget *widget);
+
+private:
+    QGraphicsView gameView;
+    QGraphicsScene *game;
+
+    bool eventFilter(QObject *watched, QEvent *event);
+    void wheelEvent(QWheelEvent *e);
+    void mouseMoveEvent(QMouseEvent *event);
+    void scrollContentsBy(int dx, int dy);
+
+    int zoomScale;
+
+public slots:
+    void closeGame();
+    void zoomIn();
+    void zoomOut();
+};
+
+#endif // GAMEVIEW_H

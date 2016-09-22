@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <qevent.h>
+#include "gameview.h"
 #include "map.h"
 #include "renderer.h"
 #include <QGraphicsItem>
@@ -24,12 +25,13 @@ private:
     Map *map;
 //    QTimer *updateTimer;
 
+    // These event handlers most likely are going to be removed from here. -Port
     void mouseMoveEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *e);
-//    bool eventFilter(QObject *watched, QEvent *event);
 
-    QGraphicsScene *game;
-    QGraphicsView gameView;
+//    QGraphicsScene *game;
+//    QGraphicsView gameView;
+    GameView gameView;
 
     QVector<QGraphicsPolygonItem*> tile;
     QVector<QGraphicsPixmapItem*> tilePixmap;
