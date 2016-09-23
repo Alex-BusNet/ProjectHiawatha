@@ -23,7 +23,7 @@ public:
 private:
     Renderer *renderer;
     Map *map;
-//    QTimer *updateTimer;
+    QTimer *updateTimer;
 
     // These event handlers most likely are going to be removed from here. -Port
     void mouseMoveEvent(QMouseEvent *event);
@@ -35,6 +35,8 @@ private:
 
     QVector<QGraphicsPolygonItem*> tile;
     QVector<QGraphicsPixmapItem*> tilePixmap;
+    QVector<QGraphicsPixmapItem*> unitPixmap;
+    QVector<QGraphicsPixmapItem*> cityPixmap;
 
     QPushButton *exitGame;
     QPushButton *renderPlusOne;
@@ -51,7 +53,7 @@ public slots:
 
     void zoomIn();
     void zoomOut();
-//    void updateGameWindow();
+    void updateGameWindow();
 };
 
 #endif // GAMEWINDOW_H

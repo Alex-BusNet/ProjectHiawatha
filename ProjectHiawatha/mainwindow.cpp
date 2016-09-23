@@ -9,13 +9,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     game = NULL;
     fullscreen = false;
-
-    QPixmap bkgnd("../ProjectHiawatha/Assets/Menu/Background/stolenInternet.jpg");
-    bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
-    QPalette palette;
-    palette.setBrush(QPalette::Background, bkgnd);
-    this->setPalette(palette);
-    this->setFixedSize(this->width(), this->height());
+    QPixmap *bkgnd = new QPixmap("../ProjectHiawatha/Assets/Menu/Background/stolenInternet.jpg");
+    QPixmap *buttonBorder = new QPixmap("../ProjectHiawatha/Assets/Menu/mainMenuBackground.png");
+    ui->mainBackground->setPixmap(*bkgnd);
+    ui->menuButtonBorder->setPixmap(*buttonBorder);
 }
 
 MainWindow::~MainWindow()

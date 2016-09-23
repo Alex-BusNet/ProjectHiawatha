@@ -18,8 +18,10 @@ public:
     void InitTerrain();
     void InitYield();
 
-    Tile* GetTileAt(int index);
     int GetBoardSize();
+    QPoint GetHexTilePoint(int boardIndex, int ptIndex);
+    TileType GetTileTypeAt(int index);
+    Tile* GetTileAt(int index);
     QPixmap *GetTilePixmap(int index);
 
 private:

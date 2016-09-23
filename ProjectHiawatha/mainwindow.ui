@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>829</width>
-    <height>546</height>
+    <width>855</width>
+    <height>662</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QPushButton" name="newMap">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>0</y>
-      <width>75</width>
-      <height>23</height>
+      <x>310</x>
+      <y>20</y>
+      <width>201</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">
@@ -30,10 +30,10 @@
    <widget class="QPushButton" name="exit">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>60</y>
-      <width>75</width>
-      <height>23</height>
+      <x>310</x>
+      <y>520</y>
+      <width>201</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
@@ -43,11 +43,48 @@
    <widget class="QCheckBox" name="fullscreen">
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>100</y>
+      <x>360</x>
+      <y>470</y>
       <width>101</width>
       <height>17</height>
      </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>170</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>170</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>120</red>
+          <green>120</green>
+          <blue>120</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
     </property>
     <property name="font">
      <font>
@@ -57,19 +94,56 @@
      </font>
     </property>
     <property name="autoFillBackground">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="text">
      <string>Fullscreen</string>
     </property>
    </widget>
+   <widget class="QLabel" name="menuButtonBorder">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>0</y>
+      <width>300</width>
+      <height>600</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>Assets/Menu/MainMenuBackground.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="mainBackground">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>861</width>
+      <height>611</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <zorder>mainBackground</zorder>
+   <zorder>menuButtonBorder</zorder>
+   <zorder>newMap</zorder>
+   <zorder>exit</zorder>
+   <zorder>fullscreen</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>829</width>
+     <width>855</width>
      <height>21</height>
     </rect>
    </property>

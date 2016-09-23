@@ -63,6 +63,7 @@ void Map::InitHexMap()
     }
 
     GenerateMap();
+    InitTerrain();
 }
 
 void Map::InitTerrain()
@@ -84,6 +85,16 @@ int Map::GetBoardSize()
     return this->board.size();
 }
 
+QPoint Map::GetHexTilePoint(int boardIndex, int ptIndex)
+{
+    return this->board.at(boardIndex)->GetHexPoint(ptIndex);
+}
+
+TileType Map::GetTileTypeAt(int index)
+{
+    return this->board.at(index)->GetTileType();
+}
+
 QPixmap *Map::GetTilePixmap(int index)
 {
     return terrain.at(index);
@@ -99,14 +110,17 @@ void Map::GenerateMap()
         if (randDbl < 0.3)
         {
             board.at(i)->SetTileTexture(WATER);
+            board.at(i)->SetTileType(WATER);
         }
         else if(randDbl < 0.6)
         {
             board.at(i)->SetTileTexture(GRASS);
+            board.at(i)->SetTileType(GRASS);
         }
         else
         {
             board.at(i)->SetTileTexture(DESERT);
+            board.at(i)->SetTileType(DESERT);
         }
     }
 }

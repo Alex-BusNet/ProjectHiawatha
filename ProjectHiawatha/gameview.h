@@ -22,9 +22,8 @@ private:
     QGraphicsScene *game;
 
     bool eventFilter(QObject *watched, QEvent *event);
-    void wheelEvent(QWheelEvent *e);
+    virtual void wheelEvent(QWheelEvent *e);
     void mouseMoveEvent(QMouseEvent *event);
-    void scrollContentsBy(int dx, int dy);
 
     int zoomScale;
 

@@ -27,7 +27,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
 
 //    updateTimer = new QTimer();
-//    updateTimer->setInterval(50);
+//    updateTimer->setInterval(1);
 //    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
 //    updateTimer->start();
 
@@ -41,7 +41,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 
     map = new Map();
     map->InitHexMap();
-    map->InitTerrain();
+//    map->InitTerrain();
 
     qDebug() << "Done.\nSetting up Scene.";
 
@@ -59,7 +59,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         tile.push_back(gameView.addPolygon(map->GetTileAt(i)->GetTilePolygon()));
-
+        tile.at(i)->setZValue(1);
         // This is going to change. I have an idea of how
         // I may be able to make this work. -Port
         tilePixmap.push_back(gameView.addPixmap((*(map->GetTilePixmap(i)))));
@@ -70,6 +70,39 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     proxy.push_back(gameView.addWidget(exitGame));
     proxy.push_back(gameView.addWidget(renderPlusOne));
     proxy.push_back(gameView.addWidget(renderMinusOne));
+
+    QPixmap *TestUnit = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+    unitPixmap.push_back(gameView.addPixmap(*TestUnit));
+    unitPixmap.at(0)->setZValue(4);
+    for(int i = 0; i <map->GetBoardSize(); i++)
+    {
+        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
+        {
+            unitPixmap.at(0)->setPos(map->GetHexTilePoint(i, 0));
+            map->GetTileAt(i)->ContainsUnit = true;
+            break;
+        }
+    }
+
+    QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/TestCity1.png");
+    cityPixmap.push_back(gameView.addPixmap(*TestCity));
+    cityPixmap.at(0)->setZValue(2);
+    for(int i = 0; i <map->GetBoardSize(); i++)
+    {
+        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
+        {
+            if(map->GetTileAt(i)->ContainsUnit == false)
+            {
+                cityPixmap.at(0)->setPos(map->GetTileAt(i)->GetTexturePoint());
+                break;
+            }
+        }
+    }
+
+    for(int i = 0; i < proxy.size(); i++)
+    {
+        proxy.at(i)->setZValue(6);
+    }
 
     zoomScale = 1;
 
@@ -137,10 +170,10 @@ void GameWindow::zoomOut()
     gameView.zoomOut();
 }
 
-//void GameWindow::updateGameWindow()
-//{
-//    gameView.scene()->update(gameView.sceneRect());
-//}
+void GameWindow::updateGameWindow()
+{
+    renderer->UpdateScene(&gameView);
+}
 
 
 

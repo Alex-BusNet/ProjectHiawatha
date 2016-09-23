@@ -1,5 +1,7 @@
 #include "gameview.h"
 #include <QDebug>
+#include <QScrollBar>
+#include "qmath.h"
 
 GameView::GameView(QWidget *widget, bool fullscreen)
 {
@@ -7,12 +9,12 @@ GameView::GameView(QWidget *widget, bool fullscreen)
     gameView.setScene(game);
 
     qDebug() << "Done. Setting gameView settings.";
-    gameView.installEventFilter(this);
+    this->gameView.installEventFilter(this);
     gameView.setMouseTracking(true);
     gameView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     gameView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gameView.setDragMode(QGraphicsView::ScrollHandDrag);
+//    gameView.setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
 
     qDebug() <<"Done.\nSetting screen size.";
     if(!fullscreen)
@@ -58,6 +60,7 @@ bool GameView::eventFilter(QObject *watched, QEvent *event)
 
     if((watched->metaObject()->className() == this->metaObject()->className()) && event->type() == QEvent::Wheel)
     {
+        qDebug() << "Calling wheelEvent";
         this->wheelEvent(static_cast<QWheelEvent*>(event));
         return true;
     }
@@ -73,6 +76,7 @@ bool GameView::eventFilter(QObject *watched, QEvent *event)
 void GameView::wheelEvent(QWheelEvent *e)
 {
     qDebug() << "GameView Wheel event. ZoomScale: " << zoomScale;
+
     if(e->delta() > 0)
     {
         zoomIn();
@@ -105,11 +109,6 @@ void GameView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void GameView::scrollContentsBy(int dx, int dy)
-{
-    //NOOP
-}
-
 void GameView::closeGame()
 {
     this->gameView.hide();
@@ -120,6 +119,7 @@ void GameView::zoomIn()
     if(zoomScale < 7)
     {
         gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);
         gameView.scale(1.2, 1.2);
         zoomScale++;
     }
@@ -130,6 +130,7 @@ void GameView::zoomOut()
     if(zoomScale > 1)
     {
         gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);
         gameView.scale(1/ 1.2, 1 / 1.2);
         zoomScale--;
     }

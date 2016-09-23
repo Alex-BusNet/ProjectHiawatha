@@ -7,6 +7,21 @@
 #define MAXSIZE 100
 #endif
 
+//======================================
+//  Render Layers
+//
+// Layer 0: Map Grip (initialized)
+// Layer 1: Terrain
+// Layer 2: Cities / Tile Improvements
+// Layer 3: Tile Outlines (Game View)
+// Layer 4: Units
+// Layer 5: Fog of War
+// Layer 6: GUI
+//
+// Use setZValue() to change each item's render layer.
+//=======================================
+
+
 Renderer::Renderer()
 {
     //These will need to be changed once different map sizes are added.
@@ -80,61 +95,11 @@ void Renderer::DrawHexScene(Map *map, QGraphicsView *view, QGraphicsScene *scene
 {
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-    scene->addPolygon(map->GetTileAt(i)->GetTilePolygon());
+        scene->addPolygon(map->GetTileAt(i)->GetTilePolygon());
     }
 }
 
-void Renderer::InitMap()
+void Renderer::UpdateScene(QGraphicsView *view)
 {
-//    qDebug() << "InitMap() called";
-//    Tile * tile;
-//    int posX = (1200 / (mapSizeX / 3));
-//    int posY = 0;
-
-//    qDebug() << "MapSizeX: " << mapSizeX << " MapSizeY: " << mapSizeY << endl;
-
-//    //Each vector is a row of tiles;
-//    //Therefore, there will be 16 vectors containing 48 tiles each.
-//    for(int i = 0; i < mapSizeY; i++)
-//    {
-//        for(int j = 0; j < mapSizeX; j++)
-//        {
-//            tile = new Tile(posX, posY);
-
-//            if(j > 3 && (((i > 3) && (i < 23)) || ((i > 26) && (i < 39))))
-//            {
-//                if(j < 23)
-//                {
-//                    tile->SetTileType(GRASS);
-//                }
-//                else if(j > 26)
-//                {
-//                    if(j < 44)
-//                    {
-//                        tile->SetTileType(GRASS);
-//                    }
-//                    else
-//                    {
-//                        tile->SetTileType(WATER);
-//                    }
-//                }
-//                else
-//                {
-//                    tile->SetTileType(WATER);
-//                }
-//            }
-//            else
-//            {
-//                tile->SetTileType(WATER);
-//            }
-
-//            board.push_back(tile);
-
-//            posX += 21;
-//        }
-
-//        posX = (1200 / (mapSizeX / 3));
-//        posY += 21;
-
-//    }
+    view->updateSceneRect(view->sceneRect());
 }

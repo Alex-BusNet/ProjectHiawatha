@@ -68,8 +68,8 @@ public:
     QPolygon GetTilePolygon();
     QRect GetTileRect();
 
-    float GetHexPosX();
-    float GetHexPosY();
+    int GetHexPosX();
+    int GetHexPosY();
     float GetHexHorOffset();
     float GetHexVertOffset();
     float GetHexRowOffset();

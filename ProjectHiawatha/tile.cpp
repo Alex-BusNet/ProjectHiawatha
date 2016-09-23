@@ -163,7 +163,7 @@ Tile::Tile(TileType type, Yield yield)
 
 Tile::Tile(int posX, int posY)
 {
-    this->type = GRASS;
+    this->type = WATER;
     this->yield = Yield();
     this->improvement = NONE;
 
@@ -316,12 +316,12 @@ QRect Tile::GetTileRect()
     return this->rect;
 }
 
-float Tile::GetHexPosX()
+int Tile::GetHexPosX()
 {
     return this->hexPosX;
 }
 
-float Tile::GetHexPosY()
+int Tile::GetHexPosY()
 {
     return this->hexPosY;
 }
@@ -351,10 +351,10 @@ void Tile::SetTileTexture(TileType type)
     switch(type)
     {
     case WATER:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/water_flat.png");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/water.png");
         break;
     case GRASS:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass_flat.png");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
         break;
     case DESERT:
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/desert_flat.png");
