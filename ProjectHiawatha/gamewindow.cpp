@@ -84,7 +84,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
         }
     }
 
-    QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/TestCity1.png");
+    QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
     cityPixmap.push_back(gameView.addPixmap(*TestCity));
     cityPixmap.at(0)->setZValue(2);
     for(int i = 0; i <map->GetBoardSize(); i++)

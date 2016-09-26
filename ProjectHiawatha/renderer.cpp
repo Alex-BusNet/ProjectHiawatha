@@ -16,7 +16,8 @@
 // Layer 3: Tile Outlines (Game View)
 // Layer 4: Units
 // Layer 5: Fog of War
-// Layer 6: GUI
+// Layer 6: GUI Images
+// Layer 7: Gui Text
 //
 // Use setZValue() to change each item's render layer.
 //=======================================
