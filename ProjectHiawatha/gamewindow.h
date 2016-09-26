@@ -37,12 +37,16 @@ private:
     QVector<QGraphicsPixmapItem*> tilePixmap;
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsPixmapItem*> cityPixmap;
+    QVector<QGraphicsRectItem*> guiRects;
+    QVector<QGraphicsTextItem*> stringData;
 
     QPushButton *exitGame;
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
 
     QVector<QGraphicsProxyWidget*> proxy;
+
+    QRect *YieldDisplay;
 
     int zoomScale;
 

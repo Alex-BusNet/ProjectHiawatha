@@ -164,7 +164,7 @@ Tile::Tile(TileType type, Yield yield)
 Tile::Tile(int posX, int posY)
 {
     this->type = WATER;
-    this->yield = Yield();
+    this->yield = Yield(1,1,0,1,0);
     this->improvement = NONE;
 
     IsWorked = false;

@@ -1,6 +1,9 @@
 #include "gamewindow.h"
 #include <QDebug>
 
+QPen gmPen(Qt::black);
+QBrush gmBrush(Qt::black);
+
 GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 {
     qDebug() << "Game Window c'tor called";
@@ -54,54 +57,41 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
     renderPlusOne->setGeometry(this->width() - 100, this->height() - 100, 90, 30);
     renderMinusOne->setGeometry(this->width() - 100, this->height() - 150, 90, 30);
-
-    qDebug() << "Done. Drawing map.";
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        tile.push_back(gameView.addPolygon(map->GetTileAt(i)->GetTilePolygon()));
-        tile.at(i)->setZValue(1);
-        // This is going to change. I have an idea of how
-        // I may be able to make this work. -Port
-        tilePixmap.push_back(gameView.addPixmap((*(map->GetTilePixmap(i)))));
-        tilePixmap.at(i)->setScale(0.32f);
-        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
-    }
+    YieldDisplay = new QRect(0,0, 500, 20);
 
     proxy.push_back(gameView.addWidget(exitGame));
     proxy.push_back(gameView.addWidget(renderPlusOne));
     proxy.push_back(gameView.addWidget(renderMinusOne));
 
-    QPixmap *TestUnit = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
-    unitPixmap.push_back(gameView.addPixmap(*TestUnit));
-    unitPixmap.at(0)->setZValue(4);
-    for(int i = 0; i <map->GetBoardSize(); i++)
-    {
-        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
-        {
-            unitPixmap.at(0)->setPos(map->GetHexTilePoint(i, 0));
-            map->GetTileAt(i)->ContainsUnit = true;
-            break;
-        }
-    }
+    qDebug() << "Done.\nDrawing map.";
+    renderer->DrawHexScene(map, tile, tilePixmap, &gameView);
 
-    QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
-    cityPixmap.push_back(gameView.addPixmap(*TestCity));
-    cityPixmap.at(0)->setZValue(2);
-    for(int i = 0; i <map->GetBoardSize(); i++)
-    {
-        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
-        {
-            if(map->GetTileAt(i)->ContainsUnit == false)
-            {
-                cityPixmap.at(0)->setPos(map->GetTileAt(i)->GetTexturePoint());
-                break;
-            }
-        }
-    }
+    renderer->DrawTestUnits(map, unitPixmap, &gameView);
+
+    renderer->DrawTestCities(map, cityPixmap, &gameView);
+
+//    renderer->DrawGuiImages(game);
+    guiRects.push_back(gameView.addRect(YieldDisplay, gmPen, gmBrush));
+
+    //This is a placeholder, it will need to be re-adjusted once the player class is added.
+    stringData.push_back(gameView.addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
+    stringData.at(0)->setPos(5, 2);
+    stringData.at(0)->setZValue(7);
+    stringData.at(0)->setDefaultTextColor(Qt::white);
 
     for(int i = 0; i < proxy.size(); i++)
     {
-        proxy.at(i)->setZValue(6);
+        proxy.at(i)->setZValue(7);
+    }
+
+    for(int i = 0; i < guiRects.size(); i++)
+    {
+        guiRects.at(i)->setZValue(6);
     }
 
     zoomScale = 1;

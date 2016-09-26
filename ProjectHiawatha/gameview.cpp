@@ -54,6 +54,16 @@ QGraphicsProxyWidget *GameView::addWidget(QWidget *widget)
     return this->game->addWidget(widget);
 }
 
+QGraphicsRectItem *GameView::addRect(QRect *rect, QPen pen, QBrush brush)
+{
+    return this->game->addRect(*rect, pen, brush);
+}
+
+QGraphicsTextItem *GameView::addText(QString text)
+{
+    return this->game->addText(text);
+}
+
 bool GameView::eventFilter(QObject *watched, QEvent *event)
 {
 //    qDebug() << "GameView event filter";

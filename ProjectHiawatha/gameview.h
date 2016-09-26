@@ -16,6 +16,8 @@ public:
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
     QGraphicsPixmapItem* addPixmap(const QPixmap &pixmap);
     QGraphicsProxyWidget* addWidget(QWidget *widget);
+    QGraphicsRectItem* addRect(QRect *rect, QPen pen, QBrush brush);
+    QGraphicsTextItem* addText(QString text);
 
 private:
     QGraphicsView gameView;

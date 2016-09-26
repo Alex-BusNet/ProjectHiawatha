@@ -22,6 +22,8 @@
 // Use setZValue() to change each item's render layer.
 //=======================================
 
+QPen outlinePen(Qt::black);
+QBrush brush(Qt::black);
 
 Renderer::Renderer()
 {
@@ -30,6 +32,7 @@ Renderer::Renderer()
     // not the number of tiles on screen.
     mapSizeX = 30; //max = 32
     mapSizeY = 39;  //max = 40
+
 }
 
 void Renderer::DrawMap(Map *map, QPainter &painter)
@@ -92,15 +95,105 @@ void Renderer::DrawHex(Map *map, QPainter &painter)
     }
 }
 
-void Renderer::DrawHexScene(Map *map, QGraphicsView *view, QGraphicsScene *scene)
+void Renderer::DrawHexScene(Map *map, QVector<QGraphicsPolygonItem*> polyVect, QVector<QGraphicsPixmapItem*> itemVect, GameView *scene)
 {
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        scene->addPolygon(map->GetTileAt(i)->GetTilePolygon());
+        polyVect.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
+        polyVect.at(i)->setZValue(1);
+
+        itemVect.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
+        itemVect.at(i)->setScale(0.32f);
+        itemVect.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 }
 
 void Renderer::UpdateScene(QGraphicsView *view)
 {
-    view->updateSceneRect(view->sceneRect());
+
+}
+
+void Renderer::DrawGuiText(QGraphicsScene *scene)
+{
+    GUI_Text.setZValue(7);
+}
+
+void Renderer::DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget *> wVect, QGraphicsScene *view)
+{
+    wVect.push_back(view->addWidget(obj));
+}
+
+void Renderer::AddItemToGroup(QGraphicsItem *item, Renderer::ItemGroup iGroup)
+{
+    switch(iGroup)
+    {
+    case MAP:
+        item->setGroup(&MapGrid);
+        break;
+    case TERRAIN:
+        item->setGroup(&Terrain);
+        break;
+    case CITY_IMPROVEMENTS:
+        item->setGroup(&CitiesImprovements);
+        break;
+    case OUTLINES:
+        item->setGroup(&TileOutlines);
+        break;
+    case UNITS:
+        item->setGroup(&Units);
+        break;
+    case FOG_OF_WAR:
+        item->setGroup(&FogOfWar);
+        break;
+    case GUI_IMAGES:
+        item->setGroup(&GUI_Images);
+        break;
+    case GUI_TEXT:
+        item->setGroup(&GUI_Text);
+        break;
+    default:
+        break;
+    }
+}
+
+void Renderer::DrawGuiImages(QGraphicsScene *scene)
+{
+//    AddItemToGroup(YieldDisplay, GUI_IMAGES);
+    GUI_Images.setZValue(6);
+    YieldDisplay = scene->addRect(0, 0, 200, 50, outlinePen, brush);
+    YieldDisplay->setZValue(6);
+}
+
+void Renderer::DrawTestUnits(Map *map, QVector<QGraphicsPixmapItem*> uVect, GameView* view)
+{
+    QPixmap *TestUnit = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+    uVect.push_back(view->addPixmap(*TestUnit));
+    uVect.at(0)->setZValue(4);
+    for(int i = 0; i <map->GetBoardSize(); i++)
+    {
+        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
+        {
+            uVect.at(0)->setPos(map->GetHexTilePoint(i, 0));
+            map->GetTileAt(i)->ContainsUnit = true;
+            break;
+        }
+    }
+}
+
+void Renderer::DrawTestCities(Map *map, QVector<QGraphicsPixmapItem*> cVect, GameView *view)
+{
+    QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
+    cVect.push_back(view->addPixmap(*TestCity));
+    cVect.at(0)->setZValue(2);
+    for(int i = 0; i <map->GetBoardSize(); i++)
+    {
+        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
+        {
+            if(map->GetTileAt(i)->ContainsUnit == false)
+            {
+                cVect.at(0)->setPos(map->GetTileAt(i)->GetTexturePoint());
+                break;
+            }
+        }
+    }
 }
