@@ -63,6 +63,7 @@ void Map::InitHexMap()
     }
 
     GenerateMap();
+    GenerateMapEdge();
     InitTerrain();
 }
 
@@ -102,25 +103,73 @@ QPixmap *Map::GetTilePixmap(int index)
 
 void Map::GenerateMap()
 {
-    double randDbl;
+    int dbl;
+
+    int GrassTilesRemaining = board.size() * 0.4,
+            WaterTilesRemaining = board.size() * 0.3,
+            DesertTilesRemaining = board.size() * 0.2,
+            MountainTilesRemaining = board.size() * 0.1,
+            HillTilesRemaining = GrassTilesRemaining * 0.1,
+            ForestTilesRemaining = GrassTilesRemaining * 0.1;
+
+    int TotalGrassTiles = GrassTilesRemaining,
+            TotalWaterTiles = WaterTilesRemaining,
+            TotalDesertTiles = DesertTilesRemaining,
+            TotalMountainTiles = MountainTilesRemaining,
+            TotalHillTiles = HillTilesRemaining,
+            TotalForestTiles = ForestTilesRemaining;
+
+    double tileProb;
 
     for(int i = 0; i < board.size(); i++)
     {
-        randDbl = static_cast<double>(rand() / static_cast<double>(RAND_MAX));
-        if (randDbl < 0.3)
+newrand:
+        dbl = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * 6;
+        if(dbl == 0 && WaterTilesRemaining > 0)
         {
-            board.at(i)->SetTileTexture(WATER);
+            tileProb = 0.3;
             board.at(i)->SetTileType(WATER);
+            board.at(i)->SetTileTexture(WATER);
+            WaterTilesRemaining--;
         }
-        else if(randDbl < 0.6)
+        else if (dbl == 1 && GrassTilesRemaining > 0)
         {
-            board.at(i)->SetTileTexture(GRASS);
+            tileProb = 0.4;
             board.at(i)->SetTileType(GRASS);
+            board.at(i)->SetTileTexture(GRASS);
+            GrassTilesRemaining--;
+        }
+        else if (dbl == 2 && DesertTilesRemaining > 0)
+        {
+            tileProb = 0.2;
+            board.at(i)->SetTileType(DESERT);
+            board.at(i)->SetTileTexture(DESERT);
+            DesertTilesRemaining--;
+        }
+        else if(dbl == 3 && MountainTilesRemaining > 0)
+        {
+            tileProb = 0.1;
+            board.at(i)->SetTileType(MOUNTAIN);
+            board.at(i)->SetTileTexture(MOUNTAIN);
+            MountainTilesRemaining--;
+        }
+        else if(dbl == 4 && HillTilesRemaining > 0)
+        {
+            tileProb = 0.4 * 0.1;
+            board.at(i)->SetTileType(HILL);
+            board.at(i)->SetTileTexture(HILL);
+            HillTilesRemaining--;
+        }
+        else if(dbl == 5 && ForestTilesRemaining > 0)
+        {
+            tileProb = 0.4 * 0.1;
+            board.at(i)->SetTileType(FOREST);
+            board.at(i)->SetTileTexture(FOREST);
+            ForestTilesRemaining--;
         }
         else
         {
-            board.at(i)->SetTileTexture(DESERT);
-            board.at(i)->SetTileType(DESERT);
+            goto newrand;
         }
     }
 }

@@ -360,14 +360,17 @@ void Tile::SetTileTexture(TileType type)
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/desert_flat.png");
         break;
     case MOUNTAIN:
+         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/mountain.png");
         break;
     case ICE:
         break;
     case COAST:
         break;
     case HILL:
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/hill.png");
         break;
     case FOREST:
+         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/forest.png");
         break;
     default:
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/water_flat.png");
