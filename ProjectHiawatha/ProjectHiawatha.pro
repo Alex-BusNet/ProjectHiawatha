@@ -19,7 +19,9 @@ SOURCES += main.cpp\
     renderer.cpp \
     gamewindow.cpp \
     map.cpp \
-    gameview.cpp
+    gameview.cpp \
+    ai_tactical.cpp \
+    ai_strategic.cpp
 
 HEADERS  += mainwindow.h \
     tile.h \
@@ -29,6 +31,8 @@ HEADERS  += mainwindow.h \
     gamewindow.h \
     tileimprovement.h \
     map.h \
-    gameview.h
+    gameview.h \
+    ai_tactical.h \
+    ai_strategic.h
 
 FORMS    += mainwindow.ui
