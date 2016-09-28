@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <map>
 #include <random>
+#include <QTime>
 
 Map::Map()
 {
@@ -118,9 +119,9 @@ void Map::GenerateMap()
         0.05,   //Hill = 4
         0.05    //Forest = 5
     };
-    std::random_device rd;
+    qsrand(QTime::currentTime().msec());
     // Create a Mersenne Twister using the random_device
-    std::mt19937 gen(rd());
+    std::mt19937 gen(qrand());
     // Add the probability weigths to the Mersenne Twister
     std::discrete_distribution<> d(std::begin(weights), std::end(weights));
 
