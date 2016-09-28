@@ -1,5 +1,6 @@
 #include "gamewindow.h"
 #include <QDebug>
+#include <QDialog>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -44,7 +45,6 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 
     map = new Map();
     map->InitHexMap();
-//    map->InitTerrain();
 
     qDebug() << "Done.\nSetting up Scene.";
 
@@ -73,17 +73,6 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 //    renderer->DrawGuiImages(game);
     guiRects.push_back(gameView.addRect(YieldDisplay, gmPen, gmBrush));
 
-    //This is a placeholder, it will need to be re-adjusted once the player class is added.
-    stringData.push_back(gameView.addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
-    stringData.at(0)->setPos(5, 2);
-    stringData.at(0)->setZValue(7);
-    stringData.at(0)->setDefaultTextColor(Qt::white);
-
     for(int i = 0; i < proxy.size(); i++)
     {
         proxy.at(i)->setZValue(7);
@@ -93,7 +82,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     {
         guiRects.at(i)->setZValue(6);
     }
-
+    renderer->DrawGuiText(map, stringData, &gameView);
     zoomScale = 1;
 
     qDebug() << "Done.";

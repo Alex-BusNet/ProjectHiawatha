@@ -33,6 +33,7 @@ HEADERS  += mainwindow.h \
     map.h \
     gameview.h \
     ai_tactical.h \
-    ai_strategic.h
+    ai_strategic.h \
+    biome.h
 
 FORMS    += mainwindow.ui
