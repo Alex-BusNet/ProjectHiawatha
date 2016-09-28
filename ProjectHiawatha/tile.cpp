@@ -166,6 +166,7 @@ Tile::Tile(int posX, int posY)
     this->type = WATER;
     this->yield = Yield(1,1,0,1,0);
     this->improvement = NONE;
+    this->biome = EMPTY;
 
     IsWorked = false;
     HasRoad = false;
@@ -223,6 +224,11 @@ TileImprovement Tile::GetTileImprovement()
 TileID Tile::GetTileID()
 {
     return this->tileID;
+}
+
+Biome Tile::GetTileBiome()
+{
+    return this->biome;
 }
 
 void Tile::SetTileType(TileType type)
@@ -363,6 +369,7 @@ void Tile::SetTileTexture(TileType type)
          this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/mountain.png");
         break;
     case ICE:
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/ice.png");
         break;
     case COAST:
         break;
@@ -378,6 +385,11 @@ void Tile::SetTileTexture(TileType type)
     }
 }
 
+void Tile::SetTileBiome(Biome biome)
+{
+    this->biome = biome;
+}
+
 void Tile::SetHexPos(int x, int y)
 {
     this->points[0] = QPoint(x, y);
@@ -389,7 +401,7 @@ void Tile::SetHexPos(int x, int y)
     this->points[6] = QPoint(x, y);
 
     this->center = QPoint(x + 12, y + 22);
-    this->textCenter = QPoint(x + 1, y + 20);
+    this->textCenter = QPoint(x + 1, y + 10);
     this->texturePoint = QPointF(x - 11.8, y + 1.3);
 }
 

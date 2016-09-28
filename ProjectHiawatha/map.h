@@ -36,6 +36,7 @@ private:
     void GenerateMap();
     void GenerateMapEdge();
     void CleanMap();
+    void GenerateBiomes();
 };
 
 #endif // MAP_H

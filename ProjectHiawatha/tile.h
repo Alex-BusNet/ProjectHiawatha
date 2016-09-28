@@ -2,6 +2,7 @@
 #define TILE_H
 #include "tileType.h"
 #include "tileimprovement.h"
+#include "biome.h"
 #include "yield.h"
 #include <QPixmap>
 #include <QPolygonF>
@@ -36,6 +37,7 @@ public:
     Yield GetYield();
     TileImprovement GetTileImprovement();
     TileID GetTileID();
+    Biome GetTileBiome();
 
     //Resource GetTileResource();
     //void SetTileResource();
@@ -77,6 +79,7 @@ public:
 
     QPixmap GetTileTexture();
     void SetTileTexture(TileType type);
+    void SetTileBiome(Biome biome);
 
     void SetHexPos(int x, int y);
     void SetHexPoly();
@@ -97,6 +100,7 @@ private:
     TileImprovement improvement;
     TileID tileID;
     QPixmap tileTexture;
+    Biome biome;
     //Resource resource;
 
     //==Square Tiles==

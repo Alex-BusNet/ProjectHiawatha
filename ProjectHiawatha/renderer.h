@@ -26,7 +26,7 @@ public:
 //    void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
     void DrawTestUnits(Map *map, QVector<QGraphicsPixmapItem*> uVect, GameView *view);
     void DrawTestCities(Map *map, QVector<QGraphicsPixmapItem *> cVect, GameView *view);
-    void DrawGuiText(QGraphicsScene *scene);
+    void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
 
     void AddItemToGroup(QGraphicsItem *item, ItemGroup iGroup);
