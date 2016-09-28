@@ -82,6 +82,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     {
         guiRects.at(i)->setZValue(6);
     }
+
     renderer->DrawGuiText(map, stringData, &gameView);
     zoomScale = 1;
 
@@ -111,29 +112,6 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void GameWindow::wheelEvent(QWheelEvent *e)
-{
-        qDebug() << "Wheel Event: " << e->delta() << "ZoomScale: " << zoomScale;
-        if(e->delta() > 0)
-        {
-            if(zoomScale < 7)
-            {
-                gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-                gameView.scale(1.2, 1.2);
-                zoomScale++;
-            }
-        }
-        else if (e->delta() < 0)
-        {
-            if(zoomScale > 1)
-            {
-                gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-                gameView.scale(1 / 1.2, 1 / 1.2);
-                zoomScale--;
-            }
-        }
-}
-
 void GameWindow::closeGame()
 {
     gameView.closeGame();
@@ -141,11 +119,13 @@ void GameWindow::closeGame()
 
 void GameWindow::zoomIn()
 {
+    qDebug() << "Widget called ZoomIn()";
     gameView.zoomIn();
 }
 
 void GameWindow::zoomOut()
 {
+    qDebug() << "Widget called ZoomOut()";
     gameView.zoomOut();
 }
 

@@ -178,7 +178,6 @@ void Renderer::AddItemToGroup(QGraphicsItem *item, Renderer::ItemGroup iGroup)
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
 {
-//    AddItemToGroup(YieldDisplay, GUI_IMAGES);
     GUI_Images.setZValue(6);
     YieldDisplay = scene->addRect(0, 0, 200, 50, outlinePen, brush);
     YieldDisplay->setZValue(6);

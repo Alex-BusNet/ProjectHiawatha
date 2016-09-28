@@ -27,7 +27,6 @@ private:
 
     // These event handlers most likely are going to be removed from here. -Port
     void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *e);
 
 //    QGraphicsScene *game;
 //    QGraphicsView gameView;

@@ -29,6 +29,9 @@ private:
 
     int zoomScale;
 
+protected:
+    void paintEvent(QPaintEvent *e);
+
 public slots:
     void closeGame();
     void zoomIn();
