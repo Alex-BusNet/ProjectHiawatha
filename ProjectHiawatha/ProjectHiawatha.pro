@@ -23,11 +23,9 @@ SOURCES += main.cpp\
     ai_tactical.cpp \
     ai_strategic.cpp \
     gamemanager.cpp \
-<<<<<<< HEAD
-=======
     gameoptions.cpp
->>>>>>> origin/master
-    gameoptions.cpp
+
+    gameoptions.cpp \
 
 HEADERS  += mainwindow.h \
     tile.h \
@@ -41,11 +39,7 @@ HEADERS  += mainwindow.h \
     ai_strategic.h \
     biome.h \
     gamemanager.h \
-<<<<<<< HEAD
-=======
-    gameoptions.h
->>>>>>> origin/master
-    gameoptions.h
+    gameoptions.h \
 
 FORMS    += mainwindow.ui \
-    gameoptions.ui
+    gameoptions.ui \
