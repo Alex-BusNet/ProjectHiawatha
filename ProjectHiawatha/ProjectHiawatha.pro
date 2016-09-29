@@ -23,7 +23,9 @@ SOURCES += main.cpp\
     ai_tactical.cpp \
     ai_strategic.cpp \
     gamemanager.cpp \
-    gameoptions.cpp
+    gameoptions.cpp \
+    civilization.cpp \
+    player.cpp
 
     gameoptions.cpp \
 
@@ -40,6 +42,8 @@ HEADERS  += mainwindow.h \
     biome.h \
     gamemanager.h \
     gameoptions.h \
+    civilization.h \
+    player.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \
