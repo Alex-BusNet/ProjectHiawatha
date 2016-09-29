@@ -24,7 +24,7 @@ public:
     TileType GetTileTypeAt(int index);
     Tile* GetTileAt(int index);
     QPixmap *GetTilePixmap(int index);
-
+    Tile *GetTileFromIndex(int column, int row);
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;

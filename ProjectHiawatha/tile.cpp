@@ -277,6 +277,11 @@ int Tile::GetPosY()
     return this->posY;
 }
 
+QString Tile::GetTileIDString()
+{
+    return QString("%1, %2").arg(this->GetTileID().column).arg(this->GetTileID().row);
+}
+
 void Tile::SetPosX(int x)
 {
     this->posX = x;

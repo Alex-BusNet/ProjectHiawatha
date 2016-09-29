@@ -117,24 +117,24 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
 {
     ////THIS COMMENTED SECTION IS FOR DEBUGGING PURPOSES.
     /// IF YOU NEED IT, COMMENT OUT THE YIELD DISPLAY TEXT
-//    for(int i = 0; i < map->GetBoardSize(); i++)
-//    {
-//        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
-//        tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
-//        tVect.at(i)->setZValue(7);
-//        tVect.at(i)->setDefaultTextColor(Qt::red);
-//    }
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
+        tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
+        tVect.at(i)->setZValue(7);
+        tVect.at(i)->setDefaultTextColor(Qt::red);
+    }
 
     //This is a placeholder, it will need to be re-adjusted once the player class is added.
-    tVect.push_back(view->addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
-    tVect.at(0)->setPos(5, 2);
-    tVect.at(0)->setZValue(7);
-    tVect.at(0)->setDefaultTextColor(Qt::white);
+//    tVect.push_back(view->addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
+//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
+//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
+//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
+//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
+//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
+//    tVect.at(0)->setPos(5, 2);
+//    tVect.at(0)->setZValue(7);
+//    tVect.at(0)->setDefaultTextColor(Qt::white);
 
 }
 

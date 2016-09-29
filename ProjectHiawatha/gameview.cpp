@@ -30,7 +30,7 @@ GameView::GameView(QWidget *widget, bool fullscreen)
         gameView.setWindowState(Qt::WindowFullScreen);
     }
 
-    gameView.setWindowFlags(Qt::FramelessWindowHint);
+//    gameView.setWindowFlags(Qt::FramelessWindowHint);
 
     gameView.show();
 
