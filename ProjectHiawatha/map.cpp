@@ -122,6 +122,11 @@ Tile* Map::GetTileFromCoord(int column, int row)
     return board.at((column / 2) + (mapSizeX * row));
 }
 
+//void Map::run()
+//{
+//    this->InitHexMap();
+//}
+
 void Map::GenerateMap()
 {
     int dbl;
@@ -232,30 +237,169 @@ void Map::CleanMap()
     // Step 8) Set Player and AI spawns.
     //=====================
 
-    Tile* surroundingTiles[6]; //{ N, NW, SW, NE, SE, S }
+    qDebug() << "Cleaning map";
+//    Tile* surroundingTiles[6]; //{ N, NW, SW, NE, SE, S }
 
-    for(int i = 0; i < board.size(); i++)
-    {
-        if(board.at(i)->GetTileType() == DESERT)
-        {
-            //Get the tiles surrounding the selected tile
-            TileID selectedID = board.at(i)->GetTileID();
-            surroundingTiles[0] = GetTileFromCoord(selectedID.column, selectedID.row - 2);
-            surroundingTiles[1] = GetTileFromCoord(selectedID.column - 1, selectedID.row - 1);
-            surroundingTiles[2] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1);
-            surroundingTiles[3] = GetTileFromCoord(selectedID.column + 1, selectedID.row - 1);
-            surroundingTiles[4] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1);
-            surroundingTiles[5] = GetTileFromCoord(selectedID.column, selectedID.row + 2);
+//    for(int i = 0; i < board.size(); i++)
+//    {
+//        if(board.at(i)->GetTileType() == DESERT && !(board.at(i)->Checked))
+//        {
+//            qDebug() << "Checking tile: " << i << " out of " << board.size();
 
-            for(int j = 0; j < 6; j++)
-            {
-                if(surroundingTiles[j]->GetTileType() == DESERT)
-                {
-                    //Generate desert in direction second tile.
-                }
-            }
-        }
-    }
+//            //Get the tiles surrounding the selected tile
+//            TileID selectedID = board.at(i)->GetTileID();
+
+//            surroundingTiles[0] = GetTileFromCoord(selectedID.column, selectedID.row - 2);
+//            surroundingTiles[1] = GetTileFromCoord(selectedID.column - 1, selectedID.row - 1);
+//            surroundingTiles[2] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1);
+//            surroundingTiles[3] = GetTileFromCoord(selectedID.column + 1, selectedID.row - 1);
+//            surroundingTiles[4] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1);
+//            surroundingTiles[5] = GetTileFromCoord(selectedID.column, selectedID.row + 2);
+
+//            for(int j = 0; j < 6; j++)
+//            {
+//                if(surroundingTiles[j]->GetTileType() == DESERT && !(surroundingTiles[j]->Checked))
+//                {
+//                    //Generate desert in direction second tile.
+//                    TileID secondID = surroundingTiles[j]->GetTileID();
+//                    if(secondID.column == selectedID.column)
+//                    {
+//                        //Moving vertically
+//                        if(secondID.row > selectedID.row)
+//                        {
+//                            //Moving down
+//                            for(int k = 1; k < 5; k++)
+//                            {
+//                                for(int l = 1; l < 6; l++)
+//                                {
+//                                    //Check if next row is POLE
+//                                    if(GetTileFromCoord(secondID.column, secondID.row + k)->GetTileBiome() != POLE)
+//                                    {
+//                                        //Check if next column is OCEAN
+//                                        if(GetTileFromCoord(secondID.column + l, secondID.row)->GetTileBiome() != OCEAN)
+//                                        {
+//                                            // if no OCEAN and no POLE, build out and down
+//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->Checked = true;
+//                                        }
+//                                        else
+//                                        {
+//                                            // if OCEAN but no POLE, build down only
+//                                            GetTileFromCoord(secondID.column, secondID.row + k)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k)->Checked = true;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        else if (secondID.row < selectedID.row)
+//                        {
+//                            //Moving up
+//                            for(int k = 1; k < 5; k++)
+//                            {
+//                                for(int l = 1; l < 6; l++)
+//                                {
+//                                    //Check if next row is POLE
+//                                    if(GetTileFromCoord(secondID.column, secondID.row - k)->GetTileBiome() != POLE)
+//                                    {
+//                                        //Check if next column is OCEAN
+//                                        if(GetTileFromCoord(secondID.column + l, secondID.row)->GetTileBiome() != OCEAN)
+//                                        {
+//                                            // if no OCEAN and no POLE, build out and up
+//                                            GetTileFromCoord(secondID.column + l, secondID.row - k)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column + l, secondID.row - k)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column + l, secondID.row - k)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column + l, secondID.row - k)->Checked = true;
+//                                        }
+//                                        else
+//                                        {
+//                                            // if OCEAN but no POLE, build up only
+//                                            GetTileFromCoord(secondID.column, secondID.row - k)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row - k)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row - k)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column, secondID.row - k)->Checked = true;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    else if(secondID.row == selectedID.row)
+//                    {
+//                        // Moving Horizontally
+//                        if(secondID.column > selectedID.column)
+//                        {
+//                            //Moving to the right
+//                            for(int k = 0; k < 4; k++)
+//                            {
+//                                for(int l = 0; l < 5; l++)
+//                                {
+//                                    //Check if next row is POLE
+//                                    if(GetTileFromCoord(secondID.column, secondID.row + k + 1)->GetTileBiome() != POLE)
+//                                    {
+//                                        //Check if next column is OCEAN
+//                                        if(GetTileFromCoord(secondID.column + l + 1, secondID.row)->GetTileBiome() != OCEAN)
+//                                        {
+//                                            // if no OCEAN and no POLE, build right and down
+//                                            GetTileFromCoord(secondID.column + l + 1, secondID.row + k + 1)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column + l + 1, secondID.row + k + 1)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column - l - 1, secondID.row + k + 1)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column - l - 1, secondID.row + k + 1)->Checked = true;
+//                                        }
+//                                        else
+//                                        {
+//                                            // if OCEAN but no POLE, build down only
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->Checked = true;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        else if(secondID.column < selectedID.column)
+//                        {
+//                            //Moving to the left
+//                            for(int k = 0; k < 4; k++)
+//                            {
+//                                for(int l = 0; l < 5; l++)
+//                                {
+//                                    //Check if next row is POLE
+//                                    if(GetTileFromCoord(secondID.column, secondID.row - k - 1)->GetTileBiome() != POLE)
+//                                    {
+//                                        //Check if next column is OCEAN
+//                                        if(GetTileFromCoord(secondID.column - l - 1, secondID.row)->GetTileBiome() != OCEAN)
+//                                        {
+//                                            // if no OCEAN and no POLE, build left and down
+//                                            GetTileFromCoord(secondID.column - l - 1, secondID.row + k + 1)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column - l - 1, secondID.row + k + 1)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column - l - 1, secondID.row + k + 1)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column - l - 1, secondID.row + k + 1)->Checked = true;
+//                                        }
+//                                        else
+//                                        {
+//                                            // if OCEAN but no POLE, build down only
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->SetTileType(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->SetTileTexture(DESERT);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->SetTileBiome(DESOLATE_LAND);
+//                                            GetTileFromCoord(secondID.column, secondID.row + k + 1)->Checked = true;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                qDebug() << "Deleting tile " << j;
+//                delete surroundingTiles[j];
+//            }
+//        }
+//    }
 }
 
 void Map::GenerateBiomes()
@@ -299,3 +443,4 @@ void Map::GenerateBiomes()
         }
     }
 }
+

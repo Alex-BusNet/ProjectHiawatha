@@ -1,6 +1,7 @@
 #include "gamemanager.h"
 #include <QDebug>
 #include <QDialog>
+#include <QThread>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -42,9 +43,13 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     renderer = new Renderer();
 
     qDebug() << "Done.\nInitializing Map";
-
     map = new Map(mapSizeX, mapSizeY);
+    qDebug() << "Done.\nGenerating Map...";
+//    map->start(QThread::HighPriority);
     map->InitHexMap();
+
+    //Wait for map to finish generating
+//    while(!map->isFinished()) {;}
 
     qDebug() << "Done.\nSetting up Scene.";
 

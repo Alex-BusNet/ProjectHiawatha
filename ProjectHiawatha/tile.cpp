@@ -199,6 +199,8 @@ Tile::Tile(int posX, int posY)
             << this->points[6];
 
     this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
+
+    Checked = false;
 }
 
 Tile::~Tile()

@@ -5,9 +5,8 @@
 #include "yield.h"
 
 #include <QPixmap>
+#include <QThread>
 #include <QVector>
-
-
 
 class Map
 {
@@ -25,6 +24,8 @@ public:
     Tile* GetTileAt(int index);
     QPixmap *GetTilePixmap(int index);
     Tile *GetTileFromCoord(int column, int row);
+
+//    void run();
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;

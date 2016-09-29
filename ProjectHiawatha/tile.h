@@ -26,7 +26,7 @@ public:
     bool ContainsUnit;
     bool HasCity;
     bool DiscoveredByPlayer; // Fog of War flag
-
+    bool Checked;
     //Unit GetUnit();
     //void SetUnit();
 
