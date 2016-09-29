@@ -109,6 +109,11 @@ QPixmap *Map::GetTilePixmap(int index)
     return terrain.at(index);
 }
 
+Tile* Map::GetTileFromIndex(int column, int row)
+{
+    return board.at(column + (mapSizeX * 2) * row);
+}
+
 void Map::GenerateMap()
 {
     int dbl;
@@ -217,11 +222,30 @@ void Map::CleanMap()
     // Step 6) Populate tiles with proper yields and resources.
     // Step 7) Set Player and AI spawns.
     //=====================
-    TileID tileLoc[board.size()];
 
     for(int i = 0; i < board.size(); i++)
     {
-//        if(board.at(i)->)
+        if(board.at(i)->GetTileType() == DESERT)
+        {
+            TileID selectedID = board.at(i)->GetTileID();
+            QString idString = board.at(i)->GetTileIDString();
+            Tile* north = GetTileFromIndex(selectedID.column, selectedID.row - 1);
+            Tile* northWest = GetTileFromIndex(selectedID.column - 1, selectedID.row - 1);
+            Tile* southWest = GetTileFromIndex(selectedID.column - 1, selectedID.row + 1);
+            Tile* northEast = GetTileFromIndex(selectedID.column + 1, selectedID.row - 1);
+            Tile* southEast = GetTileFromIndex(selectedID.column + 1, selectedID.row + 1);
+            Tile* south = GetTileFromIndex(selectedID.column, selectedID.row + 1);
+
+            qDebug() << "Selected Tile: " << idString
+                     << " north: " << north->GetTileIDString()
+                     << " northWest: " << northWest->GetTileIDString()
+                     << " southWest: " << southWest->GetTileIDString()
+                     << " northEast: " << northEast->GetTileIDString()
+                     << " southEast: " << southEast->GetTileIDString()
+                     << " south: " << south->GetTileIDString();
+
+            break;
+        }
     }
 }
 

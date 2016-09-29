@@ -58,6 +58,7 @@ public:
     int GetSizeY();
     int GetPosX();
     int GetPosY();
+    QString GetTileIDString();
 
     void SetPosX(int x);
     void SetPosY(int y);
