@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,6 +23,7 @@ SOURCES += main.cpp\
     ai_tactical.cpp \
     ai_strategic.cpp \
     gamemanager.cpp
+    gameoptions.cpp
 
 HEADERS  += mainwindow.h \
     tile.h \
@@ -35,5 +37,7 @@ HEADERS  += mainwindow.h \
     ai_strategic.h \
     biome.h \
     gamemanager.h
+    gameoptions.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    gameoptions.ui
