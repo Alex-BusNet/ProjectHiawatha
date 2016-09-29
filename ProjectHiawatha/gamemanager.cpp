@@ -44,12 +44,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nInitializing Map";
     map = new Map(mapSizeX, mapSizeY);
-    qDebug() << "Done.\nGenerating Map...";
-//    map->start(QThread::HighPriority);
     map->InitHexMap();
-
-    //Wait for map to finish generating
-//    while(!map->isFinished()) {;}
 
     qDebug() << "Done.\nSetting up Scene.";
 

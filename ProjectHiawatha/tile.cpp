@@ -233,6 +233,16 @@ Biome Tile::GetTileBiome()
     return this->biome;
 }
 
+Civilization Tile::GetControllingCiv()
+{
+    this->owner;
+}
+
+void Tile::SetControllingCiv(/*Civ owner*/)
+{
+    this->owner;
+}
+
 void Tile::SetTileType(TileType type)
 {
     this->type = type;
