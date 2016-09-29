@@ -22,7 +22,7 @@ SOURCES += main.cpp\
     gameview.cpp \
     ai_tactical.cpp \
     ai_strategic.cpp \
-    gamemanager.cpp
+    gamemanager.cpp \
     gameoptions.cpp
 
 HEADERS  += mainwindow.h \
@@ -36,7 +36,7 @@ HEADERS  += mainwindow.h \
     ai_tactical.h \
     ai_strategic.h \
     biome.h \
-    gamemanager.h
+    gamemanager.h \
     gameoptions.h
 
 FORMS    += mainwindow.ui \
