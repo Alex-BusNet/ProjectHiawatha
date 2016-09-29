@@ -18,7 +18,7 @@ class GameManager : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 20, int mapSizeY  = 39);
+    explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42);
 
 private:
     Renderer *renderer;

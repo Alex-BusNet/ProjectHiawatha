@@ -9,8 +9,16 @@ Map::Map()
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
     // not the number of tiles on screen.
-    mapSizeX = 20; //mapSizeX is doubled for map creation. i.e. a map size of 40 tiles will yield 80 columns.
-    mapSizeY = 39;
+    mapSizeX = 128; //mapSizeX is doubled for map creation. i.e. a map size of 40 tiles will yield 80 columns.
+    mapSizeY = 80;
+
+    //Map Sizes according to Civ V:
+    // Duel: 40x24 -- 2 Players
+    // Tiny: 56x36 -- 4 Players
+    // Small: 66x42 -- 6 Players
+    // Standard: 80x52 -- 8 Players
+    // Large: 104x64 -- 10 Players
+    // Huge: 128x80 -- 12 Players
 }
 
 Map::Map(int mapSizeX, int mapSizeY)
@@ -109,9 +117,9 @@ QPixmap *Map::GetTilePixmap(int index)
     return terrain.at(index);
 }
 
-Tile* Map::GetTileFromIndex(int column, int row)
+Tile* Map::GetTileFromCoord(int column, int row)
 {
-    return board.at(column + (mapSizeX * 2) * row);
+    return board.at((column / 2) + (mapSizeX * row));
 }
 
 void Map::GenerateMap()
@@ -123,12 +131,12 @@ void Map::GenerateMap()
     // These numbers can be greater than one.
     double weights[] =
     {
-        0.2,    //Water = 0
+        0.05,    //Water = 0
         0.5,    //Grass = 1
-        0.2,    //Desert = 2
-        0.1,    //Mountain = 3
-        0.05,   //Hill = 4
-        0.05    //Forest = 5
+        0.15,    //Desert = 2
+        0.05,    //Mountain = 3
+        0.15,   //Hill = 4
+        0.1    //Forest = 5
     };
     qsrand(QTime::currentTime().msec());
     // Create a Mersenne Twister using the random_device
@@ -213,38 +221,39 @@ void Map::CleanMap()
     //=====================
     // Step 1) Search map for isolated desert tiles and change to grass tiles
     // Step 2) Search map for clusters of desert tiles and fill them in to create a desert that is
-    //          a minimum of 5 columnsby 3 rows in size
+    //          a minimum of 5 columns by 3 rows in size
     // Step 3) Search map for plains biomes and determine locations to place hills or forests
     // Step 4) Place one hill or forest at indicated location, determine a random direction and place a hill or forest there,
     //          Repeat until max size of hill or forest biome has been reached
     // Step 5) Search map and determine proximity of hills, forests, and deserts to make sure no two biomes
     //          of the same type are too close to each other.
-    // Step 6) Populate tiles with proper yields and resources.
-    // Step 7) Set Player and AI spawns.
+    // Step 6) Change continent edges to water to reduce blocky-ness of continents.
+    // Step 7) Populate tiles with proper yields and resources.
+    // Step 8) Set Player and AI spawns.
     //=====================
+
+    Tile* surroundingTiles[6]; //{ N, NW, SW, NE, SE, S }
 
     for(int i = 0; i < board.size(); i++)
     {
         if(board.at(i)->GetTileType() == DESERT)
         {
+            //Get the tiles surrounding the selected tile
             TileID selectedID = board.at(i)->GetTileID();
-            QString idString = board.at(i)->GetTileIDString();
-            Tile* north = GetTileFromIndex(selectedID.column, selectedID.row - 1);
-            Tile* northWest = GetTileFromIndex(selectedID.column - 1, selectedID.row - 1);
-            Tile* southWest = GetTileFromIndex(selectedID.column - 1, selectedID.row + 1);
-            Tile* northEast = GetTileFromIndex(selectedID.column + 1, selectedID.row - 1);
-            Tile* southEast = GetTileFromIndex(selectedID.column + 1, selectedID.row + 1);
-            Tile* south = GetTileFromIndex(selectedID.column, selectedID.row + 1);
+            surroundingTiles[0] = GetTileFromCoord(selectedID.column, selectedID.row - 2);
+            surroundingTiles[1] = GetTileFromCoord(selectedID.column - 1, selectedID.row - 1);
+            surroundingTiles[2] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1);
+            surroundingTiles[3] = GetTileFromCoord(selectedID.column + 1, selectedID.row - 1);
+            surroundingTiles[4] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1);
+            surroundingTiles[5] = GetTileFromCoord(selectedID.column, selectedID.row + 2);
 
-            qDebug() << "Selected Tile: " << idString
-                     << " north: " << north->GetTileIDString()
-                     << " northWest: " << northWest->GetTileIDString()
-                     << " southWest: " << southWest->GetTileIDString()
-                     << " northEast: " << northEast->GetTileIDString()
-                     << " southEast: " << southEast->GetTileIDString()
-                     << " south: " << south->GetTileIDString();
-
-            break;
+            for(int j = 0; j < 6; j++)
+            {
+                if(surroundingTiles[j]->GetTileType() == DESERT)
+                {
+                    //Generate desert in direction second tile.
+                }
+            }
         }
     }
 }
