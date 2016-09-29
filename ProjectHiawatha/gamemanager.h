@@ -14,11 +14,11 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-class GameWindow : public QWidget
+class GameManager : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GameWindow(QWidget *parent = 0, bool fullscreen = false);
+    explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 20, int mapSizeY  = 39);
 
 private:
     Renderer *renderer;

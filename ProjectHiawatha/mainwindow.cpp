@@ -28,7 +28,7 @@ void MainWindow::on_newMap_clicked()
         delete game;
     }
 
-    game = new GameWindow(0, fullscreen);
+    game = new GameManager(0, fullscreen);
 //    game->show();
 }
 

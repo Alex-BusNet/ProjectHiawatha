@@ -17,23 +17,23 @@ SOURCES += main.cpp\
     tile.cpp \
     yield.cpp \
     renderer.cpp \
-    gamewindow.cpp \
     map.cpp \
     gameview.cpp \
     ai_tactical.cpp \
-    ai_strategic.cpp
+    ai_strategic.cpp \
+    gamemanager.cpp
 
 HEADERS  += mainwindow.h \
     tile.h \
     tiletype.h \
     yield.h \
     renderer.h \
-    gamewindow.h \
     tileimprovement.h \
     map.h \
     gameview.h \
     ai_tactical.h \
     ai_strategic.h \
-    biome.h
+    biome.h \
+    gamemanager.h
 
 FORMS    += mainwindow.ui

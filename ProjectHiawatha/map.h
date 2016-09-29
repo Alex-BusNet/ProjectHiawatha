@@ -13,6 +13,7 @@ class Map
 {
 public:
     Map();
+    Map(int mapSizeX, int mapSizeY);
 
     void InitHexMap();
     void InitTerrain();
