@@ -25,7 +25,7 @@ Determines if unit is military or worker/caravan/settler type
             attack if combat simulator suggests victory (or acceptable loss, etc)
 
 
-            this class is also responsible for determining best path to objective
+            this class is NOT responsible for determining best path to objective
 
     _____________Operational AI_____________
     Control of overall unit placement
