@@ -14,11 +14,11 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-class GameWindow : public QWidget
+class GameManager : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GameWindow(QWidget *parent = 0, bool fullscreen = false);
+    explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 20, int mapSizeY  = 39);
 
 private:
     Renderer *renderer;
@@ -27,7 +27,6 @@ private:
 
     // These event handlers most likely are going to be removed from here. -Port
     void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *e);
 
 //    QGraphicsScene *game;
 //    QGraphicsView gameView;

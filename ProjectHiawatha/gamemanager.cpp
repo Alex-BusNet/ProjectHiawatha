@@ -1,21 +1,21 @@
-#include "gamewindow.h"
+#include "gamemanager.h"
 #include <QDebug>
 #include <QDialog>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 
-GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
+GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY) : QWidget(parent)
 {
     qDebug() << "Game Window c'tor called";
 
     if(!fullscreen)
     {
-        QWidget::setFixedSize(1200, 900);
+        QWidget::setFixedSize(900, 600);
     }
     else
     {
-        QWidget::setFixedSize(1920, 1080);
+        QWidget::setFixedSize(parent->width(), parent->height());
     }
 
     exitGame = new QPushButton("Exit To Menu");
@@ -43,7 +43,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
 
     qDebug() << "Done.\nInitializing Map";
 
-    map = new Map();
+    map = new Map(mapSizeX, mapSizeY);
     map->InitHexMap();
 
     qDebug() << "Done.\nSetting up Scene.";
@@ -54,9 +54,9 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     */
 
     qDebug() << "Done.\nAdding buttons to screen.";
-    exitGame->setGeometry(this->width() - 100, this->height() - 50, 90, 30);
-    renderPlusOne->setGeometry(this->width() - 100, this->height() - 100, 90, 30);
-    renderMinusOne->setGeometry(this->width() - 100, this->height() - 150, 90, 30);
+    exitGame->setGeometry((gameView.viewport()->width() * 2) - 150, (gameView.viewport()->height() * 2) - 100, 90, 30);
+    renderPlusOne->setGeometry((gameView.viewport()->width() * 2) - 150, (gameView.viewport()->height() * 2) - 150, 90, 30);
+    renderMinusOne->setGeometry((gameView.viewport()->width() * 2) - 150, (gameView.viewport()->height() * 2) - 200, 90, 30);
     YieldDisplay = new QRect(0,0, 500, 20);
 
     proxy.push_back(gameView.addWidget(exitGame));
@@ -82,6 +82,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     {
         guiRects.at(i)->setZValue(6);
     }
+
     renderer->DrawGuiText(map, stringData, &gameView);
     zoomScale = 1;
 
@@ -89,7 +90,7 @@ GameWindow::GameWindow(QWidget *parent, bool fullscreen) : QWidget(parent)
     //==================================================================
 }
 
-void GameWindow::mouseMoveEvent(QMouseEvent *event)
+void GameManager::mouseMoveEvent(QMouseEvent *event)
 {
     qDebug() << "Mouse Move Event";
 
@@ -111,45 +112,24 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void GameWindow::wheelEvent(QWheelEvent *e)
-{
-        qDebug() << "Wheel Event: " << e->delta() << "ZoomScale: " << zoomScale;
-        if(e->delta() > 0)
-        {
-            if(zoomScale < 7)
-            {
-                gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-                gameView.scale(1.2, 1.2);
-                zoomScale++;
-            }
-        }
-        else if (e->delta() < 0)
-        {
-            if(zoomScale > 1)
-            {
-                gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-                gameView.scale(1 / 1.2, 1 / 1.2);
-                zoomScale--;
-            }
-        }
-}
-
-void GameWindow::closeGame()
+void GameManager::closeGame()
 {
     gameView.closeGame();
 }
 
-void GameWindow::zoomIn()
+void GameManager::zoomIn()
 {
+    qDebug() << "Widget called ZoomIn()";
     gameView.zoomIn();
 }
 
-void GameWindow::zoomOut()
+void GameManager::zoomOut()
 {
+    qDebug() << "Widget called ZoomOut()";
     gameView.zoomOut();
 }
 
-void GameWindow::updateGameWindow()
+void GameManager::updateGameWindow()
 {
     renderer->UpdateScene(&gameView);
 }

@@ -13,6 +13,12 @@ Map::Map()
     mapSizeY = 39;
 }
 
+Map::Map(int mapSizeX, int mapSizeY)
+{
+    this->mapSizeX = mapSizeX;
+    this->mapSizeY = mapSizeY;
+}
+
 void Map::InitHexMap()
 {
     qDebug() << "InitHexMap() called";
@@ -211,6 +217,12 @@ void Map::CleanMap()
     // Step 6) Populate tiles with proper yields and resources.
     // Step 7) Set Player and AI spawns.
     //=====================
+    TileID tileLoc[board.size()];
+
+    for(int i = 0; i < board.size(); i++)
+    {
+//        if(board.at(i)->)
+    }
 }
 
 void Map::GenerateBiomes()

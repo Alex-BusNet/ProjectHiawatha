@@ -79,6 +79,11 @@ bool GameView::eventFilter(QObject *watched, QEvent *event)
         qDebug() << "Mouse Move Event Filter";
         return true;
     }
+//    else if((watched->metaObject()->className() == this->metaObject()->className() && event->type() == QEvent::Paint))
+//    {
+//        this->paintEvent(static_cast<QPaintEvent*>(event));
+//        return true;
+//    }
 
     return false;
 }
@@ -90,10 +95,12 @@ void GameView::wheelEvent(QWheelEvent *e)
     if(e->delta() > 0)
     {
         zoomIn();
+        e->accept();
     }
     else if (e->delta() < 0)
     {
         zoomOut();
+        e->accept();
     }
 }
 
@@ -117,6 +124,21 @@ void GameView::mouseMoveEvent(QMouseEvent *event)
     {
         //Scroll up to top of map
     }
+}
+
+void GameView::paintEvent(QPaintEvent *e)
+{
+    QGraphicsView::paintEvent(e);
+
+    QPainter painter(viewport());
+
+    painter.setRenderHints(QPainter::Antialiasing);
+    painter.translate(viewport()->width() + 10, viewport()->height() + 10);
+
+    painter.setPen( Qt::white );
+    painter.setBrush(QColor(0, 0, 0, 0));
+
+    painter.drawRoundRect(QRectF(0,0,50,50), 10, 10);
 }
 
 void GameView::closeGame()
