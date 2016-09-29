@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     game = NULL;
+    options = NULL;
     fullscreen = false;
     QPixmap *bkgnd = new QPixmap("../ProjectHiawatha/Assets/Menu/Background/stolenInternet.jpg");
     QPixmap *buttonBorder = new QPixmap("../ProjectHiawatha/Assets/Menu/mainMenuBackground.png");
@@ -19,6 +20,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete game;
+    delete options;
 }
 
 void MainWindow::on_newMap_clicked()
@@ -27,8 +29,13 @@ void MainWindow::on_newMap_clicked()
     {
         delete game;
     }
-
-    game = new GameWindow(0, fullscreen);
+    if(options != NULL)
+    {
+        delete options;
+    }
+    //game = new GameManager(0, fullscreen);
+    options = new GameOptions(0,fullscreen);
+    options->show();
 //    game->show();
 }
 

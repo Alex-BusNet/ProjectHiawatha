@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "gamewindow.h"
+#include "gamemanager.h"
 #include "renderer.h"
+#include "gameoptions.h"
 #include <QMainWindow>
 
 namespace Ui {
@@ -26,7 +27,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    GameWindow *game;
+    GameManager *game;
+    GameOptions *options;
     bool fullscreen;
 };
 
