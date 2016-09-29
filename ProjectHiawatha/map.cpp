@@ -238,68 +238,56 @@ void Map::CleanMap()
     //=====================
 
     qDebug() << "Cleaning map";
-//    Tile* surroundingTiles[6]; //{ N, NW, SW, NE, SE, S }
+    Tile* adjacentTiles[3]; // { SW, S, SE }
 
-//    for(int i = 0; i < board.size(); i++)
-//    {
-//        if(board.at(i)->GetTileType() == DESERT && !(board.at(i)->Checked))
-//        {
-//            //Get the tiles surrounding the selected tile
-//            TileID selectedID = board.at(i)->GetTileID();
+    for(int i = 0; i < board.size(); i++)
+    {
+        if(board.at(i)->GetTileType() == DESERT && !(board.at(i)->Checked))
+        {
+            //Get the tiles surrounding the selected tile
+            TileID selectedID = board.at(i)->GetTileID();
 
-//            surroundingTiles[0] = GetTileFromCoord(selectedID.column, selectedID.row - 2);
-//            surroundingTiles[1] = GetTileFromCoord(selectedID.column - 1, selectedID.row - 1);
-//            surroundingTiles[2] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1);
-//            surroundingTiles[3] = GetTileFromCoord(selectedID.column + 1, selectedID.row - 1);
-//            surroundingTiles[4] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1);
-//            surroundingTiles[5] = GetTileFromCoord(selectedID.column, selectedID.row + 2);
+            // We only need to check the tiles to the SW, S, and SE of the selected tile
+            // because the rows above it have already been checked. Also need to use to Checked flag
+            // so we don't turn the whole map into a desolate land.
+            adjacentTiles[0] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1); //SW
+            adjacentTiles[1] = GetTileFromCoord(selectedID.column, selectedID.row + 2);     //S
+            adjacentTiles[2] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1); //SE
 
-//            for(int j = 0; j < 6; j++)
-//            {
-//                if(surroundingTiles[j]->GetTileType() == DESERT && !(surroundingTiles[j]->Checked))
-//                {
-//                    //Generate desert in direction second tile.
-//                    TileID secondID = surroundingTiles[j]->GetTileID();
-//                    if(secondID.column == selectedID.column)
-//                    {
-//                        //Moving vertically
-//                        if(secondID.row > selectedID.row)
-//                        {
-//                            //Moving down
-//                            for(int k = 1; k < 4; k++)
-//                            {
-//                                for(int l = 1; l < 4; l++)
-//                                {
-//                                    //Check if next row is POLE
-//                                    if(GetTileFromCoord(secondID.column, secondID.row + k)->GetTileBiome() != POLE)
-//                                    {
-//                                        //Check if next column is OCEAN
-//                                        if(GetTileFromCoord(secondID.column + l, secondID.row)->GetTileBiome() != OCEAN)
-//                                        {
-//                                            // if no OCEAN and no POLE, build out and down
-//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->SetTileType(DESERT);
-//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->SetTileTexture(DESERT);
-//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->SetTileBiome(DESOLATE_LAND);
-//                                            GetTileFromCoord(secondID.column + l, secondID.row + k)->Checked = true;
-//                                        }
-//                                        else
-//                                        {
-//                                            // if OCEAN but no POLE, build down only
-//                                            GetTileFromCoord(secondID.column, secondID.row + k)->SetTileType(DESERT);
-//                                            GetTileFromCoord(secondID.column, secondID.row + k)->SetTileTexture(DESERT);
-//                                            GetTileFromCoord(secondID.column, secondID.row + k)->SetTileBiome(DESOLATE_LAND);
-//                                            GetTileFromCoord(secondID.column, secondID.row + k)->Checked = true;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                delete surroundingTiles[j];
-//            }
-//        }
-//    }
+            for(int j = 0; j < 3; j++)
+            {
+                if(adjacentTiles[j]->GetTileType() = DESERT)
+                {
+                    if(j == 0)
+                    {
+                        //build down and left
+                        break;
+
+                    }
+                    else if(j == 1)
+                    {
+                        //build down, centered on selected
+                        break;
+                    }
+                    else if(j == 2)
+                    {
+                        //build down and right
+                        break;
+                    }
+
+                    // Set Tile Checked flag
+                }
+            }
+
+            // Clear the array before searching again.
+            for(int k = 0; k < 3; k++)
+            {
+                delete adjacentTiles[k];
+            }
+
+        }
+    }
+
 }
 
 void Map::GenerateBiomes()
