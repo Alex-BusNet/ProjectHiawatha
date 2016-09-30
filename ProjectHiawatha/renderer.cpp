@@ -103,7 +103,7 @@ void Renderer::DrawHexScene(Map *map, QVector<QGraphicsPolygonItem*> polyVect, Q
         polyVect.at(i)->setZValue(1);
 
         itemVect.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
-        itemVect.at(i)->setScale(0.32f);
+        itemVect.at(i)->setScale(0.64f); // for drawScale = 1, textureScale = 0.32f
         itemVect.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 }

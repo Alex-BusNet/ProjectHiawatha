@@ -47,10 +47,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     */
 
     qDebug() << "Done.\nAdding buttons to screen.";
-    exitGame->setGeometry((gameView->viewport()->width() * 2) - 150, (gameView->viewport()->height() * 2) - 100, 90, 30);
-    renderPlusOne->setGeometry((gameView->viewport()->width() * 2) - 150, (gameView->viewport()->height() * 2) - 150, 90, 30);
-    renderMinusOne->setGeometry((gameView->viewport()->width() * 2) - 150, (gameView->viewport()->height() * 2) - 200, 90, 30);
+    exitGame->setGeometry((gameView->width() * 2) - 150, (gameView->height()) - 100, 180, 60);
+    renderPlusOne->setGeometry((gameView->width() * 2) - 150, (gameView->height()) - 200, 180, 60);
+    renderMinusOne->setGeometry((gameView->width() * 2) - 150, (gameView->height()) - 300, 180, 60);
     YieldDisplay = new QRect(0,0, 500, 20);
+
+    qDebug() << "gameView width: " << gameView->width() << "gameView height: " << gameView->height();
 
     proxy.push_back(gameView->addWidget(exitGame));
     proxy.push_back(gameView->addWidget(renderPlusOne));

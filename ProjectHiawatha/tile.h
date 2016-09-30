@@ -15,9 +15,6 @@ typedef struct {int column; int row;} TileID;
 class Tile
 {
 public:
-
-    Tile(TileType type);
-    Tile(TileType type, Yield yield);
     Tile(int posX, int posY);
 
     ~Tile();
@@ -117,7 +114,7 @@ private:
     QPoint points[7];
     QPoint center;
     QPoint textCenter;
-    QPointF texturePoint;
+    QPoint texturePoint;
 
     int hexPosX;
     int hexPosY;
@@ -126,7 +123,6 @@ private:
     int hexRowOffset;
 
     QPolygon poly;
-
 };
 
 #endif // TILE_H

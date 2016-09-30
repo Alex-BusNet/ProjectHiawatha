@@ -20,8 +20,8 @@ GameView::GameView(QWidget *widget, bool fullscreen)
     qDebug() <<"Done.\nSetting screen size.";
     if(!fullscreen)
     {
-        gameView.setFixedWidth(900);
-        gameView.setFixedHeight(600);
+        gameView.viewport()->setFixedSize(1200, 600);
+        gameView.setFixedSize(1200, 600);
     }
     else
     {
@@ -126,17 +126,8 @@ void GameView::mouseMoveEvent(QMouseEvent *event)
 
 void GameView::paintEvent(QPaintEvent *e)
 {
-    QGraphicsView::paintEvent(e);
-
-//    QPainter painter(viewport());
-
-//    painter.setRenderHints(QPainter::Antialiasing);
-//    painter.translate(viewport()->width() + 10, viewport()->height() + 10);
-
-//    painter.setPen( Qt::white );
-//    painter.setBrush(QColor(0, 0, 0, 0));
-
-//    painter.drawRoundRect(QRectF(0,0,50,50), 10, 10);
+    QPainter painter(viewport());
+    viewport()->update();
 }
 
 void GameView::closeGame()
@@ -146,7 +137,7 @@ void GameView::closeGame()
 
 void GameView::zoomIn()
 {
-    if(zoomScale < 7)
+    if(zoomScale < 10)
     {
         gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
         gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);

@@ -14,152 +14,7 @@
 //      4-------3
 //
 //======================
-
-Tile::Tile()
-{
-    this->type = GRASS;
-    this->yield = Yield();
-    this->improvement = NONE;
-
-    IsWorked = false;
-    HasRoad = false;
-    HasCity = false;
-    ContainsUnit = false;
-
-    //size of square tiles in px
-    sizeX = 20;
-    sizeY = 20;
-
-    posX = 0;
-    posY = 0;
-
-    rect = QRect(posX, posY, sizeX, sizeY);
-
-    //Size of Hex tiles in px
-    hexPosX = 400;
-    hexPosY = 100;
-    hexVertOffset = 22;
-    hexHorOffset = 74;
-    hexRowOffset = 37;
-
-    points[0] = QPoint(hexPosX, hexPosY);
-    points[1] = QPoint((hexPosX + 25), hexPosY);
-    points[2] = QPoint((hexPosX + 37), (hexPosY + 22));
-    points[3] = QPoint((hexPosX + 25), (hexPosY + 44));
-    points[4] = QPoint(hexPosX, (hexPosY + 44));
-    points[5] = QPoint((hexPosX - 12), (hexPosY + 22));
-    points[6] = QPoint(hexPosX, hexPosY);
-
-    center = QPoint(hexPosX + 12, hexPosY + 22);
-    textCenter = QPoint(hexPosX + 1, hexPosY + 22);
-    texturePoint = QPoint(hexPosX - 12, hexPosY + 1);
-
-    this->poly << this->points[0]
-            << this->points[1]
-            << this->points[2]
-            << this->points[3]
-            << this->points[4]
-            << this->points[5]
-            << this->points[6];
-
-    this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
-}
-
-Tile::Tile(TileType type)
-{
-    qDebug() << "Tile(TileType) c'tor called";
-    this->type = type;
-    this->yield = Yield();
-    this->improvement = NONE;
-
-    IsWorked = false;
-    HasRoad = false;
-    HasCity = false;
-    ContainsUnit = false;
-
-    //size of square tiles in px
-    sizeX = 20;
-    sizeY = 20;
-
-    posX = 0;
-    posY = 0;
-
-    rect = QRect(posX, posY, sizeX, sizeY);
-
-    //Size of Hex tiles in px
-    hexPosX = 12;
-    hexPosY = 0;
-    hexVertOffset = 22;
-    hexHorOffset = 74;
-    hexRowOffset = 37;
-
-    points[0] = QPoint(hexPosX, hexPosY);
-    points[1] = QPoint((hexPosX + 25), hexPosY);
-    points[2] = QPoint((hexPosX + 37), (hexPosY + 22));
-    points[3] = QPoint((hexPosX + 25), (hexPosY + 44));
-    points[4] = QPoint(hexPosX, (hexPosY + 44));
-    points[5] = QPoint((hexPosX - 12), (hexPosY + 22));
-    points[6] = QPoint(hexPosX, hexPosY);
-
-    center = QPoint(hexPosX + 12, hexPosY + 22);
-    textCenter = QPoint(hexPosX + 1, hexPosY + 22);
-
-    this->poly << this->points[0]
-            << this->points[1]
-            << this->points[2]
-            << this->points[3]
-            << this->points[4]
-            << this->points[5]
-            << this->points[6];
-}
-
-Tile::Tile(TileType type, Yield yield)
-{
-    qDebug() << "Tile(TileType, Yield) c'tor called";
-    this->type = type;
-    this->yield = yield;
-    this->improvement = NONE;
-
-    IsWorked = false;
-    HasRoad = false;
-    HasCity = false;
-    ContainsUnit = false;
-
-    //size of square tiles in px
-    sizeX = 20;
-    sizeY = 20;
-
-    posX = 0;
-    posY = 0;
-
-    rect = QRect(posX, posY, sizeX, sizeY);
-
-    //Size of Hex tiles in px
-    hexPosX = 12;
-    hexPosY = 0;
-    hexVertOffset = 22;
-    hexHorOffset = 74;
-    hexRowOffset = 37;
-
-    points[0] = QPoint(hexPosX, hexPosY);
-    points[1] = QPoint((hexPosX + 25), hexPosY);
-    points[2] = QPoint((hexPosX + 37), (hexPosY + 22));
-    points[3] = QPoint((hexPosX + 25), (hexPosY + 44));
-    points[4] = QPoint(hexPosX, (hexPosY + 44));
-    points[5] = QPoint((hexPosX - 12), (hexPosY + 22));
-    points[6] = QPoint(hexPosX, hexPosY);
-
-    center = QPoint(hexPosX + 12, hexPosY + 22);
-    textCenter = QPoint(hexPosX + 1, hexPosY + 22);
-
-    this->poly << this->points[0]
-            << this->points[1]
-            << this->points[2]
-            << this->points[3]
-            << this->points[4]
-            << this->points[5]
-            << this->points[6];
-}
+int drawScale = 2;
 
 Tile::Tile(int posX, int posY)
 {
@@ -174,21 +29,25 @@ Tile::Tile(int posX, int posY)
     ContainsUnit = false;
 
     //Size of Hex tiles in px
-    hexVertOffset = 22;
-    hexHorOffset = 74;
-    hexRowOffset = 37;
+
+    hexVertOffset = 22 * drawScale;
+    hexHorOffset = 74 * drawScale;
+    hexRowOffset = 37 * drawScale;
+
+    posX *= drawScale;
+    posY *= drawScale;
 
     points[0] = QPoint(posX, posY);
-    points[1] = QPoint(posX + 25, posY);
+    points[1] = QPoint(posX + (25 * drawScale), posY);
     points[2] = QPoint((posX + hexRowOffset), (posY + hexVertOffset));
-    points[3] = QPoint(posX + 25, posY + (hexVertOffset * 2));
+    points[3] = QPoint(posX + (25 * drawScale), posY + (hexVertOffset * 2));
     points[4] = QPoint(posX, posY + (hexVertOffset * 2));
-    points[5] = QPoint(posX - 12, (posY + hexVertOffset));
+    points[5] = QPoint(posX - (12 * drawScale), (posY + hexVertOffset));
     points[6] = QPoint(posX, posY);
 
-    center = QPoint(posX + 12, posY + hexVertOffset);
-    textCenter = QPoint(posX + 1, posY + hexVertOffset);
-    texturePoint = QPointF(posX - 11.8, posY + 1.3);
+    center = QPoint(posX + (12 * drawScale), posY + hexVertOffset);
+    textCenter = QPoint(posX + 10, posY + hexVertOffset);
+    texturePoint = QPoint(posX - (12 * drawScale), posY + (0 * drawScale));
 
     this->poly << this->points[0]
             << this->points[1]
@@ -409,17 +268,19 @@ void Tile::SetTileBiome(Biome biome)
 
 void Tile::SetHexPos(int x, int y)
 {
+    x *= 10;
+    y *= 10;
     this->points[0] = QPoint(x, y);
-    this->points[1] = QPoint((x + 25), y);
-    this->points[2] = QPoint((x + 37), (y + 22));
-    this->points[3] = QPoint((x + 25), (y + 44));
-    this->points[4] = QPoint(x, (y + 44));
-    this->points[5] = QPoint((x - 12), (y + 22));
+    this->points[1] = QPoint((x + (25 * drawScale)), y);
+    this->points[2] = QPoint((x + 370), (y + (22 * drawScale)));
+    this->points[3] = QPoint((x + (25 * drawScale)), (y + (44 * drawScale)));
+    this->points[4] = QPoint(x, (y + (44 * drawScale)));
+    this->points[5] = QPoint((x - (12 * drawScale)), (y + (22 * drawScale)));
     this->points[6] = QPoint(x, y);
 
-    this->center = QPoint(x + 12, y + 22);
-    this->textCenter = QPoint(x + 1, y + 10);
-    this->texturePoint = QPointF(x - 11.8, y + 1.3);
+    this->center = QPoint(posX + (12 * drawScale), posY + 22 * drawScale);
+    this->textCenter = QPoint(posX + 10, posY + 22 * drawScale);
+    this->texturePoint = QPoint(posX - (12 * drawScale), posY + (0 * drawScale));
 }
 
 void Tile::SetHexPoly()
