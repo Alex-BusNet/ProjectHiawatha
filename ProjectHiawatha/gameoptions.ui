@@ -62,7 +62,7 @@
     <item alignment="Qt::AlignHCenter">
      <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>TextLabel</string>
+       <string>India</string>
       </property>
      </widget>
     </item>

@@ -7,7 +7,8 @@
 #include <QPixmap>
 #include <QDebug>
 
-typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QString SecondColor;}CivInfo;
+typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QString SecondColor; int mapDimension1;
+               int mapDimension2;}CivInfo;
 
 GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QWidget(parent),
@@ -80,12 +81,20 @@ void GameOptions::paintEvent(QPaintEvent *e)
 void GameOptions::on_pushButton_clicked()
 {
     QListWidgetItem* selectedItem = ui->listWidget->currentItem();
-    CivInfo info = {selectedItem->text(),ui->label_3->text(),"red","blue"};
+    QString str = ui->comboBox->currentText();
+    QString tempStr = str.remove(0,(str.indexOf(':',0)+1));
+    QString tempStr2 = tempStr.remove((tempStr.indexOf('x',0)),20);
+    int mapSize1 = tempStr2.toInt();
+    mapSize1 = mapSize1 / 2;
+    tempStr = str.remove(0,(str.indexOf('x',0)+1));
+    tempStr2 = tempStr.remove((tempStr.indexOf('x',0)+3),20);
+    int mapSize2 = tempStr2.toInt();
+    CivInfo info = {selectedItem->text(),ui->label_3->text(),"red","blue",mapSize1,mapSize2};//This is data that needs passed
     if(game != NULL)
     {
         delete game;
     }
-    qDebug()<<"Civ: "<<info.LeaderName;
+    qDebug()<<"Map Size: "<<info.mapDimension1;
     game = new GameManager(0, FullScreen);
     this->close();
 
