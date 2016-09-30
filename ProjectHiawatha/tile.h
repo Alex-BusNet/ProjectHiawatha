@@ -5,6 +5,7 @@
 #include "biome.h"
 #include "yield.h"
 #include "civilization.h"
+#include "nation.h"
 #include <QPixmap>
 #include <QPolygonF>
 #include <QRect>
@@ -43,7 +44,7 @@ public:
     //Resource GetTileResource();
     //void SetTileResource();
 
-    Civilization GetControllingCiv();
+    Nation GetControllingCiv();
     void SetControllingCiv();
 
     //City getGoverningCity();
@@ -103,7 +104,7 @@ private:
     TileID tileID;
     QPixmap tileTexture;
     Biome biome;
-    Civilization owner;
+    Nation owner;
     //Resource resource;
 
     //==Square Tiles==

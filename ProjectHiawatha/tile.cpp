@@ -233,7 +233,7 @@ Biome Tile::GetTileBiome()
     return this->biome;
 }
 
-Civilization Tile::GetControllingCiv()
+Nation Tile::GetControllingCiv()
 {
     this->owner;
 }
