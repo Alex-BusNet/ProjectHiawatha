@@ -15,29 +15,25 @@ Civilization::Civilization()
 
 }
 
+Civilization::Civilization(Nation name)
+{
+    this->name=name;
+}
+
 
 
 
 
 //Accessors and Mutators
-void Civilization::setCiv(int nation)
+void Civilization::setCiv(Nation name)
 {
-    this->nation=nation;
+    this->name=name;
 }
 
-int Civilization::getCiv()
+Nation Civilization::getCiv()
 {
-    return this->nation;
+    return this->name;
 }
 
-void Civilization::setLeader(int leader)
-{
-    this->leader=leader;
-}
-
-int Civilization::getLeader()
-{
-    return this->leader;
-}
 
 
