@@ -35,75 +35,27 @@ Renderer::Renderer()
 
 }
 
-void Renderer::DrawMap(Map *map, QPainter &painter)
-{
-    QPen pen;
-    QRect rect;
-
-    pen.setColor(Qt::black);
-    pen.setWidth(3);
-
-    painter.setPen(pen);
-
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        //Build a new QRect for each Tile.
-        rect = QRect(map->GetTileAt(i)->GetPosX(), map->GetTileAt(i)->GetPosY(), map->GetTileAt(i)->GetSizeX(), map->GetTileAt(i)->GetSizeY());
-
-        painter.drawRect(rect);
-
-        if(map->GetTileAt(i)->GetTileType() == GRASS)
-        {
-            painter.fillRect(rect, Qt::green);
-        }
-        else if(map->GetTileAt(i)->GetTileType() == WATER)
-        {
-            painter.fillRect(rect, Qt::blue);
-        }
-    }
-}
-
-void Renderer::DrawHex(Map *map, QPainter &painter)
-{
-    QPen pen;
-    QPainterPath path;
-
-    pen.setColor(Qt::black);
-    pen.setWidth(3);
-
-    painter.setPen(pen);
-
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        painter.drawPixmap(map->GetTileAt(i)->GetHexPosX() - 11, map->GetTileAt(i)->GetHexPosY() + 2, 47, 41, map->GetTileAt(i)->GetTileTexture());
-
-        pen.setColor(Qt::black);
-        painter.setPen(pen);
-
-        painter.drawPolyline(map->GetTileAt(i)->GetHexPoints(), 7);
-
-        pen.setColor(Qt::red);
-        painter.setPen(pen);
-
-        painter.drawPoints(map->GetTileAt(i)->GetHexPoints(), 7);
-        painter.drawPoint(map->GetTileAt(i)->GetCenter());
-
-        pen.setColor(Qt::black);
-        painter.setPen(pen);
-
-        painter.drawText(map->GetTileAt(i)->GetTextCenter(), QString("%1, %2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row));
-    }
-}
-
 void Renderer::DrawHexScene(Map *map, QVector<QGraphicsPolygonItem*> polyVect, QVector<QGraphicsPixmapItem*> itemVect, GameView *scene)
 {
+    QPen pen;
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
+        if(map->GetTileAt(i)->Selected)
+        {
+            pen.setColor(Qt::yellow);
+        }
+        else
+        {
+            // This sets the pen to be transparent
+            pen.setColor(QColor(255, 255, 255, 0));
+        }
+
         polyVect.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
+        polyVect.at(i)->setPen(pen);
         polyVect.at(i)->setZValue(1);
 
         itemVect.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
-        itemVect.at(i)->setScale(0.64f); // for drawScale = 1, textureScale = 0.32f
+        itemVect.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
         itemVect.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 }
@@ -117,24 +69,24 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
 {
     ////THIS COMMENTED SECTION IS FOR DEBUGGING PURPOSES.
     /// IF YOU NEED IT, COMMENT OUT THE YIELD DISPLAY TEXT
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
-        tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
-        tVect.at(i)->setZValue(7);
-        tVect.at(i)->setDefaultTextColor(Qt::red);
-    }
+//    for(int i = 0; i < map->GetBoardSize(); i++)
+//    {
+//        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
+//        tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
+//        tVect.at(i)->setZValue(7);
+//        tVect.at(i)->setDefaultTextColor(Qt::red);
+//    }
 
     //This is a placeholder, it will need to be re-adjusted once the player class is added.
-//    tVect.push_back(view->addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
-//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
-//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
-//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
-//                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
-//    tVect.at(0)->setPos(5, 2);
-//    tVect.at(0)->setZValue(7);
-//    tVect.at(0)->setDefaultTextColor(Qt::white);
+    tVect.push_back(view->addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
+    tVect.at(0)->setPos(5, 2);
+    tVect.at(0)->setZValue(7);
+    tVect.at(0)->setDefaultTextColor(Qt::white);
 
 }
 

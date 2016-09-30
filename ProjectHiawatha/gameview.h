@@ -26,6 +26,7 @@ private:
     bool eventFilter(QObject *watched, QEvent *event);
     virtual void wheelEvent(QWheelEvent *e);
     void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
     int zoomScale;
 

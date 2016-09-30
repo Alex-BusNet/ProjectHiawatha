@@ -26,6 +26,8 @@ public:
     bool HasCity;
     bool DiscoveredByPlayer; // Fog of War flag
     bool Checked;
+    bool Selected;
+
     //Unit GetUnit();
     //void SetUnit();
 
@@ -42,7 +44,7 @@ public:
     //void SetTileResource();
 
     Nation GetControllingCiv();
-    void SetControllingCiv();
+    void SetControllingCiv(Nation civ);
 
     //City getGoverningCity();
     //void setGoverningCity();
@@ -87,14 +89,6 @@ public:
     void PrintHexPoints();
 
 private:
-    //=========================
-    // DO NOT USE THIS C'TOR
-    //
-    Tile();
-    //
-    //=========================
-
-
     TileType type;
     Yield yield;
     TileImprovement improvement;

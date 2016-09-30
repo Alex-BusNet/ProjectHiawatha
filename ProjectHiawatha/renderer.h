@@ -13,12 +13,9 @@ class Renderer
 {
 public:
     enum ItemGroup {MAP, TERRAIN, CITY_IMPROVEMENTS, OUTLINES, UNITS, FOG_OF_WAR, GUI_IMAGES, GUI_TEXT };
+
     Renderer();
 
-    //I'm going to change these functions so that they are
-    // more useful and not wasting space.
-    void DrawMap(Map *map, QPainter &painter);
-    void DrawHex(Map *map, QPainter &painter);
     void DrawHexScene(Map *map, QVector<QGraphicsPolygonItem *> polyVect, QVector<QGraphicsPixmapItem*> itemVect, GameView *scene);
     void UpdateScene(QGraphicsView *view);
     void DrawGuiImages(QGraphicsScene *scene);

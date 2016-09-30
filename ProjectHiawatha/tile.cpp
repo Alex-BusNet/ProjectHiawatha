@@ -27,6 +27,7 @@ Tile::Tile(int posX, int posY)
     HasRoad = false;
     HasCity = false;
     ContainsUnit = false;
+    Selected = false;
 
     //Size of Hex tiles in px
 
@@ -97,9 +98,9 @@ Nation Tile::GetControllingCiv()
     this->owner;
 }
 
-void Tile::SetControllingCiv(/*Civ owner*/)
+void Tile::SetControllingCiv(Nation civ)
 {
-    this->owner;
+    this->owner = civ;
 }
 
 void Tile::SetTileType(TileType type)

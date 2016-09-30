@@ -77,11 +77,11 @@ bool GameView::eventFilter(QObject *watched, QEvent *event)
         qDebug() << "Mouse Move Event Filter";
         return true;
     }
-//    else if((watched->metaObject()->className() == this->metaObject()->className() && event->type() == QEvent::Paint))
-//    {
-//        this->paintEvent(static_cast<QPaintEvent*>(event));
-//        return true;
-//    }
+    else if((watched->metaObject()->className() == this->metaObject()->className() && event->type() == QEvent::MouseButtonRelease))
+    {
+        qDebug() << "GameView Mouse Release Event";
+        return true;
+    }
 
     return false;
 }
@@ -122,6 +122,11 @@ void GameView::mouseMoveEvent(QMouseEvent *event)
     {
         //Scroll up to top of map
     }
+}
+
+void GameView::mouseReleaseEvent(QMouseEvent *event)
+{
+
 }
 
 void GameView::paintEvent(QPaintEvent *e)
