@@ -18,9 +18,9 @@ public:
     Civilization(Nation name);
 
     //Accessors and Mutators
-    void setCiv(Nation name);
     Nation getCiv();
-
+    void UpdateCivYield();
+    Yield getCivYield();
 
 private:
     Nation name;
@@ -39,7 +39,7 @@ private:
     QVector<Yield> cityyield;
         //Uses citytiles to assemble yield totals for city
 
-    QVector<Yield> totalyield;
+    Yield totalyield;
         //Will contain the totals for the civ's yields (uses cityyield)
 };
 
