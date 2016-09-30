@@ -122,11 +122,6 @@ Tile* Map::GetTileFromCoord(int column, int row)
     return board.at((column / 2) + (mapSizeX * row));
 }
 
-//void Map::run()
-//{
-//    this->InitHexMap();
-//}
-
 void Map::GenerateMap()
 {
     int dbl;
@@ -244,19 +239,19 @@ void Map::CleanMap()
     {
         if(board.at(i)->GetTileType() == DESERT && !(board.at(i)->Checked))
         {
-            //Get the tiles surrounding the selected tile
+//            //Get the tiles surrounding the selected tile
             TileID selectedID = board.at(i)->GetTileID();
 
-            // We only need to check the tiles to the SW, S, and SE of the selected tile
-            // because the rows above it have already been checked. Also need to use to Checked flag
-            // so we don't turn the whole map into a desolate land.
+//            // We only need to check the tiles to the SW, S, and SE of the selected tile
+//            // because the rows above it have already been checked. Also need to use to Checked flag
+//            // so we don't turn the whole map into a desolate land.
             adjacentTiles[0] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1); //SW
             adjacentTiles[1] = GetTileFromCoord(selectedID.column, selectedID.row + 2);     //S
             adjacentTiles[2] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1); //SE
 
             for(int j = 0; j < 3; j++)
             {
-                if(adjacentTiles[j]->GetTileType() = DESERT)
+                if(adjacentTiles[j]->GetTileType() == DESERT)
                 {
                     if(j == 0)
                     {
@@ -275,11 +270,14 @@ void Map::CleanMap()
                         break;
                     }
 
+
                     // Set Tile Checked flag
                 }
+
+                adjacentTiles[j]->Checked = true;
             }
 
-            // Clear the array before searching again.
+//            // Clear the array before searching again.
             for(int k = 0; k < 3; k++)
             {
                 delete adjacentTiles[k];

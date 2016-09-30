@@ -66,8 +66,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Done.\nDrawing map.";
     renderer->DrawHexScene(map, tile, tilePixmap, &gameView);
 
+    qDebug() << "Done.\nDrawing Units.";
     renderer->DrawTestUnits(map, unitPixmap, &gameView);
 
+    qDebug() << "Done.\nDrawing Cities.";
     renderer->DrawTestCities(map, cityPixmap, &gameView);
 
 //    renderer->DrawGuiImages(game);

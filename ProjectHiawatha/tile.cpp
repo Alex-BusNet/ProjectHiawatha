@@ -380,7 +380,7 @@ void Tile::SetTileTexture(TileType type)
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
         break;
     case DESERT:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/desert_flat.png");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/desert.png");
         break;
     case MOUNTAIN:
          this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/mountain.png");
