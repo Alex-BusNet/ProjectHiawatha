@@ -25,11 +25,6 @@ private:
     Map *map;
     QTimer *updateTimer;
 
-    // These event handlers most likely are going to be removed from here. -Port
-    void mouseMoveEvent(QMouseEvent *event);
-
-//    QGraphicsScene *game;
-//    QGraphicsView gameView;
     GameView *gameView;
 
     QVector<QGraphicsPolygonItem*> tile;
@@ -49,6 +44,8 @@ private:
 
     int zoomScale;
 
+    void setScene(QGraphicsScene *scene);
+
 signals:
 
 public slots:
@@ -56,7 +53,7 @@ public slots:
 
     void zoomIn();
     void zoomOut();
-    void updateGameWindow();
+//    void updateGameWindow();
 };
 
 #endif // GAMEWINDOW_H

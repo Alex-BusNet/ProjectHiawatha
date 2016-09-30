@@ -4,35 +4,15 @@
 #include <QScrollBar>
 #include "qmath.h"
 
-GameView::GameView(QWidget *widget, bool fullscreen)
+GameView::GameView(QWidget *parent, bool fullscreen) : QGraphicsView(parent)
 {
     game = new QGraphicsScene(this);
-    gameView.setScene(game);
 
     qDebug() << "Done. Setting gameView settings.";
-    this->gameView.installEventFilter(this);
-    gameView.setMouseTracking(true);
-    gameView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gameView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gameView.setDragMode(QGraphicsView::ScrollHandDrag);
-//    gameView.setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+
 
     qDebug() <<"Done.\nSetting screen size.";
-    if(!fullscreen)
-    {
-        gameView.viewport()->setFixedSize(1200, 600);
-        gameView.setFixedSize(1200, 600);
-    }
-    else
-    {
-        gameView.setWindowState(Qt::WindowFullScreen);
-    }
 
-//    gameView.setWindowFlags(Qt::FramelessWindowHint);
-
-    gameView.show();
-
-    gameView.activateWindow();
 
     zoomScale = 1;
 }
@@ -62,6 +42,22 @@ QGraphicsTextItem *GameView::addText(QString text)
     return this->game->addText(text);
 }
 
+QGraphicsScene *GameView::GetScene()
+{
+    return this->game;
+}
+
+void GameView::ConfigureGraphicsView()
+{
+    this->installEventFilter(this);
+    this->setMouseTracking(true);
+    this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    this->setDragMode(QGraphicsView::ScrollHandDrag);
+    this->setAlignment(Qt::AlignLeft);
+    this->setAlignment(Qt::AlignTop);
+}
+
 bool GameView::eventFilter(QObject *watched, QEvent *event)
 {
 //    qDebug() << "GameView event filter";
@@ -69,7 +65,7 @@ bool GameView::eventFilter(QObject *watched, QEvent *event)
     if((watched->metaObject()->className() == this->metaObject()->className()) && event->type() == QEvent::Wheel)
     {
         qDebug() << "Calling wheelEvent";
-        this->wheelEvent(static_cast<QWheelEvent*>(event));
+        wheelEvent(static_cast<QWheelEvent*>(event));
         return true;
     }
     else if((watched->metaObject()->className() == this->metaObject()->className()) && event->type() == QEvent::MouseMove)
@@ -92,14 +88,24 @@ void GameView::wheelEvent(QWheelEvent *e)
 
     if(e->delta() > 0)
     {
-        zoomIn();
-        e->accept();
+        if(zoomScale < 10)
+        {
+            gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+            gameView.scale(1.2, 1.2);
+            zoomScale++;
+        }
     }
     else if (e->delta() < 0)
     {
-        zoomOut();
-        e->accept();
+        if(zoomScale > 1)
+        {
+            gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+            gameView.scale(1/ 1.2, 1 / 1.2);
+            zoomScale--;
+        }
     }
+
+    e->accept();
 }
 
 void GameView::mouseMoveEvent(QMouseEvent *event)
@@ -129,11 +135,6 @@ void GameView::mouseReleaseEvent(QMouseEvent *event)
 
 }
 
-void GameView::paintEvent(QPaintEvent *e)
-{
-    QPainter painter(viewport());
-    viewport()->update();
-}
 
 void GameView::closeGame()
 {

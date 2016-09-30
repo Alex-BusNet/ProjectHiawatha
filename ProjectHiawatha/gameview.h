@@ -4,20 +4,26 @@
 #include <QEvent>
 #include <QGraphicsItem>
 #include <QGraphicsView>
+#include <QPushButton>
 #include <QWheelEvent>
+#include <qtimeline.h>
 
 
 
 class GameView : public QGraphicsView
 {
+
 public:
-    GameView(QWidget *widget = 0, bool fullscreen = false);
+    GameView(QWidget *parent = 0, bool fullscreen = false);
 
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
     QGraphicsPixmapItem* addPixmap(const QPixmap &pixmap);
     QGraphicsProxyWidget* addWidget(QWidget *widget);
     QGraphicsRectItem* addRect(QRect *rect, QPen pen, QBrush brush);
     QGraphicsTextItem* addText(QString text);
+
+    QGraphicsScene* GetScene();
+    void ConfigureGraphicsView();
 
 private:
     QGraphicsView gameView;
@@ -31,7 +37,6 @@ private:
     int zoomScale;
 
 protected:
-    void paintEvent(QPaintEvent *e);
 
 public slots:
     void closeGame();
