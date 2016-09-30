@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "gamemanager.h"
+#include <QListWidgetItem>
 
 namespace Ui {
 class GameOptions;
@@ -19,6 +20,10 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+
+
+
+    void on_listWidget_itemSelectionChanged();
 
 private:
     Ui::GameOptions *ui;
