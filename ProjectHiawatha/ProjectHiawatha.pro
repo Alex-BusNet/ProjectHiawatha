@@ -26,7 +26,7 @@ SOURCES += main.cpp\
     gameoptions.cpp \
     civilization.cpp \
     player.cpp \
-    ai_operational.cpp
+    ai_operational.cpp \
 
     gameoptions.cpp \
 
@@ -46,7 +46,7 @@ HEADERS  += mainwindow.h \
     civilization.h \
     player.h \
     ai_operational.h \
-    nation.h
+    nation.h \
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \
