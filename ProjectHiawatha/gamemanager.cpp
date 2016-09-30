@@ -10,14 +10,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 {
     qDebug() << "Game Window c'tor called";
 
-    if(!fullscreen)
-    {
-        QWidget::setFixedSize(900, 600);
-    }
-    else
-    {
-        QWidget::setFixedSize(parent->width(), parent->height());
-    }
+    gameView = new GameView(this, fullscreen);
 
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
@@ -54,26 +47,26 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     */
 
     qDebug() << "Done.\nAdding buttons to screen.";
-    exitGame->setGeometry((gameView.viewport()->width() * 2) - 150, (gameView.viewport()->height() * 2) - 100, 90, 30);
-    renderPlusOne->setGeometry((gameView.viewport()->width() * 2) - 150, (gameView.viewport()->height() * 2) - 150, 90, 30);
-    renderMinusOne->setGeometry((gameView.viewport()->width() * 2) - 150, (gameView.viewport()->height() * 2) - 200, 90, 30);
+    exitGame->setGeometry((gameView->viewport()->width() * 2) - 150, (gameView->viewport()->height() * 2) - 100, 90, 30);
+    renderPlusOne->setGeometry((gameView->viewport()->width() * 2) - 150, (gameView->viewport()->height() * 2) - 150, 90, 30);
+    renderMinusOne->setGeometry((gameView->viewport()->width() * 2) - 150, (gameView->viewport()->height() * 2) - 200, 90, 30);
     YieldDisplay = new QRect(0,0, 500, 20);
 
-    proxy.push_back(gameView.addWidget(exitGame));
-    proxy.push_back(gameView.addWidget(renderPlusOne));
-    proxy.push_back(gameView.addWidget(renderMinusOne));
+    proxy.push_back(gameView->addWidget(exitGame));
+    proxy.push_back(gameView->addWidget(renderPlusOne));
+    proxy.push_back(gameView->addWidget(renderMinusOne));
 
     qDebug() << "Done.\nDrawing map.";
-    renderer->DrawHexScene(map, tile, tilePixmap, &gameView);
+    renderer->DrawHexScene(map, tile, tilePixmap, gameView);
 
     qDebug() << "Done.\nDrawing Units.";
-    renderer->DrawTestUnits(map, unitPixmap, &gameView);
+    renderer->DrawTestUnits(map, unitPixmap, gameView);
 
     qDebug() << "Done.\nDrawing Cities.";
-    renderer->DrawTestCities(map, cityPixmap, &gameView);
+    renderer->DrawTestCities(map, cityPixmap, gameView);
 
 //    renderer->DrawGuiImages(game);
-    guiRects.push_back(gameView.addRect(YieldDisplay, gmPen, gmBrush));
+    guiRects.push_back(gameView->addRect(YieldDisplay, gmPen, gmBrush));
 
     for(int i = 0; i < proxy.size(); i++)
     {
@@ -85,7 +78,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         guiRects.at(i)->setZValue(6);
     }
 
-    renderer->DrawGuiText(map, stringData, &gameView);
+    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     qDebug() << "Done.";
@@ -116,24 +109,24 @@ void GameManager::mouseMoveEvent(QMouseEvent *event)
 
 void GameManager::closeGame()
 {
-    gameView.closeGame();
+    gameView->closeGame();
 }
 
 void GameManager::zoomIn()
 {
     qDebug() << "Widget called ZoomIn()";
-    gameView.zoomIn();
+    gameView->zoomIn();
 }
 
 void GameManager::zoomOut()
 {
     qDebug() << "Widget called ZoomOut()";
-    gameView.zoomOut();
+    gameView->zoomOut();
 }
 
 void GameManager::updateGameWindow()
 {
-    renderer->UpdateScene(&gameView);
+    renderer->UpdateScene(gameView);
 }
 
 

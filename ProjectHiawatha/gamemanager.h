@@ -30,7 +30,7 @@ private:
 
 //    QGraphicsScene *game;
 //    QGraphicsView gameView;
-    GameView gameView;
+    GameView *gameView;
 
     QVector<QGraphicsPolygonItem*> tile;
     QVector<QGraphicsPixmapItem*> tilePixmap;

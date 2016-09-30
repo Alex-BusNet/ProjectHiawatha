@@ -1,5 +1,6 @@
 #include "gameview.h"
 #include <QDebug>
+#include <QScreen>
 #include <QScrollBar>
 #include "qmath.h"
 
@@ -19,11 +20,8 @@ GameView::GameView(QWidget *widget, bool fullscreen)
     qDebug() <<"Done.\nSetting screen size.";
     if(!fullscreen)
     {
-        gameView.setMinimumWidth(1200);
-        gameView.setMinimumHeight(900);
-
-        gameView.setMaximumHeight(900);
-        gameView.setMaximumWidth(1200);
+        gameView.setFixedWidth(900);
+        gameView.setFixedHeight(600);
     }
     else
     {
@@ -130,15 +128,15 @@ void GameView::paintEvent(QPaintEvent *e)
 {
     QGraphicsView::paintEvent(e);
 
-    QPainter painter(viewport());
+//    QPainter painter(viewport());
 
-    painter.setRenderHints(QPainter::Antialiasing);
-    painter.translate(viewport()->width() + 10, viewport()->height() + 10);
+//    painter.setRenderHints(QPainter::Antialiasing);
+//    painter.translate(viewport()->width() + 10, viewport()->height() + 10);
 
-    painter.setPen( Qt::white );
-    painter.setBrush(QColor(0, 0, 0, 0));
+//    painter.setPen( Qt::white );
+//    painter.setBrush(QColor(0, 0, 0, 0));
 
-    painter.drawRoundRect(QRectF(0,0,50,50), 10, 10);
+//    painter.drawRoundRect(QRectF(0,0,50,50), 10, 10);
 }
 
 void GameView::closeGame()
