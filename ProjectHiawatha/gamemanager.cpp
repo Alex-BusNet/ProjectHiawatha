@@ -29,6 +29,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     vlayout->addWidget(gameView);
 
     gameView->ConfigureGraphicsView();
+    gameView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
@@ -42,10 +43,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
     renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
 
-//    updateTimer = new QTimer();
-//    updateTimer->setInterval(1);
-//    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
-//    updateTimer->start();
+    updateTimer = new QTimer();
+    updateTimer->setInterval(1);
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
+    updateTimer->start();
 
 //    QWidget::setMouseTracking(true);
 
@@ -108,15 +109,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     zoomScale = 1;
 
     this->setLayout(vlayout);
-    this->setFixedSize(1200, 800);
+//    this->setFixedSize(1200, 800);
     this->show();
 
     qDebug() << "Done.";
     //==================================================================
-}
-
-void GameManager::setScene(QGraphicsScene *scene)
-{
 }
 
 void GameManager::closeGame()
@@ -134,6 +131,12 @@ void GameManager::zoomOut()
 {
     qDebug() << "Widget called ZoomOut()";
     gameView->zoomOut();
+}
+
+void GameManager::updateGameWindow()
+{
+    gameView->update();
+    this->update();
 }
 
 

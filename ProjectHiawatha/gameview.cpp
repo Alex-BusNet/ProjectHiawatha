@@ -8,12 +8,6 @@ GameView::GameView(QWidget *parent, bool fullscreen) : QGraphicsView(parent)
 {
     game = new QGraphicsScene(this);
 
-    qDebug() << "Done. Setting gameView settings.";
-
-
-    qDebug() <<"Done.\nSetting screen size.";
-
-
     zoomScale = 1;
 }
 
@@ -50,12 +44,12 @@ QGraphicsScene *GameView::GetScene()
 void GameView::ConfigureGraphicsView()
 {
     this->installEventFilter(this);
-    this->setMouseTracking(true);
+//    this->setMouseTracking(true);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
-    this->setAlignment(Qt::AlignLeft);
-    this->setAlignment(Qt::AlignTop);
+//    this->setAlignment(Qt::AlignLeft);
+//    this->setAlignment(Qt::AlignTop);
 }
 
 bool GameView::eventFilter(QObject *watched, QEvent *event)
@@ -68,11 +62,11 @@ bool GameView::eventFilter(QObject *watched, QEvent *event)
         wheelEvent(static_cast<QWheelEvent*>(event));
         return true;
     }
-    else if((watched->metaObject()->className() == this->metaObject()->className()) && event->type() == QEvent::MouseMove)
-    {
-        qDebug() << "Mouse Move Event Filter";
-        return true;
-    }
+//    else if((watched->metaObject()->className() == this->metaObject()->className()) && event->type() == QEvent::MouseMove)
+//    {
+//        qDebug() << "Mouse Move Event Filter";
+//        return true;
+//    }
     else if((watched->metaObject()->className() == this->metaObject()->className() && event->type() == QEvent::MouseButtonRelease))
     {
         qDebug() << "GameView Mouse Release Event";
@@ -110,7 +104,7 @@ void GameView::wheelEvent(QWheelEvent *e)
 
 void GameView::mouseMoveEvent(QMouseEvent *event)
 {
-    qDebug() << "Mouse Move Event";
+//    qDebug() << "Mouse Move Event";
 
     if(event->pos().x() > 1150)
     {
@@ -145,9 +139,9 @@ void GameView::zoomIn()
 {
     if(zoomScale < 10)
     {
-        gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-        gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);
-        gameView.scale(1.2, 1.2);
+        this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+//        gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+        this->scale(1.2, 1.2);
         zoomScale++;
     }
 }
@@ -156,9 +150,9 @@ void GameView::zoomOut()
 {
     if(zoomScale > 1)
     {
-        gameView.setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-        gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);
-        gameView.scale(1/ 1.2, 1 / 1.2);
+        this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+//        gameView.setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+        this->scale(1/ 1.2, 1 / 1.2);
         zoomScale--;
     }
 }

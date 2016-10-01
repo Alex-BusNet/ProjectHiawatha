@@ -44,8 +44,6 @@ private:
 
     int zoomScale;
 
-    void setScene(QGraphicsScene *scene);
-
 signals:
 
 public slots:
@@ -53,7 +51,7 @@ public slots:
 
     void zoomIn();
     void zoomOut();
-//    void updateGameWindow();
+    void updateGameWindow();
 };
 
 #endif // GAMEWINDOW_H
