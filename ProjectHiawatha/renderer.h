@@ -20,8 +20,11 @@ public:
     void DrawHexScene(Map *map, GameView *scene);
     void UpdateScene(Map *map, QGraphicsView *view);
     void DrawGuiImages(QGraphicsScene *scene);
+
+    void DrawCityBorders(Map *map);
 //    void DrawCities(QVector<City*> cities, QGraphicsScene *scene);
 //    void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
+
     void DrawTestUnits(Map *map, GameView *view);
     void DrawTestCities(Map *map, GameView *view);
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
@@ -47,6 +50,8 @@ private:
     QVector<QGraphicsPixmapItem*> tilePixmap;
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsPixmapItem*> cityPixmap;
+
+    QPolygon borders;
 
     //May be changed later
     int mapSizeX;

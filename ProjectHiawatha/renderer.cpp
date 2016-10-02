@@ -1,5 +1,6 @@
 
 #include "renderer.h"
+#include "civcolors.h"
 #include <QPen>
 #include <QDebug>
 
@@ -41,26 +42,27 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
         }
         else
         {
+            CivColors *cc = new CivColors();
             // This sets the pen to be transparent
             if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
             {
-                outlinePen.setColor(QColor(255, 255, 255, 0));
+                outlinePen.setColor(cc->NO_NATION_PRIMARY);
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == America)
             {
-                outlinePen.setColor(QColor(0, 255, 0, 255));
+                outlinePen.setColor(cc->AMERICA_PRIMARY);
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == Germany)
             {
-                outlinePen.setColor(QColor(255, 0, 0, 255));
+                outlinePen.setColor(cc->GERMANY_PRIMARY);
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == India)
             {
-                outlinePen.setColor(QColor(0, 0, 255, 255));
+                outlinePen.setColor(cc->INDIA_PRIMARY);
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == China)
             {
-                outlinePen.setColor(QColor(0, 250, 150, 255));
+                outlinePen.setColor(cc->CHINA_PRIMARY);
             }
         }
 
@@ -154,6 +156,11 @@ void Renderer::AddItemToGroup(QGraphicsItem *item, Renderer::ItemGroup iGroup)
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
 {
     GUI_Images.setZValue(6);
+}
+
+void Renderer::DrawCityBorders(Map *map)
+{
+
 }
 
 void Renderer::DrawTestUnits(Map *map, GameView* view)
