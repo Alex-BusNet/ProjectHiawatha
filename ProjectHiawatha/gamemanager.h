@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <qevent.h>
+#include "cityscreen.h"
 #include "gameview.h"
 #include "map.h"
 #include "renderer.h"
@@ -37,12 +38,24 @@ private:
     QPushButton *exitGame;
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
+    QPushButton *showDummyCityScreen;
+
+    CityScreen *cityScreen;
+
+    QHBoxLayout *hLayout;
+    QHBoxLayout *gameLayout;
+    QVBoxLayout *vLayout;
 
     QVector<QGraphicsProxyWidget*> proxy;
 
-    QRect *YieldDisplay;
+    QString *YieldDisplay;
 
     int zoomScale;
+    bool cityScreenVisible;
+
+    void paintEvent(QPaintEvent *event);
+
+    void mouseReleaseEvent(QMouseEvent *e);
 
 signals:
 
@@ -51,6 +64,7 @@ public slots:
 
     void zoomIn();
     void zoomOut();
+    void showCity();
     void updateGameWindow();
 };
 

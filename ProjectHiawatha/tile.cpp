@@ -61,6 +61,7 @@ Tile::Tile(int posX, int posY)
     this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
 
     Checked = false;
+    owner = NO_NATION;
 }
 
 Tile::~Tile()

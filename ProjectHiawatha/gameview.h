@@ -3,6 +3,7 @@
 
 #include <QEvent>
 #include <QGraphicsItem>
+#include <QGraphicsSceneWheelEvent>
 #include <QGraphicsView>
 #include <QPushButton>
 #include <QWheelEvent>
@@ -25,14 +26,18 @@ public:
     QGraphicsScene* GetScene();
     void ConfigureGraphicsView();
 
+    virtual void wheelEvent(QWheelEvent *e);
+
 private:
     QGraphicsView gameView;
     QGraphicsScene *game;
 
-    bool eventFilter(QObject *watched, QEvent *event);
-    virtual void wheelEvent(QWheelEvent *e);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *e);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
+    void mousePressEvent(QGraphicsSceneMouseEvent *e);
+//    void paintEvent(QPaintEvent *e);
+
+    QPointF clickedPos;
 
     int zoomScale;
 

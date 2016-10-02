@@ -3,7 +3,7 @@
 
 enum Nation
 {
-    America, Germany, India, China
+    America, Germany, India, China, NO_NATION
 };
 
 #endif

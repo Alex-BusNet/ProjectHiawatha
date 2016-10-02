@@ -1,6 +1,7 @@
 #include "gamemanager.h"
 #include <QDebug>
 #include <QDialog>
+#include <QLabel>
 #include <QThread>
 
 QPen gmPen(Qt::black);
@@ -10,12 +11,15 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 {
     qDebug() << "Game Window c'tor called";
 
-//    this->setWindowState(Qt::WindowFullScreen);
     gameView = new GameView(this, fullscreen);
-    gameView->setScene(gameView->GetScene());
 
-    QVBoxLayout *vlayout = new QVBoxLayout();
-    YieldDisplay = new QRect(0,0, this->width(), 20);
+    vLayout = new QVBoxLayout();
+    hLayout = new QHBoxLayout();
+    gameLayout = new QHBoxLayout();
+    cityScreen = new CityScreen();
+    cityScreenVisible = false;
+
+//    QLabel *yDisplay = new QLabel(" ");
 
     if(!fullscreen)
     {
@@ -26,10 +30,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         this->setWindowState(Qt::WindowFullScreen);
     }
 
-    vlayout->addWidget(gameView);
-
     gameView->ConfigureGraphicsView();
-    gameView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
@@ -43,12 +44,15 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
     renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
 
-    updateTimer = new QTimer();
-    updateTimer->setInterval(1);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
-    updateTimer->start();
+    showDummyCityScreen = new QPushButton("Show Dummy City");
+    connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
-//    QWidget::setMouseTracking(true);
+//    updateTimer = new QTimer();
+//    updateTimer->setInterval(1);
+//    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
+//    updateTimer->start();
+
+    QWidget::setMouseTracking(true);
 
     qDebug() << "Creating new Renderer";
 
@@ -60,22 +64,30 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nSetting up Scene.";
 
-    /*=================================================================
-     * Some of this needs to be moved to Renderer::DrawHexScene()
-     * the function parameters also need to be adjusted. -Port
-    */
+//    yDisplay->setGeometry(0, 0, 400, 75);
+//    yDisplay->setText(renderer->SetYieldDisplay(map));
+//    yDisplay->setPixmap(QPixmap("../ProjectHiawatha/Assets/UI/YieldDisplayBackground.png"));
+//    yDisplay->pixmap()->scaled(400, 75);
+//    yDisplay->setStyleSheet("QLabel { color: white; }");
 
     qDebug() << "Done.\nAdding buttons to screen.";
-    QHBoxLayout *hLayout = new QHBoxLayout();
-    exitGame->setGeometry(this->width() - 200, this->height() + 190, 180, 60);
-    renderPlusOne->setGeometry(gameView->width() - 200, this->height() + 125, 180, 60);
-    renderMinusOne->setGeometry(gameView->width()- 200, this->height() + 60, 180, 60);
+
+
+//    exitGame->setGeometry(this->width() - 200, this->height() + 190, 180, 60);
+//    renderPlusOne->setGeometry(gameView->width() - 200, this->height() + 125, 180, 60);
+//    renderMinusOne->setGeometry(gameView->width()- 200, this->height() + 60, 180, 60);
+
+    vLayout->setMargin(0);
+//    vLayout->addWidget(yDisplay);
+    vLayout->addSpacing(20);
+    vLayout->addWidget(gameView);
 
     hLayout->addWidget(exitGame);
     hLayout->addWidget(renderPlusOne);
     hLayout->addWidget(renderMinusOne);
+    hLayout->addWidget(showDummyCityScreen);
 
-    vlayout->addLayout(hLayout);
+    vLayout->addLayout(hLayout);
 
     qDebug() << "gameView width: " << gameView->width() << "gameView height: " << gameView->height();
 
@@ -93,28 +105,43 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     renderer->DrawTestCities(map, cityPixmap, gameView);
 
 //    renderer->DrawGuiImages(game);
-    guiRects.push_back(gameView->addRect(YieldDisplay, gmPen, gmBrush));
 
-    for(int i = 0; i < proxy.size(); i++)
-    {
-        proxy.at(i)->setZValue(7);
-    }
+//    for(int i = 0; i < proxy.size(); i++)
+//    {
+//        proxy.at(i)->setZValue(7);
+//    }
 
-    for(int i = 0; i < guiRects.size(); i++)
-    {
-        guiRects.at(i)->setZValue(6);
-    }
+//    for(int i = 0; i < guiRects.size(); i++)
+//    {
+//        guiRects.at(i)->setZValue(6);
+//    }
 
     renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
-    this->setLayout(vlayout);
-//    this->setFixedSize(1200, 800);
+    this->setLayout(vLayout);
     this->show();
 
     qDebug() << "Done.";
-    //==================================================================
 }
+
+void GameManager::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+
+    QPainter paint(this);
+    QRect playerInfo(0, 0, this->width(), 20);
+    paint.fillRect(playerInfo, QBrush(Qt::black));
+//    paint.drawPixmap(0,0, 350, 50, QPixmap("../ProjectHiawatha/Assets/UI/YieldDisplayBackground.png"));
+    paint.setPen(Qt::white);
+    paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
+}
+
+void GameManager::mouseReleaseEvent(QMouseEvent *e)
+{
+    qDebug() << "Widget mouse release event";
+}
+
 
 void GameManager::closeGame()
 {
@@ -133,9 +160,37 @@ void GameManager::zoomOut()
     gameView->zoomOut();
 }
 
+void GameManager::showCity()
+{
+    if(!cityScreenVisible)
+    {
+        if(cityScreen != NULL)
+        {
+            delete cityScreen;
+        }
+
+        cityScreen = new CityScreen(this);
+        for(int i = 0; i < map->GetBoardSize(); i++)
+        {
+            if(map->GetTileAt(i)->HasCity)
+            {
+                gameView->centerOn(map->GetTileAt(i)->GetCenter());
+            }
+        }
+        gameView->setDragMode(QGraphicsView::NoDrag);
+        cityScreen->show();
+        cityScreenVisible = true;
+    }
+    else
+    {
+        cityScreen->hide();
+        gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+        cityScreenVisible = false;
+    }
+}
+
 void GameManager::updateGameWindow()
 {
-    gameView->update();
     this->update();
 }
 

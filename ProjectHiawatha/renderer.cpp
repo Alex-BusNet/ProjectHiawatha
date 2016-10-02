@@ -27,11 +27,6 @@ QBrush brush(Qt::black);
 
 Renderer::Renderer()
 {
-    //These will need to be changed once different map sizes are added.
-    //These values represent the number of tiles on the map
-    // not the number of tiles on screen.
-    mapSizeX = 30; //max = 32
-    mapSizeY = 39;  //max = 40
 
 }
 
@@ -47,7 +42,26 @@ void Renderer::DrawHexScene(Map *map, QVector<QGraphicsPolygonItem*> polyVect, Q
         else
         {
             // This sets the pen to be transparent
-            pen.setColor(QColor(255, 255, 255, 0));
+            if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
+            {
+                pen.setColor(QColor(255, 255, 255, 0));
+            }
+            else if(map->GetTileAt(i)->GetControllingCiv() == America)
+            {
+                pen.setColor(QColor(0, 255, 0, 255));
+            }
+            else if(map->GetTileAt(i)->GetControllingCiv() == Germany)
+            {
+                pen.setColor(QColor(255, 0, 0, 255));
+            }
+            else if(map->GetTileAt(i)->GetControllingCiv() == India)
+            {
+                pen.setColor(QColor(0, 0, 255, 255));
+            }
+            else if(map->GetTileAt(i)->GetControllingCiv() == China)
+            {
+                pen.setColor(QColor(0, 250, 150, 255));
+            }
         }
 
         polyVect.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
@@ -69,30 +83,37 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
 {
     ////THIS COMMENTED SECTION IS FOR DEBUGGING PURPOSES.
     /// IF YOU NEED IT, COMMENT OUT THE YIELD DISPLAY TEXT
-//    for(int i = 0; i < map->GetBoardSize(); i++)
-//    {
-//        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
-//        tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
-//        tVect.at(i)->setZValue(7);
-//        tVect.at(i)->setDefaultTextColor(Qt::red);
-//    }
-
-    //This is a placeholder, it will need to be re-adjusted once the player class is added.
-    tVect.push_back(view->addText(QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE))));
-    tVect.at(0)->setPos(5, 2);
-    tVect.at(0)->setZValue(7);
-    tVect.at(0)->setDefaultTextColor(Qt::white);
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
+        tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
+        tVect.at(i)->setZValue(7);
+        if(map->GetTileAt(i)->GetTileType() == ICE)
+        {
+            tVect.at(i)->setDefaultTextColor(Qt::red);
+        }
+        else
+        {
+            tVect.at(i)->setDefaultTextColor(Qt::yellow);
+        }
+    }
 
 }
 
 void Renderer::DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget *> wVect, QGraphicsScene *view)
 {
     wVect.push_back(view->addWidget(obj));
+}
+
+QString Renderer::SetYieldDisplay(Map *map)
+{
+    //This is a placeholder, it will need to be re-adjusted once the player class is added.
+     return QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
+                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE));
 }
 
 void Renderer::AddItemToGroup(QGraphicsItem *item, Renderer::ItemGroup iGroup)
@@ -145,6 +166,7 @@ void Renderer::DrawTestUnits(Map *map, QVector<QGraphicsPixmapItem*> uVect, Game
         if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
         {
             uVect.at(0)->setPos(map->GetHexTilePoint(i, 0));
+            uVect.at(0)->setScale(2.0f);
             map->GetTileAt(i)->ContainsUnit = true;
             break;
         }
@@ -158,12 +180,20 @@ void Renderer::DrawTestCities(Map *map, QVector<QGraphicsPixmapItem*> cVect, Gam
     cVect.at(0)->setZValue(2);
     for(int i = 0; i <map->GetBoardSize(); i++)
     {
-        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
+        if(i + 90 < map->GetBoardSize())
         {
-            if(map->GetTileAt(i)->ContainsUnit == false)
+            int j = i + 90;
+
+            if(map->GetTileTypeAt(j) == GRASS || map->GetTileTypeAt(j) == DESERT)
             {
-                cVect.at(0)->setPos(map->GetTileAt(i)->GetTexturePoint());
-                break;
+                if(map->GetTileAt(j)->ContainsUnit == false)
+                {
+                    cVect.at(0)->setPos(map->GetTileAt(j)->GetTexturePoint());
+                    cVect.at(0)->setScale(2.0f);
+                    map->GetTileAt(j)->HasCity = true;
+                    map->GetTileAt(j)->SetControllingCiv(Germany);
+                    break;
+                }
             }
         }
     }

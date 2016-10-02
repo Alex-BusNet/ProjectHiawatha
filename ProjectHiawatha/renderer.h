@@ -8,6 +8,7 @@
 #include <QGraphicsView>
 #include <QPainter>
 #include <QVector>
+#include <qlabel.h>
 
 class Renderer
 {
@@ -25,6 +26,7 @@ public:
     void DrawTestCities(Map *map, QVector<QGraphicsPixmapItem *> cVect, GameView *view);
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
+    QString SetYieldDisplay(Map *map);
 
     void AddItemToGroup(QGraphicsItem *item, ItemGroup iGroup);
 
