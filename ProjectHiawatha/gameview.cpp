@@ -81,10 +81,17 @@ void GameView::mousePressEvent(QGraphicsSceneMouseEvent *e)
     clickedPos = e->pos();
 }
 
-//void GameView::paintEvent(QPaintEvent *e)
-//{
+void GameView::paintEvent(QPaintEvent *e)
+{
+    QGraphicsView::paintEvent(e);
+    QPainter paint;
 
-//}
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        paint.setPen(map->GetTileAt(i)->GetTilePen());
+        paint.drawPolygon(map->GetTileAt(i)->GetTilePolygon());
+    }
+}
 
 void GameView::wheelEvent(QWheelEvent *e)
 {
@@ -98,6 +105,11 @@ void GameView::wheelEvent(QWheelEvent *e)
     }
 
     e->accept();
+}
+
+void GameView::SetGameMap(Map *map)
+{
+    this->map = map;
 }
 
 void GameView::closeGame()

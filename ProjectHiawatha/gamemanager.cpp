@@ -19,8 +19,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     cityScreen = new CityScreen();
     cityScreenVisible = false;
 
-//    QLabel *yDisplay = new QLabel(" ");
-
     if(!fullscreen)
     {
         this->setFixedSize(1200, 700);
@@ -64,21 +62,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nSetting up Scene.";
 
-//    yDisplay->setGeometry(0, 0, 400, 75);
-//    yDisplay->setText(renderer->SetYieldDisplay(map));
-//    yDisplay->setPixmap(QPixmap("../ProjectHiawatha/Assets/UI/YieldDisplayBackground.png"));
-//    yDisplay->pixmap()->scaled(400, 75);
-//    yDisplay->setStyleSheet("QLabel { color: white; }");
-
-    qDebug() << "Done.\nAdding buttons to screen.";
-
-
-//    exitGame->setGeometry(this->width() - 200, this->height() + 190, 180, 60);
-//    renderPlusOne->setGeometry(gameView->width() - 200, this->height() + 125, 180, 60);
-//    renderMinusOne->setGeometry(gameView->width()- 200, this->height() + 60, 180, 60);
-
     vLayout->setMargin(0);
-//    vLayout->addWidget(yDisplay);
     vLayout->addSpacing(20);
     vLayout->addWidget(gameView);
 
@@ -91,18 +75,24 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "gameView width: " << gameView->width() << "gameView height: " << gameView->height();
 
+    qDebug() << "Done.\nAdding buttons to screen.";
+
+//    exitGame->setGeometry(this->width() - 200, this->height() + 190, 180, 60);
+//    renderPlusOne->setGeometry(gameView->width() - 200, this->height() + 125, 180, 60);
+//    renderMinusOne->setGeometry(gameView->width()- 200, this->height() + 60, 180, 60);
+
 //    proxy.push_back(gameView->addWidget(exitGame));
 //    proxy.push_back(gameView->addWidget(renderPlusOne));
 //    proxy.push_back(gameView->addWidget(renderMinusOne));
 
     qDebug() << "Done.\nDrawing map.";
-    renderer->DrawHexScene(map, tile, tilePixmap, gameView);
+    renderer->DrawHexScene(map, gameView);
 
     qDebug() << "Done.\nDrawing Units.";
-    renderer->DrawTestUnits(map, unitPixmap, gameView);
+    renderer->DrawTestUnits(map, gameView);
 
     qDebug() << "Done.\nDrawing Cities.";
-    renderer->DrawTestCities(map, cityPixmap, gameView);
+    renderer->DrawTestCities(map, gameView);
 
 //    renderer->DrawGuiImages(game);
 
@@ -119,6 +109,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
+    gameView->SetGameMap(map);
     this->setLayout(vLayout);
     this->show();
 
@@ -132,9 +123,9 @@ void GameManager::paintEvent(QPaintEvent *event)
     QPainter paint(this);
     QRect playerInfo(0, 0, this->width(), 20);
     paint.fillRect(playerInfo, QBrush(Qt::black));
-//    paint.drawPixmap(0,0, 350, 50, QPixmap("../ProjectHiawatha/Assets/UI/YieldDisplayBackground.png"));
     paint.setPen(Qt::white);
     paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
+
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)

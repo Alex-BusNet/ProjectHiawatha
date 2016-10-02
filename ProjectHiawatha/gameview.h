@@ -1,6 +1,8 @@
 #ifndef GAMEVIEW_H
 #define GAMEVIEW_H
 
+#include "map.h"
+
 #include <QEvent>
 #include <QGraphicsItem>
 #include <QGraphicsSceneWheelEvent>
@@ -28,6 +30,8 @@ public:
 
     virtual void wheelEvent(QWheelEvent *e);
 
+    void SetGameMap(Map *map);
+
 private:
     QGraphicsView gameView;
     QGraphicsScene *game;
@@ -35,7 +39,9 @@ private:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *e);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
     void mousePressEvent(QGraphicsSceneMouseEvent *e);
-//    void paintEvent(QPaintEvent *e);
+    void paintEvent(QPaintEvent *e);
+
+    Map *map;
 
     QPointF clickedPos;
 

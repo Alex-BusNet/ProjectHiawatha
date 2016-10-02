@@ -48,7 +48,8 @@ HEADERS  += mainwindow.h \
     player.h \
     ai_operational.h \
     nation.h \
-    cityscreen.h
+    cityscreen.h \
+    civcolors.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

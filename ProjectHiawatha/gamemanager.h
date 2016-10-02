@@ -29,11 +29,10 @@ private:
     GameView *gameView;
 
     QVector<QGraphicsPolygonItem*> tile;
-    QVector<QGraphicsPixmapItem*> tilePixmap;
-    QVector<QGraphicsPixmapItem*> unitPixmap;
-    QVector<QGraphicsPixmapItem*> cityPixmap;
+
     QVector<QGraphicsRectItem*> guiRects;
     QVector<QGraphicsTextItem*> stringData;
+    QVector<QGraphicsProxyWidget*> proxy;
 
     QPushButton *exitGame;
     QPushButton *renderPlusOne;
@@ -45,8 +44,6 @@ private:
     QHBoxLayout *hLayout;
     QHBoxLayout *gameLayout;
     QVBoxLayout *vLayout;
-
-    QVector<QGraphicsProxyWidget*> proxy;
 
     QString *YieldDisplay;
 

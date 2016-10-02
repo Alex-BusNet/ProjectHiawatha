@@ -17,13 +17,13 @@ public:
 
     Renderer();
 
-    void DrawHexScene(Map *map, QVector<QGraphicsPolygonItem *> polyVect, QVector<QGraphicsPixmapItem*> itemVect, GameView *scene);
-    void UpdateScene(QGraphicsView *view);
+    void DrawHexScene(Map *map, GameView *scene);
+    void UpdateScene(Map *map, QGraphicsView *view);
     void DrawGuiImages(QGraphicsScene *scene);
 //    void DrawCities(QVector<City*> cities, QGraphicsScene *scene);
 //    void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
-    void DrawTestUnits(Map *map, QVector<QGraphicsPixmapItem*> uVect, GameView *view);
-    void DrawTestCities(Map *map, QVector<QGraphicsPixmapItem *> cVect, GameView *view);
+    void DrawTestUnits(Map *map, GameView *view);
+    void DrawTestCities(Map *map, GameView *view);
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
     QString SetYieldDisplay(Map *map);
@@ -42,6 +42,11 @@ private:
     QGraphicsItemGroup FogOfWar;            //Layer 5
     QGraphicsItemGroup GUI_Images;          //Layer 6
     QGraphicsItemGroup GUI_Text;            //Layer 7
+
+    QVector<QGraphicsPolygonItem*> tiles;
+    QVector<QGraphicsPixmapItem*> tilePixmap;
+    QVector<QGraphicsPixmapItem*> unitPixmap;
+    QVector<QGraphicsPixmapItem*> cityPixmap;
 
     //May be changed later
     int mapSizeX;

@@ -6,6 +6,7 @@
 #include "yield.h"
 #include "civilization.h"
 #include "nation.h"
+#include <QPen>
 #include <QPixmap>
 #include <QPolygonF>
 #include <QRect>
@@ -48,6 +49,9 @@ public:
 
     //City getGoverningCity();
     //void setGoverningCity();
+
+    void SetTilePen(QPen pen);
+    QPen GetTilePen();
 
     void SetTileType(TileType type);
     void SetYield(Yield yield);
@@ -97,13 +101,7 @@ private:
     Biome biome;
     Nation owner;
     //Resource resource;
-
-    //==Square Tiles==
-    int sizeX;
-    int sizeY;
-    int posX;
-    int posY;
-    QRect rect;
+    QPen outlinePen;
 
     //==Hex tiles==
     QPoint points[7];

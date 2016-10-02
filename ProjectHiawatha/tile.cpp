@@ -62,6 +62,7 @@ Tile::Tile(int posX, int posY)
 
     Checked = false;
     owner = NO_NATION;
+    outlinePen.setColor(QColor(255, 255, 255, 0));
 }
 
 Tile::~Tile()
@@ -104,6 +105,16 @@ void Tile::SetControllingCiv(Nation civ)
     this->owner = civ;
 }
 
+void Tile::SetTilePen(QPen pen)
+{
+    this->outlinePen = pen;
+}
+
+QPen Tile::GetTilePen()
+{
+    return this->outlinePen;
+}
+
 void Tile::SetTileType(TileType type)
 {
     this->type = type;
@@ -130,39 +141,9 @@ void Tile::SetTileID(TileID id)
     this->tileID = id;
 }
 
-int Tile::GetSizeX()
-{
-    return this->sizeX;
-}
-
-int Tile::GetSizeY()
-{
-    return this->sizeY;
-}
-
-int Tile::GetPosX()
-{
-    return this->posX;
-}
-
-int Tile::GetPosY()
-{
-    return this->posY;
-}
-
 QString Tile::GetTileIDString()
 {
     return QString("%1, %2").arg(this->GetTileID().column).arg(this->GetTileID().row);
-}
-
-void Tile::SetPosX(int x)
-{
-    this->posX = x;
-}
-
-void Tile::SetPosY(int y)
-{
-    this->posY = y;
 }
 
 QPoint* Tile::GetHexPoints()
@@ -193,11 +174,6 @@ QPointF Tile::GetTexturePoint()
 QPolygon Tile::GetTilePolygon()
 {
     return this->poly;
-}
-
-QRect Tile::GetTileRect()
-{
-    return this->rect;
 }
 
 int Tile::GetHexPosX()
@@ -280,9 +256,9 @@ void Tile::SetHexPos(int x, int y)
     this->points[5] = QPoint((x - (12 * drawScale)), (y + (22 * drawScale)));
     this->points[6] = QPoint(x, y);
 
-    this->center = QPoint(posX + (12 * drawScale), posY + 22 * drawScale);
-    this->textCenter = QPoint(posX + 10, posY + 22 * drawScale);
-    this->texturePoint = QPoint(posX - (12 * drawScale), posY + (0 * drawScale));
+    this->center = QPoint(x + (12 * drawScale), y + 22 * drawScale);
+    this->textCenter = QPoint(x + 10, y + 22 * drawScale);
+    this->texturePoint = QPoint(x - (12 * drawScale), y + (0 * drawScale));
 }
 
 void Tile::SetHexPoly()

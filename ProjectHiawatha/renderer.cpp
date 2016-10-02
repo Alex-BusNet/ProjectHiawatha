@@ -22,7 +22,7 @@
 // Use setZValue() to change each item's render layer.
 //=======================================
 
-QPen outlinePen(Qt::black);
+QPen outlinePen(QColor(255, 255, 255, 0));
 QBrush brush(Qt::black);
 
 Renderer::Renderer()
@@ -30,51 +30,53 @@ Renderer::Renderer()
 
 }
 
-void Renderer::DrawHexScene(Map *map, QVector<QGraphicsPolygonItem*> polyVect, QVector<QGraphicsPixmapItem*> itemVect, GameView *scene)
+void Renderer::DrawHexScene(Map *map, GameView *scene)
 {
-    QPen pen;
+//    QPen pen;
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         if(map->GetTileAt(i)->Selected)
         {
-            pen.setColor(Qt::yellow);
+            outlinePen.setColor(Qt::yellow);
         }
         else
         {
             // This sets the pen to be transparent
             if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
             {
-                pen.setColor(QColor(255, 255, 255, 0));
+                outlinePen.setColor(QColor(255, 255, 255, 0));
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == America)
             {
-                pen.setColor(QColor(0, 255, 0, 255));
+                outlinePen.setColor(QColor(0, 255, 0, 255));
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == Germany)
             {
-                pen.setColor(QColor(255, 0, 0, 255));
+                outlinePen.setColor(QColor(255, 0, 0, 255));
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == India)
             {
-                pen.setColor(QColor(0, 0, 255, 255));
+                outlinePen.setColor(QColor(0, 0, 255, 255));
             }
             else if(map->GetTileAt(i)->GetControllingCiv() == China)
             {
-                pen.setColor(QColor(0, 250, 150, 255));
+                outlinePen.setColor(QColor(0, 250, 150, 255));
             }
         }
 
-        polyVect.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
-        polyVect.at(i)->setPen(pen);
-        polyVect.at(i)->setZValue(1);
+        map->GetTileAt(i)->SetTilePen(outlinePen);
+        tiles.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
+        tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
+        tiles.at(i)->setZValue(1);
+//        polyVect.at(i)->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-        itemVect.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
-        itemVect.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
-        itemVect.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+        tilePixmap.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
+        tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
+        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 }
 
-void Renderer::UpdateScene(QGraphicsView *view)
+void Renderer::UpdateScene(Map *map, QGraphicsView *view)
 {
 
 }
@@ -152,32 +154,30 @@ void Renderer::AddItemToGroup(QGraphicsItem *item, Renderer::ItemGroup iGroup)
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
 {
     GUI_Images.setZValue(6);
-    YieldDisplay = scene->addRect(0, 0, 200, 50, outlinePen, brush);
-    YieldDisplay->setZValue(6);
 }
 
-void Renderer::DrawTestUnits(Map *map, QVector<QGraphicsPixmapItem*> uVect, GameView* view)
+void Renderer::DrawTestUnits(Map *map, GameView* view)
 {
     QPixmap *TestUnit = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
-    uVect.push_back(view->addPixmap(*TestUnit));
-    uVect.at(0)->setZValue(4);
+    unitPixmap.push_back(view->addPixmap(*TestUnit));
+    unitPixmap.at(0)->setZValue(4);
     for(int i = 0; i <map->GetBoardSize(); i++)
     {
         if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
         {
-            uVect.at(0)->setPos(map->GetHexTilePoint(i, 0));
-            uVect.at(0)->setScale(2.0f);
+            unitPixmap.at(0)->setPos(map->GetHexTilePoint(i, 0));
+            unitPixmap.at(0)->setScale(2.0f);
             map->GetTileAt(i)->ContainsUnit = true;
             break;
         }
     }
 }
 
-void Renderer::DrawTestCities(Map *map, QVector<QGraphicsPixmapItem*> cVect, GameView *view)
+void Renderer::DrawTestCities(Map *map, GameView *view)
 {
     QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
-    cVect.push_back(view->addPixmap(*TestCity));
-    cVect.at(0)->setZValue(2);
+    cityPixmap.push_back(view->addPixmap(*TestCity));
+    cityPixmap.at(0)->setZValue(2);
     for(int i = 0; i <map->GetBoardSize(); i++)
     {
         if(i + 90 < map->GetBoardSize())
@@ -188,11 +188,14 @@ void Renderer::DrawTestCities(Map *map, QVector<QGraphicsPixmapItem*> cVect, Gam
             {
                 if(map->GetTileAt(j)->ContainsUnit == false)
                 {
-                    cVect.at(0)->setPos(map->GetTileAt(j)->GetTexturePoint());
-                    cVect.at(0)->setScale(2.0f);
+                    cityPixmap.at(0)->setPos(map->GetTileAt(j)->GetTexturePoint());
+                    cityPixmap.at(0)->setScale(2.0f);
                     map->GetTileAt(j)->HasCity = true;
-                    map->GetTileAt(j)->SetControllingCiv(Germany);
                     break;
+                }
+                if(map->GetTileAt(j)->HasCity)
+                {
+                    map->GetTileAt(j)->SetControllingCiv(India);
                 }
             }
         }
