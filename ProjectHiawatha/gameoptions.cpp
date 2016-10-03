@@ -95,7 +95,7 @@ void GameOptions::on_pushButton_clicked()
         delete game;
     }
     qDebug()<<"Map Size: "<<info.mapDimension1;
-    game = new GameManager(0, FullScreen);
+    game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2);
     this->close();
 
 }

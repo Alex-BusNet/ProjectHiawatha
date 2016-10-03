@@ -45,10 +45,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     showDummyCityScreen = new QPushButton("Show Dummy City");
     connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
-//    updateTimer = new QTimer();
-//    updateTimer->setInterval(1);
-//    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGameWindow()));
-//    updateTimer->start();
+    updateTimer = new QTimer();
+    updateTimer->setInterval(500);
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
+    updateTimer->start();
 
     QWidget::setMouseTracking(true);
 
@@ -56,7 +56,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     renderer = new Renderer();
 
-    qDebug() << "Done.\nInitializing Map";
+    qDebug() << "Done.\nInitializing Map.";
     map = new Map(mapSizeX, mapSizeY);
     map->InitHexMap();
 
@@ -72,8 +72,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     hLayout->addWidget(showDummyCityScreen);
 
     vLayout->addLayout(hLayout);
-
-    qDebug() << "gameView width: " << gameView->width() << "gameView height: " << gameView->height();
 
     qDebug() << "Done.\nAdding buttons to screen.";
 
@@ -125,7 +123,6 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfo, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
-
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
@@ -180,9 +177,9 @@ void GameManager::showCity()
     }
 }
 
-void GameManager::updateGameWindow()
+void GameManager::updateTiles()
 {
-    this->update();
+//    gameView->GetScene()->ProcessTile();
 }
 
 

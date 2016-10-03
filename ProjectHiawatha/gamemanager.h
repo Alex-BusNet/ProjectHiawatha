@@ -62,7 +62,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void showCity();
-    void updateGameWindow();
+    void updateTiles();
 };
 
 #endif // GAMEWINDOW_H

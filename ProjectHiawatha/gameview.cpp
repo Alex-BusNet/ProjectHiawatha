@@ -9,8 +9,7 @@
 
 GameView::GameView(QWidget *parent, bool fullscreen) : QGraphicsView(parent)
 {
-    game = new QGraphicsScene(this);
-    this->setScene(game);
+    game = new GameScene(this);
     zoomScale = 1;
 }
 
@@ -39,13 +38,14 @@ QGraphicsTextItem *GameView::addText(QString text)
     return this->game->addText(text);
 }
 
-QGraphicsScene *GameView::GetScene()
+GameScene *GameView::GetScene()
 {
     return this->game;
 }
 
 void GameView::ConfigureGraphicsView()
 {
+    this->setScene(game);
     this->setMouseTracking(true);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -64,12 +64,12 @@ void GameView::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
     QMimeData *mime = new QMimeData;
     drag->setMimeData(mime);
     drag->exec();
-    setCursor(Qt::OpenHandCursor);
+    setCursor(Qt::ArrowCursor);
 }
 
 void GameView::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
-    this->setCursor(Qt::OpenHandCursor);
+    this->setCursor(Qt::ArrowCursor);
 
     qDebug() << "Press point: " << clickedPos << " Release point: " << e->pos();
 }
@@ -77,10 +77,11 @@ void GameView::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 void GameView::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
     qDebug() << "Mouse Pressed";
-    this->setCursor(Qt::ClosedHandCursor);
+    this->setCursor(Qt::ArrowCursor);
     clickedPos = e->pos();
 }
 
+//GameView paintEvent only gets called when the scene is dragged.
 void GameView::paintEvent(QPaintEvent *e)
 {
     QGraphicsView::paintEvent(e);
@@ -103,6 +104,16 @@ void GameView::wheelEvent(QWheelEvent *e)
 void GameView::SetGameMap(Map *map)
 {
     this->map = map;
+}
+
+void GameView::SceneProcess(QPainter *paint)
+{
+    if(game->isTileSelected)
+    {
+        game->ProcessTile();
+        paint->setPen(game->GetSelectedTile()->GetTilePen());
+        paint->drawPolygon(game->GetSelectedTile()->GetTilePolygon());
+    }
 }
 
 void GameView::closeGame()

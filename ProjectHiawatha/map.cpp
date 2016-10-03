@@ -102,6 +102,8 @@ int Map::GetBoardSize()
     return this->board.size();
 }
 
+// boardIndex = the idex value where the tile is stored in board
+// ptIndex = a value 0-6 for the desired point on the hexagon
 QPoint Map::GetHexTilePoint(int boardIndex, int ptIndex)
 {
     return this->board.at(boardIndex)->GetHexPoint(ptIndex);
@@ -132,12 +134,13 @@ void Map::GenerateMap()
     double weights[] =
     {
         0.05,    //Water = 0
-        0.5,    //Grass = 1
+        0.5,     //Grass = 1
         0.15,    //Desert = 2
         0.05,    //Mountain = 3
-        0.15,   //Hill = 4
-        0.1    //Forest = 5
+        0.15,    //Hill = 4
+        0.1      //Forest = 5
     };
+    // Seed the RNG
     qsrand(QTime::currentTime().msec());
     // Create a Mersenne Twister using the random_device
     std::mt19937 gen(qrand());

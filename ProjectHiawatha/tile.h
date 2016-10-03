@@ -47,8 +47,8 @@ public:
     Nation GetControllingCiv();
     void SetControllingCiv(Nation civ);
 
-    //City getGoverningCity();
-    //void setGoverningCity();
+//    City GetGoverningCity();
+//    void SetGoverningCity(City city);
 
     void SetTilePen(QPen pen);
     QPen GetTilePen();

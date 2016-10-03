@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     civilization.cpp \
     player.cpp \
     ai_operational.cpp \
-    cityscreen.cpp
+    cityscreen.cpp \
+    gamescene.cpp
 
     gameoptions.cpp \
 
@@ -49,7 +50,8 @@ HEADERS  += mainwindow.h \
     ai_operational.h \
     nation.h \
     cityscreen.h \
-    civcolors.h
+    civcolors.h \
+    gamescene.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

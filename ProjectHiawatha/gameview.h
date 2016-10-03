@@ -1,6 +1,7 @@
 #ifndef GAMEVIEW_H
 #define GAMEVIEW_H
 
+#include "gamescene.h"
 #include "map.h"
 
 #include <QEvent>
@@ -10,8 +11,6 @@
 #include <QPushButton>
 #include <QWheelEvent>
 #include <qtimeline.h>
-
-
 
 class GameView : public QGraphicsView
 {
@@ -25,16 +24,18 @@ public:
     QGraphicsRectItem* addRect(QRect *rect, QPen pen, QBrush brush);
     QGraphicsTextItem* addText(QString text);
 
-    QGraphicsScene* GetScene();
+    GameScene *GetScene();
     void ConfigureGraphicsView();
 
     virtual void wheelEvent(QWheelEvent *e);
 
     void SetGameMap(Map *map);
+    void SceneProcess(QPainter *paint);
+
 
 private:
     QGraphicsView gameView;
-    QGraphicsScene *game;
+    GameScene *game;
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *e);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
