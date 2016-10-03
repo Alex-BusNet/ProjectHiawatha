@@ -46,7 +46,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
     updateTimer = new QTimer();
-    updateTimer->setInterval(1000);
+    updateTimer->setInterval(50);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
     updateTimer->start();
 
@@ -123,6 +123,11 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfo, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
+
+    if(gameView->GetScene()->isTileSelected)
+    {
+        gameView->GetScene()->drawForeground(&paint, gameView->sceneRect());
+    }
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)

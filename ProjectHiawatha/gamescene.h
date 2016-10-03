@@ -22,12 +22,14 @@ public:
 
     bool isTileSelected, eventQueued;
 
+    void drawForeground(QPainter *painter, const QRectF &rect);
+
 private:
     Tile *lastSelectedTile, *newSelectedTile;
 
-    void drawForeground(QPainter *painter, const QRectF &rect);
-
     int column, row;
+
+    QPointF mpScenePos, mpScreenPos, mrScenePos, mrScreenPos, lastScenePos, lastScreenPos;
 
 };
 
