@@ -6,6 +6,7 @@
 #include "yield.h"
 #include "civilization.h"
 #include "nation.h"
+#include "city.h"
 #include <QPen>
 #include <QPixmap>
 #include <QPolygonF>
@@ -47,8 +48,8 @@ public:
     Nation GetControllingCiv();
     void SetControllingCiv(Nation civ);
 
-//    City GetGoverningCity();
-//    void SetGoverningCity(City city);
+    City *GetGoverningCity();
+    void SetGoverningCity(City *city);
 
     void SetTilePen(QPen pen);
     QPen GetTilePen();
@@ -102,6 +103,7 @@ private:
     Nation owner;
     //Resource resource;
     QPen outlinePen;
+    City *city;
 
     //==Hex tiles==
     QPoint points[7];

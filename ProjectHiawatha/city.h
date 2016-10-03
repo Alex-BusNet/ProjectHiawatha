@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QString>
+#include "nation.h"
 
 class City
 {
@@ -11,7 +12,7 @@ public:
     ~City();
 private:
     QString name;
-    QString Civ;
+    Nation Civ;
     int productionYield;
     int scienceYield;
     int goldYield;

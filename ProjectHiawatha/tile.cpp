@@ -62,6 +62,7 @@ Tile::Tile(int posX, int posY)
 
     Checked = false;
     owner = NO_NATION;
+    city = new City();
     outlinePen.setColor(QColor(255, 255, 255, 0));
 }
 
@@ -103,6 +104,16 @@ Nation Tile::GetControllingCiv()
 void Tile::SetControllingCiv(Nation civ)
 {
     this->owner = civ;
+}
+
+City* Tile::GetGoverningCity()
+{
+    return this->city;
+}
+
+void Tile::SetGoverningCity(City *city)
+{
+    this->city = city;
 }
 
 void Tile::SetTilePen(QPen pen)
@@ -226,6 +237,8 @@ void Tile::SetTileTexture(TileType type)
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/ice.png");
         break;
     case COAST:
+        //This may or may not be added.
+        //It is going to require some logic to get the right texture.
         break;
     case HILL:
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/hill.png");
