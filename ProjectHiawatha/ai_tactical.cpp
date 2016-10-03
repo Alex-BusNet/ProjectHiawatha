@@ -5,6 +5,8 @@
 
 
 /*
+determines appropriate location for a unit to be (but not pathing)
+
 Determines if unit is military or worker/settler type
     if worker, prioritizes resources and orders to improve
     if settler, read from strategic and set a target tile
@@ -15,7 +17,7 @@ Determines if unit is military or worker/settler type
             attack if combat simulator suggests victory (or acceptable loss, etc)
 
 
-            this class is NOT responsible for determining best path to objective
+
 
 
   */

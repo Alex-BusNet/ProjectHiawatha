@@ -9,6 +9,11 @@
   Determine if structures are needed (and which)
         - probably set a static order
         - then give, say, defensive structures priority if under invasion, etc
+
+
+
+Probably called 1x per turn, and calls the operational AI, then tactical AI, from within it.
+        possible tactical is called by operational?
 */
 
 #include "ai_strategic.h"

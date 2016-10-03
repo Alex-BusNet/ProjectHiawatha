@@ -18,6 +18,7 @@ Civilization::Civilization()
 Civilization::Civilization(Nation name)
 {
     this->name=name;
+    //set color
     //spawn a city, and initialize (based on nation)
     //call updatecityyield and updatecivyield to initialize
 }
@@ -32,19 +33,7 @@ Nation Civilization::getCiv()
     return this->name;
 }
 
-//move to city class
-//void Civilization::UpdateCityYield(Yield yield)
-//{
-//    //Re-evaluates the yield for the city
-//    for(int i=0; i<city.tiles();i++){
-//        cityyield+=tile.yield;//need to adjust so it cycles the tiles - syntax?
-//    }
-//}
 
-//Yield Civilization::getCityYield()
-//{
-//    return this->cityyield;
-//}
 
 void Civilization::UpdateCivYield()
 {

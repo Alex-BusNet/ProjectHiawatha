@@ -4,10 +4,11 @@
 #define CIVILIZATION_H
 
 #include <yield.h>
-#include <tile.h>
+#include <city.h>
 #include <nation.h>
 #include <stdint.h>
 #include <QVector>
+#include <civcolors.h>
 
 
 
@@ -25,7 +26,7 @@ public:
 private:
     Nation name;
     //Enum for leader?
-    //enum for colors - primary and secondary?
+    //civcolors
 
     //QVector<Unit> UnitList; Needs a Units object type
         //Will contain all of the civ's units
@@ -33,14 +34,9 @@ private:
     //QVector<City> citylist; Needs a City object type
         //Will contain all of the civ's Cities
 
-   // QVector<Tile> citytiles; - Tile not declared?
-        //contains coordinates of all of the tiles associated with a specific city
-
-    QVector<Yield> cityyield;
-        //Uses citytiles to assemble yield totals for city
 
     Yield totalyield;
-        //Will contain the totals for the civ's yields (uses cityyield)
+        //Will contain the totals for the civ's yields (uses city->cityyield)
 };
 
 #endif // CIVILIZATION_H

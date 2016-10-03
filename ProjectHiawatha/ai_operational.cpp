@@ -13,7 +13,7 @@ Control of overall unit placement
             Probably target nearest opponent city to our borders/any units in the way/any within our borders
                 pathing may play into this
 
-            determines appropriate location for a unit to be (but not pathing?)
+
 
 */
 
