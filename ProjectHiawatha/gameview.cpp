@@ -110,7 +110,7 @@ void GameView::SceneProcess(QPainter *paint)
 {
     if(game->isTileSelected)
     {
-        game->ProcessTile();
+        game->ProcessTile(map);
         paint->setPen(game->GetSelectedTile()->GetTilePen());
         paint->drawPolygon(game->GetSelectedTile()->GetTilePolygon());
     }

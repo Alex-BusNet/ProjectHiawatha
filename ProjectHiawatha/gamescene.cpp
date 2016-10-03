@@ -19,17 +19,13 @@ void GameScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
     eventQueued = true;
 }
 
-void GameScene::SetMap(Map *map)
-{
-    this->map = map;
-}
 
 Tile *GameScene::GetSelectedTile()
 {
     return lastSelectedTile;
 }
 
-void GameScene::ProcessTile()
+void GameScene::ProcessTile(Map *map)
 {
     if(eventQueued == true)
     {

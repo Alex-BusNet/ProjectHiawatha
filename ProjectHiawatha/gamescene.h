@@ -18,12 +18,11 @@ public:
 
     void SetMap(Map *map);
     Tile* GetSelectedTile();
-    void ProcessTile();
+    void ProcessTile(Map *map);
 
     bool isTileSelected, eventQueued;
 
 private:
-    Map *map;
     Tile *lastSelectedTile, *newSelectedTile;
 
     void drawForeground(QPainter *painter, const QRectF &rect);

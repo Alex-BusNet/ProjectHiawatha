@@ -46,7 +46,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
     updateTimer = new QTimer();
-    updateTimer->setInterval(500);
+    updateTimer->setInterval(1000);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
     updateTimer->start();
 
@@ -179,7 +179,7 @@ void GameManager::showCity()
 
 void GameManager::updateTiles()
 {
-//    gameView->GetScene()->ProcessTile();
+    gameView->GetScene()->ProcessTile(map);
 }
 
 
