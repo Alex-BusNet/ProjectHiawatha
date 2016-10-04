@@ -1,10 +1,10 @@
 #ifndef CITY_H
 #define CITY_H
-#include <tile.h>
 #include <QVector>
 #include <QWidget>
 #include <QString>
 #include "nation.h"
+#include "yield.h"
 
 class City
 {
