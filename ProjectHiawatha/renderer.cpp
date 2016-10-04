@@ -78,7 +78,8 @@ void Renderer::DrawHexScene(Map *map, GameView *scene, bool redraw)
         tiles.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
         tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
         tiles.at(i)->setZValue(1);
-//        polyVect.at(i)->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        // Create new vector that stores the oddly-shaped border polygon for each civ (this may be one vector per civ)
+        // Set pen of vector to proper civ color (may require adjustment of if/else condition above
 
         tilePixmap.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
         tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
@@ -93,8 +94,6 @@ void Renderer::UpdateScene(Map *map, QGraphicsView *view)
 
 void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView *view)
 {
-    ////THIS COMMENTED SECTION IS FOR DEBUGGING PURPOSES.
-    /// IF YOU NEED IT, COMMENT OUT THE YIELD DISPLAY TEXT
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));

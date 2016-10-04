@@ -7,6 +7,7 @@
 #include "civilization.h"
 #include "nation.h"
 #include "city.h"
+#include "unit.h"
 #include <QPen>
 #include <QPixmap>
 #include <QPolygonF>
@@ -30,11 +31,8 @@ public:
     bool Checked;
     bool Selected;
 
-    //Unit GetUnit();
-    //void SetUnit();
-
-    //City GetCity();
-    //void SetCity();
+    Unit GetUnit();
+    void SetUnit(Unit unit);
 
     TileType GetTileType();
     Yield GetYield();

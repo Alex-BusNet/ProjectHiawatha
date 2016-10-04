@@ -4,6 +4,7 @@
 #include "gameview.h"
 #include "map.h"
 #include "tile.h"
+#include "unit.h"
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QPainter>
@@ -34,8 +35,8 @@ public:
     void AddItemToGroup(QGraphicsItem *item, ItemGroup iGroup);
 
 private:
-    //QVector<City*> cities;
-    //QVector<Unit*> units;
+    QVector<City*> cities;
+    QVector<Unit*> units;
 
     QGraphicsItemGroup MapGrid;             //Layer 0
     QGraphicsItemGroup Terrain;             //Layer 1
