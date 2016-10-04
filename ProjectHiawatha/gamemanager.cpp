@@ -7,7 +7,7 @@
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 
-GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY) : QWidget(parent)
+GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player) : QWidget(parent)
 {
     qDebug() << "Game Window c'tor called";
 
@@ -84,7 +84,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 //    proxy.push_back(gameView->addWidget(renderMinusOne));
 
     qDebug() << "Done.\nDrawing map.";
-    renderer->DrawHexScene(map, gameView);
+    renderer->DrawHexScene(map, gameView, false);
 
     qDebug() << "Done.\nDrawing Units.";
     renderer->DrawTestUnits(map, gameView);
@@ -123,6 +123,8 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfo, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
+
+    renderer->DrawHexScene(map, gameView, true);
 
     if(gameView->GetScene()->isTileSelected)
     {

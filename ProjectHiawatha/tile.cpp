@@ -98,7 +98,7 @@ Biome Tile::GetTileBiome()
 
 Nation Tile::GetControllingCiv()
 {
-    this->owner;
+    return this->owner;
 }
 
 void Tile::SetControllingCiv(Nation civ)
@@ -118,7 +118,7 @@ void Tile::SetGoverningCity(City *city)
 
 void Tile::SetTilePen(QPen pen)
 {
-    this->outlinePen = pen;
+    this->outlinePen.setColor(pen.color());
 }
 
 QPen Tile::GetTilePen()

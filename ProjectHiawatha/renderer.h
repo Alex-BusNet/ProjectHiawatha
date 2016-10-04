@@ -17,7 +17,7 @@ public:
 
     Renderer();
 
-    void DrawHexScene(Map *map, GameView *scene);
+    void DrawHexScene(Map *map, GameView *scene, bool redraw);
     void UpdateScene(Map *map, QGraphicsView *view);
     void DrawGuiImages(QGraphicsScene *scene);
 

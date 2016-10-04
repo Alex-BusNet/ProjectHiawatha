@@ -80,13 +80,13 @@ void GameScene::ProcessTile(Map *map)
                 lastSelectedTile->Selected = false;
 
             isTileSelected = true;
-            newSelectedTile->Selected = true;
+//            newSelectedTile->Selected = true;
             delete newSelectedTile;
         }
         else
         {
             isTileSelected = false;
-            newSelectedTile->Selected = false;
+//            newSelectedTile->Selected = false;
 //                lastSelectedTile->Selected = false;
             delete newSelectedTile;
         }
@@ -96,4 +96,10 @@ void GameScene::ProcessTile(Map *map)
 void GameScene::drawForeground(QPainter *painter, const QRectF &rect)
 {
     QGraphicsScene::drawForeground(painter, rect);
+
+    if(isTileSelected)
+    {
+        painter->setPen(lastSelectedTile->GetTilePen());
+        painter->drawPolygon(lastSelectedTile->GetTilePolygon());
+    }
 }
