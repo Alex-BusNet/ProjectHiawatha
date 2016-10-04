@@ -27,7 +27,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QIcon* icon4 = new QIcon();
     item4->setText("United States of America");
     icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/CHINA.png");
-    icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY.png");
+    icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY2.png");
     icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/INDIA.png");
     icon4->addFile("../ProjectHiawatha/Assets/Leaders/Icons/USA.png");
     item1->setIcon(*icon1);
@@ -80,7 +80,14 @@ void GameOptions::paintEvent(QPaintEvent *e)
 
 void GameOptions::on_pushButton_clicked()
 {
-    QListWidgetItem* selectedItem = ui->listWidget->currentItem();
+    QListWidgetItem* selectedItem;
+    if(ui->listWidget->currentItem() == NULL)
+    {
+        selectedItem = ui->listWidget->item(0);
+    }else
+    {
+        selectedItem = ui->listWidget->currentItem();
+    }
     QString str = ui->comboBox->currentText();
     QString tempStr = str.remove(0,(str.indexOf(':',0)+1));
     QString tempStr2 = tempStr.remove((tempStr.indexOf('x',0)),20);

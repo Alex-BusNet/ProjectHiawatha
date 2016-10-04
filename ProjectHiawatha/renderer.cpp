@@ -31,8 +31,16 @@ Renderer::Renderer()
 
 }
 
-void Renderer::DrawHexScene(Map *map, GameView *scene)
+void Renderer::DrawHexScene(Map *map, GameView *scene, bool redraw)
 {
+    if(redraw)
+    {
+        int s = tiles.size();
+        for(int i = 0; i < s; i++)
+        {
+            tiles.removeLast();
+        }
+    }
 //    QPen pen;
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
@@ -195,14 +203,12 @@ void Renderer::DrawTestCities(Map *map, GameView *view)
             {
                 if(map->GetTileAt(j)->ContainsUnit == false)
                 {
+                    qDebug() << "Configuring city for tile" << j;
                     cityPixmap.at(0)->setPos(map->GetTileAt(j)->GetTexturePoint());
                     cityPixmap.at(0)->setScale(2.0f);
                     map->GetTileAt(j)->HasCity = true;
-                    break;
-                }
-                if(map->GetTileAt(j)->HasCity)
-                {
                     map->GetTileAt(j)->SetControllingCiv(India);
+                    break;
                 }
             }
         }

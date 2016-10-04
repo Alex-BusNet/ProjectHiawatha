@@ -65,42 +65,40 @@ void GameScene::ProcessTile(Map *map)
 
         newSelectedTile = map->GetTileFromCoord(column, row);
 
-        ////Uncomment this once cities have been added.
-        //    if(selectedTile->HasCity)
-        //    {
-        //        selectedTile->GetGoverningCity();
-        //    }
-            /*else*/if(newSelectedTile->ContainsUnit && !(newSelectedTile->Selected))
-            {
-                if(lastSelectedTile != newSelectedTile)
-                    lastSelectedTile = newSelectedTile;
+        if(newSelectedTile->HasCity)
+        {
+            qDebug() << "Tile has City";
+            newSelectedTile->GetGoverningCity();
+        }
+        else if(newSelectedTile->ContainsUnit && !(newSelectedTile->Selected))
+        {
+            qDebug() << "Tile has Unit";
+            if(lastSelectedTile != newSelectedTile)
+                lastSelectedTile = newSelectedTile;
 
-                if(lastSelectedTile != NULL)
-                    lastSelectedTile->Selected = false;
-
-                isTileSelected = true;
-                newSelectedTile->Selected = true;
-                delete newSelectedTile;
-            }
-            else
-            {
-                isTileSelected = false;
-                newSelectedTile->Selected = false;
+            if(lastSelectedTile != NULL)
                 lastSelectedTile->Selected = false;
-                delete newSelectedTile;
-         }
+
+            isTileSelected = true;
+//            newSelectedTile->Selected = true;
+            delete newSelectedTile;
+        }
+        else
+        {
+            isTileSelected = false;
+//            newSelectedTile->Selected = false;
+//                lastSelectedTile->Selected = false;
+            delete newSelectedTile;
+        }
     }
 }
 
 void GameScene::drawForeground(QPainter *painter, const QRectF &rect)
 {
-    qDebug() << "Drawing foreground";
-
     QGraphicsScene::drawForeground(painter, rect);
 
     if(isTileSelected)
     {
-        qDebug() << "TileSelected";
         painter->setPen(lastSelectedTile->GetTilePen());
         painter->drawPolygon(lastSelectedTile->GetTilePolygon());
     }

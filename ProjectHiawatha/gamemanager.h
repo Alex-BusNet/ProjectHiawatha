@@ -19,7 +19,7 @@ class GameManager : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42);
+    explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42, Nation player = India);
 
 private:
     Renderer *renderer;
