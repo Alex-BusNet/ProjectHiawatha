@@ -2,6 +2,9 @@
 #define CITY_H
 #include <tile.h>
 #include <QVector>
+#include <QWidget>
+#include <QString>
+#include "nation.h"
 
 class City
 {
@@ -12,6 +15,7 @@ public:
     Yield getCityYield();
     void UpdateCityYield(Yield yield);
 
+    ~City();
 private:
 
     //QVector<Tile> citytiles;// - Need tile object, not tile class?
@@ -20,6 +24,13 @@ private:
 
     QVector<Yield> cityyield;
     //Uses citytiles to assemble yield totals for city - city class, not here
+
+
+    QString name;
+    Nation Civ;
+    int productionYield;
+    int scienceYield;
+    int goldYield;
 };
 
 

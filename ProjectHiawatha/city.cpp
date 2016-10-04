@@ -6,6 +6,10 @@ City::City()
 }
 
 
+City::~City()
+{
+
+}
 
 //Accessor and Mutators
 void City::UpdateCityYield(Yield yield)
