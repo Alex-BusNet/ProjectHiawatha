@@ -155,6 +155,10 @@ void GameManager::zoomOut()
 
 void GameManager::showCity()
 {
+
+    static QGraphicsRectItem *cityScreenRect;
+    static QRect* cityRect;
+
     if(!cityScreenVisible)
     {
         if(cityScreen != NULL)
@@ -163,6 +167,7 @@ void GameManager::showCity()
         }
 
         cityScreen = new CityScreen(this);
+        cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
         for(int i = 0; i < map->GetBoardSize(); i++)
         {
             if(map->GetTileAt(i)->HasCity)
@@ -171,6 +176,9 @@ void GameManager::showCity()
             }
         }
         gameView->setDragMode(QGraphicsView::NoDrag);
+        QPen cityPen(QColor(Qt::red));
+        cityPen.setWidth(4);
+        cityScreenRect = gameView->addRect(cityRect, cityPen);
         cityScreen->show();
         cityScreenVisible = true;
     }
@@ -178,6 +186,7 @@ void GameManager::showCity()
     {
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+        gameView->removeRect(cityScreenRect);
         cityScreenVisible = false;
     }
 }

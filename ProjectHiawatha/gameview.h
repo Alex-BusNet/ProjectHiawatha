@@ -21,8 +21,11 @@ public:
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
     QGraphicsPixmapItem* addPixmap(const QPixmap &pixmap);
     QGraphicsProxyWidget* addWidget(QWidget *widget);
-    QGraphicsRectItem* addRect(QRect *rect, QPen pen, QBrush brush);
+    QGraphicsRectItem* addRect(QRect *rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
+    QGraphicsRectItem* addRect(int x, int y, int width, int height, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsTextItem* addText(QString text);
+
+    void removeRect(QGraphicsRectItem* rect);
 
     GameScene *GetScene();
     void ConfigureGraphicsView();
