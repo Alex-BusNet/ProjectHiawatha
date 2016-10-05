@@ -84,7 +84,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 //    proxy.push_back(gameView->addWidget(renderMinusOne));
 
     qDebug() << "Done.\nDrawing map.";
-    renderer->DrawHexScene(map, gameView, false);
+    renderer->DrawHexScene(map, gameView);
 
     qDebug() << "Done.\nDrawing Units.";
     renderer->DrawTestUnits(map, gameView);
@@ -123,8 +123,6 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfo, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
-
-    renderer->DrawHexScene(map, gameView, true);
 
     if(gameView->GetScene()->isTileSelected)
     {
@@ -187,6 +185,11 @@ void GameManager::showCity()
 void GameManager::updateTiles()
 {
     gameView->GetScene()->ProcessTile(map);
+
+    if(gameView->GetScene()->redrawTile)
+    {
+        renderer->UpdateScene(map, gameView->GetScene());
+    }
 }
 
 

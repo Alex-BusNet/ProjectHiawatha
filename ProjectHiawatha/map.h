@@ -22,8 +22,9 @@ public:
     QPoint GetHexTilePoint(int boardIndex, int ptIndex);
     TileType GetTileTypeAt(int index);
     Tile* GetTileAt(int index);
-    QPixmap *GetTilePixmap(int index);
     Tile *GetTileFromCoord(int column, int row);
+    Tile* GetTileFromCoord(TileID id);
+    QPixmap *GetTilePixmap(int index);
 
 //    void run();
 private:

@@ -6,6 +6,7 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
     qDebug() << "Scene size: " << this->sceneRect().width() << "x" << this->sceneRect().height();
     isTileSelected = false;
     eventQueued = false;
+    redrawTile = false;
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -21,12 +22,6 @@ void GameScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
     eventQueued = true;
 }
 
-
-Tile *GameScene::GetSelectedTile()
-{
-    return lastSelectedTile;
-}
-
 void GameScene::ProcessTile(Map *map)
 {
     if(eventQueued == true)
@@ -34,6 +29,7 @@ void GameScene::ProcessTile(Map *map)
         eventQueued = false;
 
         //==================================
+        // Mouse input filter function:
         //
         //  If ((mpScreenPos != mrScreenPos) && (mrScenePos == lastPos))
         //      then drag occured
@@ -50,7 +46,6 @@ void GameScene::ProcessTile(Map *map)
         //
         //==================================
 
-
         column = mrScenePos.x() / 74;
         row = mrScenePos.y() / 44;
 
@@ -60,46 +55,30 @@ void GameScene::ProcessTile(Map *map)
         {
             row--;
         }
+        else if ((column % 2 != 0) && (row % 2 == 0))
+        {
+            row--;
+        }
 
         qDebug() << "Post modulo" <<"Col:" << column << "Row:" << row;
 
-        newSelectedTile = map->GetTileFromCoord(column, row);
-
-        if(newSelectedTile->HasCity)
+        if(map->GetTileFromCoord(column, row)->HasCity)
         {
-            qDebug() << "Tile has City";
-            newSelectedTile->GetGoverningCity();
+            //This may not be needed.
+            map->GetTileFromCoord(column, row)->GetGoverningCity();
         }
-        else if(newSelectedTile->ContainsUnit && !(newSelectedTile->Selected))
+        else if(map->GetTileFromCoord(column, row)->ContainsUnit)
         {
-            qDebug() << "Tile has Unit";
-            if(lastSelectedTile != newSelectedTile)
-                lastSelectedTile = newSelectedTile;
-
-            if(lastSelectedTile != NULL)
-                lastSelectedTile->Selected = false;
-
+            // set the global isTileSelected flag
             isTileSelected = true;
-//            newSelectedTile->Selected = true;
-            delete newSelectedTile;
         }
-        else
-        {
-            isTileSelected = false;
-//            newSelectedTile->Selected = false;
-//                lastSelectedTile->Selected = false;
-            delete newSelectedTile;
-        }
+
+        // Tell GameManager that a tile needs to be redrawn.
+        redrawTile = true;
     }
 }
 
 void GameScene::drawForeground(QPainter *painter, const QRectF &rect)
 {
     QGraphicsScene::drawForeground(painter, rect);
-
-    if(isTileSelected)
-    {
-        painter->setPen(lastSelectedTile->GetTilePen());
-        painter->drawPolygon(lastSelectedTile->GetTilePolygon());
-    }
 }

@@ -18,8 +18,8 @@ public:
 
     Renderer();
 
-    void DrawHexScene(Map *map, GameView *scene, bool redraw);
-    void UpdateScene(Map *map, QGraphicsView *view);
+    void DrawHexScene(Map *map, GameView *scene);
+    void UpdateScene(Map *map, GameScene *scene);
     void DrawGuiImages(QGraphicsScene *scene);
 
     void DrawCityBorders(Map *map);
@@ -48,15 +48,14 @@ private:
     QGraphicsItemGroup GUI_Text;            //Layer 7
 
     QVector<QGraphicsPolygonItem*> tiles;
+    QVector<QGraphicsPolygonItem*> mapBorders;
+    QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> tilePixmap;
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsPixmapItem*> cityPixmap;
 
     QPolygon borders;
-
-    //May be changed later
-    int mapSizeX;
-    int mapSizeY;
+    CivColors *cc;
 
     QGraphicsRectItem *YieldDisplay;
 

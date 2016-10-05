@@ -17,17 +17,14 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
 
     void SetMap(Map *map);
-    Tile* GetSelectedTile();
     void ProcessTile(Map *map);
 
-    bool isTileSelected, eventQueued;
+    bool isTileSelected, eventQueued, redrawTile;
 
     void drawForeground(QPainter *painter, const QRectF &rect);
 
-private:
-    Tile *lastSelectedTile, *newSelectedTile;
-
     int column, row;
+private:
 
     QPointF mpScenePos, mpScreenPos, mrScenePos, mrScreenPos, lastScenePos, lastScreenPos;
 

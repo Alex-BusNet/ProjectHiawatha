@@ -116,12 +116,17 @@ TileType Map::GetTileTypeAt(int index)
 
 QPixmap *Map::GetTilePixmap(int index)
 {
-    return terrain.at(index);
+    return this->terrain.at(index);
 }
 
 Tile* Map::GetTileFromCoord(int column, int row)
 {
-    return board.at((column / 2) + (mapSizeX * row));
+    return this->board.at((column / 2) + (mapSizeX * row));
+}
+
+Tile *Map::GetTileFromCoord(TileID id)
+{
+    return this->board.at((id.column / 2) + (mapSizeX * id.row));
 }
 
 void Map::GenerateMap()

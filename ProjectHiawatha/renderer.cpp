@@ -5,7 +5,7 @@
 #include <QDebug>
 
 #ifndef MAXSIZE
-#define MAXSIZE 100
+#define MAXSIZE 128
 #endif
 
 //======================================
@@ -28,29 +28,21 @@ QBrush brush(Qt::black);
 
 Renderer::Renderer()
 {
-
+    cc = new CivColors();
 }
 
-void Renderer::DrawHexScene(Map *map, GameView *scene, bool redraw)
+void Renderer::DrawHexScene(Map *map, GameView *scene)
 {
-    if(redraw)
-    {
-        int s = tiles.size();
-        for(int i = 0; i < s; i++)
-        {
-            tiles.removeLast();
-        }
-    }
 //    QPen pen;
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        if(map->GetTileAt(i)->Selected)
-        {
-            outlinePen.setColor(Qt::yellow);
-        }
-        else
-        {
-            CivColors *cc = new CivColors();
+//        if(map->GetTileAt(i)->Selected)
+//        {
+//            outlinePen.setColor(Qt::yellow);
+//        }
+//        else
+//        {
+
             // This sets the pen to be transparent
             if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
             {
@@ -72,7 +64,7 @@ void Renderer::DrawHexScene(Map *map, GameView *scene, bool redraw)
             {
                 outlinePen.setColor(cc->CHINA_PRIMARY);
             }
-        }
+//        }
 
         map->GetTileAt(i)->SetTilePen(outlinePen);
         tiles.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
@@ -85,11 +77,122 @@ void Renderer::DrawHexScene(Map *map, GameView *scene, bool redraw)
         tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
         tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
+
+    // Add map edge generation code here
 }
 
-void Renderer::UpdateScene(Map *map, QGraphicsView *view)
+void Renderer::UpdateScene(Map *map, GameScene *scene)
 {
+    if(scene->redrawTile)
+    {
+        int col = scene->column, row = scene->row;
+        // 20 is for duel sized maps (the default). That value will need to be adjusted later.
+        int index = (col / 2) + (20 * row);
+        static int lastIndex;
 
+        qDebug() << "==============";
+        qDebug() << "Scene isTileSelected" << scene->isTileSelected;
+        qDebug() << "Tile selection flag" << map->GetTileFromCoord(col, row)->Selected;
+        qDebug() << "index: " << index;
+        qDebug() << "Tile at index in data map: " << map->GetTileAt(index)->GetTileIDString();
+
+        // if the tile at the coordinates contains a unit
+        //      if the tile contains a unit, check if it is the active selected tile
+        //          if the tile is the active selected tile, reset the tile border to its controlling civ's color
+        //              clear the tile's selected flag and the global isTileSelected flag.
+        //          else, set the tiles border color to yellow
+        //
+        //      find the index of the tile in the render map vector (tiles)
+        //      replace the existing tile with the updated tile (including the updated boarder color)
+        //      set the render map's tile pen at the replaced index, to the border pen of the new tile.
+        // else if the tile at the coordinates contains a city
+        //      reset the existing selected tile, if there is one
+        //      clear the global isTileSelected flag
+        //      open the city screen.
+        // else if the tile at the coordinates is empty
+        //      reset the existing selected tile, if there is one.
+        //      clear the global isTileSelected flag.
+
+        if(map->GetTileAt(index)->ContainsUnit)
+        {
+            if(!(map->GetTileAt(index)->Selected))
+            {
+                qDebug() << "Tile is not Selected";
+                map->GetTileAt(index)->Selected = true;
+                outlinePen.setColor(Qt::yellow);
+                lastIndex = index;
+            }
+            else
+            {
+                qDebug() << "Controlling Civ" << map->GetTileFromCoord(col, row)->GetControllingCiv();
+
+                if(map->GetTileAt(index)->GetControllingCiv() == NO_NATION)
+                {
+                    outlinePen.setColor(cc->NO_NATION_PRIMARY);
+                }
+                else if(map->GetTileAt(index)->GetControllingCiv() == America)
+                {
+                    outlinePen.setColor(cc->AMERICA_PRIMARY);
+                }
+                else if(map->GetTileAt(index)->GetControllingCiv() == Germany)
+                {
+                    outlinePen.setColor(cc->GERMANY_PRIMARY);
+                }
+                else if(map->GetTileAt(index)->GetControllingCiv() == India)
+                {
+                    outlinePen.setColor(cc->INDIA_PRIMARY);
+                }
+                else if(map->GetTileAt(index)->GetControllingCiv() == China)
+                {
+                    outlinePen.setColor(cc->CHINA_PRIMARY);
+                }
+
+                scene->isTileSelected = false;
+                map->GetTileFromCoord(col, row)->Selected = false;
+            }
+
+            map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
+
+            scene->removeItem(tiles.at(lastIndex));
+            tiles.remove(index);
+            tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+            tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
+
+            scene->redrawTile = false;
+        }
+        else if(map->GetTileAt(index)->HasCity)
+        {
+            qDebug() << "Tile has City; Resetting tile at index: " << lastIndex;
+            outlinePen.setColor(cc->NO_NATION_PRIMARY);
+            map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
+            map->GetTileAt(lastIndex)->Selected = false;
+
+            scene->removeItem(tiles.at(lastIndex));
+            tiles.remove(lastIndex);
+            tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+            tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+
+            map->GetTileAt(index)->GetGoverningCity();
+            scene->isTileSelected = false;
+            scene->redrawTile = false;
+        }
+        else
+        {
+            qDebug() << "Empty Tile; resetting tile at index: " << lastIndex;
+            outlinePen.setColor(cc->NO_NATION_PRIMARY);
+            map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
+            map->GetTileAt(lastIndex)->Selected = false;
+
+            scene->removeItem(tiles.at(lastIndex));
+            tiles.remove(lastIndex);
+            tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+            tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+
+            scene->isTileSelected = false;
+            scene->redrawTile = false;
+        }
+        qDebug() << "==============";
+    }
 }
 
 void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView *view)
@@ -196,7 +299,7 @@ void Renderer::DrawTestCities(Map *map, GameView *view)
     {
         if(i + 90 < map->GetBoardSize())
         {
-            int j = i + 90;
+            int j = i + 100;
 
             if(map->GetTileTypeAt(j) == GRASS || map->GetTileTypeAt(j) == DESERT)
             {

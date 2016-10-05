@@ -37,9 +37,9 @@ private:
     QGraphicsView gameView;
     GameScene *game;
 
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *e);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
-    void mousePressEvent(QGraphicsSceneMouseEvent *e);
+//    void mouseMoveEvent(QGraphicsSceneMouseEvent *e);
+//    void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
+//    void mousePressEvent(QGraphicsSceneMouseEvent *e);
     void paintEvent(QPaintEvent *e);
 
     Map *map;

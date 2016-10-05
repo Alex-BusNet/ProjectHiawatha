@@ -53,33 +53,33 @@ void GameView::ConfigureGraphicsView()
 }
 
 
-void GameView::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
-{
-    if(QLineF(e->screenPos(), e->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance())
-    {
-        return;
-    }
+//void GameView::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
+//{
+//    if(QLineF(e->screenPos(), e->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance())
+//    {
+//        return;
+//    }
 
-    QDrag *drag = new QDrag(e->widget());
-    QMimeData *mime = new QMimeData;
-    drag->setMimeData(mime);
-    drag->exec();
-    setCursor(Qt::ArrowCursor);
-}
+//    QDrag *drag = new QDrag(e->widget());
+//    QMimeData *mime = new QMimeData;
+//    drag->setMimeData(mime);
+//    drag->exec();
+//    setCursor(Qt::ArrowCursor);
+//}
 
-void GameView::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
-{
-    this->setCursor(Qt::ArrowCursor);
+//void GameView::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
+//{
+//    this->setCursor(Qt::ArrowCursor);
 
-    qDebug() << "Press point: " << clickedPos << " Release point: " << e->pos();
-}
+//    qDebug() << "Press point: " << clickedPos << " Release point: " << e->pos();
+//}
 
-void GameView::mousePressEvent(QGraphicsSceneMouseEvent *e)
-{
-    qDebug() << "Mouse Pressed";
-    this->setCursor(Qt::ArrowCursor);
-    clickedPos = e->pos();
-}
+//void GameView::mousePressEvent(QGraphicsSceneMouseEvent *e)
+//{
+//    qDebug() << "Mouse Pressed";
+//    this->setCursor(Qt::ArrowCursor);
+//    clickedPos = e->pos();
+//}
 
 //GameView paintEvent only gets called when the scene is dragged.
 void GameView::paintEvent(QPaintEvent *e)
@@ -108,12 +108,12 @@ void GameView::SetGameMap(Map *map)
 
 void GameView::SceneProcess(QPainter *paint)
 {
-    if(game->isTileSelected)
-    {
-        game->ProcessTile(map);
-        paint->setPen(game->GetSelectedTile()->GetTilePen());
-        paint->drawPolygon(game->GetSelectedTile()->GetTilePolygon());
-    }
+//    if(game->isTileSelected)
+//    {
+//        game->ProcessTile(map);
+//        paint->setPen(game->GetSelectedTile()->GetTilePen());
+//        paint->drawPolygon(game->GetSelectedTile()->GetTilePolygon());
+//    }
 }
 
 void GameView::closeGame()
