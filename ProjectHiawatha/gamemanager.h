@@ -29,15 +29,20 @@ private:
     GameView *gameView;
 
     QVector<QGraphicsPolygonItem*> tile;
-
     QVector<QGraphicsRectItem*> guiRects;
     QVector<QGraphicsTextItem*> stringData;
     QVector<QGraphicsProxyWidget*> proxy;
 
+    QVector<Civilization*> civList;
+
     QPushButton *exitGame;
+
+    //=============
+    //Dev Buttons
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
     QPushButton *showDummyCityScreen;
+    //=============
 
     CityScreen *cityScreen;
 
@@ -50,9 +55,10 @@ private:
     int zoomScale;
     bool cityScreenVisible;
 
+    void InitCivs(Nation player, int numAI);
     void paintEvent(QPaintEvent *event);
-
     void mouseReleaseEvent(QMouseEvent *e);
+
 
 signals:
 

@@ -115,6 +115,46 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Done.";
 }
 
+void GameManager::InitCivs(Nation player, int numAI)
+{
+    Civilization* civ = new Civilization(player);
+    civList.push_back(civ);
+    for(int i = 0; i < numAI; i++)
+    {
+        srand(0);
+
+        int civNum = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * numAI;
+
+        if(civNum != player)
+        {
+            switch (civNum)
+            {
+            case America:
+                civ = new Civilization(America);
+                break;
+            case India:
+                civ = new Civilization(India);
+                break;
+            case Germany:
+                civ = new Civilization(Germany);
+                break;
+            case China:
+                civ = new Civilization(China);
+                break;
+            }
+
+            civList.push_back(civ);
+        }
+        else
+        {
+            i--;
+        }
+
+    }
+
+    map->SpawnCivs(civList);
+}
+
 void GameManager::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
@@ -166,8 +206,8 @@ void GameManager::showCity()
         {
             delete cityScreen;
         }
-        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/Buildings.txt");
         cityScreen = new CityScreen(this);
+        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/Buildings.txt");
         cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
         for(int i = 0; i < map->GetBoardSize(); i++)
         {

@@ -27,6 +27,7 @@ public:
     QPixmap *GetTilePixmap(int index);
 
 //    void run();
+    void SpawnCivs(QVector<Civilization*> civs);
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;
@@ -38,8 +39,8 @@ private:
 
     void GenerateMap();
     void GenerateMapEdge();
-    void CleanMap();
     void GenerateBiomes();
+    void CleanMap();
 };
 
 #endif // MAP_H

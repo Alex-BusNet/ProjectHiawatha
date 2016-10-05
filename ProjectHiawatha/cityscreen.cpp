@@ -39,7 +39,7 @@ void CityScreen::loadBuildings(QString filename)
        {
           QString line = in.readLine();
           QStringList buildingInfo = line.split(",");
-          qDebug()<<"BUilding Name: "<<buildingInfo[2];
+          qDebug()<<"BUilding Name: "<<buildingInfo[0];
           int x = buildingInfo[2].toInt();
           int y = buildingInfo[3].toInt();
           int z = buildingInfo[5].toInt();

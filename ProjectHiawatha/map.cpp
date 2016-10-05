@@ -286,6 +286,11 @@ void Map::CleanMap()
 
 }
 
+void Map::SpawnCivs(QVector<Civilization*> civs)
+{
+
+}
+
 void Map::GenerateBiomes()
 {
     //Generate Ice Caps

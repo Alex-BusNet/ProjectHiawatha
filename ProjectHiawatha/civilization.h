@@ -3,6 +3,8 @@
 #ifndef CIVILIZATION_H
 #define CIVILIZATION_H
 
+#include "unit.h"
+
 #include <yield.h>
 #include <city.h>
 #include <nation.h>
@@ -28,10 +30,10 @@ private:
     //Enum for leader?
     //civcolors
 
-    //QVector<Unit> UnitList; Needs a Units object type
+    QVector<Unit*> UnitList; //Needs a Units object type
         //Will contain all of the civ's units
 
-    //QVector<City> citylist; Needs a City object type
+    QVector<City*> Citylist; //Needs a City object type
         //Will contain all of the civ's Cities
 
 

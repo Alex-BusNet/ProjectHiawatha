@@ -54,8 +54,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
-
             qDebug() << "Move unit";
+
         }
         else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos))
         {
