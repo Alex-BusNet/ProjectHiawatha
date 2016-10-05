@@ -1,10 +1,12 @@
 //The Player's Civ - Reads from civilization
 
+#include "civilization.h"
+
 #ifndef PLAYER_H
 #define PLAYER_H
 
 
-class Player
+class Player : public Civilization
 {
 public:
     Player();
