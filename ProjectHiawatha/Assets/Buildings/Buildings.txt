@@ -1,0 +1,2 @@
+Walls, Adds +6 to a city's defense, 75, 0, defense, 4, 0, true
+Library, Increases city's science output, 100, 0, science, 12, 2, false

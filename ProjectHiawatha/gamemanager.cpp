@@ -166,7 +166,7 @@ void GameManager::showCity()
         {
             delete cityScreen;
         }
-
+        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/Buildings.txt");
         cityScreen = new CityScreen(this);
         cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
         for(int i = 0; i < map->GetBoardSize(); i++)

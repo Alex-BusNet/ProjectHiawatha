@@ -5,8 +5,16 @@ Building::Building()
 
 }
 
-Building::Building(QString Name, QString description, int cost, int current, QString bonusType, int bonusValue, int maintanenceCost, bool unlocked)
+Building::Building(QString Name, QString buildDescription, int cost, int current, QString bonusKind, int bonusValue, int maintanenceCost, bool unlockedBuild)
 {
+    name = Name;
+    description = buildDescription;
+    productionCost = cost;
+    currentProduction = current;
+    bonusType = bonusKind;
+    bonus = bonusValue;
+    buildingMaintenanceCost = maintanenceCost;
+    unlocked = unlockedBuild;
 
 }
 

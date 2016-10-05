@@ -59,4 +59,4 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \
-    cityscreen.ui
+    cityscreen.ui \

@@ -9,7 +9,7 @@ class Building
 {
 public:
     Building();
-    Building(QString Name, QString description, int cost, int current, QString bonusType, int bonusValue, int maintanenceCost, bool unlocked);
+    Building(QString Name, QString buildDescription, int cost, int current, QString bonusKind, int bonusValue, int maintanenceCost, bool unlockedBuild);
     ~Building();
     QString getName();
     QString getDescription();
