@@ -23,8 +23,9 @@ public:
     void DrawGuiImages(QGraphicsScene *scene);
 
     void DrawCityBorders(Map *map);
-//    void DrawCities(QVector<City*> cities, QGraphicsScene *scene);
-//    void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
+    void DrawDebugCityBorders(Map *map, GameScene *scene);
+    void DrawCities(QVector<City*> cities, QGraphicsScene *scene);
+    void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
 
     void DrawTestUnits(Map *map, GameView *view);
     void DrawTestCities(Map *map, GameView *view);
@@ -48,6 +49,8 @@ private:
     CivColors *cc;
 
     QGraphicsRectItem *YieldDisplay;
+
+    void SetOutlinePen(Nation owner);
 
 };
 

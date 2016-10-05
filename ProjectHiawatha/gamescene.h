@@ -17,7 +17,7 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
 
     void SetMap(Map *map);
-    void ProcessTile(Map *map);
+    void ProcessTile(Map *map, bool unitAwaitingRelocation);
 
     bool isTileSelected, eventQueued, redrawTile;
 

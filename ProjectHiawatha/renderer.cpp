@@ -117,26 +117,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             }
             else
             {
-                if(map->GetTileAt(index)->GetControllingCiv() == NO_NATION)
-                {
-                    outlinePen.setColor(cc->NO_NATION_PRIMARY);
-                }
-                else if(map->GetTileAt(index)->GetControllingCiv() == America)
-                {
-                    outlinePen.setColor(cc->AMERICA_PRIMARY);
-                }
-                else if(map->GetTileAt(index)->GetControllingCiv() == Germany)
-                {
-                    outlinePen.setColor(cc->GERMANY_PRIMARY);
-                }
-                else if(map->GetTileAt(index)->GetControllingCiv() == India)
-                {
-                    outlinePen.setColor(cc->INDIA_PRIMARY);
-                }
-                else if(map->GetTileAt(index)->GetControllingCiv() == China)
-                {
-                    outlinePen.setColor(cc->CHINA_PRIMARY);
-                }
+                SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
 
                 scene->isTileSelected = false;
                 map->GetTileFromCoord(col, row)->Selected = false;
@@ -153,7 +134,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else if(map->GetTileAt(index)->HasCity)
         {
-            outlinePen.setColor(cc->NO_NATION_PRIMARY);
+            SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
 
@@ -168,7 +149,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else
         {
-            outlinePen.setColor(cc->NO_NATION_PRIMARY);
+            SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
 
@@ -207,6 +188,7 @@ void Renderer::DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget *> wVect, 
     wVect.push_back(view->addWidget(obj));
 }
 
+////This is for development and debug purposes only
 QString Renderer::SetYieldDisplay(Map *map)
 {
     //This is a placeholder, it will need to be re-adjusted once the player class is added.
@@ -225,7 +207,32 @@ QString Renderer::SetYieldDisplay(Yield *yield)
                                          .arg(yield->GetYield(Yield::PRODUCTION))
                                          .arg(yield->GetYield(Yield::FOOD))
                                          .arg(yield->GetYield(Yield::RESEARCH))
-                                         .arg(yield->GetYield(Yield::CULTURE));
+            .arg(yield->GetYield(Yield::CULTURE));
+}
+
+void Renderer::SetOutlinePen(Nation owner)
+{
+    switch(owner)
+    {
+    case NO_NATION:
+        outlinePen.setColor(cc->NO_NATION_PRIMARY);
+        break;
+    case America:
+        outlinePen.setColor(cc->AMERICA_PRIMARY);
+        break;
+    case Germany:
+        outlinePen.setColor(cc->GERMANY_PRIMARY);
+        break;
+    case India:
+        outlinePen.setColor(cc->INDIA_PRIMARY);
+        break;
+    case China:
+        outlinePen.setColor(cc->CHINA_PRIMARY);
+        break;
+    default:
+        outlinePen.setColor(cc->NO_NATION_PRIMARY);
+        break;
+    }
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
@@ -236,6 +243,25 @@ void Renderer::DrawGuiImages(QGraphicsScene *scene)
 void Renderer::DrawCityBorders(Map *map)
 {
 
+}
+
+////For Debug uses only
+void Renderer::DrawDebugCityBorders(Map *map, GameScene *scene)
+{
+    int col = scene->column, row = scene->row;
+    // 20 is for duel sized maps (the default). That value will need to be adjusted later.
+    int index = (col / 2) + (20 * row);
+    if(map->GetTileAt(index)->HasCity)
+    {
+        SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
+        map->GetTileAt(index)->SetTilePen(outlinePen);
+        map->GetTileAt(index)->Selected = false;
+
+        cityBorders.push_back(scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+        cityBorders.at(0)->setPen(map->GetTileAt(index)->GetTilePen());
+    }
+
+    scene->redrawTile = false;
 }
 
 void Renderer::DrawTestUnits(Map *map, GameView* view)
@@ -275,6 +301,9 @@ void Renderer::DrawTestCities(Map *map, GameView *view)
                     cityPixmap.at(0)->setScale(2.0f);
                     map->GetTileAt(j)->HasCity = true;
                     map->GetTileAt(j)->SetControllingCiv(India);
+
+                    view->GetScene()->column = map->GetTileAt(j)->GetTileID().column;
+                    view->GetScene()->row = map->GetTileAt(j)->GetTileID().row;
                     break;
                 }
             }

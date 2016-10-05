@@ -22,7 +22,7 @@ void GameScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
     eventQueued = true;
 }
 
-void GameScene::ProcessTile(Map *map)
+void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
 {
     if(eventQueued == true)
     {
@@ -46,35 +46,51 @@ void GameScene::ProcessTile(Map *map)
         //
         //==================================
 
-        column = mrScenePos.x() / 74;
-        row = mrScenePos.y() / 44;
-
-        qDebug() << "Pre modulo" <<"Col:" << column << "Row:" << row;
-
-        if((column % 2 == 0) && (row % 2 != 0))
+        if((mpScreenPos != mrScreenPos) && (mpScenePos == mrScenePos))
         {
-            row--;
+            // Drag Occured
+            qDebug() << "Drag Screen";
         }
-        else if ((column % 2 != 0) && (row % 2 == 0))
+        else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
-            row--;
+            // Move unit command Issued
+
+            qDebug() << "Move unit";
+        }
+        else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos))
+        {
+            // Tile was Selected
+
+            column = mrScenePos.x() / 74;
+            row = mrScenePos.y() / 44;
+
+            if((column % 2 == 0) && (row % 2 != 0))
+            {
+                row--;
+            }
+            else if ((column % 2 != 0) && (row % 2 == 0))
+            {
+                row--;
+            }
+
+            if(map->GetTileFromCoord(column, row)->HasCity)
+            {
+                //This may not be needed.
+                map->GetTileFromCoord(column, row)->GetGoverningCity();
+            }
+            else if(map->GetTileFromCoord(column, row)->ContainsUnit)
+            {
+                // set the global isTileSelected flag
+                isTileSelected = true;
+            }
+
+            // Tell GameManager that a tile needs to be redrawn.
+            redrawTile = true;
         }
 
-        qDebug() << "Post modulo" <<"Col:" << column << "Row:" << row;
-
-        if(map->GetTileFromCoord(column, row)->HasCity)
-        {
-            //This may not be needed.
-            map->GetTileFromCoord(column, row)->GetGoverningCity();
-        }
-        else if(map->GetTileFromCoord(column, row)->ContainsUnit)
-        {
-            // set the global isTileSelected flag
-            isTileSelected = true;
-        }
-
-        // Tell GameManager that a tile needs to be redrawn.
-        redrawTile = true;
+        //Save the last mouse release position values
+        lastScreenPos = mrScreenPos;
+        lastScenePos = mrScenePos;
     }
 }
 

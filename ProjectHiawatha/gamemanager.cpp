@@ -91,6 +91,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nDrawing Cities.";
     renderer->DrawTestCities(map, gameView);
+    renderer->DrawDebugCityBorders(map, gameView->GetScene());
 
 //    renderer->DrawGuiImages(game);
 
@@ -124,10 +125,10 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.setPen(Qt::white);
     paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
 
-    if(gameView->GetScene()->isTileSelected)
-    {
-        gameView->GetScene()->drawForeground(&paint, gameView->sceneRect());
-    }
+//    if(gameView->GetScene()->isTileSelected)
+//    {
+//        gameView->GetScene()->drawForeground(&paint, gameView->sceneRect());
+//    }
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
@@ -193,7 +194,8 @@ void GameManager::showCity()
 
 void GameManager::updateTiles()
 {
-    gameView->GetScene()->ProcessTile(map);
+    //// The false will need to be changed once the Unit Controller is added.
+    gameView->GetScene()->ProcessTile(map, false);
 
     if(gameView->GetScene()->redrawTile)
     {
