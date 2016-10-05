@@ -90,12 +90,6 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         int index = (col / 2) + (20 * row);
         static int lastIndex;
 
-        qDebug() << "==============";
-        qDebug() << "Scene isTileSelected" << scene->isTileSelected;
-        qDebug() << "Tile selection flag" << map->GetTileFromCoord(col, row)->Selected;
-        qDebug() << "index: " << index;
-        qDebug() << "Tile at index in data map: " << map->GetTileAt(index)->GetTileIDString();
-
         // if the tile at the coordinates contains a unit
         //      if the tile contains a unit, check if it is the active selected tile
         //          if the tile is the active selected tile, reset the tile border to its controlling civ's color
@@ -117,15 +111,12 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         {
             if(!(map->GetTileAt(index)->Selected))
             {
-                qDebug() << "Tile is not Selected";
                 map->GetTileAt(index)->Selected = true;
                 outlinePen.setColor(Qt::yellow);
                 lastIndex = index;
             }
             else
             {
-                qDebug() << "Controlling Civ" << map->GetTileFromCoord(col, row)->GetControllingCiv();
-
                 if(map->GetTileAt(index)->GetControllingCiv() == NO_NATION)
                 {
                     outlinePen.setColor(cc->NO_NATION_PRIMARY);
@@ -162,7 +153,6 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else if(map->GetTileAt(index)->HasCity)
         {
-            qDebug() << "Tile has City; Resetting tile at index: " << lastIndex;
             outlinePen.setColor(cc->NO_NATION_PRIMARY);
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
@@ -178,7 +168,6 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else
         {
-            qDebug() << "Empty Tile; resetting tile at index: " << lastIndex;
             outlinePen.setColor(cc->NO_NATION_PRIMARY);
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
@@ -191,7 +180,6 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             scene->isTileSelected = false;
             scene->redrawTile = false;
         }
-        qDebug() << "==============";
     }
 }
 
@@ -230,42 +218,19 @@ QString Renderer::SetYieldDisplay(Map *map)
                                           .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE));
 }
 
-void Renderer::AddItemToGroup(QGraphicsItem *item, Renderer::ItemGroup iGroup)
+QString Renderer::SetYieldDisplay(Yield *yield)
 {
-    switch(iGroup)
-    {
-    case MAP:
-        item->setGroup(&MapGrid);
-        break;
-    case TERRAIN:
-        item->setGroup(&Terrain);
-        break;
-    case CITY_IMPROVEMENTS:
-        item->setGroup(&CitiesImprovements);
-        break;
-    case OUTLINES:
-        item->setGroup(&TileOutlines);
-        break;
-    case UNITS:
-        item->setGroup(&Units);
-        break;
-    case FOG_OF_WAR:
-        item->setGroup(&FogOfWar);
-        break;
-    case GUI_IMAGES:
-        item->setGroup(&GUI_Images);
-        break;
-    case GUI_TEXT:
-        item->setGroup(&GUI_Text);
-        break;
-    default:
-        break;
-    }
+    return QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
+                                         .arg(yield->GetYield(Yield::GOLD))
+                                         .arg(yield->GetYield(Yield::PRODUCTION))
+                                         .arg(yield->GetYield(Yield::FOOD))
+                                         .arg(yield->GetYield(Yield::RESEARCH))
+                                         .arg(yield->GetYield(Yield::CULTURE));
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
 {
-    GUI_Images.setZValue(6);
+
 }
 
 void Renderer::DrawCityBorders(Map *map)

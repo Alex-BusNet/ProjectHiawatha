@@ -119,10 +119,10 @@ void GameManager::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 
     QPainter paint(this);
-    QRect playerInfo(0, 0, this->width(), 20);
-    paint.fillRect(playerInfo, QBrush(Qt::black));
+    QRect playerInfoRect(0, 0, this->width(), 20);
+    paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
-    paint.drawText(playerInfo, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
+    paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
 
     if(gameView->GetScene()->isTileSelected)
     {

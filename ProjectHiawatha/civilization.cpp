@@ -21,6 +21,7 @@ Civilization::Civilization(Nation name)
     //set color
     //spawn a city, and initialize (based on nation)
     //call updatecityyield and updatecivyield to initialize
+    totalCivYield.ChangeYield(0,0,0,0,0);
 }
 
 
@@ -45,7 +46,7 @@ void Civilization::UpdateCivYield()
 
 Yield Civilization::getCivYield()
 {
-    return this->totalyield;
+    return this->totalCivYield;
 }
 
 

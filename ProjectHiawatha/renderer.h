@@ -31,21 +31,11 @@ public:
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
     QString SetYieldDisplay(Map *map);
-
-    void AddItemToGroup(QGraphicsItem *item, ItemGroup iGroup);
+    QString SetYieldDisplay(Yield *yield);
 
 private:
     QVector<City*> cities;
     QVector<Unit*> units;
-
-    QGraphicsItemGroup MapGrid;             //Layer 0
-    QGraphicsItemGroup Terrain;             //Layer 1
-    QGraphicsItemGroup CitiesImprovements;  //Layer 2
-    QGraphicsItemGroup TileOutlines;        //Layer 3
-    QGraphicsItemGroup Units;               //Layer 4
-    QGraphicsItemGroup FogOfWar;            //Layer 5
-    QGraphicsItemGroup GUI_Images;          //Layer 6
-    QGraphicsItemGroup GUI_Text;            //Layer 7
 
     QVector<QGraphicsPolygonItem*> tiles;
     QVector<QGraphicsPolygonItem*> mapBorders;

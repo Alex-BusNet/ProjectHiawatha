@@ -1,10 +1,13 @@
 #ifndef YIELD_H
 #define YIELD_H
 
-//
-// This class is used to provide the total yield output for tiles.
-// This class does not handle the total yield for the entire civ.
-//
+/*
+ *
+ * This class is used to provide the total yield output for tiles.
+ * This class does not handle the total yield for an entire civ.
+ * It is used to store, update, and retrieve the yield data for a single object
+ *
+ */
 
 class Yield
 {
@@ -15,7 +18,9 @@ public:
 
     enum YIELD { GOLD, PRODUCTION, RESEARCH, FOOD, CULTURE };
 
-    void ChangeYield(YIELD yieldType, int newValue);
+    void ChangeYield(YIELD yieldType, int increaseBy);
+    void ChangeYield(int yieldArr[5]);
+    void ChangeYield(int gold, int prod, int sci, int food, int cul);
 
     int GetYield(YIELD yieldType);
 

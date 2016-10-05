@@ -35,7 +35,7 @@ private:
         //Will contain all of the civ's Cities
 
 
-    Yield totalyield;
+    Yield totalCivYield;
         //Will contain the totals for the civ's yields (uses city->cityyield)
 };
 
