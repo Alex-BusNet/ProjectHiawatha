@@ -89,7 +89,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Initializing Civs";
     ////This is for testing purposes;
-    InitCivs(player, 2);
+    InitCivs(player, 4);
 
     qDebug() << "Done.\nDrawing Units.";
     renderer->DrawTestUnits(map, gameView);
@@ -148,7 +148,7 @@ void GameManager::InitCivs(Nation player, int numAI)
     {
 newCivRand:
         // The 4 indicates the max number of civs in the game.
-        civNum = (static_cast<double>(rand()) / RAND_MAX) * 4;
+        civNum = (static_cast<double>(rand()) / RAND_MAX) * 7;
 
         if(civNum != player)
         {
@@ -165,6 +165,15 @@ newCivRand:
                 break;
             case China:
                 civ = new Civilization(China);
+                break;
+            case Mongolia:
+                civ = new Civilization(Mongolia);
+                break;
+            case Aztec:
+                civ = new Civilization(Aztec);
+                break;
+            case France:
+                civ = new Civilization(France);
                 break;
             default:
                 //Always default to Ghandi.
