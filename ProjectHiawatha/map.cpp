@@ -296,31 +296,30 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
 {
     City *city;
     Unit *unit;
+    srand(0);
+    int index;
+
     for(int i = 0; i < civs.size(); i++)
     {
 newrand:
-        srand(0);
-        int index = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * board.size();
+        index = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * board.size();
 
         if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN)
         {
-            index += 5;
+            goto newrand;
         }
-        else
+
+        if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
         {
-            if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
-            {
-                city = new City();
-                city->SetCityAsCaptial();
-                city->SetCityTile(board.at(index));
-                city->SetControllingCiv(civs.at(i)->getCiv());
-                civs.at(i)->AddCity(city);
+            city = new City();
+            city->SetCityAsCaptial();
+            city->SetCityTile(board.at(index));
+            city->SetControllingCiv(civs.at(i)->getCiv());
+            civs.at(i)->AddCity(city);
 
-                board.at(index)->HasCity = true;
-                board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
-            }
+            board.at(index)->HasCity = true;
+            board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
         }
-
     }
 }
 

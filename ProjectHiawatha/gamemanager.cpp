@@ -3,6 +3,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QThread>
+#include <ctime>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -85,13 +86,17 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nDrawing map.";
     renderer->DrawHexScene(map, gameView);
+
     qDebug() << "Initializing Civs";
-    InitCivs(player, 4);
+    ////This is for testing purposes;
+    InitCivs(player, 2);
 
     qDebug() << "Done.\nDrawing Units.";
     renderer->DrawTestUnits(map, gameView);
 
 //    renderer->DrawTestCities(map, gameView);
+
+    qDebug() << "CivList size: " << civList.size();
     for(int i = 0; i < civList.size(); i++)
     {
         qDebug() << "Done.\nDrawing Cities.";
@@ -100,8 +105,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         qDebug() << "Drawing City Borders";
         renderer->DrawCityBorders(map, civList.at(i)->GetCityList(), gameView->GetScene());
     }
-
-
 
 //    renderer->DrawGuiImages(game);
 
@@ -130,44 +133,52 @@ void GameManager::InitCivs(Nation player, int numAI)
     Civilization* civ = new Civilization(player);
     civList.push_back(civ);
 
+    srand(time(0));
+    int civNum;
+
+    qDebug() << "Player:" << player;
     for(int i = 0; i < numAI; i++)
     {
 newCivRand:
-        srand(0);
-        int civNum = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * 4;
+        civNum = (static_cast<double>(rand()) / RAND_MAX) * 4;
 
-//        if(civNum != player)
-//        {
-//            if(!(civList.contains(civ)))
-//            {
-                switch (civNum)
-                {
-                case America:
-                    civ = new Civilization(America);
-                    break;
-                case India:
-                    civ = new Civilization(India);
-                    break;
-                case Germany:
-                    civ = new Civilization(Germany);
-                    break;
-                case China:
-                    civ = new Civilization(China);
-                    break;
-                }
+        if(civNum != player)
+        {
+            switch (civNum)
+            {
+            case America:
+                civ = new Civilization(America);
+                break;
+            case Germany:
+                civ = new Civilization(Germany);
+                break;
+            case India:
+                civ = new Civilization(India);
+                break;
+            case China:
+                civ = new Civilization(China);
+                break;
+            default:
+                //Always default to Ghandi.
+                civ = new Civilization(India);
+                break;
+            }
 
+            if(!(civList.contains(civ)))
+            {
                 qDebug() << "Civ" << i << ": " << civ->getCiv();
                 civList.push_back(civ);
-//            }
-//            else
-//            {
-//                goto newCivRand;
-//            }
-//        }
-//        else
-//        {
-//            goto newCivRand;
-//        }
+            }
+            else
+            {
+                goto newCivRand;
+            }
+
+        }
+        else
+        {
+            goto newCivRand;
+        }
 
     }
 
