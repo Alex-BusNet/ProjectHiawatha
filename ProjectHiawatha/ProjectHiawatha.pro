@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     gamescene.cpp \
     city.cpp \
     building.cpp \
-    unit.cpp
+    unit.cpp \
+    unitcontroller.cpp
 
     gameoptions.cpp \
 
@@ -57,7 +58,8 @@ HEADERS  += mainwindow.h \
     gamescene.h \
     city.h \
     building.h \
-    unit.h
+    unit.h \
+    unitcontroller.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \
