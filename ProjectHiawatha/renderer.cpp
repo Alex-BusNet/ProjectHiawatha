@@ -243,7 +243,7 @@ void Renderer::SetOutlinePen(Nation owner)
         break;
     }
 
-    outlinePen.setWidth(2);
+    outlinePen.setWidth(3);
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)

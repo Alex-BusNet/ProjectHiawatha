@@ -98,12 +98,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 //    renderer->DrawTestCities(map, gameView);
 
     qDebug() << "CivList size: " << civList.size();
+    qDebug() << "Done.\nDrawing Cities and Borders.";
     for(int i = 0; i < civList.size(); i++)
     {
-        qDebug() << "Done.\nDrawing Cities.";
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
-
-        qDebug() << "Drawing City Borders";
         renderer->DrawCityBorders(map, civList.at(i)->GetCityList(), gameView->GetScene());
     }
 
@@ -127,7 +125,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         zoomIn();
     }
-    qDebug() << "Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
+    qDebug() << "Done.\nCentering on Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
 
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
     this->setLayout(vLayout);
@@ -144,8 +142,9 @@ void GameManager::InitCivs(Nation player, int numAI)
     srand(time(0));
     int civNum;
 
-    int selNat[7];
-    selNat[0] = player;
+    std::vector<Nation> selNat;
+
+    selNat.push_back(player);
 
     qDebug() << "Player:" << player;
     for(int i = 0; i < numAI; i++)
@@ -153,7 +152,6 @@ void GameManager::InitCivs(Nation player, int numAI)
 newCivRand:
         // The number multiplied at the end indicates the
         // max number of civs in the game.
-//        civNum = (static_cast<double>(rand()) / RAND_MAX) * 7;
         civNum = rand() % 7;
 
         if(civNum != player)
@@ -162,50 +160,48 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America);
-                selNat[i + 1] = America;
+                selNat.push_back(America);
                 break;
             case Germany:
                 civ = new Civilization(Germany);
-                selNat[i + 1] = Germany;
+                selNat.push_back(Germany);
                 break;
             case India:
                 civ = new Civilization(India);
-                selNat[i + 1] = India;
+                selNat.push_back(India);
                 break;
             case China:
                 civ = new Civilization(China);
-                selNat[i + 1] = China;
+                selNat.push_back(China);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia);
-                selNat[i + 1] = Mongolia;
+                selNat.push_back(Mongolia);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec);
-                selNat[i + 1] = Aztec;
+                selNat.push_back(Aztec);
                 break;
             case France:
                 civ = new Civilization(France);
-                selNat[i + 1] = France;
+                selNat.push_back(France);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India);
-                selNat[i + 1] = India;
+                selNat.push_back(India);
                 break;
             }
 
-            auto found =  std::find(std::begin(selNat), std::end(selNat), civNum);
+            auto found = std::find(std::begin(selNat), std::end(selNat), civNum);
 
             if(found != std::end(selNat))
             {
                 qDebug() << "Civ" << i << ": " << civ->getCiv();
-                found= false;
                 civList.push_back(civ);
             }
             else
             {
-                qDebug() << "Civ already exists";
                 delete civ;
                 goto newCivRand;
             }
