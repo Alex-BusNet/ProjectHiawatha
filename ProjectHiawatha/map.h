@@ -26,6 +26,8 @@ public:
     Tile* GetTileFromCoord(TileID id);
     QPixmap *GetTilePixmap(int index);
 
+    int GetMapSizeX();
+
 //    void run();
     void SpawnCivs(QVector<Civilization*> civs);
 private:

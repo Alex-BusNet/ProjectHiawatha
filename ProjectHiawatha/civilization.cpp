@@ -9,6 +9,7 @@
  */
 
 #include "civilization.h"
+#include <QDebug>
 
 Civilization::Civilization()
 {
@@ -47,6 +48,34 @@ void Civilization::UpdateCivYield()
 Yield Civilization::getCivYield()
 {
     return this->totalCivYield;
+}
+
+QVector<City *> Civilization::GetCityList()
+{
+    return this->Citylist;
+}
+
+void Civilization::AddCity(City *city)
+{
+    this->Citylist.push_back(city);
+}
+
+City* Civilization::GetCityAt(int index)
+{
+    if(index < this->Citylist.size())
+        return this->Citylist.at(index);
+}
+
+Unit* Civilization::GetUnitAt(int index)
+{
+    if(index < this->Citylist.size())
+    {
+        return this->UnitList.at(index);
+    }
+    else
+    {
+        qDebug() << "UnitList -- Index out of range";
+    }
 }
 
 

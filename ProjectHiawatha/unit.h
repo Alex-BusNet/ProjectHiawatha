@@ -2,8 +2,10 @@
 #define UNIT_H
 
 #include <QPixmap>
-//#include "tile.h"
+#include "tile.h"
 #include "nation.h"
+
+class Tile;
 
 class Unit
 {
@@ -14,7 +16,7 @@ public:
 
     void SetUnitIcon(QPixmap *icon);
     void SetOwner(Nation owner);
-//    void SetPosition(int column, int row);
+    void SetPosition(int column, int row);
 //    void SetPosition(TileID pos);
     void SetMovementPoints(int pts);
     void SetStrength(int strength);
@@ -27,21 +29,25 @@ public:
     Nation GetOwner();
 //    TileID GetPosition();
     int GetMovementPoints();
-    int GetStrenght();
+    int GetStrength();
     int GetRange();
     int GetRangeStrength();
     int GetHealth();
     int GetMaxHealth();
 
-
+    bool isNonCombat();
+    bool isSettler();
+    bool NeedsOrders();
 private:
     QPixmap *unitIcon;
 
     Nation belongsTo;
-//    TileID position;
+    int colPosition;
+    int rowPosition;
 
-    bool isNonCombat;
-    bool isSettler;
+    bool NonCombat;
+    bool Settler;
+    bool requiresOrders;
 
     int movementPoints;
     int strength;

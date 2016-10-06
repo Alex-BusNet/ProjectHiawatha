@@ -4,7 +4,11 @@
 #include <QWidget>
 #include <QString>
 #include "nation.h"
+#include "tile.h"
 #include "yield.h"
+
+class Tile;
+class Unit;
 
 class City
 {
@@ -12,22 +16,45 @@ public:
     City();
 
     //Accessor and Mutators
-    Yield getCityYield();
     void UpdateCityYield(Yield yield);
 
+    void SetCityAsCaptial();
+    void SetName(QString name);
+    void SetCityTile(Tile *tile);
+    void SetControllingCiv(Nation owner);
+
+    void GarrisonWorker(Unit *worker);
+    void GarrisonMilitary(Unit *military);
+
+    QString GetName();
+    Tile* GetCityTile();
+    Yield getCityYield();
+    Nation GetControllingCiv();
+
+
+    Unit GetUnitAt(int index);
+    Unit* GetGarrisonedWorker(int index);
+    Unit* GetGarrisonedMilitary(int index);
+
+    bool IsCityCaptial();
+
     ~City();
+
 private:
-
-    //QVector<Tile> citytiles;// - Need tile object, not tile class?
-        //contains coordinates of all of the tiles associated with a specific city
-
-
-    QVector<Yield> cityyield;
-    //Uses citytiles to assemble yield totals for city - city class, not here
-
+    QVector<Tile*> cityControlledTiles;
+    QVector<Unit*> StationedWorkers;
+    QVector<Unit*> StationedMilitary;
 
     QString name;
-    Nation Civ;
+    Nation controllingCiv;
+    Tile *cityTile;
+
+    Yield cityTotalYield;
+
+    bool isCaptial;
+    bool hasWorker;
+    bool hasGarrison;
+
     int productionYield;
     int scienceYield;
     int goldYield;

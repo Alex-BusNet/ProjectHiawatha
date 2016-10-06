@@ -124,3 +124,28 @@ int Yield::GetYield(Yield::YIELD yieldType)
             break;
     }
 }
+
+int Yield::GetGoldYield()
+{
+    return this->totalYield[0];
+}
+
+int Yield::GetProductionYield()
+{
+    return this->totalYield[1];
+}
+
+int Yield::GetScienceYield()
+{
+    return this->totalYield[2];
+}
+
+int Yield::GetFoodYield()
+{
+    return this->totalYield[3];
+}
+
+int Yield::GetCultureYield()
+{
+    return this->totalYield[4];
+}

@@ -3,12 +3,13 @@
 Unit::Unit()
 {
     this->belongsTo = India;
-    this->isNonCombat = false;
-    this->isSettler = false;
+    this->NonCombat = false;
+    this->Settler = false;
     this->movementPoints = 2;
     this->strength = 1;
     this->range = 3;
     this->health = 5;
+    this->requiresOrders = true;
 
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
@@ -17,12 +18,13 @@ Unit::Unit()
 Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, int strength, int range, int health)
 {
     this->belongsTo = owner;
-    this->isNonCombat = isNonCombat;
-    this->isSettler = isSettler;
+    this->NonCombat = isNonCombat;
+    this->Settler = isSettler;
     this->movementPoints = movementPoints;
     this->strength = strength;
     this->range = range;
     this->health = health;
+    this->requiresOrders = true;
 
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
@@ -44,13 +46,8 @@ void Unit::SetOwner(Nation owner)
 
 void Unit::SetPosition(int column, int row)
 {
-    this->position.column = column;
-    this->position.row = row;
-}
-
-void Unit::SetPosition(TileID pos)
-{
-    this->position = pos;
+    this->colPosition = column;
+    this->rowPosition = row;
 }
 
 void Unit::SetMovementPoints(int pts)
@@ -93,17 +90,17 @@ Nation Unit::GetOwner()
     return this->belongsTo;
 }
 
-TileID Unit::GetPosition()
-{
-    return this->position;
-}
+//TileID Unit::GetPosition()
+//{
+//    return this->position;
+//}
 
 int Unit::GetMovementPoints()
 {
     return this->movementPoints;
 }
 
-int Unit::GetStrenght()
+int Unit::GetStrength()
 {
     return this->strength;
 }
@@ -125,6 +122,20 @@ int Unit::GetHealth()
 
 int Unit::GetMaxHealth()
 {
-    return this->maxHealth
+    return this->maxHealth;
 }
 
+bool Unit::isNonCombat()
+{
+    return this->NonCombat;
+}
+
+bool Unit::isSettler()
+{
+    return this->isSettler();
+}
+
+bool Unit::NeedsOrders()
+{
+    return this->requiresOrders;
+}

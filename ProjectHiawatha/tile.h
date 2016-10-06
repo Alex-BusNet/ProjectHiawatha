@@ -16,6 +16,9 @@
 
 typedef struct {int column; int row;} TileID;
 
+
+class City;
+
 class Tile
 {
 public:

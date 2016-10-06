@@ -24,6 +24,12 @@ public:
 
     int GetYield(YIELD yieldType);
 
+    int GetGoldYield();
+    int GetProductionYield();
+    int GetScienceYield();
+    int GetFoodYield();
+    int GetCultureYield();
+
 private:
     int totalYield[5];
 

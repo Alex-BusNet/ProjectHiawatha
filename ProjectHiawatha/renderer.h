@@ -22,21 +22,22 @@ public:
     void UpdateScene(Map *map, GameScene *scene);
     void DrawGuiImages(QGraphicsScene *scene);
 
-    void DrawCityBorders(Map *map);
+    void DrawCityBorders(Map *map, QVector<City *> cities, GameScene *scene);
     void DrawDebugCityBorders(Map *map, GameScene *scene);
-    void DrawCities(QVector<City*> cities, QGraphicsScene *scene);
+    void LoadCities(QVector<City*> cities, Map *map, GameView *view);
     void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
 
     void DrawTestUnits(Map *map, GameView *view);
     void DrawTestCities(Map *map, GameView *view);
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
+
     QString SetYieldDisplay(Map *map);
     QString SetYieldDisplay(Yield *yield);
 
 private:
-    QVector<City*> cities;
-    QVector<Unit*> units;
+//    QVector<City*> cities;
+//    QVector<Unit*> units;
 
     QVector<QGraphicsPolygonItem*> tiles;
     QVector<QGraphicsPolygonItem*> mapBorders;

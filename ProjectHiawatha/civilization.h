@@ -13,6 +13,7 @@
 #include <civcolors.h>
 
 
+class City;
 
 class Civilization
 {
@@ -21,14 +22,22 @@ public:
     Civilization(Nation name);
 
     //Accessors and Mutators
-    Nation getCiv();
     void UpdateCivYield();
+    void AddCity(City* city);
+    void AddUnit(Unit *unit);
+
+    City *GetCityAt(int index);
+    Unit* GetUnitAt(int index);
+    Nation getCiv();
     Yield getCivYield();
+
+    QVector<City*> GetCityList();
 
 private:
     Nation name;
     //Enum for leader?
     //civcolors
+
 
     QVector<Unit*> UnitList; //Needs a Units object type
         //Will contain all of the civ's units

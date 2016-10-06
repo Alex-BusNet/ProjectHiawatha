@@ -240,9 +240,35 @@ void Renderer::DrawGuiImages(QGraphicsScene *scene)
 
 }
 
-void Renderer::DrawCityBorders(Map *map)
+void Renderer::DrawCityBorders(Map *map, QVector<City*> cities, GameScene *scene)
 {
+    int index, col, row;
+    for(int i = 0; i < cities.size(); i++)
+    {
+        col = cities.at(i)->GetCityTile()->GetTileID().column;
+        row = cities.at(i)->GetCityTile()->GetTileID().row;
+        index = (col / 2) + (map->GetMapSizeX() * row);
 
+        SetOutlinePen(cities.at(i)->GetCityTile()->GetControllingCiv());
+        cities.at(i)->GetCityTile()->SetTilePen(outlinePen);
+
+        cityBorders.push_back(scene->addPolygon(cities.at(i)->GetCityTile()->GetTilePolygon()));
+        cityBorders.last()->setPen(cities.at(i)->GetCityTile()->GetTilePen());
+    }
+}
+
+void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
+{
+    QPixmap *cityImage;
+
+    for(int i = 0; i < cities.size(); i++)
+    {
+        cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
+        cityPixmap.push_back(view->addPixmap(*cityImage));
+        cityPixmap.last()->setZValue(2);
+        cityPixmap.last()->setScale(2.0f);
+        cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetTexturePoint());
+    }
 }
 
 ////For Debug uses only
@@ -258,7 +284,7 @@ void Renderer::DrawDebugCityBorders(Map *map, GameScene *scene)
         map->GetTileAt(index)->Selected = false;
 
         cityBorders.push_back(scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-        cityBorders.at(0)->setPen(map->GetTileAt(index)->GetTilePen());
+        cityBorders.last()->setPen(map->GetTileAt(index)->GetTilePen());
     }
 
     scene->redrawTile = false;

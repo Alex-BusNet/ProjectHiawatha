@@ -85,13 +85,23 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nDrawing map.";
     renderer->DrawHexScene(map, gameView);
+    qDebug() << "Initializing Civs";
+    InitCivs(player, 4);
 
     qDebug() << "Done.\nDrawing Units.";
     renderer->DrawTestUnits(map, gameView);
 
-    qDebug() << "Done.\nDrawing Cities.";
-    renderer->DrawTestCities(map, gameView);
-    renderer->DrawDebugCityBorders(map, gameView->GetScene());
+//    renderer->DrawTestCities(map, gameView);
+    for(int i = 0; i < civList.size(); i++)
+    {
+        qDebug() << "Done.\nDrawing Cities.";
+        renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
+
+        qDebug() << "Drawing City Borders";
+        renderer->DrawCityBorders(map, civList.at(i)->GetCityList(), gameView->GetScene());
+    }
+
+
 
 //    renderer->DrawGuiImages(game);
 
@@ -119,39 +129,49 @@ void GameManager::InitCivs(Nation player, int numAI)
 {
     Civilization* civ = new Civilization(player);
     civList.push_back(civ);
+
     for(int i = 0; i < numAI; i++)
     {
+newCivRand:
         srand(0);
+        int civNum = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * 4;
 
-        int civNum = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * numAI;
+//        if(civNum != player)
+//        {
+//            if(!(civList.contains(civ)))
+//            {
+                switch (civNum)
+                {
+                case America:
+                    civ = new Civilization(America);
+                    break;
+                case India:
+                    civ = new Civilization(India);
+                    break;
+                case Germany:
+                    civ = new Civilization(Germany);
+                    break;
+                case China:
+                    civ = new Civilization(China);
+                    break;
+                }
 
-        if(civNum != player)
-        {
-            switch (civNum)
-            {
-            case America:
-                civ = new Civilization(America);
-                break;
-            case India:
-                civ = new Civilization(India);
-                break;
-            case Germany:
-                civ = new Civilization(Germany);
-                break;
-            case China:
-                civ = new Civilization(China);
-                break;
-            }
-
-            civList.push_back(civ);
-        }
-        else
-        {
-            i--;
-        }
+                qDebug() << "Civ" << i << ": " << civ->getCiv();
+                civList.push_back(civ);
+//            }
+//            else
+//            {
+//                goto newCivRand;
+//            }
+//        }
+//        else
+//        {
+//            goto newCivRand;
+//        }
 
     }
 
+    qDebug() << "Spawning Civs";
     map->SpawnCivs(civList);
 }
 

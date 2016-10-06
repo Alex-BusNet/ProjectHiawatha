@@ -3,6 +3,7 @@
 #include <map>
 #include <random>
 #include <QTime>
+#include "biome.h"
 
 Map::Map()
 {
@@ -117,6 +118,11 @@ TileType Map::GetTileTypeAt(int index)
 QPixmap *Map::GetTilePixmap(int index)
 {
     return this->terrain.at(index);
+}
+
+int Map::GetMapSizeX()
+{
+    return this->mapSizeX;
 }
 
 Tile* Map::GetTileFromCoord(int column, int row)
@@ -288,7 +294,34 @@ void Map::CleanMap()
 
 void Map::SpawnCivs(QVector<Civilization*> civs)
 {
+    City *city;
+    Unit *unit;
+    for(int i = 0; i < civs.size(); i++)
+    {
+newrand:
+        srand(0);
+        int index = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * board.size();
 
+        if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN)
+        {
+            index += 5;
+        }
+        else
+        {
+            if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
+            {
+                city = new City();
+                city->SetCityAsCaptial();
+                city->SetCityTile(board.at(index));
+                city->SetControllingCiv(civs.at(i)->getCiv());
+                civs.at(i)->AddCity(city);
+
+                board.at(index)->HasCity = true;
+                board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
+            }
+        }
+
+    }
 }
 
 void Map::GenerateBiomes()
