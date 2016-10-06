@@ -1,6 +1,7 @@
 #include "gameoptions.h"
 #include "ui_gameoptions.h"
 #include "gamemanager.h"
+#include "nation.h"
 #include <QPainter>
 #include <QWidget>
 #include <QGridLayout>
@@ -20,24 +21,38 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QListWidgetItem* item1 =new QListWidgetItem(tr("China"), ui->listWidget);
     QListWidgetItem* item2 =new QListWidgetItem(tr("Germany"), ui->listWidget);
     QListWidgetItem* item3 =new QListWidgetItem(tr("India"), ui->listWidget);
-    QListWidgetItem* item4 = new QListWidgetItem();
+    QListWidgetItem* item4 = new QListWidgetItem(tr("United States of America"),ui->listWidget);
+    QListWidgetItem* item5 =new QListWidgetItem(tr("Mongolia"), ui->listWidget);
+    QListWidgetItem* item6 =new QListWidgetItem(tr("Aztec Empire"), ui->listWidget);
+    QListWidgetItem* item7 =new QListWidgetItem(tr("France"), ui->listWidget);
     QIcon* icon1 = new QIcon();
     QIcon* icon2 = new QIcon();
     QIcon* icon3 = new QIcon();
     QIcon* icon4 = new QIcon();
-    item4->setText("United States of America");
+    QIcon* icon5 = new QIcon();
+    QIcon* icon6 = new QIcon();
+    QIcon* icon7 = new QIcon();
     icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/CHINA.png");
     icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY2.png");
     icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/INDIA.png");
     icon4->addFile("../ProjectHiawatha/Assets/Leaders/Icons/USA.png");
+    icon5->addFile("../ProjectHiawatha/Assets/Leaders/Icons/MONGOLIA.jpg");
+    icon6->addFile("../ProjectHiawatha/Assets/Leaders/Icons/AZTEC.png");
+    icon7->addFile("../ProjectHiawatha/Assets/Leaders/Icons/FRANCE.png");
     item1->setIcon(*icon1);
     item2->setIcon(*icon2);
     item3->setIcon(*icon3);
     item4->setIcon(*icon4);
+    item5->setIcon(*icon5);
+    item6->setIcon(*icon6);
+    item7->setIcon(*icon7);
     ui->listWidget->addItem(item1);
     ui->listWidget->addItem(item2);
     ui->listWidget->addItem(item3);
     ui->listWidget->addItem(item4);
+    ui->listWidget->addItem(item5);
+    ui->listWidget->addItem(item6);
+    ui->listWidget->addItem(item7);
     ui->comboBox->addItem("Duel: 40x24 - 2 Players",0);
     ui->comboBox->addItem("Tiny: 56x36 - 4 Players",0);
     ui->comboBox->addItem("Small: 66x42 - 6 Players",0);
@@ -61,21 +76,37 @@ void GameOptions::paintEvent(QPaintEvent *e)
     QPixmap pic2("../ProjectHiawatha/Assets/Leaders/George_head.jpg");
     QPixmap pic3("../ProjectHiawatha/Assets/Leaders/bismark.jpg");
     QPixmap pic4("../ProjectHiawatha/Assets/Leaders/gandhi.jpg");
+    QPixmap pic5("../ProjectHiawatha/Assets/Leaders/khan.jpg");
+    QPixmap pic6("../ProjectHiawatha/Assets/Leaders/montezuma.jpg");
+    QPixmap pic7("../ProjectHiawatha/Assets/Leaders/napoleon.jpg");
+    switch(ui->listWidget->currentRow())
+    {
+        case 0:ui->label_3->setText("Mao Zedong");
+               ui->label->setPixmap(pic);
+               break;
+        case 1:ui->label_3->setText("Otto Von Bismarck");
+               ui->label->setPixmap(pic3);
+               break;
+        case 2:ui->label_3->setText("Gandhi");
+               ui->label->setPixmap(pic4);
+               break;
+        case 3:ui->label_3->setText("George Washington");
+               ui->label->setPixmap(pic2);
+               break;
+        case 4:ui->label_3->setText("Genghis Khan");
+               ui->label->setPixmap(pic5);
+               break;
+        case 5:ui->label_3->setText("Montezuma");
+               ui->label->setPixmap(pic6);
+               break;
+        case 6:ui->label_3->setText("Napoleon Bonaparte");
+               ui->label->setPixmap(pic7);
+               break;
+        default:ui->label_3->setText("Gandhi");
+                ui->label->setPixmap(pic4);
 
-   if(ui->listWidget->currentRow()==0){
-       ui->label_3->setText("Mao Zedong");
-       ui->label->setPixmap(pic);
-   }else if(ui->listWidget->currentRow()==3){
-       ui->label_3->setText("George Washington");
-       ui->label->setPixmap(pic2);
-   }else if(ui->listWidget->currentRow()==1){
-       ui->label_3->setText("Otto Von Bismarck");
-       ui->label->setPixmap(pic3);
-   }
-   else{
-       ui->label_3->setText("Gandhi");
-       ui->label->setPixmap(pic4);
-   }
+    }
+
 }
 
 void GameOptions::on_pushButton_clicked()
@@ -102,7 +133,26 @@ void GameOptions::on_pushButton_clicked()
         delete game;
     }
     qDebug()<<"Map Size: "<<info.mapDimension1;
-    game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2);
+    switch(ui->listWidget->currentRow())
+    {
+        case 0:player = China;
+               break;
+        case 1:player = Germany;
+               break;
+        case 2:player = India;
+               break;
+        case 3:player = America;
+               break;
+        case 4:player = Mongolia;
+               break;
+        case 5:player = Aztec;
+               break;
+        case 6:player = France;
+               break;
+        default:player = India;
+
+    }
+    game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2, player);
     this->close();
 
 }

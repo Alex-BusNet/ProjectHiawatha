@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "gamemanager.h"
 #include <QListWidgetItem>
+#include "nation.h"
 
 namespace Ui {
 class GameOptions;
@@ -29,6 +30,7 @@ private:
     Ui::GameOptions *ui;
     GameManager *game;
     bool FullScreen;
+    Nation player;
 };
 
 #endif // GAMEOPTIONS_H

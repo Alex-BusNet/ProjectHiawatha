@@ -75,10 +75,12 @@ void CityScreen::loadBuildings(QString filename)
 void CityScreen::updateList()
 {
 
-    for(int i = 0;i<buildings.size();i++){
-        if(buildings.at(i)->isUnlocked())
+    for(int i = 0;i<buildings.size();i++)
+    {
+        ui->listWidget->addItem(buildings.at(i)->getName());
+        if(buildings.at(i)->isUnlocked()==false)
         {
-            ui->listWidget->addItem(buildings.at(i)->getName());
+               ui->listWidget->item(i)->setHidden(true);
         }
 
     }

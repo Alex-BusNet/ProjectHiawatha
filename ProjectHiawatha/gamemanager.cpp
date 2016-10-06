@@ -242,7 +242,7 @@ void GameManager::showCity()
         cityScreen = new CityScreen(this);
         //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
         cityScreen->setAutoFillBackground(true);
-        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/Buildings.txt");
+        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
         cityScreen->updateList();
         cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();

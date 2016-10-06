@@ -1,6 +1,4 @@
 Walls, Adds +4 to a city's defense, 75, 0, defense, 4, 0, true
 Library, Increases city's science output, 100, 0, science, 12, 2, false
 Observatory, Increases city's science, 220, 0, science, 57, 3, false
-Barracks, Increases city's defense, 125, 0, defense, 6, 2, false
-Bank, Greatly increases city's gold output, 300, 0 gold, 50, 0, false
-Granary, Adds +2 food per turn, 50, 0, food, 2, 1, true
+Barracks, Increases city's defense, 125, 0, defense, 6, 2, true
