@@ -23,9 +23,9 @@ Building::~Building()
 
 }
 
-QString Building::getName()
+QString Building::getName() const
 {
-    return name;
+    return this->name;
 
 }
 
@@ -53,7 +53,7 @@ QString Building::getbonusType()
 
 int Building::getBonusValue()
 {
-    return bonus;
+    return this->bonus;
 }
 
 int Building::getBuildingMaintenanceCost()

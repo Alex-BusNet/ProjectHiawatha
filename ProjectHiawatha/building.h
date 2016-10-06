@@ -11,7 +11,7 @@ public:
     Building();
     Building(QString Name, QString buildDescription, int cost, int current, QString bonusKind, int bonusValue, int maintanenceCost, bool unlockedBuild);
     ~Building();
-    QString getName();
+    QString getName() const;
     QString getDescription();
     int getProductionCost();
     int getCurrentProduction();

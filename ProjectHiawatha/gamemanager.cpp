@@ -207,7 +207,10 @@ void GameManager::showCity()
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
+        //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
+        cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/Buildings.txt");
+        cityScreen->updateList();
         cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
         for(int i = 0; i < map->GetBoardSize(); i++)
         {

@@ -17,6 +17,7 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->label->setPixmap(pic);
     ui->label_2->setText("Walls");
     ui->label_3->setText("+5000 Defense");
+
 }
 
 CityScreen::~CityScreen()
@@ -45,10 +46,22 @@ void CityScreen::loadBuildings(QString filename)
           int z = buildingInfo[5].toInt();
           int temp = buildingInfo[6].toInt();
           qDebug()<<"Production Cost: "<<x;
-          //Building building(buildingInfo[0],buildingInfo[1],x,y,buildingInfo[4],z,temp,buildingInfo[7]);
-          //buildings.push_back(building);
+          bool flag;
+          QString str = buildingInfo[7];
+          if(str.contains("true", Qt::CaseInsensitive))
+          {
+              flag = true;
+          }else
+          {
+              flag = false;
+          }
+          Building* building = new Building(buildingInfo[0],buildingInfo[1],x,y,buildingInfo[4],z,temp,flag);
+          buildings.push_back(building);
+          qDebug()<<buildings.at(0)->isUnlocked();
        }
        inputFile.close();
+       qDebug()<<buildings.at(1)->getName();
+       qDebug()<<buildings.size();
     }else
     {
         QMessageBox* mBox = new QMessageBox();
@@ -57,4 +70,33 @@ void CityScreen::loadBuildings(QString filename)
         qDebug()<<"File Not Found";
         this->showMinimized();
     }
+}
+
+void CityScreen::updateList()
+{
+
+    for(int i = 0;i<buildings.size();i++){
+        if(buildings.at(i)->isUnlocked())
+        {
+            ui->listWidget->addItem(buildings.at(i)->getName());
+        }
+
+    }
+    update();
+}
+
+void CityScreen::on_listWidget_itemSelectionChanged()
+{
+    QString str = "+";
+    QString str2;
+    str2 = str2.number(buildings.at(ui->listWidget->currentRow())->getBonusValue());
+    qDebug()<<"Bonus Value: "<<buildings.at(ui->listWidget->currentRow())->getBonusValue();
+    QString str3 = buildings.at(ui->listWidget->currentRow())->getbonusType();
+    str2.append(str3);
+    qDebug()<<"str2: "<<str2;
+    str.append(str2);
+    qDebug()<<"str: "<<str;
+    ui->label_2->setText(str);
+    ui->label_3->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
+    update();
 }

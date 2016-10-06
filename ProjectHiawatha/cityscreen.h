@@ -20,9 +20,13 @@ public:
     ~CityScreen();
     void paintEvent(QPaintEvent*e);
     void loadBuildings(QString filename);
+    void updateList();
+private slots:
+    void on_listWidget_itemSelectionChanged();
+
 private:
     Ui::CityScreen *ui;
-    QVector<Building> buildings;
+    QVector<Building*> buildings;
 
 };
 
