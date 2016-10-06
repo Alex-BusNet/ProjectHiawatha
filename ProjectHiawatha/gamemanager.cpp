@@ -122,6 +122,13 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     zoomScale = 1;
 
     gameView->SetGameMap(map);
+    for(int i = 0; i < 3; i++)
+    {
+        zoomIn();
+    }
+    qDebug() << "Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
+
+    gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
     this->setLayout(vLayout);
     this->show();
 
@@ -140,6 +147,7 @@ void GameManager::InitCivs(Nation player, int numAI)
     for(int i = 0; i < numAI; i++)
     {
 newCivRand:
+        // The 4 indicates the max number of civs in the game.
         civNum = (static_cast<double>(rand()) / RAND_MAX) * 4;
 
         if(civNum != player)
@@ -171,6 +179,7 @@ newCivRand:
             }
             else
             {
+                delete civ;
                 goto newCivRand;
             }
 
@@ -195,11 +204,6 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
-
-//    if(gameView->GetScene()->isTileSelected)
-//    {
-//        gameView->GetScene()->drawForeground(&paint, gameView->sceneRect());
-//    }
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
@@ -215,13 +219,11 @@ void GameManager::closeGame()
 
 void GameManager::zoomIn()
 {
-    qDebug() << "Widget called ZoomIn()";
     gameView->zoomIn();
 }
 
 void GameManager::zoomOut()
 {
-    qDebug() << "Widget called ZoomOut()";
     gameView->zoomOut();
 }
 
@@ -243,13 +245,10 @@ void GameManager::showCity()
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/Buildings.txt");
         cityScreen->updateList();
         cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
-        for(int i = 0; i < map->GetBoardSize(); i++)
-        {
-            if(map->GetTileAt(i)->HasCity)
-            {
-                gameView->centerOn(map->GetTileAt(i)->GetCenter());
-            }
-        }
+        civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
+
+        gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
+
         gameView->setDragMode(QGraphicsView::NoDrag);
         QPen cityPen(QColor(Qt::red));
         cityPen.setWidth(4);

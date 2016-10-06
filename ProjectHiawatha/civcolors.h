@@ -19,7 +19,7 @@ public:
         this->AMERICA_PRIMARY.setRgb(0, 0, 255, 255);
         this->GERMANY_PRIMARY.setRgb(255, 0, 0, 255);
         this->INDIA_PRIMARY.setRgb(0, 255, 0, 255);
-        this->CHINA_PRIMARY.setRgb(0, 250, 150, 255);
+        this->CHINA_PRIMARY.setRgb(0, 200, 150, 255);
     }
 };
 

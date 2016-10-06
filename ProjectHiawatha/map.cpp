@@ -3,6 +3,7 @@
 #include <map>
 #include <random>
 #include <QTime>
+#include <ctime>
 #include "biome.h"
 
 Map::Map()
@@ -294,15 +295,28 @@ void Map::CleanMap()
 
 void Map::SpawnCivs(QVector<Civilization*> civs)
 {
+    //=====================
+    //
+    // Future steps will involve spacing civs farther apart
+    // so no two civs are on top of each other.
+    //
+    // There will also be an initial unit spawning and
+    // bigger borders for cities.
+    //
+    // This may change later to where the player gets a warrior
+    // and a settle instead of a city to start.
+    //
+    //=====================
+
     City *city;
     Unit *unit;
-    srand(0);
+    srand(time(0));
     int index;
 
     for(int i = 0; i < civs.size(); i++)
     {
 newrand:
-        index = (static_cast<double>(rand()) / static_cast<double>(RAND_MAX)) * board.size();
+        index = (static_cast<double>(rand()) / RAND_MAX) * (board.size() / 2);
 
         if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN)
         {
