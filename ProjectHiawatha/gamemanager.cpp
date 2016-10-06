@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QThread>
 #include <ctime>
+#include <algorithm>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -143,12 +144,17 @@ void GameManager::InitCivs(Nation player, int numAI)
     srand(time(0));
     int civNum;
 
+    int selNat[7];
+    selNat[0] = player;
+
     qDebug() << "Player:" << player;
     for(int i = 0; i < numAI; i++)
     {
 newCivRand:
-        // The 4 indicates the max number of civs in the game.
-        civNum = (static_cast<double>(rand()) / RAND_MAX) * 7;
+        // The number multiplied at the end indicates the
+        // max number of civs in the game.
+//        civNum = (static_cast<double>(rand()) / RAND_MAX) * 7;
+        civNum = rand() % 7;
 
         if(civNum != player)
         {
@@ -156,38 +162,50 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America);
+                selNat[i + 1] = America;
                 break;
             case Germany:
                 civ = new Civilization(Germany);
+                selNat[i + 1] = Germany;
                 break;
             case India:
                 civ = new Civilization(India);
+                selNat[i + 1] = India;
                 break;
             case China:
                 civ = new Civilization(China);
+                selNat[i + 1] = China;
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia);
+                selNat[i + 1] = Mongolia;
                 break;
             case Aztec:
                 civ = new Civilization(Aztec);
+                selNat[i + 1] = Aztec;
                 break;
             case France:
                 civ = new Civilization(France);
+                selNat[i + 1] = France;
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India);
+                selNat[i + 1] = India;
                 break;
             }
 
-            if(!(civList.contains(civ)))
+            auto found =  std::find(std::begin(selNat), std::end(selNat), civNum);
+
+            if(found != std::end(selNat))
             {
                 qDebug() << "Civ" << i << ": " << civ->getCiv();
+                found= false;
                 civList.push_back(civ);
             }
             else
             {
+                qDebug() << "Civ already exists";
                 delete civ;
                 goto newCivRand;
             }

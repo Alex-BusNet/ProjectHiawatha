@@ -207,7 +207,7 @@ QString Renderer::SetYieldDisplay(Yield *yield)
                                          .arg(yield->GetYield(Yield::PRODUCTION))
                                          .arg(yield->GetYield(Yield::FOOD))
                                          .arg(yield->GetYield(Yield::RESEARCH))
-            .arg(yield->GetYield(Yield::CULTURE));
+                                         .arg(yield->GetYield(Yield::CULTURE));
 }
 
 void Renderer::SetOutlinePen(Nation owner)
@@ -229,10 +229,21 @@ void Renderer::SetOutlinePen(Nation owner)
     case China:
         outlinePen.setColor(cc->CHINA_PRIMARY);
         break;
+    case Mongolia:
+        outlinePen.setColor(cc->MONGOLIA_PRIMARY);
+        break;
+    case Aztec:
+        outlinePen.setColor(cc->AZTEC_PRIMARY);
+        break;
+    case France:
+        outlinePen.setColor(cc->FRANCE_PRIMARY);
+        break;
     default:
         outlinePen.setColor(cc->NO_NATION_PRIMARY);
         break;
     }
+
+    outlinePen.setWidth(2);
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
