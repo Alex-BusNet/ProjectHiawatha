@@ -2,3 +2,9 @@ Walls, Adds +4 to a city's defense, 75, 0, defense, 4, 0, true
 Library, Increases city's science output, 100, 0, science, 12, 2, false
 Observatory, Increases city's science, 220, 0, science, 57, 3, false
 Barracks, Increases city's defense, 125, 0, defense, 6, 2, true
+Bank, Greatly increases gold production, 300, 0, gold, 12, 0, false
+Granary, Helps civs grow in early game, 50, 0, food, 2, 1, true
+Theatre, Increases a city's happiness, 200, 0, happiness, 4, 3, false
+Colosseum, Increases happiness, 100, 0, happiness, 3, 1, false
+Courthouse, Reduce unhappiness, 120, 0, happiness, 5, 4, false
+Lighthouse, Increases food output, 70, 0, food, 5, 1, true

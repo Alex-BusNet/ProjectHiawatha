@@ -6,6 +6,7 @@
 #include <building.h>
 #include <QVector>
 #include <QString>
+#include <QListWidgetItem>
 
 namespace Ui {
 class CityScreen;
@@ -24,9 +25,14 @@ public:
 private slots:
     void on_listWidget_itemSelectionChanged();
 
+    void on_pushButton_clicked();
+
+    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+
 private:
     Ui::CityScreen *ui;
     QVector<Building*> buildings;
+    QString str;
 
 };
 

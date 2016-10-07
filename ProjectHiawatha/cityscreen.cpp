@@ -7,16 +7,25 @@
 #include <QTextStream>
 #include <QStringList>
 #include <QDebug>
+#include <QListWidgetItem>
+
 
 CityScreen::CityScreen(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CityScreen)
 {
+    if(str.isEmpty())
+    {
+        str =  "No Current Production";
+    }
     ui->setupUi(this);
     QPixmap pic("../ProjectHiawatha/Assets/Buildings/wall.jpg");
     ui->label->setPixmap(pic);
     ui->label_2->setText("Walls");
     ui->label_3->setText("+5000 Defense");
+    ui->label_6->setText(str);
+    ui->progressBar->setMinimum(0);
+
 
 }
 
@@ -101,4 +110,19 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     ui->label_2->setText(str);
     ui->label_3->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
     update();
+}
+
+void CityScreen::on_pushButton_clicked()
+{
+    str = (ui->label_6->text());
+    this->close();
+}
+
+void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    ui->label_6->setText(item->text());
+    ui->progressBar->setMaximum(buildings.at(ui->listWidget->currentRow())->getBuildingMaintenanceCost());
+    ui->progressBar->setValue(10);
+    update();
+
 }
