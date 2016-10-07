@@ -193,13 +193,16 @@ newCivRand:
                 break;
             }
 
+            // look to see if the selected civ has already been selected
             auto found = std::find(std::begin(selNat), std::end(selNat), civNum);
 
+            // If was not found, place in civList vector
             if(found != std::end(selNat))
             {
                 qDebug() << "Civ" << i << ": " << civ->getCiv();
                 civList.push_back(civ);
             }
+            // Otherwise, delete it and try again.
             else
             {
                 delete civ;
