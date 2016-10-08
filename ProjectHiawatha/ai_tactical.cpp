@@ -39,6 +39,7 @@ AI_Tactical::AI_Tactical()
     //and will perform the 'ideal' improvement
 //the roadworker will be given a city to connect to if not already working
     //should always be in a city OR building roads (unless captured back from barbarians??)
+        //Thinking barbarians should just kill workers
 
 
 //*****************Settler Control**************
