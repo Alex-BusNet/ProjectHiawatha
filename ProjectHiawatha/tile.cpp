@@ -3,8 +3,8 @@
 #include <qmath.h>
 
 //=====================
-//    Tile Diagram
-//
+//     Tile Diagram
+//       Flattop:
 //     0/6------1
 //     /         \
 //    /           \
@@ -13,10 +13,22 @@
 //     \         /
 //      4-------3
 //
+//      Pointtop:
+//         0/6
+//        /   \
+//       /     \
+//      5       1
+//      |       |
+//      |   c   |
+//      |       |
+//      4       2
+//       \     /
+//        \   /
+//          3
 //======================
 int drawScale = 2;
 
-Tile::Tile(int posX, int posY)
+Tile::Tile(int _posX, int _posY)
 {
     this->type = WATER;
     this->yield = Yield(1,1,0,1,0);
@@ -35,20 +47,35 @@ Tile::Tile(int posX, int posY)
     hexHorOffset = 74 * drawScale;
     hexRowOffset = 37 * drawScale;
 
-    posX *= drawScale;
-    posY *= drawScale;
+    _posX *= drawScale;
+    _posY *= drawScale;
 
-    points[0] = QPoint(posX, posY);
-    points[1] = QPoint(posX + (25 * drawScale), posY);
-    points[2] = QPoint((posX + hexRowOffset), (posY + hexVertOffset));
-    points[3] = QPoint(posX + (25 * drawScale), posY + (hexVertOffset * 2));
-    points[4] = QPoint(posX, posY + (hexVertOffset * 2));
-    points[5] = QPoint(posX - (12 * drawScale), (posY + hexVertOffset));
-    points[6] = QPoint(posX, posY);
+    //Flattop:
+//    points[0] = QPoint(_posX, _posY);
+//    points[1] = QPoint(_posX + (25 * drawScale), _posY);
+//    points[2] = QPoint((_posX + hexRowOffset), (_posY + hexVertOffset));
+//    points[3] = QPoint(_posX + (25 * drawScale), _posY + (hexVertOffset * 2));
+//    points[4] = QPoint(_posX, _posY + (hexVertOffset * 2));
+//    points[5] = QPoint(_posX - (12 * drawScale), (_posY + hexVertOffset));
+//    points[6] = QPoint(_posX, _posY);
 
-    center = QPoint(posX + (12 * drawScale), posY + hexVertOffset);
-    textCenter = QPoint(posX + 10, posY + hexVertOffset);
-    texturePoint = QPoint(posX - (12 * drawScale), posY + (0 * drawScale));
+//    center = QPoint(_posX + (12 * drawScale), _posY + hexVertOffset);
+//    textCenter = QPoint(_posX + 10, _posY + hexVertOffset);
+//    texturePoint = QPoint(_posX - (12 * drawScale), _posY + (0 * drawScale));
+
+    //Pointtop:
+    points[0] = QPoint(_posX + (22 * drawScale), _posY - (12 * drawScale));
+    points[1] = QPoint(_posX + (44 * drawScale), _posY);
+    points[2] = QPoint(_posX + (44 * drawScale), _posY + (25 * drawScale));
+    points[3] = QPoint(_posX + (22 * drawScale), _posY + (37 * drawScale));
+    points[4] = QPoint(_posX, _posY + (25 * drawScale));
+    points[5] = QPoint(_posX, _posY);
+    points[6] = QPoint(_posX + (22 * drawScale), _posY - (12 * drawScale));
+
+    center = QPoint(_posX + (22 * drawScale), _posY + (12 * drawScale));
+    textCenter = QPoint(_posX + (15 * drawScale), _posY + (10 * drawScale));
+    texturePoint = QPoint(_posX - 2, _posY - (12 * drawScale));
+
 
     this->poly << this->points[0]
             << this->points[1]

@@ -34,9 +34,11 @@ void Map::InitHexMap()
     qDebug() << "InitHexMap() called";
 
     Tile *tile;
-    float posX = 12;
-    float posY = 0;
-    float rowOffset = 37;
+    //Flattop: x = 12, y =0;
+    //Pointtop: x = 0, y = 12;
+    int posX = 0;
+    int posY = 12;
+//    float rowOffset = 37;
     bool odd = false;
     int column = 0, row = 0;
 
@@ -63,20 +65,30 @@ void Map::InitHexMap()
 
             board.push_back(tile);
 
-            posX += 74;
+            //flat:
+//            posX += 74;
+            //point:
+            posX += 44;
+
             column += 2;
         }
 
         if(!odd)
         {
-            posX = 12 + rowOffset;
+            //Flat: posX = 12 + offset
+            //Point: posX = 22;
+            posX = 22; // + rowOffset;
         }
         else
         {
-            posX = 12;
+            //Flat: posX = 12;
+            //point: posX = 0;
+            posX = 0;
         }
         row++;
-        posY += 22;
+        //Flat: posY += 22;
+        //Point: posY += 37;
+        posY += 37;
     }
     GenerateBiomes();
     GenerateMapEdge();
