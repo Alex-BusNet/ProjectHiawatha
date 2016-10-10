@@ -9,7 +9,12 @@
 class AI_Strategic
 {
 public:
-    AI_Strategic();
+    AI_Strategic();//Probably use default constructor
+    //shouldn't need passed values
+
+private:
+    //int midTermGoal();
+    //cityProduction(int midTerm);
 };
 
 #endif // AI_STRATEGIC_H

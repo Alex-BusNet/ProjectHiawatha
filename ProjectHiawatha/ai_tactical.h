@@ -9,8 +9,19 @@ class AI_Tactical
 public:
     AI_Tactical();
     //2 constructors, depending if the civ is attacking or defending
-    //AI_Tactical_Prep(Queue CityToBeFounded, Vector TroopPositions);
-    //AI_Tactical_AtWar(Queue CityToBeFounded, City Target);
+    //Prep(Queue CityToBeFounded, Vector TroopPositions, Vector Highthreats, Vector Midthreats, Vector Lowthreats);
+    //AtWar(Queue CityToBeFounded, City Target, Vector Highthreats, Vector Midthreats, Vector Lowthreats);
+
+
+private:
+
+    //settlercontrol(Queue CityToBeFounded);
+    //workercontrol();
+    //highThreats(Vector Highthreats);
+    //midThreats(Vector Midthreats);
+    //lowThreats(Vector Lowthreats);
+
+
 };
 
 #endif // AI_TACTICAL_H

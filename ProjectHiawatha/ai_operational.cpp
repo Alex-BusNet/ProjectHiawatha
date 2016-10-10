@@ -26,36 +26,54 @@ AI_Operational::AI_Operational()
 
 
 
-//***********City Founding***************
-//initially prioritize up to 20 locations for city founding sites, starting with nearby and working out
-//re-evaluate and remove locations that become another civ's territory
-//each time a settler appears, ready for commands, it will direct it to the highest priority site without a city founded
-        //or a settler en route
+//AI_Operational(Bool AtWar, int Citiesfounded);
+        //threatScan(Vector* Highthreats, Vector* Midthreats, Vector* Lowthreats);
+//theaterAtWar();
+//theaterPrep();
+//cityLocation(Vector* citylocations);
+
+//****************Tactical AI Called**************
+//if(AtWar)
+    //Pass vector of unit targets and city
+    //also passes the city founding vector and 3 vectors of threatening units
+//else
+    //Pass individual position vector for each unit class
+    //also passes the city founding vector and 3 vectors of threatening units
 
 
+
+
+
+//threatScan(Vector* Highthreats, Vector* Midthreats, Vector* Lowthreats);
+//************Threat Vector*************
+//lists all enemy units which are within 1 of teritory or within 5 of units.
+    //prioritizes within teritory/within 2 of units
+    //mid priority is within 4 of units/just outside territory
+    //low priority is 5 away
+        //priority determines if units targeting it are strong, neutral, or weak to it
+    //adds each to appropriate vector pointer
 
 
 //************Theater of War***************
+//theaterAtWar();
 //Prioritizes the nearest city (by accessibility?) of the player civ
-//Targets enemy units which are nearby
+//If at war, sends immediately to priority targets
+        //1 city at a time
+            //always priority for siege units unless directly threatened
+        //Units which pose a threat to borders or to forces actively invading the enemy city
+            //targets threatening units with whatever they are weak to first, then neutral, and only strong against as last resort
 
+
+//************Theater of War(prep)***************
+//theaterPrep();
 //If preparing for war, sends units in the general direction of opponent
         //Lays out a set of positions which are acceptable for unit types to station
             //infantry will be in front of siege, etc
         //careful not to be too obvious - Fog of War buffer zone?
 
-//If at war, sends immediately to priority targets
-        //unit pathing will check the top 5 or so targets
-            //1 city at a time
-                //always priority for siege units unless directly threatened
-            //Units which pose a threat to borders or to forces actively invading the enemy city
-                //targets threatening units with whatever they are weak to first, then neutral, and only strong against as last resort
 
-
-//****************Tactical AI Called**************
-//Pass either vectors of positions OR vector of unit targets and city(2 seperate constructors??)
-    //individual position vector for each unit class
-//also passes the city founding vector
-
-
-
+//cityLocation(Vector* citylocations);
+//***********City Founding***************
+//initially prioritize up to 20 locations for city founding sites, starting with nearby and working out
+//re-evaluate and remove locations that become another civ's territory
+    //Update vector pointer with results

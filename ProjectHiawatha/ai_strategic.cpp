@@ -15,8 +15,6 @@
         - probably set a static order
         - then give, say, defensive structures priority if under invasion, etc
 
-
-
 Probably called 1x per turn, and calls the operational AI, then tactical AI, from within it.
         possible tactical is called by operational?
 */
@@ -25,29 +23,39 @@ Probably called 1x per turn, and calls the operational AI, then tactical AI, fro
 
 AI_Strategic::AI_Strategic()
 {
+    //int midGoal = midTermGoal();
+    //Some logic based on the different goal options
+    //cityProduction(int midTerm);
 
+    //****************Operational AI called**************
+    //Operational AI will control military strategy and city founding
+    //Pass it whether or not civ is preparing for / at war
+    //Pass it number of cities currently founded
 }
 
-
+//int midTermGoal();
 //*****************Calculate mid-term goal************
-//The mid-term goal will be:
-//1)expanding its borders
-//2)Building up its resources (usually also happening during expanding borders)
+//The mid-term goal will be: (int returned)
+//1)expanding its borders (settling)
+//2)Building up its resources (working, but no longer settling)(usually also happening during expanding borders)
 //3)Preparing for war
 //4)at war
 
 //Should spend the early game expanding borders/resources
+//Determine if more cities are needed (Thinking it will calculate this based on happiness)
+      //(If happiness >2(factor settlers already around too), then city? but only if available location?)
 //at some point it will decide its ready to prepare for war
     //given a minimum city number, say, 5,
     //and an estimate that it has higher production and tech level than player (by enough)
 //Once it has built enough units, it will launch into at war and begin maneuvering them
-    //continue to build units while at war, unless its strength drops below the opposing player
+    //continue to build units while at war, unless its strength drops (significantly?) below the opposing player
     //then it will retreat and try to improve production etc by a margin over the player and try again
 
 
 
+//cityProduction(int midTerm);
 //*************City production Decision Tree***********
-//prioritizes expansion, then having a worker, then military if it is ready for war, then buildings
+//prioritizes military if it is ready for war, then expansion, then having a worker, then buildings
 //should cycle through each city, and then run this calculation only if nothing is being produced in that city
 
 //something like
@@ -78,10 +86,7 @@ AI_Strategic::AI_Strategic()
                 //maybe prioritize happiness until it finishes its 15 cities
 
 
-//****************Operational AI called**************
-//Operational AI will control military strategy and city founding
-//Pass it whether or not civ is preparing for / at war
-//Pass it number of cities currently founded
+
 
 
 
