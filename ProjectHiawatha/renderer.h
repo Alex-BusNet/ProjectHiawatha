@@ -25,7 +25,7 @@ public:
     void DrawCityBorders(Map *map, QVector<City *> cities, GameScene *scene);
     void DrawDebugCityBorders(Map *map, GameScene *scene);
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
-    void DrawUnits(QVector<Unit*> units, QGraphicsScene *scene);
+    void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
 
     void DrawTestUnits(Map *map, GameView *view);
     void DrawTestCities(Map *map, GameView *view);

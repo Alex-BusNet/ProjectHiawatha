@@ -138,6 +138,53 @@ int Map::GetMapSizeX()
     return this->mapSizeX;
 }
 
+QList<Tile *> Map::GetNeighbors(Tile *node)
+{
+    QList<Tile*> neighbors;
+
+    for(int x = -2; x <= 2; x++)
+    {
+        for(int y = -1; y <= 1; y++)
+        {
+            if((x == 0 && y == 0)/* || (x % 2 != 0 && y % 2 == 0) || (x % 2 == 0 && y % 2 != 0)*/)
+            {
+                continue;
+            }
+
+            int checkX = node->GetTileID().column + x;
+            int checkY = node->GetTileID().row + y;
+
+            if(checkX >= 0 && checkX < (mapSizeX * 2) && checkY >= 0 && checkY < mapSizeY)
+            {
+                neighbors.push_back(board.at((checkX / 2) + (mapSizeX * checkY)));
+            }
+        }
+    }
+    return neighbors;
+}
+
+bool Map::listContains(QList<Tile *> list, Tile *tile)
+{
+    foreach(Tile* h, list)
+    {
+        if((h->GetTileID().column == tile->GetTileID().column) && (h->GetTileID().row == tile->GetTileID().row))
+            return true;
+    }
+
+    return false;
+}
+
+bool Map::setContains(QSet<Tile *> set, Tile *tile)
+{
+    foreach(Tile* h, set)
+    {
+        if((h->GetTileID().column == tile->GetTileID().column) && (h->GetTileID().row == tile->GetTileID().row))
+            return true;
+    }
+
+    return false;
+}
+
 Tile* Map::GetTileFromCoord(int column, int row)
 {
     return this->board.at((column / 2) + (mapSizeX * row));
@@ -205,6 +252,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(MOUNTAIN);
                 board.at(i)->SetTileTexture(MOUNTAIN);
+                board.at(i)->Walkable = false;
             }
         }
         else if(dbl == 4)
@@ -234,6 +282,7 @@ void Map::GenerateMapEdge()
         {
             board.at(i)->SetTileTexture(ICE);
             board.at(i)->SetTileType(ICE);
+            board.at(i)->Walkable = false;
         }
         if(board.at(i)->GetTileBiome() == OCEAN)
         {
@@ -337,14 +386,26 @@ newrand:
 
         if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
         {
+//            qDebug() << "   Adding Capital";
             city = new City();
             city->SetCityAsCaptial();
             city->SetCityTile(board.at(index));
             city->SetControllingCiv(civs.at(i)->getCiv());
             civs.at(i)->AddCity(city);
 
+//            qDebug() << "   Adding starting Unit";
+            unit = new Unit(civs.at(i)->getCiv(), false, false, 2, 1, 3, 5);
+            unit->SetPosition(board.at((board.at(index)->GetTileID().column / 2) + (mapSizeX * board.at(index)->GetTileID().row + 1)));
+            unit->SetOwner(civs.at(i)->getCiv());
+            civs.at(i)->AddUnit(unit);
+
+            qDebug() << "       UnitPos:" << civs.at(i)->GetUnitAt(0)->GetPosition()->GetTileIDString();
+
             board.at(index)->HasCity = true;
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
+            index = (unit->GetPosition()->GetTileID().column / 2) + (mapSizeX * unit->GetPosition()->GetTileID().row);
+            board.at(index)->ContainsUnit = true;
+            board.at(index)->SetUnit(unit);
         }
     }
 }

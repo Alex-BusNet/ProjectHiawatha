@@ -55,9 +55,19 @@ QVector<City *> Civilization::GetCityList()
     return this->Citylist;
 }
 
+QVector<Unit *> Civilization::GetUnitList()
+{
+    return this->UnitList;
+}
+
 void Civilization::AddCity(City *city)
 {
     this->Citylist.push_back(city);
+}
+
+void Civilization::AddUnit(Unit *unit)
+{
+    this->UnitList.push_back(unit);
 }
 
 City* Civilization::GetCityAt(int index)
@@ -68,13 +78,15 @@ City* Civilization::GetCityAt(int index)
 
 Unit* Civilization::GetUnitAt(int index)
 {
-    if(index < this->Citylist.size())
+
+    if(index < this->UnitList.size())
     {
         return this->UnitList.at(index);
     }
     else
     {
         qDebug() << "UnitList -- Index out of range";
+        return NULL;
     }
 }
 

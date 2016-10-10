@@ -24,7 +24,7 @@ public:
     //Accessors and Mutators
     void UpdateCivYield();
     void AddCity(City* city);
-    void AddUnit(Unit *unit);
+    void AddUnit(Unit* unit);
 
     City *GetCityAt(int index);
     Unit* GetUnitAt(int index);
@@ -32,6 +32,7 @@ public:
     Yield getCivYield();
 
     QVector<City*> GetCityList();
+    QVector<Unit*> GetUnitList();
 
 private:
     Nation name;

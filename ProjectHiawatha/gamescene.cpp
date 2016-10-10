@@ -3,10 +3,11 @@
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
 {
-    qDebug() << "Scene size: " << this->sceneRect().width() << "x" << this->sceneRect().height();
+
     isTileSelected = false;
     eventQueued = false;
     redrawTile = false;
+    unitMoveOrdered = false;
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -54,15 +55,11 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
-            qDebug() << "Move unit";
+            qDebug() << "Move Unit";
+            column = mrScenePos.x() / 45;
+            row = mrScenePos.y() / 75;
 
-        }
-        else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos))
-        {
-            // Tile was Selected
-
-            column = mrScenePos.x() / 74;
-            row = mrScenePos.y() / 44;
+            qDebug() << "   Before Adjust: " << column << "," << row;
 
             if((column % 2 == 0) && (row % 2 != 0))
             {
@@ -73,6 +70,35 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
                 row--;
             }
 
+            qDebug() << "   After Adjust: " << column << "," << row;
+
+            unitTargetTile = map->GetTileFromCoord(column, row);
+            unitMoveOrdered = true;
+
+        }
+        else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos) && !unitAwaitingRelocation)
+        {
+            // Tile was Selected
+            qDebug() << "Tile selected";
+            qDebug() << "ScenePos: " << mrScenePos;
+
+            column = mrScenePos.x() / 45;
+            row = mrScenePos.y() / 75;
+
+            qDebug() << "   Before Adjust: " << column << "," << row;
+
+            if((column % 2 == 0) && (row % 2 != 0))
+            {
+                row--;
+            }
+            else if ((column % 2 != 0) && (row % 2 == 0))
+            {
+                row--;
+            }
+
+            qDebug() << "   After Adjust: " << column << "," << row;
+            qDebug() << "    Checking tile:" << map->GetTileFromCoord(column,row)->GetTileIDString();
+
             if(map->GetTileFromCoord(column, row)->HasCity)
             {
                 //This may not be needed.
@@ -81,6 +107,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             else if(map->GetTileFromCoord(column, row)->ContainsUnit)
             {
                 // set the global isTileSelected flag
+                qDebug() << "Unit tile selected";
+//                unitSelectedTile = map->GetTileFromCoord(column, row);
                 isTileSelected = true;
             }
 

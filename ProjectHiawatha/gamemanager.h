@@ -8,6 +8,7 @@
 #include "gameview.h"
 #include "map.h"
 #include "renderer.h"
+#include "unitcontroller.h"
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsSceneWheelEvent>
@@ -24,6 +25,7 @@ public:
 private:
     Renderer *renderer;
     Map *map;
+    UnitController *uc;
     QTimer *updateTimer;
 
     GameView *gameView;
@@ -36,25 +38,30 @@ private:
     QVector<Civilization*> civList;
 
     QPushButton *exitGame;
+    QPushButton *endTurn;
 
     //=============
     //Dev Buttons
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
     QPushButton *showDummyCityScreen;
+    QPushButton *moveUnit;
     //=============
 
     CityScreen *cityScreen;
 
     QHBoxLayout *hLayout;
     QHBoxLayout *gameLayout;
+    QVBoxLayout *unitControlButtons;
+    QVBoxLayout *playerControlButtons;
     QVBoxLayout *vLayout;
 
     QString *YieldDisplay;
 
     int zoomScale;
     bool cityScreenVisible;
-
+    bool relocateUnit;
+    bool updateUnitPos;
     void InitCivs(Nation player, int numAI);
     void paintEvent(QPaintEvent *event);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -69,6 +76,8 @@ public slots:
     void zoomOut();
     void showCity();
     void updateTiles();
+    void moveUnitTo();
+    void nextTurn();
 };
 
 #endif // GAMEWINDOW_H

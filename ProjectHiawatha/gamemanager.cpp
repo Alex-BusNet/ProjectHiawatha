@@ -5,6 +5,8 @@
 #include <QThread>
 #include <ctime>
 #include <algorithm>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -18,12 +20,15 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
     gameLayout = new QHBoxLayout();
+    unitControlButtons = new QVBoxLayout();
+    playerControlButtons = new QVBoxLayout();
     cityScreen = new CityScreen();
     cityScreenVisible = false;
+    relocateUnit = false;
 
     if(!fullscreen)
     {
-        this->setFixedSize(1200, 700);
+        this->setFixedSize(1400, 700);
     }
     else
     {
@@ -47,6 +52,14 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     showDummyCityScreen = new QPushButton("Show Dummy City");
     connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
+    moveUnit = new QPushButton("Move Unit");
+    connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
+//    moveUnit->hide();
+
+    endTurn = new QPushButton("End Turn");
+    connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
+//    endTurn->hide();
+
     updateTimer = new QTimer();
     updateTimer->setInterval(50);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
@@ -66,16 +79,28 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     vLayout->setMargin(0);
     vLayout->addSpacing(20);
-    vLayout->addWidget(gameView);
 
-    hLayout->addWidget(exitGame);
+    unitControlButtons->addSpacing(800);
+    unitControlButtons->addWidget(moveUnit);
+
+    gameLayout->addLayout(unitControlButtons);
+    gameLayout->addWidget(gameView);
+
+    playerControlButtons->addWidget(exitGame);
+    playerControlButtons->addSpacing(700);
+    playerControlButtons->addWidget(endTurn);
+
+    gameLayout->addLayout(playerControlButtons);
+
+    vLayout->addLayout(gameLayout);
+
     hLayout->addWidget(renderPlusOne);
     hLayout->addWidget(renderMinusOne);
     hLayout->addWidget(showDummyCityScreen);
 
     vLayout->addLayout(hLayout);
 
-    qDebug() << "Done.\nAdding buttons to screen.";
+//    qDebug() << "Done.\nAdding buttons to screen.";
 
 //    exitGame->setGeometry(this->width() - 200, this->height() + 190, 180, 60);
 //    renderPlusOne->setGeometry(gameView->width() - 200, this->height() + 125, 180, 60);
@@ -92,16 +117,17 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////This is for testing purposes;
     InitCivs(player, 4);
 
-    qDebug() << "Done.\nDrawing Units.";
-    renderer->DrawTestUnits(map, gameView);
+//    qDebug() << "Done.\nDrawing Units.";
+//    renderer->DrawTestUnits(map, gameView);
 
 //    renderer->DrawTestCities(map, gameView);
 
-    qDebug() << "CivList size: " << civList.size();
-    qDebug() << "Done.\nDrawing Cities and Borders.";
+    qDebug() << "   CivList size: " << civList.size();
+    qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
+        renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(map, civList.at(i)->GetCityList(), gameView->GetScene());
     }
 
@@ -131,6 +157,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     this->setLayout(vLayout);
     this->show();
 
+    qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
+
     qDebug() << "Done.";
 }
 
@@ -146,7 +174,7 @@ void GameManager::InitCivs(Nation player, int numAI)
 
     selNat.push_back(player);
 
-    qDebug() << "Player:" << player;
+    qDebug() << "   Player:" << player;
     for(int i = 0; i < numAI; i++)
     {
 newCivRand:
@@ -199,7 +227,7 @@ newCivRand:
             // If was not found, place in civList vector
             if(found != std::end(selNat))
             {
-                qDebug() << "Civ" << i << ": " << civ->getCiv();
+                qDebug() << "   Civ" << i << ": " << civ->getCiv();
                 civList.push_back(civ);
             }
             // Otherwise, delete it and try again.
@@ -217,7 +245,7 @@ newCivRand:
 
     }
 
-    qDebug() << "Spawning Civs";
+    qDebug() << "   Spawning Civs";
     map->SpawnCivs(civList);
 }
 
@@ -255,10 +283,6 @@ void GameManager::zoomOut()
 
 void GameManager::showCity()
 {
-
-    static QGraphicsRectItem *cityScreenRect;
-    static QRect* cityRect;
-
     if(!cityScreenVisible)
     {
         if(cityScreen != NULL)
@@ -270,15 +294,11 @@ void GameManager::showCity()
         cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
         cityScreen->updateList();
-        cityRect = new QRect(cityScreen->pos().x(), cityScreen->pos().y(), cityScreen->width(), cityScreen->height());
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
 
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
 
-        gameView->setDragMode(QGraphicsView::NoDrag);
-        QPen cityPen(QColor(Qt::red));
-        cityPen.setWidth(4);
-        cityScreenRect = gameView->addRect(cityRect, cityPen);
+//        gameView->setDragMode(QGraphicsView::NoDrag);
         cityScreen->show();
         cityScreenVisible = true;
     }
@@ -286,7 +306,6 @@ void GameManager::showCity()
     {
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
-        gameView->removeRect(cityScreenRect);
         cityScreenVisible = false;
     }
 }
@@ -294,12 +313,36 @@ void GameManager::showCity()
 void GameManager::updateTiles()
 {
     //// The false will need to be changed once the Unit Controller is added.
-    gameView->GetScene()->ProcessTile(map, false);
+    gameView->GetScene()->ProcessTile(map, relocateUnit);
+
+    if(gameView->GetScene()->unitMoveOrdered)
+    {
+            qDebug() <<"Finding path";
+            QFuture<void> future = QtConcurrent::run(this->uc, UnitController::FindPath, gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), gameView->GetScene()->unitSelectedTile->GetUnit());
+            future.waitForFinished();
+//            updateUnitPos = true;
+//            uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene()->unitSelectedTile->GetUnit());
+    }
+
+//    if(updateUnitPos)
+//    {
+//        uc->MoveUnit();
+//    }
 
     if(gameView->GetScene()->redrawTile)
     {
         renderer->UpdateScene(map, gameView->GetScene());
     }
+}
+
+void GameManager::moveUnitTo()
+{
+    relocateUnit = true;
+}
+
+void GameManager::nextTurn()
+{
+    // Ends the players turn
 }
 
 

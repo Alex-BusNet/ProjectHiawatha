@@ -32,9 +32,10 @@ public:
     bool DiscoveredByPlayer; // Fog of War flag
     bool Checked;
     bool Selected;
+    bool Walkable;
 
-    Unit GetUnit();
-    void SetUnit(Unit unit);
+    Unit* GetUnit();
+    void SetUnit(Unit* unit);
 
     TileType GetTileType();
     Yield GetYield();
@@ -57,32 +58,24 @@ public:
     void SetTileType(TileType type);
     void SetYield(Yield yield);
     void SetTileImprovement(TileImprovement improvement);
+
     void SetTileID(int x, int column, Tile *tile);
     void SetTileID(TileID id);
 
-    int GetSizeX();
-    int GetSizeY();
-    int GetPosX();
-    int GetPosY();
     QString GetTileIDString();
-
-    void SetPosX(int x);
-    void SetPosY(int y);
 
     QPoint *GetHexPoints();
     QPoint GetHexPoint(int index);
     QPoint GetCenter();
     QPoint GetTextCenter();
     QPointF GetTexturePoint();
+    QPoint GetItemTexturePoint();
 
     QPolygon GetTilePolygon();
     QRect GetTileRect();
 
     int GetHexPosX();
     int GetHexPosY();
-    float GetHexHorOffset();
-    float GetHexVertOffset();
-    float GetHexRowOffset();
 
     QPixmap GetTileTexture();
     void SetTileTexture(TileType type);
@@ -93,6 +86,10 @@ public:
 
     void PrintHexPoints();
 
+    int gCost, hCost;
+    int fCost();
+    TileID parent;
+
 private:
     TileType type;
     Yield yield;
@@ -101,6 +98,7 @@ private:
     QPixmap tileTexture;
     Biome biome;
     Nation owner;
+    Unit *occupyingUnit;
     //Resource resource;
     QPen outlinePen;
     City *city;
@@ -109,7 +107,8 @@ private:
     QPoint points[7];
     QPoint center;
     QPoint textCenter;
-    QPoint texturePoint;
+    QPointF texturePoint;
+    QPoint itemTexturePoint;
 
     int hexPosX;
     int hexPosY;

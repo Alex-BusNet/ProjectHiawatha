@@ -123,6 +123,11 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
                 map->GetTileFromCoord(col, row)->Selected = false;
             }
 
+            if(map->GetTileAt(index)->GetUnit()->Updated)
+            {
+                unitPixmap.at(map->GetTileAt(index)->GetUnit()->GetPixmapIndex())->setPos(map->GetTileAt(index)->GetItemTexturePoint());
+            }
+
             map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
 
             scene->removeItem(tiles.at(lastIndex));
@@ -168,10 +173,10 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
 {
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        tVect.push_back(view->addText(QString("%1,%2").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row)));
+        tVect.push_back(view->addText(QString("%1,%2\n%3").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row).arg(i)));
         tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
         tVect.at(i)->setZValue(7);
-        if(map->GetTileAt(i)->GetTileType() == ICE)
+        if(map->GetTileAt(i)->GetTileType() == ICE || map->GetTileAt(i)->ContainsUnit || map->GetTileAt(i)->HasCity)
         {
             tVect.at(i)->setDefaultTextColor(Qt::red);
         }
@@ -278,7 +283,23 @@ void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
         cityPixmap.push_back(view->addPixmap(*cityImage));
         cityPixmap.last()->setZValue(2);
         cityPixmap.last()->setScale(2.0f);
-        cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetTexturePoint());
+        cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetItemTexturePoint());
+    }
+}
+
+void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
+{
+    QPixmap *unitImage;
+
+    for(int i = 0; i < units.size(); i++)
+    {
+        unitImage = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+        unitPixmap.push_back(view->addPixmap(*unitImage));
+        unitPixmap.last()->setZValue(2);
+        unitPixmap.last()->setScale(2.0f);
+        // All unit images are stored in the unitPixmap vector.
+        units.at(i)->SetPixmapIndex(unitPixmap.size() - 1);
+        unitPixmap.last()->setPos(map->GetTileFromCoord(units.at(i)->GetPosition()->GetTileID())->GetItemTexturePoint());
     }
 }
 
@@ -310,7 +331,7 @@ void Renderer::DrawTestUnits(Map *map, GameView* view)
     {
         if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
         {
-            unitPixmap.at(0)->setPos(map->GetHexTilePoint(i, 0));
+            unitPixmap.at(0)->setPos(map->GetTileAt(i)->GetItemTexturePoint());
             unitPixmap.at(0)->setScale(2.0f);
             map->GetTileAt(i)->ContainsUnit = true;
             break;

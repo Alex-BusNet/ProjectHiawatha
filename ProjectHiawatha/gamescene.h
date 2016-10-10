@@ -19,11 +19,13 @@ public:
     void SetMap(Map *map);
     void ProcessTile(Map *map, bool unitAwaitingRelocation);
 
-    bool isTileSelected, eventQueued, redrawTile;
+    bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered;
 
     void drawForeground(QPainter *painter, const QRectF &rect);
 
     int column, row;
+    Tile* unitTargetTile, *unitSelectedTile;
+
 private:
 
     QPointF mpScenePos, mpScreenPos, mrScenePos, mrScreenPos, lastScenePos, lastScreenPos;

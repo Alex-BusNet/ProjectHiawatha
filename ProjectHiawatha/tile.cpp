@@ -74,7 +74,8 @@ Tile::Tile(int _posX, int _posY)
 
     center = QPoint(_posX + (22 * drawScale), _posY + (12 * drawScale));
     textCenter = QPoint(_posX + (15 * drawScale), _posY + (10 * drawScale));
-    texturePoint = QPoint(_posX - 2, _posY - (12 * drawScale));
+    texturePoint = QPointF(_posX, _posY - (12 * drawScale));
+    itemTexturePoint = QPoint(_posX, _posY - (12 * drawScale));
 
 
     this->poly << this->points[0]
@@ -91,11 +92,26 @@ Tile::Tile(int _posX, int _posY)
     owner = NO_NATION;
     city = new City();
     outlinePen.setColor(QColor(255, 255, 255, 0));
+
+    gCost = 0;
+    hCost = 0;
+
+    Walkable = true;
 }
 
 Tile::~Tile()
 {
 
+}
+
+Unit *Tile::GetUnit()
+{
+    return this->occupyingUnit;
+}
+
+void Tile::SetUnit(Unit *unit)
+{
+    this->occupyingUnit = unit;
 }
 
 TileType Tile::GetTileType()
@@ -209,6 +225,11 @@ QPointF Tile::GetTexturePoint()
     return this->texturePoint;
 }
 
+QPoint Tile::GetItemTexturePoint()
+{
+    return this->itemTexturePoint;
+}
+
 QPolygon Tile::GetTilePolygon()
 {
     return this->poly;
@@ -222,21 +243,6 @@ int Tile::GetHexPosX()
 int Tile::GetHexPosY()
 {
     return this->hexPosY;
-}
-
-float Tile::GetHexHorOffset()
-{
-    return this->hexHorOffset;
-}
-
-float Tile::GetHexVertOffset()
-{
-    return this->hexVertOffset;
-}
-
-float Tile::GetHexRowOffset()
-{
-    return this->hexRowOffset;
 }
 
 QPixmap Tile::GetTileTexture()
@@ -324,6 +330,11 @@ void Tile::PrintHexPoints()
     qDebug() << "5: " << this->points[5];
     qDebug() << "6: " << this->points[6];
     qDebug() << "";
+}
+
+int Tile::fCost()
+{
+    return gCost + hCost;
 }
 
 

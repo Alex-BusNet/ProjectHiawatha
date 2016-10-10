@@ -28,6 +28,9 @@ public:
 
     int GetMapSizeX();
 
+    QList<Tile*> GetNeighbors(Tile *node);
+    bool listContains(QList<Tile*> list, Tile *tile);
+    bool setContains(QSet<Tile*> set, Tile *tile);
 //    void run();
     void SpawnCivs(QVector<Civilization*> civs);
 private:

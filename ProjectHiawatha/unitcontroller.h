@@ -1,18 +1,21 @@
 #ifndef UNITCONTROLLER_H
 #define UNITCONTROLLER_H
 
+#include "map.h"
+#include <QList>
+
 
 class UnitController
 {
 public:
     UnitController();
 
-    // MoveTo(Tile start, Tile end);
+    void FindPath(Tile *startTile, Tile* endTile, Map *map, GameScene *scene, Unit *unit);
+    void MoveUnit(Unit *unit, Map *map, GameScene *scene);
 
 private:
-    // double heuristic(tile a, tile b);
-    // void AStarSearch(<<Some kind of params here>>);
-    // QVector<Tile*> ReconstructPath(Tile start, Tile goal, unordered_map<Tile, Tile>& cameFrom;
+    int GetDistance(Tile* a, Tile *b);
+    void RetracePath(Tile *start, Tile *end, Map *map, Unit *unit);
 };
 
 #endif // UNITCONTROLLER_H

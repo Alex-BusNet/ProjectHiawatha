@@ -16,38 +16,49 @@ public:
 
     void SetUnitIcon(QPixmap *icon);
     void SetOwner(Nation owner);
-    void SetPosition(int column, int row);
-//    void SetPosition(TileID pos);
+//    void SetPosition(int column, int row);
+    void SetPosition(Tile* tile);
     void SetMovementPoints(int pts);
     void SetStrength(int strength);
     void SetRange(int range);
     void SetRangeStrength(int rangeStr);
     void SetHealth(int health);
     void SetMaxHealth(int maxHealth);
+    void SetPath(QList<Tile*> path);
+    void SetPixmapIndex(int index);
 
     QPixmap* GetUnitIcon();
     Nation GetOwner();
-//    TileID GetPosition();
+    Tile* GetPosition();
     int GetMovementPoints();
     int GetStrength();
     int GetRange();
     int GetRangeStrength();
     int GetHealth();
     int GetMaxHealth();
+    int GetPixmapIndex();
 
+    QList<Tile*> GetPath();
+
+    bool isPathEmpty();
     bool isNonCombat();
     bool isSettler();
-    bool NeedsOrders();
+//    bool NeedsOrders();
+    bool RequiresOrders;
+    bool Updated;
+
+
 private:
     QPixmap *unitIcon;
 
     Nation belongsTo;
+    Tile *position;
     int colPosition;
     int rowPosition;
 
+    int pixmapIndex;
     bool NonCombat;
     bool Settler;
-    bool requiresOrders;
 
     int movementPoints;
     int strength;
@@ -55,6 +66,8 @@ private:
     int rangeStrength;
     int health;
     int maxHealth;
+
+    QList<Tile*> path;
 };
 
 #endif // UNIT_H
