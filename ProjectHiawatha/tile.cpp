@@ -31,7 +31,7 @@ int drawScale = 2;
 Tile::Tile(int _posX, int _posY)
 {
     this->type = WATER;
-    this->yield = Yield(1,1,0,1,0);
+    this->yield = new Yield(1,1,0,1,0);
     this->improvement = NONE;
     this->biome = EMPTY;
 
@@ -119,7 +119,7 @@ TileType Tile::GetTileType()
     return this->type;
 }
 
-Yield Tile::GetYield()
+Yield* Tile::GetYield()
 {
     return this->yield;
 }
@@ -174,9 +174,9 @@ void Tile::SetTileType(TileType type)
     this->type = type;
 }
 
-void Tile::SetYield(Yield yield)
+void Tile::SetYield(int gold, int prod, int sci, int food, int cul)
 {
-    this->yield = yield;
+    this->yield->ChangeYield(gold, prod, sci, food, cul);
 }
 
 void Tile::SetTileImprovement(TileImprovement improvement)

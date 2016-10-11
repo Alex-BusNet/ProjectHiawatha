@@ -8,6 +8,7 @@
  * It is used to store, update, and retrieve the yield data for a single object
  *
  */
+typedef struct {int gold, production, research, food, culture;} YieldStruct;
 
 class Yield
 {
@@ -19,7 +20,6 @@ public:
     enum YIELD { GOLD, PRODUCTION, RESEARCH, FOOD, CULTURE };
 
     void ChangeYield(YIELD yieldType, int increaseBy);
-    void ChangeYield(int yieldArr[5]);
     void ChangeYield(int gold, int prod, int sci, int food, int cul);
 
     int GetYield(YIELD yieldType);
@@ -30,14 +30,15 @@ public:
     int GetFoodYield();
     int GetCultureYield();
 
-private:
-    int totalYield[5];
 
-    int gold;
-    int production;
-    int research;
-    int food;
-    int culture;
+private:
+
+    YieldStruct totalYield;
+//    int gold;
+//    int production;
+//    int research;
+//    int food;
+//    int culture;
 };
 
 #endif // YIELD_H

@@ -1,8 +1,9 @@
 #include "city.h"
+#include <QDebug>
 
 City::City()
 {
-
+    this->cityTotalYield = new Yield(1,1,1,1,1);
 }
 
 
@@ -12,14 +13,6 @@ City::~City()
 }
 
 //Accessor and Mutators
-void City::UpdateCityYield(Yield yield)
-{
-    //Re-evaluates the yield for the city
-//    for(int i=0; i<city.tiles();i++){
-//        cityyield+=tile.yield;//need to adjust so it cycles the tiles - syntax?
-    //    }
-}
-
 void City::SetCityAsCaptial()
 {
     this->isCaptial = true;
@@ -40,6 +33,24 @@ void City::SetControllingCiv(Nation owner)
     this->controllingCiv = owner;
 }
 
+void City::UpdateCityYield()
+{
+    qDebug() << "   City controls" << cityControlledTiles.size() << "tile(s)";
+    int newGold = 0, newProd = 0, newSci = 0, newFood = 0, newCul = 0;
+
+    foreach(Tile *tile, cityControlledTiles)
+    {
+        newGold += tile->GetYield()->GetGoldYield();
+        newProd += tile->GetYield()->GetProductionYield();
+        newSci += tile->GetYield()->GetScienceYield();
+        newFood += tile->GetYield()->GetFoodYield();
+        newCul += tile->GetYield()->GetCultureYield();
+
+    }
+
+    this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
+}
+
 void City::GarrisonWorker(Unit *worker)
 {
     if(worker->isNonCombat())
@@ -58,6 +69,11 @@ void City::GarrisonMilitary(Unit *military)
     }
 }
 
+void City::AddControlledTile(Tile *tile)
+{
+    this->cityControlledTiles.push_back(tile);
+}
+
 QString City::GetName()
 {
     return this->name;
@@ -73,7 +89,7 @@ bool City::IsCityCaptial()
     return this->isCaptial;
 }
 
-Yield City::getCityYield()
+Yield* City::getCityYield()
 {
     return this->cityTotalYield;
 }

@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     city.cpp \
     building.cpp \
     unit.cpp \
-    unitcontroller.cpp
+    unitcontroller.cpp \
+    ai_controller.cpp
 
     gameoptions.cpp \
 
@@ -59,7 +60,8 @@ HEADERS  += mainwindow.h \
     city.h \
     building.h \
     unit.h \
-    unitcontroller.h
+    unitcontroller.h \
+    ai_controller.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

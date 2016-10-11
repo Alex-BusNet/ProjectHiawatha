@@ -198,11 +198,11 @@ QString Renderer::SetYieldDisplay(Map *map)
 {
     //This is a placeholder, it will need to be re-adjusted once the player class is added.
      return QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::GOLD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::PRODUCTION))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::FOOD))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::RESEARCH))
-                                          .arg(map->GetTileAt(0)->GetYield().GetYield(Yield::CULTURE));
+                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::GOLD))
+                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::PRODUCTION))
+                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::FOOD))
+                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::RESEARCH))
+                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::CULTURE));
 }
 
 QString Renderer::SetYieldDisplay(Yield *yield)

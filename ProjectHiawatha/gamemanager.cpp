@@ -129,6 +129,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(map, civList.at(i)->GetCityList(), gameView->GetScene());
+        civList.at(i)->UpdateCivYield();
     }
 
 //    renderer->DrawGuiImages(game);
@@ -152,7 +153,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         zoomIn();
     }
     qDebug() << "Done.\nCentering on Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
-
+    currentTurn = 0;
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
     this->setLayout(vLayout);
     this->show();
@@ -164,14 +165,18 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
+    qDebug() << "Creating player civ";
     Civilization* civ = new Civilization(player);
+    qDebug() <<"Adding player to civList";
     civList.push_back(civ);
 
+    qDebug() << "Seeding RNG";
     srand(time(0));
     int civNum;
 
     std::vector<Nation> selNat;
 
+    qDebug() << "Adding player to selNat";
     selNat.push_back(player);
 
     qDebug() << "   Player:" << player;
@@ -257,12 +262,58 @@ void GameManager::paintEvent(QPaintEvent *event)
     QRect playerInfoRect(0, 0, this->width(), 20);
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
-    paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(map));
+    paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(civList.at(0)->getCivYield()));
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
 {
     qDebug() << "Widget mouse release event";
+}
+
+void GameManager::TurnController()
+{
+    if(currentTurn == 0)
+    {
+        while(!turnEnded){;}
+        turnEnded= false;
+    }
+    else
+    {
+        QFuture<void> future = QtConcurrent::run(this->currentCiv, Civilization::StartAITurn, currentTurn - 1, false);
+//        currentCiv->StartAITurn(currentCiv->getCiv(), false);
+        future.waitForFinished();
+    }
+
+    EndTurn();
+}
+
+void GameManager::StartTurn()
+{
+    qDebug() << "Starting turn for civ" << currentTurn;
+
+    currentCityList = civList.at(currentTurn)->GetCityList();
+    currentUnitList = civList.at(currentTurn)->GetUnitList();
+    currentCiv = civList.at(currentTurn)->GetCivObject();
+    TurnController();
+}
+
+void GameManager::EndTurn()
+{
+    qDebug() << "Ending Turn";
+    currentCiv->SetCityList(currentCityList);
+    currentCiv->SetUnitList(currentUnitList);
+    civList.at(currentTurn)->SetCivObj(currentCiv);
+
+    if(currentTurn == civList.size() -1)
+    {
+        qDebug() << "Player's turn next";
+        currentTurn = 0;
+    }
+    else
+    {
+        qDebug() << "AI turn next";
+        currentTurn++;
+    }
 }
 
 
@@ -343,6 +394,7 @@ void GameManager::moveUnitTo()
 void GameManager::nextTurn()
 {
     // Ends the players turn
+    turnEnded = true;
 }
 
 

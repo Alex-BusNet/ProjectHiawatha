@@ -22,15 +22,16 @@ public:
     void SetName(QString name);
     void SetCityTile(Tile *tile);
     void SetControllingCiv(Nation owner);
+    void UpdateCityYield();
 
     void GarrisonWorker(Unit *worker);
     void GarrisonMilitary(Unit *military);
+    void AddControlledTile(Tile* tile);
 
     QString GetName();
     Tile* GetCityTile();
-    Yield getCityYield();
+    Yield* getCityYield();
     Nation GetControllingCiv();
-
 
     Unit GetUnitAt(int index);
     Unit* GetGarrisonedWorker(int index);
@@ -49,7 +50,7 @@ private:
     Nation controllingCiv;
     Tile *cityTile;
 
-    Yield cityTotalYield;
+    Yield* cityTotalYield;
 
     bool isCaptial;
     bool hasWorker;

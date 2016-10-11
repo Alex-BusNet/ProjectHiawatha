@@ -116,7 +116,7 @@ int Map::GetBoardSize()
     return this->board.size();
 }
 
-// boardIndex = the idex value where the tile is stored in board
+// boardIndex = the index value where the tile is stored in board
 // ptIndex = a value 0-6 for the desired point on the hexagon
 QPoint Map::GetHexTilePoint(int boardIndex, int ptIndex)
 {
@@ -146,7 +146,7 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
     {
         for(int y = -1; y <= 1; y++)
         {
-            if((x == 0 && y == 0)/* || (x % 2 != 0 && y % 2 == 0) || (x % 2 == 0 && y % 2 != 0)*/)
+            if((x == 0 && y == 0))
             {
                 continue;
             }
@@ -365,7 +365,7 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     // bigger borders for cities.
     //
     // This may change later to where the player gets a warrior
-    // and a settle instead of a city to start.
+    // and a settler instead of a city to start.
     //
     //=====================
 
@@ -391,6 +391,12 @@ newrand:
             city->SetCityAsCaptial();
             city->SetCityTile(board.at(index));
             city->SetControllingCiv(civs.at(i)->getCiv());
+            city->GetCityTile()->SetYield(5,5,5,5,5);
+            city->AddControlledTile(city->GetCityTile());
+            qDebug() << "Updating City Yield";
+            city->UpdateCityYield();
+            qDebug() << "updating board yield";
+            board.at(index)->SetYield(5,5,5,5,5);
             civs.at(i)->AddCity(city);
 
 //            qDebug() << "   Adding starting Unit";

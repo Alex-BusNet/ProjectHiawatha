@@ -1,5 +1,6 @@
 #ifndef TILE_H
 #define TILE_H
+
 #include "tileType.h"
 #include "tileimprovement.h"
 #include "biome.h"
@@ -38,7 +39,7 @@ public:
     void SetUnit(Unit* unit);
 
     TileType GetTileType();
-    Yield GetYield();
+    Yield* GetYield();
     TileImprovement GetTileImprovement();
     TileID GetTileID();
     Biome GetTileBiome();
@@ -56,7 +57,7 @@ public:
     QPen GetTilePen();
 
     void SetTileType(TileType type);
-    void SetYield(Yield yield);
+    void SetYield(int gold, int prod, int sci, int food, int cul);
     void SetTileImprovement(TileImprovement improvement);
 
     void SetTileID(int x, int column, Tile *tile);
@@ -92,7 +93,7 @@ public:
 
 private:
     TileType type;
-    Yield yield;
+    Yield* yield;
     TileImprovement improvement;
     TileID tileID;
     QPixmap tileTexture;

@@ -10,7 +10,6 @@
 #include <QGraphicsView>
 #include <QPushButton>
 #include <QWheelEvent>
-#include <qtimeline.h>
 
 class GameView : public QGraphicsView
 {

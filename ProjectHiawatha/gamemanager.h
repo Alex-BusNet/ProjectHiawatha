@@ -28,6 +28,7 @@ private:
     UnitController *uc;
     QTimer *updateTimer;
 
+    Civilization* currentCiv;
     GameView *gameView;
 
     QVector<QGraphicsPolygonItem*> tile;
@@ -36,6 +37,9 @@ private:
     QVector<QGraphicsProxyWidget*> proxy;
 
     QVector<Civilization*> civList;
+
+    QVector<Unit*> currentUnitList;
+    QVector<City*> currentCityList;
 
     QPushButton *exitGame;
     QPushButton *endTurn;
@@ -59,13 +63,20 @@ private:
     QString *YieldDisplay;
 
     int zoomScale;
+    int currentTurn;
+
     bool cityScreenVisible;
     bool relocateUnit;
     bool updateUnitPos;
+    bool turnEnded;
+
     void InitCivs(Nation player, int numAI);
     void paintEvent(QPaintEvent *event);
     void mouseReleaseEvent(QMouseEvent *e);
 
+    void TurnController();
+    void StartTurn();
+    void EndTurn();
 
 signals:
 
