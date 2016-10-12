@@ -16,7 +16,7 @@ Civilization::Civilization()
 
 }
 
-Civilization::Civilization(Nation name)
+Civilization::Civilization(Nation name, bool isAI)
 {
     this->name=name;
     //set color
@@ -26,12 +26,9 @@ Civilization::Civilization(Nation name)
 
 //    if(isAI)
 //    {
-        /*
-         *
-         * Will need to set some sort of flag
-         * here so we can tell if the selected civ is an AI
-         *
-         */
+//        this->isAIPlayer = true;
+//        ai = new AI_Strategic();
+//        aiCtrl->AddAIToList(ai);
 //    }
 }
 
@@ -95,6 +92,16 @@ void Civilization::StartAITurn(int aiIndex, bool isPlayer)
     {
         return;
     }
+}
+
+bool Civilization::isCivAI()
+{
+    return this->isAIPlayer;
+}
+
+AI_Strategic* Civilization::GetAI()
+{
+    return this->ai;
 }
 
 void Civilization::AddCity(City *city)

@@ -33,6 +33,7 @@ AI_Strategic::AI_Strategic()
     //Pass it number of cities currently founded
 }
 
+
 //int midTermGoal();
 //*****************Calculate mid-term goal************
 //The mid-term goal will be: (int returned)

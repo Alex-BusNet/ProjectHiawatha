@@ -20,7 +20,7 @@ class Civilization
 {
 public:
     Civilization();//default, don't use
-    Civilization(Nation name);
+    Civilization(Nation name, bool isAI);
 
     //Accessors and Mutators
     void UpdateCivYield();
@@ -40,7 +40,10 @@ public:
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
 
+    //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
+    bool isCivAI();
+    AI_Strategic *GetAI();
 
 //    void startTurn(int aiIndex);
 
@@ -63,6 +66,9 @@ private:
 
     void UpdateYield();
 
+    //AI stuff
+    AI_Strategic *ai; //NULL for player
+    bool isAIPlayer;
 };
 
 #endif // CIVILIZATION_H

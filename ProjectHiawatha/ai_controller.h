@@ -11,7 +11,6 @@ class AI_Controller
 {
 public:
     AI_Controller();
-    AI_Controller(Civilization *civ);
 
     void AddAIToList(AI_Strategic *ai);
 
