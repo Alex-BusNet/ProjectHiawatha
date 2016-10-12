@@ -1,4 +1,5 @@
 #include "ai_controller.h"
+#include <QDebug>
 
 AI_Controller::AI_Controller()
 {
@@ -19,5 +20,6 @@ void AI_Controller::turnStarted(int aiIndex)
 {
     //This calls the correct Strategic AI and starts their turn
 //    aiList.at(aiIndex);
+    qDebug() << "AI" << aiIndex + 1 << "turn";
     return;
 }

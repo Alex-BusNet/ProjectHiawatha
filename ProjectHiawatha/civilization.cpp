@@ -88,6 +88,7 @@ void Civilization::StartAITurn(int aiIndex, bool isPlayer)
     {
         //This will tell the AI_Strategic or AI_Controller
         // to start its turn;
+        aiCtrl->turnStarted(aiIndex);
         return;
     }
     else

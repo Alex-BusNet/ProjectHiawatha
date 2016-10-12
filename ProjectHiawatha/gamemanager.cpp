@@ -161,6 +161,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
 
     qDebug() << "Done.";
+
+    StartTurn();
 }
 
 void GameManager::InitCivs(Nation player, int numAI)
@@ -274,27 +276,31 @@ void GameManager::TurnController()
 {
     if(currentTurn == 0)
     {
-        while(!turnEnded){;}
-        turnEnded= false;
+        if(turnEnded)
+        {
+            turnEnded = false;
+            EndTurn();
+        }
     }
     else
     {
         QFuture<void> future = QtConcurrent::run(this->currentCiv, Civilization::StartAITurn, currentTurn - 1, false);
 //        currentCiv->StartAITurn(currentCiv->getCiv(), false);
         future.waitForFinished();
+        qDebug() << "Finished";
+        EndTurn();
     }
 
-    EndTurn();
 }
 
 void GameManager::StartTurn()
 {
     qDebug() << "Starting turn for civ" << currentTurn;
+    qDebug() << "Current Turn:" << currentTurn << "civList size:" << civList.size();
 
     currentCityList = civList.at(currentTurn)->GetCityList();
     currentUnitList = civList.at(currentTurn)->GetUnitList();
     currentCiv = civList.at(currentTurn)->GetCivObject();
-    TurnController();
 }
 
 void GameManager::EndTurn()
@@ -302,12 +308,24 @@ void GameManager::EndTurn()
     qDebug() << "Ending Turn";
     currentCiv->SetCityList(currentCityList);
     currentCiv->SetUnitList(currentUnitList);
+    qDebug() << "Storing current Civ data" << currentTurn;
     civList.at(currentTurn)->SetCivObj(currentCiv);
 
-    if(currentTurn == civList.size() -1)
+    qDebug() << "Updating unit positions";
+    foreach(Unit* unit, currentUnitList)
+    {
+        if(!unit->RequiresOrders)
+        {
+            uc->MoveUnit(unit, map, gameView->GetScene());
+        }
+    }
+
+    if(currentTurn == civList.size() - 1)
     {
         qDebug() << "Player's turn next";
         currentTurn = 0;
+        turnEnded = false;
+        StartTurn();
     }
     else
     {
@@ -371,19 +389,15 @@ void GameManager::updateTiles()
             qDebug() <<"Finding path";
             QFuture<void> future = QtConcurrent::run(this->uc, UnitController::FindPath, gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), gameView->GetScene()->unitSelectedTile->GetUnit());
             future.waitForFinished();
-//            updateUnitPos = true;
-//            uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene()->unitSelectedTile->GetUnit());
     }
 
-//    if(updateUnitPos)
-//    {
-//        uc->MoveUnit();
-//    }
+    TurnController();
 
     if(gameView->GetScene()->redrawTile)
     {
         renderer->UpdateScene(map, gameView->GetScene());
     }
+
 }
 
 void GameManager::moveUnitTo()
@@ -395,6 +409,7 @@ void GameManager::nextTurn()
 {
     // Ends the players turn
     turnEnded = true;
+    EndTurn();
 }
 
 
