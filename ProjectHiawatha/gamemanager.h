@@ -9,6 +9,7 @@
 #include "map.h"
 #include "renderer.h"
 #include "unitcontroller.h"
+#include "ai_controller.h"
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsSceneWheelEvent>
@@ -28,6 +29,7 @@ private:
     UnitController *uc;
     QTimer *updateTimer;
 
+    AI_Controller *ac;
     Civilization* currentCiv;
     GameView *gameView;
 

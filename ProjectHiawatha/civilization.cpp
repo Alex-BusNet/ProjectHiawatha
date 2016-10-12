@@ -24,12 +24,10 @@ Civilization::Civilization(Nation name, bool isAI)
     //call updatecityyield and updatecivyield to initialize
     this->totalCivYield = new Yield(0, 0, 0, 0, 0);
 
-//    if(isAI)
-//    {
-//        this->isAIPlayer = true;
-//        ai = new AI_Strategic();
-//        aiCtrl->AddAIToList(ai);
-//    }
+    if(isAI)
+    {
+        this->isAIPlayer = true;
+    }
 }
 
 
@@ -61,6 +59,7 @@ void Civilization::UpdateCivYield()
         newFood += city->getCityYield()->GetFoodYield();
         newCul += city->getCityYield()->GetCultureYield();
     }
+
     this->totalCivYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
 }
 
@@ -79,29 +78,9 @@ QVector<Unit *> Civilization::GetUnitList()
     return this->UnitList;
 }
 
-void Civilization::StartAITurn(int aiIndex, bool isPlayer)
-{
-    if(!isPlayer)
-    {
-        //This will tell the AI_Strategic or AI_Controller
-        // to start its turn;
-        aiCtrl->turnStarted(aiIndex);
-        return;
-    }
-    else
-    {
-        return;
-    }
-}
-
 bool Civilization::isCivAI()
 {
     return this->isAIPlayer;
-}
-
-AI_Strategic* Civilization::GetAI()
-{
-    return this->ai;
 }
 
 void Civilization::AddCity(City *city)
@@ -116,12 +95,12 @@ void Civilization::AddUnit(Unit *unit)
 
 void Civilization::SetUnitList(QVector<Unit *> list)
 {
-    UnitList = list;
+    this->UnitList = list;
 }
 
 void Civilization::SetCityList(QVector<City *> list)
 {
-    CityList = list;
+    this->CityList = list;
 }
 
 void Civilization::SetCivObj(Civilization *civ)

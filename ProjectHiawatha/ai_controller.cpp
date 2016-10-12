@@ -10,6 +10,7 @@ void AI_Controller::AddAIToList(AI_Strategic *ai)
 {
     qDebug() << "       Adding AI to Controller";
     aiList.push_back(ai);
+    qDebug() << "       Done.";
 }
 
 void AI_Controller::turnStarted(int aiIndex)

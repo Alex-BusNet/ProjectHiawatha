@@ -3,7 +3,6 @@
 #ifndef CIVILIZATION_H
 #define CIVILIZATION_H
 
-#include "ai_controller.h"
 #include "unit.h"
 
 #include <yield.h>
@@ -43,7 +42,6 @@ public:
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
     bool isCivAI();
-    AI_Strategic *GetAI();
 
 //    void startTurn(int aiIndex);
 
@@ -51,8 +49,6 @@ private:
     Nation name;
     //Enum for leader?
     //civcolors
-
-    AI_Controller *aiCtrl;
 
     QVector<Unit*> UnitList; //Needs a Units object type
         //Will contain all of the civ's units
@@ -67,7 +63,6 @@ private:
     void UpdateYield();
 
     //AI stuff
-    AI_Strategic *ai; //NULL for player
     bool isAIPlayer;
 };
 

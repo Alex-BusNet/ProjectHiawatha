@@ -16,7 +16,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Game Window c'tor called";
 
     gameView = new GameView(this, fullscreen);
-
+    ac = new AI_Controller();
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
     gameLayout = new QHBoxLayout();
@@ -25,6 +25,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     cityScreen = new CityScreen();
     cityScreenVisible = false;
     relocateUnit = false;
+    turnEnded = false;
 
     if(!fullscreen)
     {
@@ -167,20 +168,17 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
-    qDebug() << "Creating player civ";
     Civilization* civ = new Civilization(player, false);
-    qDebug() <<"Adding player to civList";
     civList.push_back(civ);
 
-    qDebug() << "Seeding RNG";
     srand(time(0));
     int civNum;
 
     std::vector<Nation> selNat;
 
-    qDebug() << "Adding player to selNat";
     selNat.push_back(player);
 
+    AI_Strategic* ai;
     qDebug() << "   Player:" << player;
     for(int i = 0; i < numAI; i++)
     {
@@ -195,35 +193,43 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America, true);
+                ai = new AI_Strategic();
                 selNat.push_back(America);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
+                ai = new AI_Strategic();
                 selNat.push_back(Germany);
                 break;
             case India:
                 civ = new Civilization(India, true);
+                ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             case China:
                 civ = new Civilization(China, true);
+                ai = new AI_Strategic();
                 selNat.push_back(China);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
+                ai = new AI_Strategic();
                 selNat.push_back(Mongolia);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
+                ai = new AI_Strategic();
                 selNat.push_back(Aztec);
                 break;
             case France:
                 civ = new Civilization(France, true);
+                ai = new AI_Strategic();
                 selNat.push_back(France);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
+                ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             }
@@ -236,7 +242,7 @@ newCivRand:
             {
                 qDebug() << "   Civ" << i << ": " << civ->getCiv();
                 civList.push_back(civ);
-
+                ac->AddAIToList(ai);
             }
             // Otherwise, delete it and try again.
             else
@@ -285,7 +291,7 @@ void GameManager::TurnController()
     }
     else
     {
-        QFuture<void> future = QtConcurrent::run(this->currentCiv, Civilization::StartAITurn, currentTurn - 1, false);
+        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, currentTurn - 1);
         future.waitForFinished();
         qDebug() << "Finished";
         EndTurn();

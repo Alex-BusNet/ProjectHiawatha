@@ -2,10 +2,8 @@
 #define AI_CONTROLLER_H
 
 #include "ai_strategic.h"
-#include "civilization.h"
 #include <QVector>
 #include <QObject>
-class Civilization;
 
 class AI_Controller
 {
@@ -17,7 +15,6 @@ public:
     void turnStarted(int aiIndex);
 
 private:
-    Civilization *aiCiv;
     QVector<AI_Strategic*> aiList;
 
 };
