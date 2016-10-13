@@ -259,7 +259,7 @@ void Renderer::SetOutlinePen(Nation owner)
         break;
     }
 
-    outlinePen.setWidth(3);
+    outlinePen.setWidth(10);
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
@@ -269,17 +269,11 @@ void Renderer::DrawGuiImages(QGraphicsScene *scene)
 
 void Renderer::DrawCityBorders(Map *map, QVector<City*> cities, GameScene *scene)
 {
-    int index, col, row;
     for(int i = 0; i < cities.size(); i++)
     {
         foreach(Tile* tile, cities.at(i)->GetControlledTiles())
         {
-            col = tile->GetTileID().column;
-            row = tile->GetTileID().row;
-            index = (col / 2) + (map->GetMapSizeX() * row);
-
             SetOutlinePen(tile->GetControllingCiv());
-            outlinePen.setWidth(4);
             tile->SetTilePen(outlinePen);
 
             cityBorders.push_back(scene->addPolygon(tile->GetTilePolygon()));

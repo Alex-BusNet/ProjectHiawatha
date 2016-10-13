@@ -118,11 +118,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////This is for testing purposes;
     InitCivs(player, 4);
 
-//    qDebug() << "Done.\nDrawing Units.";
-//    renderer->DrawTestUnits(map, gameView);
-
-//    renderer->DrawTestCities(map, gameView);
-
     qDebug() << "   CivList size: " << civList.size();
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
     for(int i = 0; i < civList.size(); i++)

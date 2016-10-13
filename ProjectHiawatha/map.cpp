@@ -427,8 +427,8 @@ newrand:
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
-                qDebug() << "           Tile type:" << tile->GetTileTypeString();
-                if(tile->GetTileType() != MOUNTAIN || tile->GetTileType() != WATER || tile->GetTileType() != ICE)
+                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
+                if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
                     {
