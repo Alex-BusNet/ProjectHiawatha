@@ -44,6 +44,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ)
         //Probably not anything for operational in this context, aside from threat detection
     }
 
+        AI_Tactical *ai = new AI_Tactical(midGoal, civ, cityLocations, target, troopLocations, HighThreats, MidThreats, LowThreats);
 }
 
 
