@@ -394,8 +394,6 @@ void GameManager::updateTiles()
     {
         Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, currentUnitList);
         qDebug() <<"Finding path";
-//        QFuture<void> future = QtConcurrent::run(this->uc, UnitController::FindPath, gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
-//        future.waitForFinished();
         uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
         relocateUnit = false;
         gameView->GetScene()->unitMoveOrdered = false;

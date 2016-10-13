@@ -77,6 +77,9 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         // Clear the data from the current tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
 
+        if(map->GetTileAt(unit->GetTileIndex())->Selected)
+                map->GetTileAt(unit->GetTileIndex())->Selected = false;
+
         qDebug() << "Updating Position";
         //update the unit's position
         unit->SetPosition((unit->GetPath().at(0)->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
