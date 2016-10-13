@@ -23,6 +23,7 @@ Civilization::Civilization(Nation name, bool isAI)
     //spawn a city, and initialize (based on nation)
     //call updatecityyield and updatecivyield to initialize
     this->totalCivYield = new Yield(0, 0, 0, 0, 0);
+    this->happiness=0;
 
     if(isAI)
     {
@@ -68,6 +69,11 @@ Yield *Civilization::getCivYield()
     return this->totalCivYield;
 }
 
+int Civilization::getHappiness()
+{
+    return this->happiness;
+}
+
 QVector<City *> Civilization::GetCityList()
 {
     return this->CityList;
@@ -109,6 +115,11 @@ void Civilization::SetCivObj(Civilization *civ)
     this->UnitList = civ->GetUnitList();
 }
 
+void Civilization::SetHappiness(int happiness)
+{
+    this->happiness=happiness;
+}
+
 City* Civilization::GetCityAt(int index)
 {
     if(index < this->CityList.size())
@@ -128,6 +139,8 @@ Unit* Civilization::GetUnitAt(int index)
     if(index < this->UnitList.size())
     {
         return this->UnitList.at(index);
+
+
     }
     else
     {
@@ -135,8 +148,6 @@ Unit* Civilization::GetUnitAt(int index)
         return NULL;
     }
 }
-
-
 
 
 

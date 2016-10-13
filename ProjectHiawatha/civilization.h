@@ -29,12 +29,14 @@ public:
     void SetUnitList(QVector<Unit*> list);
     void SetCityList(QVector<City*> list);
     void SetCivObj(Civilization *civ);
+    void SetHappiness(int happiness);
 
     City *GetCityAt(int index);
     Unit* GetUnitAt(int index);
     Nation getCiv();
     Civilization* GetCivObject();
     Yield* getCivYield();
+    int getHappiness();
 
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
@@ -61,6 +63,8 @@ private:
         //Will contain the totals for the civ's yields (uses city->cityyield)
 
     void UpdateYield();
+
+    int happiness;
 
     //AI stuff
     bool isAIPlayer;

@@ -20,12 +20,18 @@ Probably called 1x per turn, and calls the operational AI, then tactical AI, fro
 */
 
 #include "ai_strategic.h"
+#include "civilization.h"
+#include "city.h"
+#include "yield.h"
+#include "ai_controller.h"
 
-AI_Strategic::AI_Strategic()
+AI_Strategic::AI_Strategic(Civilization *civ)
 {
-    //int midGoal = midTermGoal();
+
+
+    int midGoal = midTermGoal(civ);
     //Some logic based on the different goal options
-    //cityProduction(int midTerm);
+    //cityProduction(midGoal);
 
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
@@ -34,17 +40,36 @@ AI_Strategic::AI_Strategic()
 }
 
 
-//int midTermGoal();
+int AI_Strategic::midTermGoal(Civilization *civ){
+    int goal;
+    if(civ->GetCityList().length()<15&&civ->getHappiness()>2){
+        goal=1;//Settle more cities
+    }
+    else if(civ->GetCityList().length()>5){
+        //needs logic to compare tech, gold, and prod yields with player
+        goal=2;//Preparing for War
+    }
+    else if(0){
+        //Needs logic comparing relative military stregth with player or turn-based goal
+        goal=3;//At War
+    }
+    else{
+        goal=4;//Build resources
+    }
+    return goal;
+}
+
 //*****************Calculate mid-term goal************
 //The mid-term goal will be: (int returned)
 //1)expanding its borders (settling)
-//2)Building up its resources (working, but no longer settling)(usually also happening during expanding borders)
-//3)Preparing for war
-//4)at war
+//2)Preparing for war
+//3)at war
+//4)Building up its resources (working, but no longer settling)(usually also happening during expanding borders)
+
 
 //Should spend the early game expanding borders/resources
 //Determine if more cities are needed (Thinking it will calculate this based on happiness)
-      //(If happiness >2(factor settlers already around too), then city? but only if available location?)
+      //(If happiness >2(factor settlers already around too), then city? but only if available location?)(capital only?)
 //at some point it will decide its ready to prepare for war
     //given a minimum city number, say, 5,
     //and an estimate that it has higher production and tech level than player (by enough)
@@ -54,7 +79,10 @@ AI_Strategic::AI_Strategic()
 
 
 
-//cityProduction(int midTerm);
+void AI_Strategic::cityProduction(int midGoal, Civilization *civ){
+   // while(civ->)
+}
+
 //*************City production Decision Tree***********
 //prioritizes military if it is ready for war, then expansion, then having a worker, then buildings
 //should cycle through each city, and then run this calculation only if nothing is being produced in that city

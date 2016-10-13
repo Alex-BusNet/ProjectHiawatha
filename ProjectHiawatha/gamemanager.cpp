@@ -193,43 +193,43 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America, true);
-                ai = new AI_Strategic();
+                //ai = new AI_Strategic();
                 selNat.push_back(America);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
-                ai = new AI_Strategic();
+                //ai = new AI_Strategic();
                 selNat.push_back(Germany);
                 break;
             case India:
                 civ = new Civilization(India, true);
-                ai = new AI_Strategic();
+                //ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             case China:
                 civ = new Civilization(China, true);
-                ai = new AI_Strategic();
+               // ai = new AI_Strategic();
                 selNat.push_back(China);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
-                ai = new AI_Strategic();
+                //ai = new AI_Strategic();
                 selNat.push_back(Mongolia);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
-                ai = new AI_Strategic();
+                //ai = new AI_Strategic();
                 selNat.push_back(Aztec);
                 break;
             case France:
                 civ = new Civilization(France, true);
-                ai = new AI_Strategic();
+               // ai = new AI_Strategic();
                 selNat.push_back(France);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
-                ai = new AI_Strategic();
+               // ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             }
@@ -291,7 +291,7 @@ void GameManager::TurnController()
     }
     else
     {
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, currentTurn - 1);
+        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn));
         future.waitForFinished();
         qDebug() << "Finished";
         EndTurn();
