@@ -403,9 +403,11 @@ newrand:
 
 //            qDebug() << "   Adding starting Unit";
             index = (board.at(index)->GetTileID().column / 2) + (mapSizeX * board.at(index)->GetTileID().row + 1);
+
             unit = new Unit(civs.at(i)->getCiv(), false, false, 2, 1, 3, 5);
             unit->SetPosition(index);
             unit->SetOwner(civs.at(i)->getCiv());
+            unit->RequiresOrders = true;
 
             civs.at(i)->AddUnit(unit);
 

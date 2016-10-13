@@ -27,6 +27,7 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
     this->health = health;
     this->RequiresOrders = true;
     this->Updated = false;
+    this->HasNoMovementLeft = false;
 
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }

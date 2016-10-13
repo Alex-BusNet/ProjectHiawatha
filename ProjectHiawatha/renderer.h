@@ -20,6 +20,7 @@ public:
 
     void DrawHexScene(Map *map, GameView *scene);
     void UpdateScene(Map *map, GameScene *scene);
+    void UpdateUnits(Map *map, GameView *view, Unit *unit);
     void DrawGuiImages(QGraphicsScene *scene);
 
     void DrawCityBorders(Map *map, QVector<City *> cities, GameScene *scene);

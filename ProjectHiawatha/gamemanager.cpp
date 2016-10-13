@@ -285,15 +285,17 @@ void GameManager::TurnController()
     {
         if(turnEnded)
         {
+            qDebug() << "Player's turn ended";
             turnEnded = false;
             EndTurn();
         }
     }
     else
     {
+        StartTurn();
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn));
         future.waitForFinished();
-        qDebug() << "Finished";
+        qDebug() << "   AI Turn Finished";
         EndTurn();
     }
 
@@ -301,12 +303,19 @@ void GameManager::TurnController()
 
 void GameManager::StartTurn()
 {
-    qDebug() << "Starting turn for civ" << currentTurn;
-    qDebug() << "Current Turn:" << currentTurn << "civList size:" << civList.size();
+    qDebug() << "Starting turn for civ" << currentTurn << "civList size:" << civList.size();
 
     currentCityList = civList.at(currentTurn)->GetCityList();
     currentUnitList = civList.at(currentTurn)->GetUnitList();
     currentCiv = civList.at(currentTurn)->GetCivObject();
+
+    foreach(Unit* unit, currentUnitList)
+    {
+        if(unit->HasNoMovementLeft)
+        {
+            unit->HasNoMovementLeft = true;
+        }
+    }
 }
 
 void GameManager::EndTurn()
@@ -317,13 +326,25 @@ void GameManager::EndTurn()
     qDebug() << "Storing current Civ data" << currentTurn;
     civList.at(currentTurn)->SetCivObj(currentCiv);
 
-    qDebug() << "Updating unit positions";
     foreach(Unit* unit, currentUnitList)
     {
-        if(!unit->RequiresOrders)
+        if(!unit->RequiresOrders && !unit->HasNoMovementLeft)
         {
+            qDebug() << "Updating unit positions";
             uc->MoveUnit(unit, map, gameView->GetScene());
+            renderer->UpdateUnits(map, gameView, unit);
+            unit->HasNoMovementLeft = true;
         }
+    }
+
+    for(int i = 0; i < currentUnitList.size(); i++)
+    {
+        delete currentUnitList.at(i);
+    }
+
+    for(int i = 0; i < currentCityList.size(); i++)
+    {
+        delete currentCityList.at(i);
     }
 
     if(currentTurn == civList.size() - 1)
@@ -387,17 +408,20 @@ void GameManager::showCity()
 
 void GameManager::updateTiles()
 {
-    //// The false will need to be changed once the Unit Controller is added.
     gameView->GetScene()->ProcessTile(map, relocateUnit);
 
     if(gameView->GetScene()->unitMoveOrdered)
     {
         Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, currentUnitList);
-        qDebug() <<"Finding path";
+        qDebug() <<"    Finding path";
         uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
+
         relocateUnit = false;
         gameView->GetScene()->unitMoveOrdered = false;
-        qDebug() << "Done";
+        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+        gameView->GetScene()->redrawTile = true;
+
+        qDebug() << "   Done";
     }
 
     TurnController();

@@ -46,6 +46,7 @@ public:
 //    bool NeedsOrders();
     bool RequiresOrders;
     bool Updated;
+    bool HasNoMovementLeft;
 
 
 private:

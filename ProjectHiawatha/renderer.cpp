@@ -123,11 +123,6 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
                 map->GetTileFromCoord(col, row)->Selected = false;
             }
 
-//            if(map->GetTileAt(index)->GetUnit()->Updated)
-//            {
-//                unitPixmap.at(map->GetTileAt(index)->GetUnit()->GetPixmapIndex())->setPos(map->GetTileAt(index)->GetItemTexturePoint());
-//            }
-
             map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
 
             scene->removeItem(tiles.at(lastIndex));
@@ -166,6 +161,22 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             scene->isTileSelected = false;
             scene->redrawTile = false;
         }
+    }
+}
+
+void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
+{
+    QPixmap *unitImage;
+
+    if(view->GetScene()->redrawTile)
+    {
+        qDebug() << "       Moving Unit";
+        view->GetScene()->removeItem(unitPixmap.at(unit->GetPixmapIndex()));
+        unitImage = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+        unitPixmap.replace(unit->GetPixmapIndex(), view->addPixmap(*unitImage));
+        unitPixmap.at(unit->GetPixmapIndex())->setScale(2.0f);
+        unitPixmap.at(unit->GetPixmapIndex())->setZValue(2);
+        unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
     }
 }
 
