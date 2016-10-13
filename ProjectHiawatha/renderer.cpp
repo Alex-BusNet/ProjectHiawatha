@@ -272,15 +272,19 @@ void Renderer::DrawCityBorders(Map *map, QVector<City*> cities, GameScene *scene
     int index, col, row;
     for(int i = 0; i < cities.size(); i++)
     {
-        col = cities.at(i)->GetCityTile()->GetTileID().column;
-        row = cities.at(i)->GetCityTile()->GetTileID().row;
-        index = (col / 2) + (map->GetMapSizeX() * row);
+        foreach(Tile* tile, cities.at(i)->GetControlledTiles())
+        {
+            col = tile->GetTileID().column;
+            row = tile->GetTileID().row;
+            index = (col / 2) + (map->GetMapSizeX() * row);
 
-        SetOutlinePen(cities.at(i)->GetCityTile()->GetControllingCiv());
-        cities.at(i)->GetCityTile()->SetTilePen(outlinePen);
+            SetOutlinePen(tile->GetControllingCiv());
+            outlinePen.setWidth(4);
+            tile->SetTilePen(outlinePen);
 
-        cityBorders.push_back(scene->addPolygon(cities.at(i)->GetCityTile()->GetTilePolygon()));
-        cityBorders.last()->setPen(cities.at(i)->GetCityTile()->GetTilePen());
+            cityBorders.push_back(scene->addPolygon(tile->GetTilePolygon()));
+            cityBorders.last()->setPen(tile->GetTilePen());
+        }
     }
 }
 

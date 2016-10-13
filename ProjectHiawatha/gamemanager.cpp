@@ -303,48 +303,22 @@ void GameManager::TurnController()
 
 void GameManager::StartTurn()
 {
-    qDebug() << "Starting turn for civ" << currentTurn << "civList size:" << civList.size();
-
-    currentCityList = civList.at(currentTurn)->GetCityList();
-    currentUnitList = civList.at(currentTurn)->GetUnitList();
-    currentCiv = civList.at(currentTurn)->GetCivObject();
-
-    foreach(Unit* unit, currentUnitList)
-    {
-        if(unit->HasNoMovementLeft)
-        {
-            unit->HasNoMovementLeft = true;
-        }
-    }
+    qDebug() << "  Starting turn for civ" << currentTurn << "civList size:" << civList.size();
 }
 
 void GameManager::EndTurn()
 {
     qDebug() << "Ending Turn";
-    currentCiv->SetCityList(currentCityList);
-    currentCiv->SetUnitList(currentUnitList);
-    qDebug() << "Storing current Civ data" << currentTurn;
-    civList.at(currentTurn)->SetCivObj(currentCiv);
 
-    foreach(Unit* unit, currentUnitList)
+    foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
     {
-        if(!unit->RequiresOrders && !unit->HasNoMovementLeft)
+        qDebug() << "           is unit path empty:" << unit->isPathEmpty();
+        if(!unit->RequiresOrders && !unit->isPathEmpty())
         {
-            qDebug() << "Updating unit positions";
+            qDebug() << "  Updating unit positions";
             uc->MoveUnit(unit, map, gameView->GetScene());
             renderer->UpdateUnits(map, gameView, unit);
-            unit->HasNoMovementLeft = true;
         }
-    }
-
-    for(int i = 0; i < currentUnitList.size(); i++)
-    {
-        delete currentUnitList.at(i);
-    }
-
-    for(int i = 0; i < currentCityList.size(); i++)
-    {
-        delete currentCityList.at(i);
     }
 
     if(currentTurn == civList.size() - 1)
@@ -412,7 +386,7 @@ void GameManager::updateTiles()
 
     if(gameView->GetScene()->unitMoveOrdered)
     {
-        Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, currentUnitList);
+        Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
         qDebug() <<"    Finding path";
         uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
 
@@ -442,7 +416,6 @@ void GameManager::nextTurn()
 {
     // Ends the players turn
     turnEnded = true;
-//    EndTurn();
 }
 
 

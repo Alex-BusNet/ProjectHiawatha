@@ -73,16 +73,25 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
 {
     if(!unit->isPathEmpty())
     {
-        qDebug() << "   Clearing Data";
+        qDebug() << "   Clearing Tile Data";
         // Clear the data from the current tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
 
         if(map->GetTileAt(unit->GetTileIndex())->Selected)
                 map->GetTileAt(unit->GetTileIndex())->Selected = false;
 
+        if(!unit->isPathEmpty())
+        {
+            qDebug() << "       Tiles in path:" << unit->GetPath().size();
+            foreach(Tile* tile, unit->GetPath())
+            {
+                qDebug() << "       " << tile->GetTileIDString();
+            }
+        }
+
         qDebug() << "   Updating Position";
         //update the unit's position
-        unit->SetPosition((unit->GetPath().at(0)->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
+        unit->SetPosition((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
 
         qDebug() << "   Setting new tile data";
         // Set the data for the unit's new tile
@@ -90,7 +99,16 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
 
         qDebug() << "   Removing Point";
         // Remove the point from path
-        unit->GetPath().removeAt(0);
+        if(!unit->isPathEmpty())
+        {
+            unit->UpdatePath();
+
+            qDebug() << "       Tiles left in path:" << unit->GetPath().size();
+            foreach(Tile* tile, unit->GetPath())
+            {
+                qDebug() << "       " << tile->GetTileIDString();
+            }
+        }
 
         qDebug() << "   Redrawing Tile";
         // Alert the renderer to redraw the map.

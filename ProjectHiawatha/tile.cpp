@@ -190,6 +190,38 @@ QString Tile::GetTileIDString()
     return QString("%1, %2").arg(this->GetTileID().column).arg(this->GetTileID().row);
 }
 
+QString Tile::GetTileTypeString()
+{
+    switch(this->type)
+    {
+    case WATER:
+        return QString("Water");
+        break;
+    case GRASS:
+        return QString("Grass");
+        break;
+    case DESERT:
+        return QString("Desert");
+        break;
+    case MOUNTAIN:
+         return QString("Mountain");
+        break;
+    case ICE:
+        return QString("Ice");
+        break;
+    case COAST:
+        //This may or may not be added.
+        //It is going to require some logic to get the right texture.
+        break;
+    case HILL:
+        return QString("Hill");
+        break;
+    case FOREST:
+        return QString("Forest");
+        break;
+    }
+}
+
 QPoint* Tile::GetHexPoints()
 {
     return this->points;

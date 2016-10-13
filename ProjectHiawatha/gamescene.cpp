@@ -100,7 +100,6 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             }
 
             qDebug() << "   After Adjust: " << column << "," << row;
-            qDebug() << "    Checking tile:" << map->GetTileFromCoord(column,row)->GetTileIDString();
 
             if(map->GetTileFromCoord(column, row)->HasCity)
             {

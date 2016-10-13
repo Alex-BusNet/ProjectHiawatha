@@ -98,3 +98,8 @@ Nation City::GetControllingCiv()
 {
     return this->controllingCiv;
 }
+
+QVector<Tile *> City::GetControlledTiles()
+{
+    return this->cityControlledTiles;
+}

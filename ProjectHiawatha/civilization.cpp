@@ -101,18 +101,28 @@ void Civilization::AddUnit(Unit *unit)
 
 void Civilization::SetUnitList(QVector<Unit *> list)
 {
-    this->UnitList = list;
+    int i = 0;
+    foreach (Unit* unit, list)
+    {
+        this->UnitList.replace(i, unit);
+        i++;
+    }
 }
 
 void Civilization::SetCityList(QVector<City *> list)
 {
-    this->CityList = list;
+    int i = 0;
+    foreach (City* city, list)
+    {
+        this->CityList.replace(i, city);
+        i++;
+    }
 }
 
 void Civilization::SetCivObj(Civilization *civ)
 {
-    this->CityList = civ->GetCityList();
-    this->UnitList = civ->GetUnitList();
+    SetCityList(civ->GetCityList());
+    SetUnitList(civ->GetUnitList());
 }
 
 void Civilization::SetHappiness(int happiness)

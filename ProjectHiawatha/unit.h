@@ -27,6 +27,8 @@ public:
     void SetPath(QList<Tile*> newPath);
     void SetPixmapIndex(int index);
 
+    void UpdatePath();
+
     QPixmap* GetUnitIcon();
     Nation GetOwner();
     int GetTileIndex();

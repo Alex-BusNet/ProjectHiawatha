@@ -32,6 +32,7 @@ public:
     Tile* GetCityTile();
     Yield* getCityYield();
     Nation GetControllingCiv();
+    QVector<Tile*> GetControlledTiles();
 
     Unit GetUnitAt(int index);
     Unit* GetGarrisonedWorker(int index);

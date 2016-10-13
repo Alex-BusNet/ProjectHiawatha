@@ -146,7 +146,7 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
     {
         for(int y = -1; y <= 1; y++)
         {
-            if((x == 0 && y == 0))
+            if((x == 0 && y == 0) || (x == -2 && y != 0) || (x == 2 && y != 0))
             {
                 continue;
             }
@@ -388,30 +388,60 @@ newrand:
         {
 //            qDebug() << "   Adding Capital";
             city = new City();
+            QList<Tile*> initialTiles = GetNeighbors(board.at(index));
+
+            foreach(Tile* tile, initialTiles)
+            {
+                if(tile->GetControllingCiv() != NO_NATION)
+                {
+                    goto newrand;
+                }
+            }
+
             city->SetCityAsCaptial();
             city->SetCityTile(board.at(index));
             city->SetControllingCiv(civs.at(i)->getCiv());
             city->GetCityTile()->SetYield(5,5,5,5,5);
             city->AddControlledTile(city->GetCityTile());
+
+            foreach(Tile* tile, initialTiles)
+            {
+                tile->SetControllingCiv(civs.at(i)->getCiv());
+                city->AddControlledTile(tile);
+            }
+
             city->UpdateCityYield();
 
             civs.at(i)->AddCity(city);
+            city->GetControlledTiles().at(0)->HasCity = true;
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
 
 //            qDebug() << "   Adding starting Unit";
-            index = (board.at(index)->GetTileID().column / 2) + (mapSizeX * board.at(index)->GetTileID().row + 1);
 
             unit = new Unit(civs.at(i)->getCiv(), false, false, 2, 1, 3, 5);
-            unit->SetPosition(index);
             unit->SetOwner(civs.at(i)->getCiv());
             unit->RequiresOrders = true;
 
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                qDebug() << "           Tile type:" << tile->GetTileTypeString();
+                if(tile->GetTileType() != MOUNTAIN || tile->GetTileType() != WATER || tile->GetTileType() != ICE)
+                {
+                    if(!tile->ContainsUnit && !tile->HasCity)
+                    {
+                        unit->SetPosition((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
+                        tile->ContainsUnit = true;
+                        break;
+                    }
+                }
+            }
+
+
             civs.at(i)->AddUnit(unit);
 
-            board.at(index)->ContainsUnit = true;
             qDebug() << "       UnitPos:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
         }
     }

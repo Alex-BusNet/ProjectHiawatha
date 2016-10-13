@@ -175,3 +175,8 @@ void Unit::SetPixmapIndex(int index)
 {
     this->pixmapIndex = index;
 }
+
+void Unit::UpdatePath()
+{
+    this->path.removeFirst();
+}

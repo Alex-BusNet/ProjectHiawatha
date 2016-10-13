@@ -60,6 +60,7 @@ public:
     void SetTileID(TileID id);
 
     QString GetTileIDString();
+    QString GetTileTypeString();
 
     QPoint *GetHexPoints();
     QPoint GetHexPoint(int index);
