@@ -28,9 +28,26 @@ AI_Tactical::AI_Tactical()
 
 }
 
+AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, QVector<Tile *> CityToBeFounded, City Target, QVector<Tile *> TroopPositions, QVector<Tile *> Highthreats, QVector<Tile *> Midthreats, QVector<Tile *> Lowthreats)
+{
+    if(3==midGoal){
+        AtWar(civ, CityToBeFounded, Target, Highthreats, Midthreats, Lowthreats);
+    }
+    else{
+        Prep(civ,CityToBeFounded, TroopPositions, Highthreats, Midthreats, Lowthreats);
+    }
+}
 
 
-//AI_Tactical_Prep(Queue CityToBeFounded, Vector TroopPositions, Vector Highthreats, Vector Midthreats, Vector Lowthreats);
+
+void AI_Tactical::Prep(Civilization *civ, QVector<Tile*> CityToBeFounded, QVector<Tile *> TroopPositions, QVector<Tile *> Highthreats, QVector<Tile *> Midthreats, QVector<Tile *> Lowthreats)
+{
+
+}
+
+
+
+
 
 //highThreats(Vector Highthreats);
 //midThreats(Vector Midthreats);
@@ -45,8 +62,10 @@ AI_Tactical::AI_Tactical()
 
 
 
-//AI_Tactical_AtWar(Queue CityToBeFounded, City Target, Vector Highthreats, Vector Midthreats, Vector Lowthreats);
+void AI_Tactical::AtWar(Civilization *civ, QVector<Tile*> CityToBeFounded, City Target, QVector<Tile *> Highthreats, QVector<Tile *> Midthreats, QVector<Tile *> Lowthreats)
+{
 
+}
 //highThreats(Vector Highthreats);
 //midThreats(Vector Midthreats);
 //lowThreats(Vector Lowthreats);
