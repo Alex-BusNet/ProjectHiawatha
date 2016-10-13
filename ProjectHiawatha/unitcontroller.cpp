@@ -13,9 +13,9 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
 {
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
-
+    qDebug() << "Adding startTile to openSet";
     openSet.push_back(startTile);
-
+    qDebug() << "Done";
     while(openSet.count() > 0)
     {
         Tile *currentHex = openSet[0];
@@ -39,7 +39,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
             RetracePath(startTile, endTile, map, unit);
             return;
         }
-
+        qDebug() << "Getting Neighbors";
         QList<Tile*> neighborList = map->GetNeighbors(currentHex);
 
         foreach(Tile* neighbor, neighborList)
@@ -75,17 +75,15 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
     {
         qDebug() << "Clearing Data";
         // Clear the data from the current tile
-        map->GetTileFromCoord(unit->GetPosition()->GetTileID())->ContainsUnit = false;
-        map->GetTileFromCoord(unit->GetPosition()->GetTileID())->SetUnit(NULL);
+        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
 
         qDebug() << "Updating Position";
         //update the unit's position
-        unit->SetPosition(unit->GetPath().at(0));
+        unit->SetPosition((unit->GetPath().at(0)->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
 
         qDebug() << "Setting new tile data";
         // Set the data for the unit's new tile
-        map->GetTileFromCoord(unit->GetPosition()->GetTileID())->ContainsUnit = true;
-        map->GetTileFromCoord(unit->GetPosition()->GetTileID())->SetUnit(unit);
+        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
 
         qDebug() << "Removing Point";
         // Remove the point from path
@@ -98,6 +96,18 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
     else
     {
 
+    }
+}
+
+Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitList)
+{
+    int tIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+    foreach(Unit* unit, unitList)
+    {
+        if(unit->GetTileIndex() == tIndex)
+        {
+            return unit;
+        }
     }
 }
 
@@ -154,6 +164,8 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
     }
 
     //This sets the path the unit needs to take.
+    qDebug() << "Setting unit path";
     unit->SetPath(path);
+    qDebug() << "Setting RequiresOrders to false";
     unit->RequiresOrders = false;
 }

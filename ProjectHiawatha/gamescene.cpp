@@ -1,5 +1,6 @@
 #include "gamescene.h"
 #include <QDebug>
+#include <math.h>
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -56,8 +57,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
         {
             // Move unit command Issued
             qDebug() << "Move Unit";
-            column = mrScenePos.x() / 45;
-            row = mrScenePos.y() / 75;
+            column = floor(mrScenePos.x() / 46);
+            row = floor(mrScenePos.y() / 75);
 
             qDebug() << "   Before Adjust: " << column << "," << row;
 
@@ -82,18 +83,20 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             qDebug() << "Tile selected";
             qDebug() << "ScenePos: " << mrScenePos;
 
-            column = mrScenePos.x() / 45;
-            row = mrScenePos.y() / 75;
+            column = floor(mrScenePos.x() / 46);
+            row = floor(mrScenePos.y() / 75);
 
             qDebug() << "   Before Adjust: " << column << "," << row;
 
             if((column % 2 == 0) && (row % 2 != 0))
             {
-                row--;
+//                row--;
+                column--;
             }
             else if ((column % 2 != 0) && (row % 2 == 0))
             {
-                row--;
+//                row--;
+                column--;
             }
 
             qDebug() << "   After Adjust: " << column << "," << row;
@@ -108,7 +111,7 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             {
                 // set the global isTileSelected flag
                 qDebug() << "Unit tile selected";
-//                unitSelectedTile = map->GetTileFromCoord(column, row);
+                unitSelectedTile = map->GetTileFromCoord(column, row);
                 isTileSelected = true;
             }
 

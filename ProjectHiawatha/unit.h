@@ -2,9 +2,9 @@
 #define UNIT_H
 
 #include <QPixmap>
-#include "tile.h"
+#include <QList>
 #include "nation.h"
-
+#include "tile.h"
 class Tile;
 
 class Unit
@@ -17,19 +17,19 @@ public:
     void SetUnitIcon(QPixmap *icon);
     void SetOwner(Nation owner);
 //    void SetPosition(int column, int row);
-    void SetPosition(Tile* tile);
+    void SetPosition(int tileMapIndex);
     void SetMovementPoints(int pts);
     void SetStrength(int strength);
     void SetRange(int range);
     void SetRangeStrength(int rangeStr);
     void SetHealth(int health);
     void SetMaxHealth(int maxHealth);
-    void SetPath(QList<Tile*> path);
+    void SetPath(QList<Tile*> newPath);
     void SetPixmapIndex(int index);
 
     QPixmap* GetUnitIcon();
     Nation GetOwner();
-    Tile* GetPosition();
+    int GetTileIndex();
     int GetMovementPoints();
     int GetStrength();
     int GetRange();
@@ -52,11 +52,11 @@ private:
     QPixmap *unitIcon;
 
     Nation belongsTo;
-    Tile *position;
-    int colPosition;
-    int rowPosition;
+//    Tile *position;
+//    int colPosition;
+//    int rowPosition;
 
-    int pixmapIndex;
+    int pixmapIndex, dataMapIndex;
     bool NonCombat;
     bool Settler;
 

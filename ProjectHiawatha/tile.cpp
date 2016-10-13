@@ -104,16 +104,6 @@ Tile::~Tile()
 
 }
 
-Unit *Tile::GetUnit()
-{
-    return this->occupyingUnit;
-}
-
-void Tile::SetUnit(Unit *unit)
-{
-    this->occupyingUnit = unit;
-}
-
 TileType Tile::GetTileType()
 {
     return this->type;

@@ -123,10 +123,10 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
                 map->GetTileFromCoord(col, row)->Selected = false;
             }
 
-            if(map->GetTileAt(index)->GetUnit()->Updated)
-            {
-                unitPixmap.at(map->GetTileAt(index)->GetUnit()->GetPixmapIndex())->setPos(map->GetTileAt(index)->GetItemTexturePoint());
-            }
+//            if(map->GetTileAt(index)->GetUnit()->Updated)
+//            {
+//                unitPixmap.at(map->GetTileAt(index)->GetUnit()->GetPixmapIndex())->setPos(map->GetTileAt(index)->GetItemTexturePoint());
+//            }
 
             map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
 
@@ -299,7 +299,7 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
         unitPixmap.last()->setScale(2.0f);
         // All unit images are stored in the unitPixmap vector.
         units.at(i)->SetPixmapIndex(unitPixmap.size() - 1);
-        unitPixmap.last()->setPos(map->GetTileFromCoord(units.at(i)->GetPosition()->GetTileID())->GetItemTexturePoint());
+        unitPixmap.last()->setPos(map->GetTileAt(units.at(i)->GetTileIndex())->GetItemTexturePoint());
     }
 }
 

@@ -377,9 +377,9 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     for(int i = 0; i < civs.size(); i++)
     {
 newrand:
-        index = (static_cast<double>(rand()) / RAND_MAX) * (board.size() / 2);
+        index = (static_cast<double>(rand()) / RAND_MAX) * (board.size());
 
-        if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN)
+        if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN || board.at(index)->ContainsUnit)
         {
             goto newrand;
         }
@@ -393,25 +393,24 @@ newrand:
             city->SetControllingCiv(civs.at(i)->getCiv());
             city->GetCityTile()->SetYield(5,5,5,5,5);
             city->AddControlledTile(city->GetCityTile());
-            qDebug() << "Updating City Yield";
             city->UpdateCityYield();
-            qDebug() << "updating board yield";
-            board.at(index)->SetYield(5,5,5,5,5);
+
             civs.at(i)->AddCity(city);
 
-//            qDebug() << "   Adding starting Unit";
-            unit = new Unit(civs.at(i)->getCiv(), false, false, 2, 1, 3, 5);
-            unit->SetPosition(board.at((board.at(index)->GetTileID().column / 2) + (mapSizeX * board.at(index)->GetTileID().row + 1)));
-            unit->SetOwner(civs.at(i)->getCiv());
-            civs.at(i)->AddUnit(unit);
-
-            qDebug() << "       UnitPos:" << civs.at(i)->GetUnitAt(0)->GetPosition()->GetTileIDString();
-
+            board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
-            index = (unit->GetPosition()->GetTileID().column / 2) + (mapSizeX * unit->GetPosition()->GetTileID().row);
+
+//            qDebug() << "   Adding starting Unit";
+            index = (board.at(index)->GetTileID().column / 2) + (mapSizeX * board.at(index)->GetTileID().row + 1);
+            unit = new Unit(civs.at(i)->getCiv(), false, false, 2, 1, 3, 5);
+            unit->SetPosition(index);
+            unit->SetOwner(civs.at(i)->getCiv());
+
+            civs.at(i)->AddUnit(unit);
+
             board.at(index)->ContainsUnit = true;
-            board.at(index)->SetUnit(unit);
+            qDebug() << "       UnitPos:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
         }
     }
 }

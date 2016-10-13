@@ -8,7 +8,6 @@
 #include "civilization.h"
 #include "nation.h"
 #include "city.h"
-#include "unit.h"
 #include <QPen>
 #include <QPixmap>
 #include <QPolygonF>
@@ -34,9 +33,6 @@ public:
     bool Checked;
     bool Selected;
     bool Walkable;
-
-    Unit* GetUnit();
-    void SetUnit(Unit* unit);
 
     TileType GetTileType();
     Yield* GetYield();
@@ -99,7 +95,6 @@ private:
     QPixmap tileTexture;
     Biome biome;
     Nation owner;
-    Unit *occupyingUnit;
     //Resource resource;
     QPen outlinePen;
     City *city;

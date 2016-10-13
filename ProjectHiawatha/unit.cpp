@@ -46,9 +46,9 @@ void Unit::SetOwner(Nation owner)
     this->belongsTo = owner;
 }
 
-void Unit::SetPosition(Tile *tile)
+void Unit::SetPosition(int tileMapIndex)
 {
-    this->position = tile;
+    this->dataMapIndex = tileMapIndex;
 }
 
 //void Unit::SetPosition(int column, int row)
@@ -97,9 +97,9 @@ Nation Unit::GetOwner()
     return this->belongsTo;
 }
 
-Tile *Unit::GetPosition()
+int Unit::GetTileIndex()
 {
-    return this->position;
+    return this->dataMapIndex;
 }
 
 int Unit::GetMovementPoints()
@@ -162,9 +162,12 @@ bool Unit::isSettler()
 //    return this->requiresOrders;
 //}
 
-void Unit::SetPath(QList<Tile *> path)
+void Unit::SetPath(QList<Tile *> newPath)
 {
-    this->path = path;
+    foreach(Tile* tile, newPath)
+    {
+        this->path.push_back(tile);
+    }
 }
 
 void Unit::SetPixmapIndex(int index)
