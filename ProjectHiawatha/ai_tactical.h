@@ -10,20 +10,20 @@ class AI_Tactical
 public:
     AI_Tactical();
 
-    AI_Tactical(int midGoal, Civilization *civ,QVector<Tile*> CityToBeFounded, City Target, QVector<Tile*> TroopPositions, QVector<Tile*> Highthreats, QVector<Tile*> Midthreats, QVector<Tile*> Lowthreats);
+    AI_Tactical(int midGoal, Civilization *civ, QVector<Tile*> CityToBeFounded, City *cityTarget, QVector<Tile*> TroopPositions, QVector<Tile*> highThreats, QVector<Tile*> midThreats, QVector<Tile*> lowThreats);
 
     //2 functions, depending if the civ is attacking or defending
-    void Prep(Civilization *civ, QVector<Tile*> CityToBeFounded,QVector<Tile*> TroopPositions, QVector<Tile*> Highthreats, QVector<Tile*> Midthreats, QVector<Tile*> Lowthreats);
-    void AtWar(Civilization *civ, QVector<Tile*> CityToBeFounded, City Target, QVector<Tile*> Highthreats, QVector<Tile*> Midthreats, QVector<Tile*> Lowthreats);
+    void Prep(Civilization *civ, QVector<Tile*> TroopPositions);
+    void AtWar(Civilization *civ, City *cityTarget);
 
 
 private:
 
-    //settlercontrol(Queue CityToBeFounded);
-    //workercontrol();
-    //highThreats(Vector Highthreats);
-    //midThreats(Vector Midthreats);
-    //lowThreats(Vector Lowthreats);
+    void settlercontrol(QVector<Tile *>  CityToBeFounded);
+    void workercontrol();
+    void highThreatProcessing(QVector<Tile*> highThreats);
+    void midThreatProcessing(QVector<Tile*> midThreats);
+    void lowThreatProcessing(QVector<Tile*> lowThreats);
 
 
 };

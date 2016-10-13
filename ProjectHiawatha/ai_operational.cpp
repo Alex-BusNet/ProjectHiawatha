@@ -28,39 +28,49 @@ AI_Operational::AI_Operational()
 
 AI_Operational::AI_Operational(int midGoal, Civilization *civ)
 {
-    //threatScan(Vector* Highthreats, Vector* Midthreats, Vector* Lowthreats);
+    threatScan(highThreats, midThreats, lowThreats);
 
 
     if(1==midGoal){
         cityLocation(civ);
     }
     else if(2==midGoal){
-        theaterPrep(civ);
+        theaterPrep(civ, troopLocations);
     }
     else if(3==midGoal){
-       theaterAtWar(civ);
+       theaterAtWar(civ, cityTarget);
     }
     else{
         //Probably not anything for operational in this context, aside from threat detection
+        //midgoal==4 is resource gathering - run theaterprep?
+        theaterPrep(civ, troopLocations);
     }
 
-        AI_Tactical *ai = new AI_Tactical(midGoal, civ, cityLocations, target, troopLocations, HighThreats, MidThreats, LowThreats);
+    AI_Tactical *ai = new AI_Tactical(midGoal, civ, cityLocations, cityTarget, troopLocations, highThreats, midThreats, lowThreats);
 }
 
 
 //****************Tactical AI Called**************
-//if(AtWar)
-    //Pass vector of unit targets and city
+    //Pass target city
     //also passes the city founding vector and 3 vectors of threatening units
-//else
-    //Pass individual position vector for each unit class
-    //also passes the city founding vector and 3 vectors of threatening units
+    //Pass position vector for military units
 
 
 
 
 
-//threatScan(Vector* Highthreats, Vector* Midthreats, Vector* Lowthreats);
+void AI_Operational::threatScan(QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
+{
+    //Units within territory are added to highThreats
+    //Using the Map::GetNeighbors(Tile *node) algorithm
+        //search radially out from controlled tiles
+            //Units within 1 of territory added to midThreats
+    //Use same algorithm from vector of military units
+        //if enemy found within 2 of units, add to highThreats
+        //else if found within 3 of units, add to midThreats
+        //else if within 5 add to lowThreats
+}
+
 //************Threat Vector*************
 //lists all enemy units which are within 1 of teritory or within 5 of units.
     //prioritizes within teritory/within 2 of units
@@ -68,30 +78,38 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ)
     //low priority is 5 away
         //priority determines if units targeting it are strong, neutral, or weak to it
     //adds each to appropriate vector pointer
-//Class the target city in this as well, so that some units will almost always prioritize it
+//Class the target city in this as well, so that some units will almost always prioritize it?
 //See Map::GetNeighbors(Tile *node) for scanning algorithm
 
 
 
-void AI_Operational::theaterAtWar(Civilization *civ){
-
+void AI_Operational::theaterAtWar(Civilization *civ, City *cityTarget){
+    //scan outward for nearest player city
+        //Sets it as city target
 }
 //************Theater of War***************
 //Prioritizes the nearest city (by accessibility?) of the player civ
 //If at war, sends immediately to priority targets
         //1 city at a time
-            //always priority for siege units unless directly threatened
+
+//Apropriate location??????
+//always priority for siege units unless directly threatened
         //Units which pose a threat to borders or to forces actively invading the enemy city
             //targets threatening units with whatever they are weak to first, then neutral, and only strong against as last resort
 
 
 
-void AI_Operational::theaterPrep(Civilization *civ){
-
+void AI_Operational::theaterPrep(Civilization *civ, QVector<Tile *> troopLocations){
+    //Scans for polayer's nearest city
+        //Locates open tiles within civ's borders that are near the enemy city
+            //Maybe does the rotational scan out from the located city?
+            //adds tiles within ai's civ to vector, starting with nearest to enemy city
 }
 //************Theater of War(prep)***************
 //If preparing for war, sends units in the general direction of opponent's nearest city
         //Lays out a set of positions which are acceptable for unit types to station
+
+//Location???
             //infantry will be in front of siege, etc
         //careful not to be too obvious - Fog of War buffer zone?
 

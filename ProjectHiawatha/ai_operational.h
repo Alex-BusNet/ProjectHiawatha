@@ -12,18 +12,18 @@ public:
     AI_Operational(int midGoal, Civilization *civ);
 
 private:
-    //void threatScan(Vector* Highthreats, Vector* Midthreats, Vector* Lowthreats);
-    void theaterAtWar(Civilization *civ);
-    void theaterPrep(Civilization *civ);
+    void threatScan(QVector<Tile*> highThreats, QVector<Tile*> midThreats, QVector<Tile*> lowThreats);
+    void theaterAtWar(Civilization *civ, City *cityTarget);
+    void theaterPrep(Civilization *civ, QVector<Tile*> troopLocations);
     void cityLocation(Civilization *civ);
 
      QVector<Tile*> cityLocations;
-     City target;
+     City *cityTarget;
      QVector<Tile*> troopLocations;
 
-     QVector<Tile*> LowThreats;
-     QVector<Tile*> MidThreats;
-     QVector<Tile*> HighThreats;
+     QVector<Tile*> lowThreats;
+     QVector<Tile*> midThreats;
+     QVector<Tile*> highThreats;
 };
 
 #endif // AI_OPERATIONAL_H
