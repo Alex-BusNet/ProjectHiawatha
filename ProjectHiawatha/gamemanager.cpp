@@ -442,7 +442,7 @@ void GameManager::nextTurn()
 {
     // Ends the players turn
     turnEnded = true;
-    EndTurn();
+//    EndTurn();
 }
 
 
