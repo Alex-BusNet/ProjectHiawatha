@@ -18,6 +18,7 @@ public:
     GameView(QWidget *parent = 0, bool fullscreen = false);
 
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
+    QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon, const QPen &pen);
     QGraphicsPixmapItem* addPixmap(const QPixmap &pixmap);
     QGraphicsProxyWidget* addWidget(QWidget *widget);
     QGraphicsRectItem* addRect(QRect *rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());

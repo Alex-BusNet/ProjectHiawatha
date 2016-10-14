@@ -71,6 +71,7 @@ void City::GarrisonMilitary(Unit *military)
 
 void City::AddControlledTile(Tile *tile)
 {
+    qDebug() << "       Adding" << tile->GetTileIDString();
     this->cityControlledTiles.push_back(tile);
 }
 

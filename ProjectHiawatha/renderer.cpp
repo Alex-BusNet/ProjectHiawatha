@@ -44,32 +44,33 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
 //        {
 
             // This sets the pen to be transparent
-            if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
-            {
-                outlinePen.setColor(cc->NO_NATION_PRIMARY);
-            }
-            else if(map->GetTileAt(i)->GetControllingCiv() == America)
-            {
-                outlinePen.setColor(cc->AMERICA_PRIMARY);
-            }
-            else if(map->GetTileAt(i)->GetControllingCiv() == Germany)
-            {
-                outlinePen.setColor(cc->GERMANY_PRIMARY);
-            }
-            else if(map->GetTileAt(i)->GetControllingCiv() == India)
-            {
-                outlinePen.setColor(cc->INDIA_PRIMARY);
-            }
-            else if(map->GetTileAt(i)->GetControllingCiv() == China)
-            {
-                outlinePen.setColor(cc->CHINA_PRIMARY);
-            }
+//            if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
+//            {
+//                outlinePen.setColor(cc->NO_NATION_PRIMARY);
+//            }
+//            else if(map->GetTileAt(i)->GetControllingCiv() == America)
+//            {
+//                outlinePen.setColor(cc->AMERICA_PRIMARY);
+//            }
+//            else if(map->GetTileAt(i)->GetControllingCiv() == Germany)
+//            {
+//                outlinePen.setColor(cc->GERMANY_PRIMARY);
+//            }
+//            else if(map->GetTileAt(i)->GetControllingCiv() == India)
+//            {
+//                outlinePen.setColor(cc->INDIA_PRIMARY);
+//            }
+//            else if(map->GetTileAt(i)->GetControllingCiv() == China)
+//            {
+//                outlinePen.setColor(cc->CHINA_PRIMARY);
+//            }
 //        }
 
         map->GetTileAt(i)->SetTilePen(outlinePen);
         tiles.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
         tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
         tiles.at(i)->setZValue(1);
+        tiles.at(i)->setOpacity(50);
         // Create new vector that stores the oddly-shaped border polygon for each civ (this may be one vector per civ)
         // Set pen of vector to proper civ color (may require adjustment of if/else condition above
 
@@ -124,10 +125,9 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             }
 
             map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
-
             scene->removeItem(tiles.at(lastIndex));
             tiles.remove(index);
-            tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+            tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
             tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
 
             scene->redrawTile = false;
@@ -177,6 +177,7 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
         unitPixmap.at(unit->GetPixmapIndex())->setScale(2.0f);
         unitPixmap.at(unit->GetPixmapIndex())->setZValue(2);
         unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
+
     }
 }
 

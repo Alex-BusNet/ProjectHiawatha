@@ -146,7 +146,7 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
     {
         for(int y = -1; y <= 1; y++)
         {
-            if((x == 0 && y == 0) || (x == -2 && y != 0) || (x == 2 && y != 0))
+            if(((x == -1 || x == 1) && y == 0) || (x == -2 && y != 0) || (x == 2 && y != 0) || (x == 0))
             {
                 continue;
             }

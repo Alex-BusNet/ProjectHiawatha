@@ -18,6 +18,11 @@ QGraphicsPolygonItem *GameView::addPolygon(const QPolygonF &polygon)
     return this->game->addPolygon(polygon);
 }
 
+QGraphicsPolygonItem *GameView::addPolygon(const QPolygonF &polygon, const QPen &pen)
+{
+    return this->game->addPolygon(polygon, pen);
+}
+
 QGraphicsPixmapItem *GameView::addPixmap(const QPixmap &pixmap)
 {
     return this->game->addPixmap(pixmap);
