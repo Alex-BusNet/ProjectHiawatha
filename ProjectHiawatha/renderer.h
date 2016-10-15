@@ -16,7 +16,7 @@ class Renderer
 public:
     enum ItemGroup {MAP, TERRAIN, CITY_IMPROVEMENTS, OUTLINES, UNITS, FOG_OF_WAR, GUI_IMAGES, GUI_TEXT };
 
-    Renderer();
+    Renderer(int mapSizeX);
 
     void DrawHexScene(Map *map, GameView *scene);
     void UpdateScene(Map *map, GameScene *scene);
@@ -53,6 +53,7 @@ private:
     QGraphicsRectItem *YieldDisplay;
 
     void SetOutlinePen(Nation owner);
+    int mapSizeX;
 
 };
 

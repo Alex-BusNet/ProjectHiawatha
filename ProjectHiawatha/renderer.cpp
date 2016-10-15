@@ -26,46 +26,16 @@
 QPen outlinePen(QColor(255, 255, 255, 0));
 QBrush brush(Qt::black);
 
-Renderer::Renderer()
+Renderer::Renderer(int mapSizeX)
 {
+    this->mapSizeX = mapSizeX;
     cc = new CivColors();
 }
 
 void Renderer::DrawHexScene(Map *map, GameView *scene)
 {
-//    QPen pen;
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
-//        if(map->GetTileAt(i)->Selected)
-//        {
-//            outlinePen.setColor(Qt::yellow);
-//        }
-//        else
-//        {
-
-            // This sets the pen to be transparent
-//            if(map->GetTileAt(i)->GetControllingCiv() == NO_NATION)
-//            {
-//                outlinePen.setColor(cc->NO_NATION_PRIMARY);
-//            }
-//            else if(map->GetTileAt(i)->GetControllingCiv() == America)
-//            {
-//                outlinePen.setColor(cc->AMERICA_PRIMARY);
-//            }
-//            else if(map->GetTileAt(i)->GetControllingCiv() == Germany)
-//            {
-//                outlinePen.setColor(cc->GERMANY_PRIMARY);
-//            }
-//            else if(map->GetTileAt(i)->GetControllingCiv() == India)
-//            {
-//                outlinePen.setColor(cc->INDIA_PRIMARY);
-//            }
-//            else if(map->GetTileAt(i)->GetControllingCiv() == China)
-//            {
-//                outlinePen.setColor(cc->CHINA_PRIMARY);
-//            }
-//        }
-
         map->GetTileAt(i)->SetTilePen(outlinePen);
         tiles.push_back(scene->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
         tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
@@ -88,7 +58,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
     {
         int col = scene->column, row = scene->row;
         // 20 is for duel sized maps (the default). That value will need to be adjusted later.
-        int index = (col / 2) + (20 * row);
+        int index = (col / 2) + (mapSizeX * row);
         static int lastIndex;
 
         // if the tile at the coordinates contains a unit

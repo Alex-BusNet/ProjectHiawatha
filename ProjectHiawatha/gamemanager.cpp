@@ -11,7 +11,7 @@
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 
-GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player) : QWidget(parent)
+GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
     qDebug() << "Game Window c'tor called";
 
@@ -38,39 +38,18 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     gameView->ConfigureGraphicsView();
 
-    exitGame = new QPushButton("Exit To Menu");
-    connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
-    exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
-
-    renderPlusOne = new QPushButton("Zoom in");
-    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(zoomIn()));
-    renderPlusOne->setShortcut(QKeySequence(Qt::Key_Up));
-
-    renderMinusOne = new QPushButton("Zoom out");
-    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
-    renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
-
-    showDummyCityScreen = new QPushButton("Show Dummy City");
-    connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
-
-    moveUnit = new QPushButton("Move Unit");
-    connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
-//    moveUnit->hide();
-
-    endTurn = new QPushButton("End Turn");
-    connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
-//    endTurn->hide();
+    this->InitButtons();
 
     updateTimer = new QTimer();
     updateTimer->setInterval(50);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
     updateTimer->start();
 
-    QWidget::setMouseTracking(true);
+//    QWidget::setMouseTracking(true);
 
     qDebug() << "Creating new Renderer";
 
-    renderer = new Renderer();
+    renderer = new Renderer(mapSizeX);
 
     qDebug() << "Done.\nInitializing Map.";
     map = new Map(mapSizeX, mapSizeY);
@@ -78,28 +57,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nSetting up Scene.";
 
-    vLayout->setMargin(0);
-    vLayout->addSpacing(20);
-
-    unitControlButtons->addSpacing(800);
-    unitControlButtons->addWidget(moveUnit);
-
-    gameLayout->addLayout(unitControlButtons);
-    gameLayout->addWidget(gameView);
-
-    playerControlButtons->addWidget(exitGame);
-    playerControlButtons->addSpacing(700);
-    playerControlButtons->addWidget(endTurn);
-
-    gameLayout->addLayout(playerControlButtons);
-
-    vLayout->addLayout(gameLayout);
-
-    hLayout->addWidget(renderPlusOne);
-    hLayout->addWidget(renderMinusOne);
-    hLayout->addWidget(showDummyCityScreen);
-
-    vLayout->addLayout(hLayout);
+    this->InitLayouts();
 
 //    qDebug() << "Done.\nAdding buttons to screen.";
 
@@ -115,8 +73,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     renderer->DrawHexScene(map, gameView);
 
     qDebug() << "Initializing Civs";
-    ////This is for testing purposes;
-    InitCivs(player, 4);
+    ////The 4 is for testing purposes;
+    InitCivs(player, numAI);
 
     qDebug() << "   CivList size: " << civList.size();
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
@@ -144,13 +102,16 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     zoomScale = 1;
 
     gameView->SetGameMap(map);
+
     for(int i = 0; i < 3; i++)
     {
         zoomIn();
     }
+
     qDebug() << "Done.\nCentering on Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
     currentTurn = 0;
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
+
     this->setLayout(vLayout);
     this->show();
 
@@ -330,6 +291,58 @@ void GameManager::EndTurn()
     }
 }
 
+void GameManager::InitButtons()
+{
+    exitGame = new QPushButton("Exit To Menu");
+    connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
+    exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
+
+    renderPlusOne = new QPushButton("Zoom in");
+    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(zoomIn()));
+    renderPlusOne->setShortcut(QKeySequence(Qt::Key_Up));
+
+    renderMinusOne = new QPushButton("Zoom out");
+    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
+    renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
+
+    showDummyCityScreen = new QPushButton("Show Dummy City");
+    connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
+
+    moveUnit = new QPushButton("Move Unit");
+    connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
+    moveUnit->setEnabled(false);
+
+    endTurn = new QPushButton("End Turn");
+    connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
+
+}
+
+void GameManager::InitLayouts()
+{
+    vLayout->setMargin(0);
+    vLayout->addSpacing(20);
+
+    unitControlButtons->addSpacing(800);
+    unitControlButtons->addWidget(moveUnit);
+
+    gameLayout->addLayout(unitControlButtons);
+    gameLayout->addWidget(gameView);
+
+    playerControlButtons->addWidget(exitGame);
+    playerControlButtons->addSpacing(700);
+    playerControlButtons->addWidget(endTurn);
+
+    gameLayout->addLayout(playerControlButtons);
+
+    vLayout->addLayout(gameLayout);
+
+    hLayout->addWidget(renderPlusOne);
+    hLayout->addWidget(renderMinusOne);
+    hLayout->addWidget(showDummyCityScreen);
+
+    vLayout->addLayout(hLayout);
+}
+
 
 void GameManager::closeGame()
 {
@@ -379,6 +392,11 @@ void GameManager::updateTiles()
 {
     gameView->GetScene()->ProcessTile(map, relocateUnit);
 
+    if(gameView->GetScene()->isTileSelected)
+    {
+        moveUnit->setEnabled(true);
+    }
+
     if(gameView->GetScene()->unitMoveOrdered)
     {
         Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
@@ -389,6 +407,7 @@ void GameManager::updateTiles()
         gameView->GetScene()->unitMoveOrdered = false;
         map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
         gameView->GetScene()->redrawTile = true;
+        moveUnit->setEnabled(false);
 
         qDebug() << "   Done";
     }
