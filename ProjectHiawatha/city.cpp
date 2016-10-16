@@ -71,8 +71,15 @@ void City::GarrisonMilitary(Unit *military)
 
 void City::AddControlledTile(Tile *tile)
 {
-    qDebug() << "       Adding" << tile->GetTileIDString();
     this->cityControlledTiles.push_back(tile);
+}
+
+void City::DefineCityBorders()
+{
+    // Step 1) Find outer most tiles that a city controls.
+    // Step 2) Get the outer edge points from each tile
+    // Step 3) Load points in to polygon.
+    // Step 4) Render
 }
 
 QString City::GetName()

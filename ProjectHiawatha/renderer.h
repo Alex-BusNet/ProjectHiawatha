@@ -32,6 +32,8 @@ public:
     void DrawTestCities(Map *map, GameView *view);
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
+    void DrawUnitPath(GameScene *scene, Unit *unit);
+    void ClearUnitPath(GameScene *scene);
 
     QString SetYieldDisplay(Map *map);
     QString SetYieldDisplay(Yield *yield);
@@ -46,6 +48,7 @@ private:
     QVector<QGraphicsPixmapItem*> tilePixmap;
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsPixmapItem*> cityPixmap;
+    QVector<QGraphicsLineItem*> unitGraphicsPath;
 
     QPolygon borders;
     CivColors *cc;

@@ -160,6 +160,7 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
             }
         }
     }
+
     return neighbors;
 }
 
@@ -228,6 +229,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(WATER);
                 board.at(i)->SetTileTexture(WATER);
+                board.at(i)->Walkable = false;
             }
         }
         else if (dbl == 1)
@@ -288,6 +290,7 @@ void Map::GenerateMapEdge()
         {
             board.at(i)->SetTileTexture(WATER);
             board.at(i)->SetTileType(WATER);
+            board.at(i)->Walkable = false;
         }
     }
 }

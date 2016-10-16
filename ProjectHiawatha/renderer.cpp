@@ -175,6 +175,43 @@ void Renderer::DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget *> wVect, 
     wVect.push_back(view->addWidget(obj));
 }
 
+void Renderer::DrawUnitPath(GameScene *scene, Unit *unit)
+{
+    if(!unit->isPathEmpty())
+    {
+        int tileCount = 0;
+        QPoint lastTile;
+
+        foreach(Tile *tile, unit->GetPath())
+        {
+            if(tileCount == 0)
+            {
+                lastTile = tile->GetCenter();
+                tileCount++;
+            }
+            else
+            {
+                QLine travelLine(lastTile, tile->GetCenter());
+                unitGraphicsPath.push_back(scene->addLine(travelLine, QPen(QColor(Qt::red))));
+                lastTile = tile->GetCenter();
+            }
+        }
+    }
+}
+
+void Renderer::ClearUnitPath(GameScene *scene)
+{
+    if(!unitGraphicsPath.isEmpty())
+    {
+        foreach(QGraphicsLineItem *line, unitGraphicsPath)
+        {
+            scene->removeItem(line);
+        }
+
+        unitGraphicsPath.clear();
+    }
+}
+
 ////This is for development and debug purposes only
 QString Renderer::SetYieldDisplay(Map *map)
 {

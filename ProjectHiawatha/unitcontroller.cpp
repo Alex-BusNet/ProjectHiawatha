@@ -80,6 +80,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         if(map->GetTileAt(unit->GetTileIndex())->Selected)
                 map->GetTileAt(unit->GetTileIndex())->Selected = false;
 
+        //// FOR DEBUGGING PURPOSES
         if(!unit->isPathEmpty())
         {
             qDebug() << "       Tiles in path:" << unit->GetPath().size();
@@ -103,6 +104,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         {
             unit->UpdatePath();
 
+            //// FOR DEBUGGING PURPOSES
             qDebug() << "       Tiles left in path:" << unit->GetPath().size();
             foreach(Tile* tile, unit->GetPath())
             {

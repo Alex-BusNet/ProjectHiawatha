@@ -72,6 +72,8 @@ private:
     bool updateUnitPos;
     bool turnEnded;
 
+    Nation playerCiv;
+
     void InitCivs(Nation player, int numAI);
     void paintEvent(QPaintEvent *event);
     void mouseReleaseEvent(QMouseEvent *e);

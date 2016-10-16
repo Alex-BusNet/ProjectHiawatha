@@ -26,6 +26,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     cityScreenVisible = false;
     relocateUnit = false;
     turnEnded = false;
+    playerCiv = player;
 
     if(!fullscreen)
     {
@@ -275,6 +276,10 @@ void GameManager::EndTurn()
             uc->MoveUnit(unit, map, gameView->GetScene());
             renderer->UpdateUnits(map, gameView, unit);
         }
+        else
+        {
+            renderer->ClearUnitPath(gameView->GetScene());
+        }
     }
 
     if(currentTurn == civList.size() - 1)
@@ -400,16 +405,18 @@ void GameManager::updateTiles()
     if(gameView->GetScene()->unitMoveOrdered)
     {
         Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
-        qDebug() <<"    Finding path";
-        uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
 
-        relocateUnit = false;
-        gameView->GetScene()->unitMoveOrdered = false;
-        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
-        gameView->GetScene()->redrawTile = true;
-        moveUnit->setEnabled(false);
+            qDebug() <<"    Finding path";
+            uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
 
-        qDebug() << "   Done";
+            relocateUnit = false;
+            gameView->GetScene()->unitMoveOrdered = false;
+            map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+            gameView->GetScene()->redrawTile = true;
+            moveUnit->setEnabled(false);
+            renderer->DrawUnitPath(gameView->GetScene(), unitToMove);
+
+            qDebug() << "   Done";
     }
 
     TurnController();

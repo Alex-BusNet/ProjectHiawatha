@@ -25,14 +25,14 @@ public:
 
     ~Tile();
 
-    bool HasRoad;
-    bool IsWorked;
-    bool ContainsUnit;
-    bool HasCity;
+    bool HasRoad; // Movement Cost calculation flag
+    bool IsWorked; // Yield calculation flag
+    bool ContainsUnit; // Civ spawning flag
+    bool HasCity; // Civ spawning flag
     bool DiscoveredByPlayer; // Fog of War flag
-    bool Checked;
-    bool Selected;
-    bool Walkable;
+    bool Checked; // Map Gen Flag
+    bool Selected; // Unit selection Render flag
+    bool Walkable; // Map Gen path finding flag
 
     TileType GetTileType();
     Yield* GetYield();

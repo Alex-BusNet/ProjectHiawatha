@@ -28,6 +28,8 @@ public:
     void GarrisonMilitary(Unit *military);
     void AddControlledTile(Tile* tile);
 
+    void DefineCityBorders();
+
     QString GetName();
     Tile* GetCityTile();
     Yield* getCityYield();
