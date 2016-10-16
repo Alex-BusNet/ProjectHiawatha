@@ -1,6 +1,6 @@
 #include "gamescene.h"
 #include <QDebug>
-#include <math.h>
+#include <qmath.h>
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -57,8 +57,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
         {
             // Move unit command Issued
             qDebug() << "Move Unit";
-            column = floor(mrScenePos.x() / 46);
-            row = floor(mrScenePos.y() / 75);
+            column = ceil(mrScenePos.x() / 46);
+            row = ceil(mrScenePos.y() / 75);
 
             qDebug() << "   Before Adjust: " << column << "," << row;
 
@@ -83,8 +83,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             qDebug() << "Tile selected";
             qDebug() << "ScenePos: " << mrScenePos;
 
-            column = floor(mrScenePos.x() / 46);
-            row = floor(mrScenePos.y() / 75);
+            column = floor(mrScenePos.x() / 44);
+            row = floor(mrScenePos.y() / 74);
 
             qDebug() << "   Before Adjust: " << column << "," << row;
 
