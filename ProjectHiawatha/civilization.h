@@ -4,7 +4,7 @@
 #define CIVILIZATION_H
 
 #include "unit.h"
-
+#include "technology.h"
 #include <yield.h>
 #include <city.h>
 #include <nation.h>
@@ -46,6 +46,7 @@ public:
     bool isCivAI();
 
 //    void startTurn(int aiIndex);
+    void loadTechs(QString filename);
 
 private:
     Nation name;
@@ -61,6 +62,7 @@ private:
 
     Yield* totalCivYield;
         //Will contain the totals for the civ's yields (uses city->cityyield)
+    QVector <Technology*> techList;
 
     void UpdateYield();
 

@@ -126,6 +126,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 void GameManager::InitCivs(Nation player, int numAI)
 {
     Civilization* civ = new Civilization(player, false);
+    civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
     civList.push_back(civ);
 
     srand(time(0));

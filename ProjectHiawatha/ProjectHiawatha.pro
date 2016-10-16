@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     building.cpp \
     unit.cpp \
     unitcontroller.cpp \
-    ai_controller.cpp
+    ai_controller.cpp \
+    technology.cpp \
 
     gameoptions.cpp \
 
@@ -61,7 +62,8 @@ HEADERS  += mainwindow.h \
     building.h \
     unit.h \
     unitcontroller.h \
-    ai_controller.h
+    ai_controller.h \
+    technology.h \
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

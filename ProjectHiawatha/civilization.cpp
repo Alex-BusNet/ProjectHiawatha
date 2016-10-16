@@ -10,6 +10,11 @@
 
 #include "civilization.h"
 #include <QDebug>
+#include <fstream>
+#include <QFile>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QStringList>
 
 Civilization::Civilization()
 {
@@ -87,6 +92,37 @@ QVector<Unit *> Civilization::GetUnitList()
 bool Civilization::isCivAI()
 {
     return this->isAIPlayer;
+}
+
+void Civilization::loadTechs(QString filename)
+{
+    QFile inputFile(filename);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          QStringList techInfo = line.split(",");
+          qDebug()<<"Tech Name: "<<techInfo[0];
+          int x = techInfo[1].toInt();
+          int y = techInfo[2].toInt();
+          qDebug()<<"Tech Cost: "<<x;
+
+          Technology* tech = new Technology(techInfo[0],x,y);
+          techList.push_back(tech);
+          qDebug()<<techList.at(0)->getName();
+       }
+       inputFile.close();
+       qDebug()<<techList.at(1)->getName();
+    }else
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("File Not Found");
+        mBox->exec();
+        qDebug()<<"File Not Found";
+
+    }
 }
 
 void Civilization::AddCity(City *city)
