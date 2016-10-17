@@ -106,7 +106,8 @@ void City::DefineCityBorders()
     qDebug() << "     Getting centers";
     foreach(Tile* tile, cityControlledTiles)
     {
-        points.push_back(tile->GetCenter());
+        for(int i = 0; i < 7; i++)
+            points.push_back(tile->GetHexPoint(i));
     }
 
     //Initialize the number of points in the points QVector
