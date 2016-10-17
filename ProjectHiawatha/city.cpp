@@ -59,7 +59,11 @@ void City::SetControllingCiv(Nation owner)
 void City::UpdateCityYield()
 {
     qDebug() << "   City controls" << cityControlledTiles.size() << "tile(s)";
-    int newGold = 0, newProd = 0, newSci = 0, newFood = 0, newCul = 0;
+    int newGold = cityTile->GetYield()->GetGoldYield(),
+            newProd = cityTile->GetYield()->GetProductionYield(),
+            newSci = cityTile->GetYield()->GetScienceYield(),
+            newFood = cityTile->GetYield()->GetFoodYield(),
+            newCul = cityTile->GetYield()->GetCultureYield();
 
     foreach(Tile *tile, cityControlledTiles)
     {
@@ -106,7 +110,7 @@ void City::DefineCityBorders()
     qDebug() << "     Getting centers";
     foreach(Tile* tile, cityControlledTiles)
     {
-        for(int i = 0; i < 7; i++)
+        for(int i = 0; i < 6; i++)
             points.push_back(tile->GetHexPoint(i));
     }
 
@@ -126,7 +130,7 @@ void City::DefineCityBorders()
 
     int p = l, q;
 
-    //This uses the Jarvis Gift-wrapping method for finding the convex hull
+    //This uses the Jarvis March / Gift-wrapping method for finding the convex hull
     // that encompasses all points in the set
     qDebug() << "     Finding convex hull";
 

@@ -238,6 +238,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(GRASS);
                 board.at(i)->SetTileTexture(GRASS);
+                board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
             }
         }
         else if (dbl == 2)
@@ -263,6 +264,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(HILL);
                 board.at(i)->SetTileTexture(HILL);
+                board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
             }
         }
         else if(dbl == 5)
@@ -271,6 +273,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(FOREST);
                 board.at(i)->SetTileTexture(FOREST);
+                board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
             }
         }
     }
@@ -405,7 +408,7 @@ newrand:
             city->SetCityTile(board.at(index));
             city->SetControllingCiv(civs.at(i)->getCiv());
             city->GetCityTile()->SetYield(5,5,5,5,5);
-            city->AddControlledTile(city->GetCityTile());
+//            city->AddControlledTile(city->GetCityTile());
 
             foreach(Tile* tile, initialTiles)
             {
@@ -416,7 +419,6 @@ newrand:
             city->UpdateCityYield();
 
             civs.at(i)->AddCity(city);
-            city->GetControlledTiles().at(0)->HasCity = true;
             city->DefineCityBorders();
 
             board.at(index)->SetYield(5,5,5,5,5);

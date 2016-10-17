@@ -23,7 +23,7 @@
 // Use setZValue() to change each item's render layer.
 //=======================================
 
-QPen outlinePen(QColor(255, 255, 255, 0));
+QPen outlinePen(QColor(255, 255, 255, 125));
 QBrush brush(Qt::black);
 
 Renderer::Renderer(int mapSizeX)
@@ -88,7 +88,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             }
             else
             {
-                SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
+                SetOutlinePen(NO_NATION);
 
                 scene->isTileSelected = false;
                 map->GetTileFromCoord(col, row)->Selected = false;
@@ -104,7 +104,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else if(map->GetTileAt(index)->HasCity)
         {
-            SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
+            SetOutlinePen(NO_NATION);
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
 
@@ -119,7 +119,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else
         {
-            SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
+            SetOutlinePen(NO_NATION);
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
 

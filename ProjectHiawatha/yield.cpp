@@ -3,7 +3,7 @@
 
 Yield::Yield()
 {
-    Yield{1, 1, 0, 1, 0};
+    Yield{0, 0, 0, 0, 0};
 }
 
 Yield::Yield(int gold, int prod, int research, int food, int culture)

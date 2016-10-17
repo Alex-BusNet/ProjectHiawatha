@@ -31,7 +31,7 @@ int drawScale = 2;
 Tile::Tile(int _posX, int _posY)
 {
     this->type = WATER;
-    this->yield = new Yield(1,1,0,1,0);
+    this->yield = new Yield(0,0,0,0,0);
     this->improvement = NONE;
     this->biome = EMPTY;
 
