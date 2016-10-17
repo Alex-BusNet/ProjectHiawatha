@@ -125,6 +125,26 @@ void Civilization::loadTechs(QString filename)
     }
 }
 
+Technology *Civilization::getCurrentTech()
+{
+    return currentTech;
+}
+
+Technology *Civilization::getNextTech()
+{
+    return nextTech;
+}
+
+void Civilization::setCurrentTech(Technology *tech)
+{
+    currentTech = tech;
+}
+
+void Civilization::setNextTech(Technology *tech)
+{
+    nextTech = tech;
+}
+
 void Civilization::AddCity(City *city)
 {
     this->CityList.push_back(city);

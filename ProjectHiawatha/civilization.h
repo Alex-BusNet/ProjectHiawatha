@@ -47,6 +47,10 @@ public:
 
 //    void startTurn(int aiIndex);
     void loadTechs(QString filename);
+    Technology* getCurrentTech();
+    Technology *getNextTech();
+    void setCurrentTech(Technology* tech);
+    void setNextTech(Technology* tech);
 
 private:
     Nation name;
@@ -65,6 +69,9 @@ private:
     QVector <Technology*> techList;
 
     void UpdateYield();
+
+    Technology* currentTech;
+    Technology* nextTech;
 
     int happiness;
 
