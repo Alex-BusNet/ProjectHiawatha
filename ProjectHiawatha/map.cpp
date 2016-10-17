@@ -413,6 +413,8 @@ newrand:
                 city->AddControlledTile(tile);
             }
 
+            city->AddControlledTile(GetTileFromCoord(city->GetCityTile()->GetTileID().column - 4, city->GetCityTile()->GetTileID().row));
+
             city->UpdateCityYield();
 
             civs.at(i)->AddCity(city);

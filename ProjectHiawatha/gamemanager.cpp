@@ -112,6 +112,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Done.\nCentering on Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
     currentTurn = 0;
     gameTurn = 0;
+    //Start at 4000 BC. The game increments the turn to 1, and subsequently the in game year by 40 years, upon game start.
+    year = -4040;
+
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
 
     this->setLayout(vLayout);
@@ -231,7 +234,7 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(civList.at(0)->getCivYield()));
-    paint.drawText(playerInfoRect, Qt::AlignRight, QString("Turn %1 | %2 %3  ").arg(gameTurn).arg("4000").arg("BC"));
+    paint.drawText(playerInfoRect, Qt::AlignRight, QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
@@ -264,9 +267,50 @@ void GameManager::TurnController()
 void GameManager::StartTurn()
 {
     if(currentTurn == 0)
+    {
         gameTurn++;
 
-    qDebug() << "  Starting turn for civ" << currentTurn << "gameTurn:" << gameTurn;
+        //Set the number of years to pass per turn.
+        //  This is based on the standard game pace in Civ V
+
+        if(gameTurn < 75)
+        {
+            yearPerTurn = 40;
+        }
+        else if(gameTurn < 135)
+        {
+            yearPerTurn = 25;
+        }
+        else if(gameTurn < 160)
+        {
+            yearPerTurn = 20;
+        }
+        else if(gameTurn < 210)
+        {
+            yearPerTurn = 10;
+        }
+        else if(gameTurn < 270)
+        {
+            yearPerTurn = 5;
+        }
+        else if(gameTurn < 320)
+        {
+            yearPerTurn = 2;
+        }
+        else if(gameTurn < 440)
+        {
+            yearPerTurn = 1;
+        }
+        else
+        {
+            yearPerTurn = 0.5;
+        }
+
+        year += yearPerTurn;
+
+    }
+
+    qDebug() << "  Starting turn for civ" << currentTurn;
 }
 
 void GameManager::EndTurn()

@@ -56,6 +56,8 @@ private:
     Nation controllingCiv;
     Tile *cityTile;
 
+
+
     Yield* cityTotalYield;
 
     bool isCaptial;

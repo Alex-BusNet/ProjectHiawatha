@@ -64,8 +64,10 @@ private:
 
     QString *YieldDisplay;
 
+
     int zoomScale;
     int currentTurn, gameTurn;
+    float year, yearPerTurn;
 
     bool cityScreenVisible;
     bool relocateUnit;

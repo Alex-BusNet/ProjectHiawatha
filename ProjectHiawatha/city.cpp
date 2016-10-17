@@ -19,6 +19,8 @@ void City::TileToGetNext()
     //  -The total yield of the tile
     //  -Resources on tile
     //  -Tile type
+
+    //Store all eligible tiles in a heap.
 }
 
 // 0 = p, q, and r are colinear
@@ -129,6 +131,7 @@ void City::DefineCityBorders()
 
     do
     {
+        qDebug() << "p" << p << ", points[p]" << points[p];
         hull.push_back(points[p]);
 
         q = (p + 1) % numPts;
@@ -141,13 +144,14 @@ void City::DefineCityBorders()
 
         p = q;
     }
-    while(p != 1);
+    while(p != l);
 
     qDebug() << "     Loading borders";
     //Load the resulting convex hull into the cityBorder QPolygon
     for(int i = 0; i < hull.size(); i++)
     {
         this->cityBorder.push_back(hull[i]);
+        qDebug() << "Border point:" << hull[i];
     }
 
     qDebug() << "     Done";
