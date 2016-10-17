@@ -6,6 +6,8 @@
 #include "nation.h"
 #include "tile.h"
 #include "yield.h"
+#include <QPoint>
+#include <QPolygon>
 
 class Tile;
 class Unit;
@@ -35,6 +37,7 @@ public:
     Yield* getCityYield();
     Nation GetControllingCiv();
     QVector<Tile*> GetControlledTiles();
+    QPolygon GetCityBorders();
 
     Unit GetUnitAt(int index);
     Unit* GetGarrisonedWorker(int index);
@@ -62,6 +65,10 @@ private:
     int productionYield;
     int scienceYield;
     int goldYield;
+
+    void TileToGetNext();
+    int orientation(QPoint p, QPoint q, QPoint r);
+    QPolygon cityBorder;
 };
 
 

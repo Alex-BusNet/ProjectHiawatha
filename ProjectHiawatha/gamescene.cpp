@@ -64,11 +64,13 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
 
             if((column % 2 == 0) && (row % 2 != 0))
             {
-                row--;
+//                row--;
+                column--;
             }
             else if ((column % 2 != 0) && (row % 2 == 0))
             {
-                row--;
+//                row--;
+                column--;
             }
 
             qDebug() << "   After Adjust: " << column << "," << row;

@@ -267,7 +267,7 @@ void Renderer::SetOutlinePen(Nation owner)
         break;
     }
 
-    outlinePen.setWidth(10);
+    outlinePen.setWidth(5);
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
@@ -286,6 +286,20 @@ void Renderer::DrawCityBorders(Map *map, QVector<City*> cities, GameScene *scene
 
             cityBorders.push_back(scene->addPolygon(tile->GetTilePolygon()));
             cityBorders.last()->setPen(tile->GetTilePen());
+        }
+    }
+}
+
+void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation owner)
+{
+    SetOutlinePen(owner);
+
+    for(int i = 0; i < cities.size(); i++)
+    {
+        foreach(City* city, cities)
+        {
+            cityBorders.push_back(scene->addPolygon(city->GetCityBorders(), outlinePen));
+            cityBorders.last()->setPen(outlinePen);
         }
     }
 }

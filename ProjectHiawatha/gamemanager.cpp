@@ -83,7 +83,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-        renderer->DrawCityBorders(map, civList.at(i)->GetCityList(), gameView->GetScene());
+        renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
         civList.at(i)->UpdateCivYield();
     }
 
@@ -111,6 +111,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nCentering on Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
     currentTurn = 0;
+    gameTurn = 0;
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
 
     this->setLayout(vLayout);
@@ -230,6 +231,7 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(civList.at(0)->getCivYield()));
+    paint.drawText(playerInfoRect, Qt::AlignRight, QString("Turn %1 | %2 %3  ").arg(gameTurn).arg("4000").arg("BC"));
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
@@ -261,7 +263,10 @@ void GameManager::TurnController()
 
 void GameManager::StartTurn()
 {
-    qDebug() << "  Starting turn for civ" << currentTurn << "civList size:" << civList.size();
+    if(currentTurn == 0)
+        gameTurn++;
+
+    qDebug() << "  Starting turn for civ" << currentTurn << "gameTurn:" << gameTurn;
 }
 
 void GameManager::EndTurn()
@@ -314,6 +319,9 @@ void GameManager::InitButtons()
     showDummyCityScreen = new QPushButton("Show Dummy City");
     connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
+    showTechTree = new QPushButton("Technology Tree");
+    //// ADD connect(sender, SIGNAL, receiver, SLOT) here
+
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
     moveUnit->setEnabled(false);
@@ -328,6 +336,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(0);
     vLayout->addSpacing(20);
 
+    unitControlButtons->addWidget(showTechTree);
     unitControlButtons->addSpacing(800);
     unitControlButtons->addWidget(moveUnit);
 
@@ -427,6 +436,7 @@ void GameManager::updateTiles()
         renderer->UpdateScene(map, gameView->GetScene());
     }
 
+    this->update();
 }
 
 void GameManager::moveUnitTo()

@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QVector>
 #include <qlabel.h>
+#include <QPolygon>
 
 class Renderer
 {
@@ -24,6 +25,7 @@ public:
     void DrawGuiImages(QGraphicsScene *scene);
 
     void DrawCityBorders(Map *map, QVector<City *> cities, GameScene *scene);
+    void DrawCityBorders(QVector<City *> cities, GameScene *scene, Nation owner);
     void DrawDebugCityBorders(Map *map, GameScene *scene);
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);

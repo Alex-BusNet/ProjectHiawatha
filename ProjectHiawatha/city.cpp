@@ -12,6 +12,27 @@ City::~City()
 
 }
 
+void City::TileToGetNext()
+{
+    // Select the next tile to be claimed by a city based on:
+    //  -Is the tile already claimed by another civ?
+    //  -The total yield of the tile
+    //  -Resources on tile
+    //  -Tile type
+}
+
+// 0 = p, q, and r are colinear
+// 1 = Clockwise
+// 2 = Counterclockwise
+
+int City::orientation(QPoint p, QPoint q, QPoint r)
+{
+    int val = (q.y() - p.y()) * (r.x() - q.x()) - (q.x() - p.x()) * (r.y() - q.y());
+
+    if(val == 0) return 0;
+    return (val > 0) ? 1 : 2;
+}
+
 //Accessor and Mutators
 void City::SetCityAsCaptial()
 {
@@ -76,10 +97,60 @@ void City::AddControlledTile(Tile *tile)
 
 void City::DefineCityBorders()
 {
-    // Step 1) Find outer most tiles that a city controls.
-    // Step 2) Get the outer edge points from each tile
-    // Step 3) Load points in to polygon.
-    // Step 4) Render
+
+    //Get the center of each tile the city controls and
+    // load the point into the QVector
+    QVector<QPoint> points;
+    qDebug() << "     Getting centers";
+    foreach(Tile* tile, cityControlledTiles)
+    {
+        points.push_back(tile->GetCenter());
+    }
+
+    //Initialize the number of points in the points QVector
+    int numPts = points.size();
+    //Initialize the output QVector
+    QVector<QPoint> hull;
+
+    //Find the leftmost point in the points QVector
+    int l = 0;
+    qDebug() << "     Finding leftmost point";
+    for(int i = 1; i < numPts; i++)
+    {
+        if(points[i].x() < points[l].x())
+            l = i;
+    }
+
+    int p = l, q;
+
+    //This uses the Jarvis Gift-wrapping method for finding the convex hull
+    // that encompasses all points in the set
+    qDebug() << "     Finding convex hull";
+
+    do
+    {
+        hull.push_back(points[p]);
+
+        q = (p + 1) % numPts;
+
+        for(int i = 0; i < numPts; i++)
+        {
+            if(orientation(points[p], points[i], points[q]) == 2)
+                q = i;
+        }
+
+        p = q;
+    }
+    while(p != 1);
+
+    qDebug() << "     Loading borders";
+    //Load the resulting convex hull into the cityBorder QPolygon
+    for(int i = 0; i < hull.size(); i++)
+    {
+        this->cityBorder.push_back(hull[i]);
+    }
+
+    qDebug() << "     Done";
 }
 
 QString City::GetName()
@@ -110,4 +181,9 @@ Nation City::GetControllingCiv()
 QVector<Tile *> City::GetControlledTiles()
 {
     return this->cityControlledTiles;
+}
+
+QPolygon City::GetCityBorders()
+{
+    return this->cityBorder;
 }

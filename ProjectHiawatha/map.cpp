@@ -417,6 +417,7 @@ newrand:
 
             civs.at(i)->AddCity(city);
             city->GetControlledTiles().at(0)->HasCity = true;
+            city->DefineCityBorders();
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;

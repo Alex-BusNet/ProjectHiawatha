@@ -45,13 +45,13 @@ private:
 
     QPushButton *exitGame;
     QPushButton *endTurn;
-
+    QPushButton *moveUnit;
+    QPushButton *showTechTree;
     //=============
     //Dev Buttons
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
     QPushButton *showDummyCityScreen;
-    QPushButton *moveUnit;
     //=============
 
     CityScreen *cityScreen;
@@ -65,7 +65,7 @@ private:
     QString *YieldDisplay;
 
     int zoomScale;
-    int currentTurn;
+    int currentTurn, gameTurn;
 
     bool cityScreenVisible;
     bool relocateUnit;
