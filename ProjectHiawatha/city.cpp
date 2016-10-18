@@ -116,6 +116,7 @@ void City::DefineCityBorders()
 
     //Initialize the number of points in the points QVector
     int numPts = points.size();
+
     //Initialize the output QVector
     QVector<QPoint> hull;
 
@@ -136,7 +137,6 @@ void City::DefineCityBorders()
 
     do
     {
-        qDebug() << "p" << p << ", points[p]" << points[p];
         hull.push_back(points[p]);
 
         q = (p + 1) % numPts;
@@ -156,7 +156,6 @@ void City::DefineCityBorders()
     for(int i = 0; i < hull.size(); i++)
     {
         this->cityBorder.push_back(hull[i]);
-        qDebug() << "Border point:" << hull[i];
     }
 
     qDebug() << "     Done";
