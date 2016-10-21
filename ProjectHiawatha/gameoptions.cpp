@@ -7,6 +7,7 @@
 #include <QGridLayout>
 #include <QPixmap>
 #include <QDebug>
+#include <QMediaPlayer>
 
 typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QString SecondColor; int mapDimension1;
                int mapDimension2;}CivInfo;
@@ -152,6 +153,10 @@ void GameOptions::on_pushButton_clicked()
         default:player = India;
 
     }
+    QMediaPlayer *musicPlayer = new QMediaPlayer();
+    musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
+    musicPlayer->setVolume(50);
+    musicPlayer->play();
     game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2, player);
     this->close();
 

@@ -6,6 +6,7 @@
 #include <QListWidgetItem>
 #include "nation.h"
 
+
 namespace Ui {
 class GameOptions;
 }

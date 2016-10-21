@@ -7,7 +7,7 @@
 QT       += core gui
 CONFIG += c++11
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets multimedia
 
 TARGET = NotCiv
 TEMPLATE = app
