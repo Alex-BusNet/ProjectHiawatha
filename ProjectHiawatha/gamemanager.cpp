@@ -133,8 +133,41 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
+
     Civilization* civ = new Civilization(player, false);
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
+    QString str = "../ProjectHiawatha/Assets/CityLists/";
+    QString str2;
+    switch (player)
+    {
+    case America:
+        str2 = "america.txt";
+        break;
+    case Germany:
+        str2 = "germany.txt";
+        break;
+    case India:
+        str2 = "india.txt";
+        break;
+    case China:
+        str2 = "china.txt";
+        break;
+    case Mongolia:
+        str2 = "mongolia.txt";
+        break;
+    case Aztec:
+        str2 = "aztec.txt";
+        break;
+    case France:
+        str2 = "france.txt";
+        break;
+    default:
+        str2 = "india.txt";
+        break;
+    }
+    str = str + str2;
+    qDebug()<<str;
+    civ->loadCities(str);
     civList.push_back(civ);
 
     srand(time(0));
@@ -159,42 +192,50 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(America);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(Germany);
                 break;
             case India:
                 civ = new Civilization(India, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             case China:
                 civ = new Civilization(China, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
                // ai = new AI_Strategic();
                 selNat.push_back(China);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(Mongolia);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(Aztec);
                 break;
             case France:
                 civ = new Civilization(France, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
                // ai = new AI_Strategic();
                 selNat.push_back(France);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
                // ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
