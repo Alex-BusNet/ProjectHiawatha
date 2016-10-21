@@ -41,6 +41,7 @@ public:
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
     QVector<City*> GetInitialCityList();
+    int getCityIndex();
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
     bool isCivAI();
@@ -65,6 +66,8 @@ private:
         //Will contain all of the civ's Cities
 
     QVector<City*> initialCityList;
+
+    int cityIndex;
 
     Yield* totalCivYield;
         //Will contain the totals for the civ's yields (uses city->cityyield)

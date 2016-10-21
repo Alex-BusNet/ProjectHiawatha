@@ -29,7 +29,7 @@ Civilization::Civilization(Nation name, bool isAI)
     //call updatecityyield and updatecivyield to initialize
     this->totalCivYield = new Yield(0, 0, 0, 0, 0);
     this->happiness=0;
-
+    this->cityIndex = 0;
     if(isAI)
     {
         this->isAIPlayer = true;
@@ -92,6 +92,11 @@ QVector<Unit *> Civilization::GetUnitList()
 QVector<City *> Civilization::GetInitialCityList()
 {
     return this->initialCityList;
+}
+
+int Civilization::getCityIndex()
+{
+    return this->cityIndex;
 }
 
 bool Civilization::isCivAI()

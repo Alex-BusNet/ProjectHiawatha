@@ -152,6 +152,21 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     attacker->SetHealth(attacker->GetHealth() - damageReceived);
 }
 
+void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
+{
+    if(unit->isSettler() && (CurrentTile->GetTileTypeString()== ("Water" | "Mountain" | "Ice")) )
+    {
+       QVector <City*> tempCityList = currentCiv->GetCityList();
+       int index = currentCiv->getCityIndex();
+       City* newCity = new City();
+       newCity->SetName(tempCityList.at(index));
+       currentCiv->AddCity(newCity);
+    }else{
+        //QMESSAGEBOX SAYING CANT FOUND CITY HERE
+        //OR MAYBE PLAY A SOUND
+    }
+}
+
 Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitList)
 {
     int tIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);

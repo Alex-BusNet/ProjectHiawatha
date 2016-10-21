@@ -5,6 +5,7 @@
 #include <QList>
 #include "tile.h"
 #include "unit.h"
+#include "civilization.h"
 
 
 class UnitController
@@ -15,7 +16,7 @@ public:
     void FindPath(Tile *startTile, Tile* endTile, Map *map, GameScene *scene, Unit *unit);
     void MoveUnit(Unit *unit, Map *map, GameScene *scene);
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
-
+    void FoundCity(Unit* unit, Tile* CurrentTile, Civilization* currentCiv);
     Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
 
 private:
