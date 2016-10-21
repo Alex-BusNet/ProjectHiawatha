@@ -22,7 +22,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameLayout = new QHBoxLayout();
     unitControlButtons = new QVBoxLayout();
     playerControlButtons = new QVBoxLayout();
-    cityScreen = new CityScreen();
+    cityScreen = new CityScreen(this);
     cityScreenVisible = false;
     relocateUnit = false;
     turnEnded = false;
@@ -385,6 +385,7 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(moveUnit);
 
     gameLayout->addLayout(unitControlButtons);
+    gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
 
     playerControlButtons->addWidget(exitGame);
@@ -434,7 +435,7 @@ void GameManager::showCity()
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
 
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
-
+        cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);
 //        gameView->setDragMode(QGraphicsView::NoDrag);
         cityScreen->show();
         cityScreenVisible = true;

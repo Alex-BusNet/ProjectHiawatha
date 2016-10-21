@@ -192,16 +192,11 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
     }
     while(current != start);
 
-//    path.push_back(start);
-
     int i = 0;
     int j = path.size() - 1;
 
     while(i < j)
     {
-//        path[i]->inPath = true;
-//        path[j]->inPath = true;
-
         Tile* temp = path[i];
         path[i] = path[j];
         path[j] = temp;
