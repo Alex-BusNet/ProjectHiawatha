@@ -71,6 +71,7 @@ public:
     QPoint GetTextCenter();
     QPointF GetTexturePoint();
     QPoint GetItemTexturePoint();
+    QPoint GetCityLabelPoint();
 
     QPolygon GetTilePolygon();
     QRect GetTileRect();
@@ -110,6 +111,7 @@ private:
     QPoint textCenter;
     QPointF texturePoint;
     QPoint itemTexturePoint;
+    QPoint cityLabelPoint;
 
     int hexPosX;
     int hexPosY;

@@ -11,6 +11,7 @@
 #include <QVector>
 #include <qlabel.h>
 #include <QPolygon>
+#include <QGraphicsProxyWidget>
 
 class Renderer
 {
@@ -28,6 +29,7 @@ public:
     void DrawCityBorders(QVector<City *> cities, GameScene *scene, Nation owner);
     void DrawDebugCityBorders(Map *map, GameScene *scene);
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
+    void AddCityLabel(QString name, Civilization *civ, GameView *view);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
 
     void DrawTestUnits(Map *map, GameView *view);
@@ -51,6 +53,7 @@ private:
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsLineItem*> unitGraphicsPath;
+    QVector<QGraphicsProxyWidget*> cityLabels;
 
     QPolygon borders;
     CivColors *cc;

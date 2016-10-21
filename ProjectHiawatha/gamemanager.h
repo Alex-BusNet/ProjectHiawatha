@@ -37,7 +37,6 @@ private:
     QVector<QGraphicsRectItem*> guiRects;
     QVector<QGraphicsTextItem*> stringData;
     QVector<QGraphicsProxyWidget*> proxy;
-    QGraphicsProxyWidget* cityScreenWidget;
 
     QVector<Civilization*> civList;
 

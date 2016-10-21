@@ -23,7 +23,7 @@
 // Use setZValue() to change each item's render layer.
 //=======================================
 
-QPen outlinePen(QColor(255, 255, 255, 125));
+QPen outlinePen(QColor(255, 255, 255, 0));
 QBrush brush(Qt::black);
 
 Renderer::Renderer(int mapSizeX)
@@ -316,6 +316,20 @@ void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
         cityPixmap.last()->setScale(2.0f);
         cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetItemTexturePoint());
     }
+}
+
+void Renderer::AddCityLabel(QString name, Civilization* civ, GameView *view)
+{
+    QLabel* label;
+    foreach(City* city, civ->GetCityList())
+    {
+        label  = new QLabel(name);
+        label->setAutoFillBackground(true);
+        cityLabels.push_back(view->addWidget(label));
+        cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
+    }
+
+
 }
 
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
