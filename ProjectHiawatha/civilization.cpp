@@ -89,6 +89,11 @@ QVector<Unit *> Civilization::GetUnitList()
     return this->UnitList;
 }
 
+QVector<City *> Civilization::GetInitialCityList()
+{
+    return this->initialCityList;
+}
+
 bool Civilization::isCivAI()
 {
     return this->isAIPlayer;

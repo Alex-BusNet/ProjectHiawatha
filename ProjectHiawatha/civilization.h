@@ -40,7 +40,7 @@ public:
 
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
-
+    QVector<City*> GetInitialCityList();
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
     bool isCivAI();
