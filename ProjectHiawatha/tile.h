@@ -59,6 +59,9 @@ public:
     void SetTileID(int x, int column, Tile *tile);
     void SetTileID(TileID id);
 
+    void SetMoveCost(int cost);
+    int GetMoveCost();
+
     QString GetTileIDString();
     QString GetTileTypeString();
 
@@ -99,6 +102,7 @@ private:
     //Resource resource;
     QPen outlinePen;
     City *city;
+    int moveCost;
 
     //==Hex tiles==
     QPoint points[7];

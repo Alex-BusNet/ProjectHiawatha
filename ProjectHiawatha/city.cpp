@@ -108,10 +108,15 @@ void City::DefineCityBorders()
     // load the point into the QVector
     QVector<QPoint> points;
     qDebug() << "     Getting centers";
+    int ptCount = 0;
     foreach(Tile* tile, cityControlledTiles)
     {
         for(int i = 0; i < 6; i++)
+        {
             points.push_back(tile->GetHexPoint(i));
+            qDebug() << ptCount << ":" << points.last();
+            ptCount++;
+        }
     }
 
     //Initialize the number of points in the points QVector
@@ -125,6 +130,7 @@ void City::DefineCityBorders()
     qDebug() << "     Finding leftmost point";
     for(int i = 1; i < numPts; i++)
     {
+        qDebug() << "l:" << l << "i:" << i;
         if(points[i].x() < points[l].x())
             l = i;
     }
@@ -143,6 +149,9 @@ void City::DefineCityBorders()
 
         for(int i = 0; i < numPts; i++)
         {
+            qDebug() << "p:" << p << "i:" << i << "q:" << q;
+            qDebug() << "points[p]:" << points[p] << "points[i]:" << points[i] << "points[q]:" << points[q]
+                         << "Orientation:" << orientation(points[p], points[i], points[q]);
             if(orientation(points[p], points[i], points[q]) == 2)
                 q = i;
         }
@@ -155,8 +164,77 @@ void City::DefineCityBorders()
     //Load the resulting convex hull into the cityBorder QPolygon
     for(int i = 0; i < hull.size(); i++)
     {
+        if(i > 1)
+        {
+            int lastX = hull[i - 1].x();
+            int lastY = hull[i - 1].y();
+            int currentX = hull[i].x();
+            int currentY = hull[i].y();
+            int newX, newY;
+
+
+            if(currentX == lastX && currentY != lastY) // points are vertically aligned
+            {
+
+            }
+            else if(currentY == lastY) // points are horizontally aligned
+            {
+                if(lastX != currentX) //points are not the same; saftey check, this should always be true
+                {
+                    newX = (currentX + lastX) / 2;
+
+                    if (lastX < currentX)
+                    {
+                        newY = currentY + 24;
+                    }
+                    else if(lastX > currentX)
+                    {
+                        newY = currentY - 24;
+                    }
+
+                    cityBorder.push_back(QPoint(newX, newY));
+                }
+            }
+            else if(currentX > lastX) //point is on the top half of the border
+            {
+                if(currentY < lastY)
+                {
+                    newX = currentX;
+                    newY = lastY - 24;
+                }
+                else if(currentY > lastY)
+                {
+                    newX = lastX;
+                    newY = currentY - 24;
+                }
+
+                cityBorder.push_back(QPoint(newX, newY));
+            }
+            else if(currentX < lastX) // point is on the bottom half of the border
+            {
+                if(lastY < currentY)
+                {
+                    newX = currentX;
+                    newY = lastY + 24;
+                }
+                else if(lastY > currentY)
+                {
+                    newX = lastX;
+                    newY = currentY - 24;
+                }
+
+                cityBorder.push_back(QPoint(newX, newY));
+            }
+        }
+
         this->cityBorder.push_back(hull[i]);
     }
+
+
+//    foreach(QPoint point, cityBorder)
+//    {
+//        qDebug() << point;
+//    }
 
     qDebug() << "     Done";
 }

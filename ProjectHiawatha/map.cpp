@@ -239,6 +239,7 @@ void Map::GenerateMap()
                 board.at(i)->SetTileType(GRASS);
                 board.at(i)->SetTileTexture(GRASS);
                 board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
+                board.at(i)->SetMoveCost(1);
             }
         }
         else if (dbl == 2)
@@ -247,6 +248,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(DESERT);
                 board.at(i)->SetTileTexture(DESERT);
+                board.at(i)->SetMoveCost(1);
             }
         }
         else if(dbl == 3)
@@ -265,6 +267,7 @@ void Map::GenerateMap()
                 board.at(i)->SetTileType(HILL);
                 board.at(i)->SetTileTexture(HILL);
                 board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
+                board.at(i)->SetMoveCost(2);
             }
         }
         else if(dbl == 5)
@@ -274,6 +277,7 @@ void Map::GenerateMap()
                 board.at(i)->SetTileType(FOREST);
                 board.at(i)->SetTileTexture(FOREST);
                 board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
+                board.at(i)->SetMoveCost(2);
             }
         }
     }
@@ -408,14 +412,18 @@ newrand:
             city->SetCityTile(board.at(index));
             city->SetControllingCiv(civs.at(i)->getCiv());
             city->GetCityTile()->SetYield(5,5,5,5,5);
-//            city->AddControlledTile(city->GetCityTile());
 
             foreach(Tile* tile, initialTiles)
             {
                 tile->SetControllingCiv(civs.at(i)->getCiv());
                 city->AddControlledTile(tile);
             }
-
+//            city->AddControlledTile(board.at(index - 2));
+//            city->AddControlledTile(board.at(index - 3));
+//            city->AddControlledTile(board.at(index - 18));
+//            city->AddControlledTile(board.at(index - 23));
+//            city->AddControlledTile(board.at(index - 42));
+//            city->AddControlledTile(board.at(index + 2));
             city->UpdateCityYield();
 
             civs.at(i)->AddCity(city);

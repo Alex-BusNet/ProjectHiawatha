@@ -460,17 +460,17 @@ void GameManager::updateTiles()
     {
         Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
 
-            qDebug() <<"    Finding path";
-            uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
+        qDebug() <<"    Finding path";
+        uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
 
-            relocateUnit = false;
-            gameView->GetScene()->unitMoveOrdered = false;
-            map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
-            gameView->GetScene()->redrawTile = true;
-            moveUnit->setEnabled(false);
-            renderer->DrawUnitPath(gameView->GetScene(), unitToMove);
+        relocateUnit = false;
+        gameView->GetScene()->unitMoveOrdered = false;
+        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+        gameView->GetScene()->redrawTile = true;
+        moveUnit->setEnabled(false);
+        renderer->DrawUnitPath(gameView->GetScene(), unitToMove);
 
-            qDebug() << "   Done";
+        qDebug() << "   Done";
     }
 
     TurnController();

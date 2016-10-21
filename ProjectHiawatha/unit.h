@@ -11,7 +11,7 @@ class Unit
 {
 public:
     Unit();
-    Unit(Nation owner = India, bool isNonCombat = false, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int health = 5);
+    Unit(Nation owner = India, bool isNonCombat = false, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int health = 100);
     ~Unit();
 
     void SetUnitIcon(QPixmap *icon);
@@ -49,6 +49,8 @@ public:
     bool RequiresOrders;
     bool Updated;
     bool HasNoMovementLeft;
+    bool isFortified;
+    bool isMelee;
 
 
 private:

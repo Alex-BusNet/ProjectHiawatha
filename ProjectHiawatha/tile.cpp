@@ -185,6 +185,16 @@ void Tile::SetTileID(TileID id)
     this->tileID = id;
 }
 
+void Tile::SetMoveCost(int cost)
+{
+    this->moveCost = cost;
+}
+
+int Tile::GetMoveCost()
+{
+    return this->moveCost;
+}
+
 QString Tile::GetTileIDString()
 {
     return QString("%1, %2").arg(this->GetTileID().column).arg(this->GetTileID().row);

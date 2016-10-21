@@ -8,10 +8,12 @@ Unit::Unit()
     this->movementPoints = 2;
     this->strength = 1;
     this->range = 3;
-    this->health = 5;
+    this->health = 100;
+    this->maxHealth = 100;
     this->RequiresOrders = true;
     this->Updated = false;
-
+    this->isFortified = false;
+    this->isMelee = false;
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
@@ -28,7 +30,8 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
     this->RequiresOrders = true;
     this->Updated = false;
     this->HasNoMovementLeft = false;
-
+    this->isFortified = false;
+    this->isMelee = true;
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 

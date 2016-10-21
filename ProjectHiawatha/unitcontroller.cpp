@@ -55,7 +55,6 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
             {
                 neighbor->gCost = newMoveCostToNeighbor;
                 neighbor->hCost = GetDistance(neighbor, endTile);
-                //This needs to be set.
                 neighbor->parent = currentHex->GetTileID();
 
                 if(!(map->listContains(openSet, neighbor)))
@@ -115,11 +114,42 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         qDebug() << "   Redrawing Tile";
         // Alert the renderer to redraw the map.
         scene->redrawTile = true;
+
     }
     else
     {
 
     }
+}
+
+void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
+{
+    if(attackFromWater)
+        waterPenalty = 0.8;
+    else
+        waterPenalty = 1; // No penalty
+
+    if(target->isFortified)
+        fortifyBonus = 0.4;
+    else
+        fortifyBonus = 0;
+
+    if(target->isMelee)
+        melee = 1;
+    else
+        melee = 0;
+
+    srand(0);
+
+    AtkBonus = (static_cast<double>(rand())/ RAND_MAX) * 4;
+    AtkBonus += 1;
+    AtkBonus *= 10;
+
+    int damageDealt = (attacker->GetStrength() * attacker->GetHealth() * AtkBonus) - (target->GetStrength() * target->GetHealth() + (target->GetStrength() * fortifyBonus));
+    int damageReceived = damageDealt * (fortifyBonus / AtkBonus) * melee;
+
+    target->SetHealth(target->GetHealth() - damageDealt);
+    attacker->SetHealth(attacker->GetHealth() - damageReceived);
 }
 
 Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitList)
