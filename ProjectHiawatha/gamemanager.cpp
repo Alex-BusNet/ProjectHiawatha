@@ -188,42 +188,50 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(America);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(Germany);
                 break;
             case India:
                 civ = new Civilization(India, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             case China:
                 civ = new Civilization(China, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
                // ai = new AI_Strategic();
                 selNat.push_back(China);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(Mongolia);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
                 //ai = new AI_Strategic();
                 selNat.push_back(Aztec);
                 break;
             case France:
                 civ = new Civilization(France, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
                // ai = new AI_Strategic();
                 selNat.push_back(France);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
                // ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
