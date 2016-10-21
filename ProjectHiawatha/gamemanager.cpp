@@ -129,8 +129,41 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
+
     Civilization* civ = new Civilization(player, false);
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
+    QString str = "../ProjectHiawatha/Assets/CityLists/";
+    QString str2;
+    switch (player)
+    {
+    case America:
+        str2 = "america.txt";
+        break;
+    case Germany:
+        str2 = "germany.txt";
+        break;
+    case India:
+        str2 = "india.txt";
+        break;
+    case China:
+        str2 = "china.txt";
+        break;
+    case Mongolia:
+        str2 = "mongolia.txt";
+        break;
+    case Aztec:
+        str2 = "aztec.txt";
+        break;
+    case France:
+        str2 = "france.txt";
+        break;
+    default:
+        str2 = "india.txt";
+        break;
+    }
+    str = str + str2;
+    qDebug()<<str;
+    civ->loadCities(str);
     civList.push_back(civ);
 
     srand(time(0));

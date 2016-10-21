@@ -53,11 +53,11 @@ Civilization *Civilization::GetCivObject()
 
 void Civilization::UpdateCivYield()
 {
-    qDebug() << "   Civ controls" << CityList.size() << "cities";
+    qDebug() << "   Civ controls" << currentCityList.size() << "cities";
 
     int newGold = 0, newProd = 0, newSci = 0, newFood = 0, newCul = 0;
 
-    foreach(City *city, CityList)
+    foreach(City *city, currentCityList)
     {
         newGold += city->getCityYield()->GetGoldYield();
         newProd += city->getCityYield()->GetProductionYield();
@@ -81,7 +81,7 @@ int Civilization::getHappiness()
 
 QVector<City *> Civilization::GetCityList()
 {
-    return this->CityList;
+    return this->currentCityList;
 }
 
 QVector<Unit *> Civilization::GetUnitList()
@@ -145,9 +145,40 @@ void Civilization::setNextTech(Technology *tech)
     nextTech = tech;
 }
 
+void Civilization::loadCities(QString filename)
+{
+    QFile inputFile(filename);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          QStringList cityInfo = line.split(",");
+          qDebug()<<"City Name: "<<cityInfo[0];
+
+          City* city = new City();
+          city->SetName(cityInfo[0]);
+          initialCityList.push_back(city);
+          qDebug()<<initialCityList.at(0)->GetName();
+
+       }
+       inputFile.close();
+       qDebug()<<initialCityList.at(1)->GetName();
+       qDebug()<<initialCityList.at(10)->GetName();
+    }else
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("File Not Found");
+        mBox->exec();
+        qDebug()<<"File Not Found";
+
+    }
+}
+
 void Civilization::AddCity(City *city)
 {
-    this->CityList.push_back(city);
+    this->currentCityList.push_back(city);
 }
 
 void Civilization::AddUnit(Unit *unit)
@@ -170,7 +201,7 @@ void Civilization::SetCityList(QVector<City *> list)
     int i = 0;
     foreach (City* city, list)
     {
-        this->CityList.replace(i, city);
+        this->currentCityList.replace(i, city);
         i++;
     }
 }
@@ -188,14 +219,14 @@ void Civilization::SetHappiness(int happiness)
 
 City* Civilization::GetCityAt(int index)
 {
-    if(index < this->CityList.size())
+    if(index < this->currentCityList.size())
     {
-        return this->CityList.at(index);
+        return this->currentCityList.at(index);
     }
     else
     {
         //If the index is too large, return the capital
-        return this->CityList.at(0);
+        return this->currentCityList.at(0);
     }
 }
 

@@ -51,6 +51,7 @@ public:
     Technology *getNextTech();
     void setCurrentTech(Technology* tech);
     void setNextTech(Technology* tech);
+    void loadCities(QString filename);
 
 private:
     Nation name;
@@ -60,9 +61,10 @@ private:
     QVector<Unit*> UnitList; //Needs a Units object type
         //Will contain all of the civ's units
 
-    QVector<City*> CityList; //Needs a City object type
+    QVector<City*> currentCityList; //Needs a City object type
         //Will contain all of the civ's Cities
 
+    QVector<City*> initialCityList;
 
     Yield* totalCivYield;
         //Will contain the totals for the civ's yields (uses city->cityyield)
