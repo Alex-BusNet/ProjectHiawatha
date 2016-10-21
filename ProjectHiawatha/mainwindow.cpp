@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     game = NULL;
     options = NULL;
     fullscreen = false;
-    QPixmap *bkgnd = new QPixmap("../ProjectHiawatha/Assets/Menu/Background/stolenInternet.jpg");
+    QPixmap *bkgnd = new QPixmap("../ProjectHiawatha/Assets/Menu/Background/dom_hiawatha.png");
     QPixmap *buttonBorder = new QPixmap("../ProjectHiawatha/Assets/Menu/mainMenuBackground.png");
     ui->mainBackground->setPixmap(*bkgnd);
     ui->menuButtonBorder->setPixmap(*buttonBorder);
