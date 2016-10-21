@@ -19,6 +19,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->setupUi(this);
     FullScreen = fullscreen;
     game = NULL;
+
     QListWidgetItem* item1 =new QListWidgetItem(tr("China"), ui->listWidget);
     QListWidgetItem* item2 =new QListWidgetItem(tr("Germany"), ui->listWidget);
     QListWidgetItem* item3 =new QListWidgetItem(tr("India"), ui->listWidget);
@@ -26,6 +27,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QListWidgetItem* item5 =new QListWidgetItem(tr("Mongolia"), ui->listWidget);
     QListWidgetItem* item6 =new QListWidgetItem(tr("Aztec Empire"), ui->listWidget);
     QListWidgetItem* item7 =new QListWidgetItem(tr("France"), ui->listWidget);
+
     QIcon* icon1 = new QIcon();
     QIcon* icon2 = new QIcon();
     QIcon* icon3 = new QIcon();
@@ -33,6 +35,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QIcon* icon5 = new QIcon();
     QIcon* icon6 = new QIcon();
     QIcon* icon7 = new QIcon();
+
     icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/CHINA.png");
     icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY2.png");
     icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/INDIA.png");
@@ -40,6 +43,15 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     icon5->addFile("../ProjectHiawatha/Assets/Leaders/Icons/MONGOLIA.jpg");
     icon6->addFile("../ProjectHiawatha/Assets/Leaders/Icons/AZTEC.png");
     icon7->addFile("../ProjectHiawatha/Assets/Leaders/Icons/FRANCE.png");
+
+//    icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_QIN.png");
+//    icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_BARBAROSSA.png");
+//    icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_GANDHI.png");
+//    icon4->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_T_ROOSEVELT.png");
+//    icon5->addFile("../ProjectHiawatha/Assets/Leaders/Icons/MONGOLIA.jpg");
+//    icon6->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_MONTEZUMA.png");
+//    icon7->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_CATHERLINE_DE_MEDICI.png");
+
     item1->setIcon(*icon1);
     item2->setIcon(*icon2);
     item3->setIcon(*icon3);
@@ -47,6 +59,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     item5->setIcon(*icon5);
     item6->setIcon(*icon6);
     item7->setIcon(*icon7);
+
     ui->listWidget->addItem(item1);
     ui->listWidget->addItem(item2);
     ui->listWidget->addItem(item3);
@@ -54,12 +67,14 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->listWidget->addItem(item5);
     ui->listWidget->addItem(item6);
     ui->listWidget->addItem(item7);
+
     ui->comboBox->addItem("Duel: 40x24 - 2 Players",0);
     ui->comboBox->addItem("Tiny: 56x36 - 4 Players",0);
     ui->comboBox->addItem("Small: 66x42 - 6 Players",0);
     ui->comboBox->addItem("Standard: 80x52 - 8 Players",0);
     ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
     ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
+
     ui->label->setScaledContents(true);
     ui->pushButton->setFlat(true);
     //ui->label_2->setText("China");

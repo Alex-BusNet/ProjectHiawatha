@@ -154,12 +154,12 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
 {
-    if(unit->isSettler() && (CurrentTile->GetTileTypeString()== ("Water" | "Mountain" | "Ice")) )
+    if(unit->isSettler() && (CurrentTile->GetTileType() == (WATER | MOUNTAIN | ICE)) )
     {
-       QVector <City*> tempCityList = currentCiv->GetCityList();
+       QVector <City*> tempCityList = currentCiv->GetInitialCityList();
        int index = currentCiv->getCityIndex();
        City* newCity = new City();
-       newCity->SetName(tempCityList.at(index));
+       newCity->SetName(tempCityList.at(index)->GetName());
        currentCiv->AddCity(newCity);
     }else{
         //QMESSAGEBOX SAYING CANT FOUND CITY HERE
