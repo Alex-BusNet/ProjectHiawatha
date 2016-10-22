@@ -89,14 +89,26 @@ QVector<Unit *> Civilization::GetUnitList()
     return this->UnitList;
 }
 
-QVector<City *> Civilization::GetInitialCityList()
+QVector<QString> Civilization::GetInitialCityList()
 {
     return this->initialCityList;
 }
 
+<<<<<<< HEAD
 QVector<Technology *> Civilization::GetTechList()
 {
     return this->techList;
+=======
+QString Civilization::GetNextCityName()
+{
+    //We need to increment the cityIndex before getting the value since
+    // the funtion won't run after the return line. Therefore, the value
+    // in passed to at( ) needs to be cityIndex - 1 to get the string we
+    // actually need.
+
+    cityIndex++;
+    return this->initialCityList.at(cityIndex - 1);
+>>>>>>> origin/master
 }
 
 int Civilization::getCityIndex()
@@ -182,15 +194,13 @@ void Civilization::loadCities(QString filename)
           QStringList cityInfo = line.split(",");
           qDebug()<<"City Name: "<<cityInfo[0];
 
-          City* city = new City();
-          city->SetName(cityInfo[0]);
-          initialCityList.push_back(city);
-          qDebug()<<initialCityList.at(0)->GetName();
+          initialCityList.push_back(cityInfo[0]);
+          qDebug()<<initialCityList.at(0);
 
        }
        inputFile.close();
-       qDebug()<<initialCityList.at(1)->GetName();
-       qDebug()<<initialCityList.at(10)->GetName();
+       qDebug()<<initialCityList.at(1);
+       qDebug()<<initialCityList.at(10);
     }else
     {
         QMessageBox* mBox = new QMessageBox();

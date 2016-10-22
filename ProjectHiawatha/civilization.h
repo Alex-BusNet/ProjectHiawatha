@@ -40,8 +40,13 @@ public:
 
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
+<<<<<<< HEAD
     QVector<City*> GetInitialCityList();
     QVector<Technology*> GetTechList();
+=======
+    QVector<QString> GetInitialCityList();
+    QString GetNextCityName();
+>>>>>>> origin/master
     int getCityIndex();
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
@@ -68,7 +73,7 @@ private:
     QVector<City*> currentCityList; //Needs a City object type
         //Will contain all of the civ's Cities
 
-    QVector<City*> initialCityList;
+    QVector<QString> initialCityList;
 
     int cityIndex;
 

@@ -149,9 +149,9 @@ void City::DefineCityBorders()
 
         for(int i = 0; i < numPts; i++)
         {
-            qDebug() << "p:" << p << "i:" << i << "q:" << q;
-            qDebug() << "points[p]:" << points[p] << "points[i]:" << points[i] << "points[q]:" << points[q]
-                         << "Orientation:" << orientation(points[p], points[i], points[q]);
+//            qDebug() << "p:" << p << "i:" << i << "q:" << q;
+//            qDebug() << "points[p]:" << points[p] << "points[i]:" << points[i] << "points[q]:" << points[q]
+//                         << "Orientation:" << orientation(points[p], points[i], points[q]);
             if(orientation(points[p], points[i], points[q]) == 2)
                 q = i;
         }
@@ -160,7 +160,11 @@ void City::DefineCityBorders()
     }
     while(p != l);
 
+    hull.push_back(points[l]);
+
     qDebug() << "     Loading borders";
+    qDebug() << "       DISTANCE TESTING";
+
     //Load the resulting convex hull into the cityBorder QPolygon
     for(int i = 0; i < hull.size(); i++)
     {
@@ -172,6 +176,16 @@ void City::DefineCityBorders()
             int currentY = hull[i].y();
             int newX, newY;
 
+
+            // Add a function or code block that checks the distance between two points
+            // and if the distance is larger than normal (need to find out what this is)
+            // then search points[] for any QPoint that is between the x pos and y pos
+            // coordinates.
+
+            int dstX = currentX - lastX;
+            int dstY = currentY - lastY;
+
+            qDebug() << "           dstX:" << dstX << "  dstY:" << dstY;
 
             if(currentX == lastX && currentY != lastY) // points are vertically aligned
             {
@@ -220,7 +234,7 @@ void City::DefineCityBorders()
                 else if(lastY > currentY)
                 {
                     newX = lastX;
-                    newY = currentY - 24;
+                    newY = currentY + 24;
                 }
 
                 cityBorder.push_back(QPoint(newX, newY));
@@ -229,12 +243,6 @@ void City::DefineCityBorders()
 
         this->cityBorder.push_back(hull[i]);
     }
-
-
-//    foreach(QPoint point, cityBorder)
-//    {
-//        qDebug() << point;
-//    }
 
     qDebug() << "     Done";
 }
