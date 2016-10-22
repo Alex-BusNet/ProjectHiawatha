@@ -94,6 +94,11 @@ QVector<City *> Civilization::GetInitialCityList()
     return this->initialCityList;
 }
 
+QVector<Technology *> Civilization::GetTechList()
+{
+    return this->techList;
+}
+
 int Civilization::getCityIndex()
 {
     return this->cityIndex;
@@ -133,6 +138,16 @@ void Civilization::loadTechs(QString filename)
         qDebug()<<"File Not Found";
 
     }
+}
+
+int Civilization::getTechIndex()
+{
+    return this->techIndex;
+}
+
+void Civilization::setTechIndex(int index)
+{
+    this->techIndex = index;
 }
 
 Technology *Civilization::getCurrentTech()

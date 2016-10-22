@@ -23,7 +23,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     unitControlButtons = new QVBoxLayout();
     playerControlButtons = new QVBoxLayout();
     cityScreen = new CityScreen(this);
+    techTree = new TechTree(this);
     cityScreenVisible = false;
+    techTreeVisible = false;
     relocateUnit = false;
     turnEnded = false;
     playerCiv = player;
@@ -136,6 +138,9 @@ void GameManager::InitCivs(Nation player, int numAI)
 
     Civilization* civ = new Civilization(player, false);
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
+    civ->setCurrentTech(civ->GetTechList().at(0));
+    civ->setNextTech(civ->GetTechList().at(1));
+    civ->setTechIndex(0);
     QString str = "../ProjectHiawatha/Assets/CityLists/";
     QString str2;
     switch (player)
@@ -408,8 +413,9 @@ void GameManager::InitButtons()
     showDummyCityScreen = new QPushButton("Show Dummy City");
     connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
-    showTechTree = new QPushButton("Technology Tree");
-    //// ADD connect(sender, SIGNAL, receiver, SLOT) here
+    showTechTreeButton = new QPushButton("Technology Tree");
+    connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
+
 
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
@@ -425,7 +431,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(0);
     vLayout->addSpacing(20);
 
-    unitControlButtons->addWidget(showTechTree);
+    unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(800);
     unitControlButtons->addWidget(moveUnit);
 
@@ -538,6 +544,28 @@ void GameManager::nextTurn()
 {
     // Ends the players turn
     turnEnded = true;
+}
+
+void GameManager::showTechTree()
+{
+    if(!techTreeVisible)
+    {
+        if(techTree != NULL)
+        {
+            delete techTree;
+        }
+        techTree = new TechTree(this);
+        techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech());
+        techTree->setGeometry(100, 25, this->width() - 190, this->height() - 150);
+        techTree->show();
+        techTreeVisible = true;
+    }
+    else
+    {
+        techTree->hide();
+        gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+        techTreeVisible = false;
+    }
 }
 
 

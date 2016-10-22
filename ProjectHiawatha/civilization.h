@@ -41,6 +41,7 @@ public:
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
     QVector<City*> GetInitialCityList();
+    QVector<Technology*> GetTechList();
     int getCityIndex();
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
@@ -48,6 +49,8 @@ public:
 
 //    void startTurn(int aiIndex);
     void loadTechs(QString filename);
+    int getTechIndex();
+    void setTechIndex(int index);
     Technology* getCurrentTech();
     Technology *getNextTech();
     void setCurrentTech(Technology* tech);
@@ -79,6 +82,7 @@ private:
     Technology* nextTech;
 
     int happiness;
+    int techIndex;
 
     //AI stuff
     bool isAIPlayer;

@@ -10,6 +10,7 @@
 #include "renderer.h"
 #include "unitcontroller.h"
 #include "ai_controller.h"
+#include "techtree.h"
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsSceneWheelEvent>
@@ -46,7 +47,7 @@ private:
     QPushButton *exitGame;
     QPushButton *endTurn;
     QPushButton *moveUnit;
-    QPushButton *showTechTree;
+    QPushButton *showTechTreeButton;
     //=============
     //Dev Buttons
     QPushButton *renderPlusOne;
@@ -55,6 +56,7 @@ private:
     //=============
 
     CityScreen *cityScreen;
+    TechTree *techTree;
 
     QHBoxLayout *hLayout;
     QHBoxLayout *gameLayout;
@@ -70,6 +72,7 @@ private:
     float year, yearPerTurn;
 
     bool cityScreenVisible;
+    bool techTreeVisible;
     bool relocateUnit;
     bool updateUnitPos;
     bool turnEnded;
@@ -98,6 +101,7 @@ public slots:
     void updateTiles();
     void moveUnitTo();
     void nextTurn();
+    void showTechTree();
 };
 
 #endif // GAMEWINDOW_H
