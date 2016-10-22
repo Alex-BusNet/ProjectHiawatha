@@ -323,13 +323,11 @@ void Renderer::AddCityLabel(QString name, Civilization* civ, GameView *view)
     QLabel* label;
     foreach(City* city, civ->GetCityList())
     {
-        label  = new QLabel(name);
+        label  = new QLabel(QString(" %1 ").arg(name));
         label->setAutoFillBackground(true);
         cityLabels.push_back(view->addWidget(label));
         cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
     }
-
-
 }
 
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)

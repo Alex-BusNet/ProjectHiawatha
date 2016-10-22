@@ -156,10 +156,10 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
 {
     if(unit->isSettler() && (CurrentTile->GetTileType() == (WATER | MOUNTAIN | ICE)) )
     {
-       QVector <City*> tempCityList = currentCiv->GetInitialCityList();
+       QVector <QString> tempCityList = currentCiv->GetInitialCityList();
        int index = currentCiv->getCityIndex();
        City* newCity = new City();
-       newCity->SetName(tempCityList.at(index)->GetName());
+       newCity->SetName(tempCityList.at(index));
        currentCiv->AddCity(newCity);
     }else{
         //QMESSAGEBOX SAYING CANT FOUND CITY HERE

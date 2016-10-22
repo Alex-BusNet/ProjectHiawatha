@@ -83,8 +83,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
 
-        //// Unfortunately, the QString will need to change once the city list is made available.
-        renderer->AddCityLabel(QString(" SPARTA "), civList.at(i), gameView);
+        renderer->AddCityLabel(civList.at(i)->GetNextCityName(), civList.at(i), gameView);
 
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
