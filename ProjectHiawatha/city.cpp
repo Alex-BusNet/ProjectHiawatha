@@ -149,9 +149,9 @@ void City::DefineCityBorders()
 
         for(int i = 0; i < numPts; i++)
         {
-            qDebug() << "p:" << p << "i:" << i << "q:" << q;
-            qDebug() << "points[p]:" << points[p] << "points[i]:" << points[i] << "points[q]:" << points[q]
-                         << "Orientation:" << orientation(points[p], points[i], points[q]);
+//            qDebug() << "p:" << p << "i:" << i << "q:" << q;
+//            qDebug() << "points[p]:" << points[p] << "points[i]:" << points[i] << "points[q]:" << points[q]
+//                         << "Orientation:" << orientation(points[p], points[i], points[q]);
             if(orientation(points[p], points[i], points[q]) == 2)
                 q = i;
         }
@@ -159,6 +159,8 @@ void City::DefineCityBorders()
         p = q;
     }
     while(p != l);
+
+    hull.push_back(points[l]);
 
     qDebug() << "     Loading borders";
     //Load the resulting convex hull into the cityBorder QPolygon
@@ -220,7 +222,8 @@ void City::DefineCityBorders()
                 else if(lastY > currentY)
                 {
                     newX = lastX;
-                    newY = currentY - 24;
+                    newY = currentY + 24;
+                    qDebug() << "   CurrentY:" << currentY << " newY:" << newY;
                 }
 
                 cityBorder.push_back(QPoint(newX, newY));
@@ -231,10 +234,9 @@ void City::DefineCityBorders()
     }
 
 
-//    foreach(QPoint point, cityBorder)
-//    {
-//        qDebug() << point;
-//    }
+    qDebug() << "Hull:" << hull.at(hull.size() - 2) << " -> " << hull.at(hull.size() - 1);
+
+    qDebug() << "CityBorder:" << cityBorder.at(cityBorder.size() - 3) << " -> " << cityBorder.at(cityBorder.size() - 2) << " -> " << cityBorder.at(cityBorder.size() - 1);
 
     qDebug() << "     Done";
 }
