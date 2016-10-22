@@ -19,7 +19,7 @@ CityScreen::CityScreen(QWidget *parent) :
         str =  "No Current Production";
     }
     ui->setupUi(this);
-    QPixmap pic("../ProjectHiawatha/Assets/Buildings/wall.jpg");
+    QPixmap pic("../ProjectHiawatha/Assets/Buildings/walls.png");
     ui->label->setPixmap(pic);
     ui->label_2->setText("Walls");
     ui->label_3->setText("+5000 Defense");
