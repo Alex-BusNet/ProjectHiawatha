@@ -40,13 +40,13 @@ public:
 
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
-<<<<<<< HEAD
-    QVector<City*> GetInitialCityList();
+
+
     QVector<Technology*> GetTechList();
-=======
+
     QVector<QString> GetInitialCityList();
     QString GetNextCityName();
->>>>>>> origin/master
+
     int getCityIndex();
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);

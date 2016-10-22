@@ -94,11 +94,11 @@ QVector<QString> Civilization::GetInitialCityList()
     return this->initialCityList;
 }
 
-<<<<<<< HEAD
+
 QVector<Technology *> Civilization::GetTechList()
 {
     return this->techList;
-=======
+}
 QString Civilization::GetNextCityName()
 {
     //We need to increment the cityIndex before getting the value since
@@ -108,7 +108,7 @@ QString Civilization::GetNextCityName()
 
     cityIndex++;
     return this->initialCityList.at(cityIndex - 1);
->>>>>>> origin/master
+
 }
 
 int Civilization::getCityIndex()

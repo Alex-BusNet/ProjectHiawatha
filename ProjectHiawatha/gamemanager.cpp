@@ -437,6 +437,7 @@ void GameManager::InitLayouts()
     gameLayout->addLayout(unitControlButtons);
     gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
+    gameLayout->addWidget(techTree);
 
     playerControlButtons->addWidget(exitGame);
     playerControlButtons->addSpacing(700);
