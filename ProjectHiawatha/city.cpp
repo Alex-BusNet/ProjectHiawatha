@@ -163,6 +163,8 @@ void City::DefineCityBorders()
     hull.push_back(points[l]);
 
     qDebug() << "     Loading borders";
+    qDebug() << "       DISTANCE TESTING";
+
     //Load the resulting convex hull into the cityBorder QPolygon
     for(int i = 0; i < hull.size(); i++)
     {
@@ -174,6 +176,16 @@ void City::DefineCityBorders()
             int currentY = hull[i].y();
             int newX, newY;
 
+
+            // Add a function or code block that checks the distance between two points
+            // and if the distance is larger than normal (need to find out what this is)
+            // then search points[] for any QPoint that is between the x pos and y pos
+            // coordinates.
+
+            int dstX = currentX - lastX;
+            int dstY = currentY - lastY;
+
+            qDebug() << "           dstX:" << dstX << "  dstY:" << dstY;
 
             if(currentX == lastX && currentY != lastY) // points are vertically aligned
             {
@@ -223,7 +235,6 @@ void City::DefineCityBorders()
                 {
                     newX = lastX;
                     newY = currentY + 24;
-                    qDebug() << "   CurrentY:" << currentY << " newY:" << newY;
                 }
 
                 cityBorder.push_back(QPoint(newX, newY));
@@ -232,11 +243,6 @@ void City::DefineCityBorders()
 
         this->cityBorder.push_back(hull[i]);
     }
-
-
-    qDebug() << "Hull:" << hull.at(hull.size() - 2) << " -> " << hull.at(hull.size() - 1);
-
-    qDebug() << "CityBorder:" << cityBorder.at(cityBorder.size() - 3) << " -> " << cityBorder.at(cityBorder.size() - 2) << " -> " << cityBorder.at(cityBorder.size() - 1);
 
     qDebug() << "     Done";
 }
