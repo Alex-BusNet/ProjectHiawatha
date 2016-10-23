@@ -224,14 +224,16 @@ QString Renderer::SetYieldDisplay(Map *map)
                                           .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::CULTURE));
 }
 
-QString Renderer::SetYieldDisplay(Yield *yield)
+QString Renderer::SetYieldDisplay(Civilization *player)
 {
-    return QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-                                         .arg(yield->GetYield(Yield::GOLD))
-                                         .arg(yield->GetYield(Yield::PRODUCTION))
-                                         .arg(yield->GetYield(Yield::FOOD))
-                                         .arg(yield->GetYield(Yield::RESEARCH))
-                                         .arg(yield->GetYield(Yield::CULTURE));
+    return QString("        %1(+%2)         %3          %4          %5(+%6)              %7")
+                                         .arg(player->GetTotalGold())
+                                         .arg(player->getCivYield()->GetYield(Yield::GOLD))
+                                         .arg(player->getCivYield()->GetYield(Yield::PRODUCTION))
+                                         .arg(player->getCivYield()->GetYield(Yield::FOOD))
+                                         .arg(player->GetTotalScience())
+                                         .arg(player->getCivYield()->GetYield(Yield::RESEARCH))
+                                         .arg(player->getCivYield()->GetYield(Yield::CULTURE));
 }
 
 void Renderer::SetOutlinePen(Nation owner)

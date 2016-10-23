@@ -63,6 +63,16 @@ private:
     QVBoxLayout *unitControlButtons;
     QVBoxLayout *playerControlButtons;
     QVBoxLayout *vLayout;
+    QHBoxLayout *Yieldinfo;
+
+    QLabel *goldLabel, *goldText;
+    QLabel *prodLabel, *prodText;
+    QLabel *sciLabel, *sciText;
+    QLabel *foodLabel, *foodText;
+    QLabel *culLabel, *culText;
+
+    QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
+
 
     QString *YieldDisplay;
 
@@ -89,6 +99,7 @@ private:
 
     void InitButtons();
     void InitLayouts();
+    void InitYieldDisplay();
 
 signals:
 

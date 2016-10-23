@@ -30,6 +30,8 @@ Civilization::Civilization(Nation name, bool isAI)
     this->totalCivYield = new Yield(0, 0, 0, 0, 0);
     this->happiness=0;
     this->cityIndex = 0;
+    this->totalGold = 0;
+    this->totalScience = 0;
     if(isAI)
     {
         this->isAIPlayer = true;
@@ -79,6 +81,16 @@ int Civilization::getHappiness()
     return this->happiness;
 }
 
+int Civilization::GetTotalGold()
+{
+    return this->totalGold;
+}
+
+int Civilization::GetTotalScience()
+{
+    return this->totalScience;
+}
+
 QVector<City *> Civilization::GetCityList()
 {
     return this->currentCityList;
@@ -87,6 +99,12 @@ QVector<City *> Civilization::GetCityList()
 QVector<Unit *> Civilization::GetUnitList()
 {
     return this->UnitList;
+}
+
+void Civilization::UpdateProgress()
+{
+    this->totalGold += this->getCivYield()->GetGoldYield();
+    this->totalScience += this->getCivYield()->GetScienceYield();
 }
 
 QVector<QString> Civilization::GetInitialCityList()

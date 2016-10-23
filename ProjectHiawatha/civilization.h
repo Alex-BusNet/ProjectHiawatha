@@ -37,10 +37,13 @@ public:
     Civilization* GetCivObject();
     Yield* getCivYield();
     int getHappiness();
+    int GetTotalGold();
+    int GetTotalScience();
 
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
 
+    void UpdateProgress();
 
     QVector<Technology*> GetTechList();
 
@@ -88,6 +91,7 @@ private:
 
     int happiness;
     int techIndex;
+    int totalScience, totalGold;
 
     //AI stuff
     bool isAIPlayer;

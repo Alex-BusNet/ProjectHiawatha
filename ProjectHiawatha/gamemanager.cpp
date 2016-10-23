@@ -22,6 +22,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameLayout = new QHBoxLayout();
     unitControlButtons = new QVBoxLayout();
     playerControlButtons = new QVBoxLayout();
+    Yieldinfo = new QHBoxLayout();
     cityScreen = new CityScreen(this);
     techTree = new TechTree(this);
     cityScreenVisible = false;
@@ -92,6 +93,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
         civList.at(i)->UpdateCivYield();
     }
+
+    InitYieldDisplay();
 
 //    renderer->DrawGuiImages(game);
 
@@ -283,7 +286,12 @@ void GameManager::paintEvent(QPaintEvent *event)
     QRect playerInfoRect(0, 0, this->width(), 20);
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
-    paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(civList.at(0)->getCivYield()));
+//    paint.drawPixmap(5, 0, 20, 20 , );
+//    paint.drawPixmap(70, 0, 20, 20, );
+//    paint.drawPixmap(130, 0, 20, 20, );
+//    paint.drawPixmap(150, 0, 20, 20,);
+//    paint.drawPixmap(230, 0, 20, 20, );
+//    paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(civList.at(0)));
     paint.drawText(playerInfoRect, Qt::AlignRight, QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
 }
 
@@ -358,7 +366,14 @@ void GameManager::StartTurn()
 
         year += yearPerTurn;
 
+        goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
+        prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
+        foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
+        sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
+        culText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
+
+    civList.at(currentTurn)->UpdateProgress();
 
     qDebug() << "  Starting turn for civ" << currentTurn;
 }
@@ -416,20 +431,17 @@ void GameManager::InitButtons()
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
 
-
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
     moveUnit->setEnabled(false);
 
     endTurn = new QPushButton("End Turn");
     connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
-
 }
 
 void GameManager::InitLayouts()
 {
     vLayout->setMargin(0);
-    vLayout->addSpacing(20);
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(800);
@@ -453,6 +465,70 @@ void GameManager::InitLayouts()
     hLayout->addWidget(showDummyCityScreen);
 
     vLayout->addLayout(hLayout);
+}
+
+void GameManager::InitYieldDisplay()
+{
+    goldText = new QLabel(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
+    prodText = new QLabel(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
+    foodText = new QLabel(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
+    sciText = new QLabel(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
+    culText = new QLabel(QString("%1").arg(civList.at(0)->getCivYield()->GetCultureYield()));
+
+    goldText->setStyleSheet("QLabel { color: white; }");
+    prodText->setStyleSheet("QLabel { color: white; }");
+    foodText->setStyleSheet("QLabel { color: white; }");
+    sciText->setStyleSheet("QLabel { color: white; }");
+    culText->setStyleSheet("QLabel { color: white; }");
+
+    goldText->setAlignment(Qt::AlignLeft);
+    prodText->setAlignment(Qt::AlignLeft);
+    foodText->setAlignment(Qt::AlignLeft);
+    sciText->setAlignment(Qt::AlignLeft);
+    culText->setAlignment(Qt::AlignLeft);
+
+    goldText->setAlignment(Qt::AlignVCenter);
+    prodText->setAlignment(Qt::AlignVCenter);
+    foodText->setAlignment(Qt::AlignVCenter);
+    sciText->setAlignment(Qt::AlignVCenter);
+    culText->setAlignment(Qt::AlignVCenter);
+
+    goldPix = new QPixmap("../ProjectHiawatha/Assets/Icons/gold.png");
+    prodPix = new QPixmap("../ProjectHiawatha/Assets/Icons/production.png");
+    foodPix = new QPixmap("../ProjectHiawatha/Assets/Icons/food.png");
+    sciPix = new QPixmap("../ProjectHiawatha/Assets/Icons/research.png");
+    culPix = new QPixmap("../ProjectHiawatha/Assets/Icons/culture.png");
+
+    goldLabel = new QLabel();
+    prodLabel = new QLabel();
+    foodLabel = new QLabel();
+    sciLabel = new QLabel();
+    culLabel = new QLabel();
+
+    goldLabel->setPixmap(*goldPix);
+    prodLabel->setPixmap(*prodPix);
+    foodLabel->setPixmap(*foodPix);
+    sciLabel->setPixmap(*sciPix);
+    culLabel->setPixmap(*culPix);
+
+    Yieldinfo->addWidget(goldLabel);
+    Yieldinfo->addWidget(goldText);
+
+    Yieldinfo->addWidget(prodLabel);
+    Yieldinfo->addWidget(prodText);
+
+    Yieldinfo->addWidget(foodLabel);
+    Yieldinfo->addWidget(foodText);
+
+    Yieldinfo->addWidget(sciLabel);
+    Yieldinfo->addWidget(sciText);
+
+    Yieldinfo->addWidget(culLabel);
+    Yieldinfo->addWidget(culText);
+
+    Yieldinfo->addSpacing(1500);
+
+    vLayout->insertLayout(0, Yieldinfo);
 }
 
 

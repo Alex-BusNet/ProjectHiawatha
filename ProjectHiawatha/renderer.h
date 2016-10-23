@@ -40,7 +40,7 @@ public:
     void ClearUnitPath(GameScene *scene);
 
     QString SetYieldDisplay(Map *map);
-    QString SetYieldDisplay(Yield *yield);
+    QString SetYieldDisplay(Civilization *player);
 
 private:
 //    QVector<City*> cities;
