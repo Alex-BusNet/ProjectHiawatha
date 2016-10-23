@@ -67,7 +67,8 @@ HEADERS  += mainwindow.h \
     ai_controller.h \
     technology.h \
     techtree.h \
-    citylabel.h
+    citylabel.h \
+    unittype.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

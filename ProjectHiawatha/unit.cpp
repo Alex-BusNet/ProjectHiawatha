@@ -15,11 +15,11 @@ Unit::Unit()
     this->isFortified = false;
     this->isMelee = false;
     this->uses = 1;
-    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+//    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
 
-Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, int strength, int range, int health)
+Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, int strength, int range, int health, UnitType type)
 {
     this->belongsTo = owner;
     this->NonCombat = isNonCombat;
@@ -39,7 +39,7 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
         this->uses = 3;
     }
 
-    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+    SetUnitIcon(type);
 }
 
 Unit::~Unit()
@@ -47,9 +47,98 @@ Unit::~Unit()
 
 }
 
-void Unit::SetUnitIcon(QPixmap *icon)
+void Unit::SetUnitIcon(UnitType type)
 {
-    this->unitIcon = icon;
+    switch(type)
+    {
+    case WORKER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/worker.png");
+        break;
+    case SETTLER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/settler.png");
+        break;
+    case WARRIOR:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/warrior.png");
+        break;
+    case ARCHER:
+        break;
+    case PIKEMAN:
+        break;
+    case HORSEMAN:
+        break;
+    case SCOUT:
+        break;
+    case HORSE_ARCHER:
+        break;
+    case CATAPULT:
+        break;
+    case TREBUCHET:
+        break;
+    case TRIREME:
+        break;
+    case GALLEY:
+        break;
+    case KNIGHT:
+        break;
+    case CROSSBOWMAN:
+        break;
+    case LANDSNACK:
+        break;
+    case LONGSWORDSMAN:
+        break;
+    case MUSKETMAN:
+        break;
+    case RIFLEMAN:
+        break;
+    case CARAVEL:
+        break;
+    case CANNON:
+        break;
+    case LANCER:
+        break;
+    case CAVALRY:
+        break;
+    case INFANTRY:
+        break;
+    case FRIGATE:
+        break;
+    case IRONCLAD:
+        break;
+    case ARTILLERY:
+        break;
+    case TANK:
+        break;
+    case PARATROOPER:
+        break;
+    case ANTI_TANK_GUN:
+        break;
+    case AA:
+        break;
+    case BATTLESHIP:
+        break;
+    case SUBMARINE:
+        break;
+    case NUKE:
+        break;
+    case MOBILE_SAM:
+        break;
+    case MODERN_INFANTRY:
+        break;
+    case MODERN_ARMOR:
+        break;
+    case FIGHTER:
+        break;
+    case BOMBER:
+        break;
+    case GDR:
+        break;
+    case GANDHI_DR:
+        break;
+    default:
+        break;
+    }
+
+//    this->unitIcon = icon;
 }
 
 void Unit::SetOwner(Nation owner)
@@ -98,7 +187,7 @@ void Unit::SetMaxHealth(int maxHealth)
     this->maxHealth = maxHealth;
 }
 
-QPixmap *Unit::GetUnitIcon()
+QImage *Unit::GetUnitIcon()
 {
     return this->unitIcon;
 }
@@ -199,6 +288,11 @@ void Unit::SetPixmapIndex(int index)
 void Unit::SetUnitListIndex(int index)
 {
     this->unitListIndex = index;
+}
+
+void Unit::SetUnitImage(QImage *image)
+{
+    this->unitIcon = image;
 }
 
 void Unit::Use()

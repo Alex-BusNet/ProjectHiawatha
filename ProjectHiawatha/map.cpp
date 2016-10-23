@@ -5,6 +5,7 @@
 #include <QTime>
 #include <ctime>
 #include "biome.h"
+#include "unittype.h"
 
 Map::Map()
 {
@@ -436,8 +437,8 @@ newrand:
 
 //            qDebug() << "   Adding starting Unit";
 
-            unit = new Unit(civs.at(i)->getCiv(), false, false, 2, 1, 3, 5);
-            unit->SetOwner(civs.at(i)->getCiv());
+            unit = new Unit(civs.at(i)->getCiv(), true, false, 2, 1, 3, 5, WORKER);
+//            unit->SetOwner(civs.at(i)->getCiv());
             unit->RequiresOrders = true;
 
             foreach(Tile* tile, city->GetControlledTiles())

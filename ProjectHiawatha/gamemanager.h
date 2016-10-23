@@ -79,6 +79,7 @@ private:
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
 
+    Unit* unitToMove;
 
     QString *YieldDisplay;
 

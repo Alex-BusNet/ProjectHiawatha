@@ -27,17 +27,12 @@ public:
 
     void DrawCityBorders(Map *map, QVector<City *> cities, GameScene *scene);
     void DrawCityBorders(QVector<City *> cities, GameScene *scene, Nation owner);
-    void DrawDebugCityBorders(Map *map, GameScene *scene);
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
     void AddCityLabel(QString name, Civilization *civ, GameView *view);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
 
-    void DrawTestUnits(Map *map, GameView *view);
-    void DrawTestCities(Map *map, GameView *view);
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
-    void DrawUnitPath(GameScene *scene, Unit *unit);
-    void ClearUnitPath(GameScene *scene);
 
     QString SetYieldDisplay(Map *map);
     QString SetYieldDisplay(Civilization *player);

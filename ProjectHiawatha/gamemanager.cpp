@@ -389,10 +389,6 @@ void GameManager::EndTurn()
             uc->MoveUnit(unit, map, gameView->GetScene());
             renderer->UpdateUnits(map, gameView, unit);
         }
-        else
-        {
-            renderer->ClearUnitPath(gameView->GetScene());
-        }
     }
 
     if(currentTurn == civList.size() - 1)
@@ -437,27 +433,27 @@ void GameManager::InitButtons()
     connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
 
     buildFarm = new QPushButton("Build Farm");
-    //connect()
+    connect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));
     buildFarm->setEnabled(false);
 
     buildMine = new QPushButton("Build Mine");
-    //connect()
+    connect(buildMine, SIGNAL(clicked(bool)), this, SLOT(buildNewMine()));
     buildMine->setEnabled(false);
 
     buildPlantation = new QPushButton("Build Plantation");
-    //connect()
+    connect(buildPlantation, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildPlantation->setEnabled(false);
 
     buildTradePost = new QPushButton ("Build Trading Post");
-    //connect()
+    connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildTradePost->setEnabled(false);
 
     buildRoad = new QPushButton("Build Road");
-    //connect()
+    connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildRoad->setEnabled(false);
 
     foundCity = new QPushButton("Found City");
-    //connect()
+    connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
     foundCity->setEnabled(false);
 }
 
@@ -610,11 +606,29 @@ void GameManager::updateTiles()
     if(gameView->GetScene()->isTileSelected)
     {
         moveUnit->setEnabled(true);
+
+//        unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
+
+//        if(unitToMove->isNonCombat())
+//        {
+//            if(unitToMove->isSettler())
+//            {
+//                foundCity->setEnabled(true);
+//            }
+//            else
+//            {
+//                buildFarm->setEnabled(true);
+//                buildMine->setEnabled(true);
+//                buildPlantation->setEnabled(true);
+//                buildTradePost->setEnabled(true);
+//                buildRoad->setEnabled(true);
+//            }
+//        }
     }
 
     if(gameView->GetScene()->unitMoveOrdered)
     {
-        Unit* unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
+        unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
 
         qDebug() <<"    Finding path";
         uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
@@ -624,7 +638,6 @@ void GameManager::updateTiles()
         map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
         gameView->GetScene()->redrawTile = true;
         moveUnit->setEnabled(false);
-        renderer->DrawUnitPath(gameView->GetScene(), unitToMove);
 
         qDebug() << "   Done";
     }

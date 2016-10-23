@@ -142,9 +142,10 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
     {
         qDebug() << "       Moving Unit";
         view->GetScene()->removeItem(unitPixmap.at(unit->GetPixmapIndex()));
-        unitImage = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+        unitImage = new QPixmap(unitImage->fromImage(*unit->GetUnitIcon()));
+
         unitPixmap.replace(unit->GetPixmapIndex(), view->addPixmap(*unitImage));
-        unitPixmap.at(unit->GetPixmapIndex())->setScale(2.0f);
+        unitPixmap.at(unit->GetPixmapIndex())->setScale(1.0f);
         unitPixmap.at(unit->GetPixmapIndex())->setZValue(2);
         unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
@@ -173,43 +174,6 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
 void Renderer::DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget *> wVect, QGraphicsScene *view)
 {
     wVect.push_back(view->addWidget(obj));
-}
-
-void Renderer::DrawUnitPath(GameScene *scene, Unit *unit)
-{
-    if(!unit->isPathEmpty())
-    {
-        int tileCount = 0;
-        QPoint lastTile;
-
-        foreach(Tile *tile, unit->GetPath())
-        {
-            if(tileCount == 0)
-            {
-                lastTile = tile->GetCenter();
-                tileCount++;
-            }
-            else
-            {
-                QLine travelLine(lastTile, tile->GetCenter());
-                unitGraphicsPath.push_back(scene->addLine(travelLine, QPen(QColor(Qt::red))));
-                lastTile = tile->GetCenter();
-            }
-        }
-    }
-}
-
-void Renderer::ClearUnitPath(GameScene *scene)
-{
-    if(!unitGraphicsPath.isEmpty())
-    {
-        foreach(QGraphicsLineItem *line, unitGraphicsPath)
-        {
-            scene->removeItem(line);
-        }
-
-        unitGraphicsPath.clear();
-    }
 }
 
 ////This is for development and debug purposes only
@@ -340,7 +304,7 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
 
     for(int i = 0; i < units.size(); i++)
     {
-        unit = new QImage("../ProjectHiawatha/Assets/Units/worker.png");
+        unit = units.at(i)->GetUnitIcon();//new QImage("../ProjectHiawatha/Assets/Units/worker.png");
 
         QRgb color = cc->GetCivColor(units.at(i)->GetOwner()).rgba();
         for(int j = 0; j < 32; j++)
@@ -355,6 +319,7 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
             }
         }
 
+        units.at(i)->SetUnitImage(unit);
         unitImage = new QPixmap(unitImage->fromImage(*unit));
 
         unitPixmap.push_back(view->addPixmap(*unitImage));
@@ -366,68 +331,4 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
     }
 }
 
-////For Debug uses only
-void Renderer::DrawDebugCityBorders(Map *map, GameScene *scene)
-{
-    int col = scene->column, row = scene->row;
-    // 20 is for duel sized maps (the default). That value will need to be adjusted later.
-    int index = (col / 2) + (20 * row);
-    if(map->GetTileAt(index)->HasCity)
-    {
-        SetOutlinePen(map->GetTileAt(index)->GetControllingCiv());
-        map->GetTileAt(index)->SetTilePen(outlinePen);
-        map->GetTileAt(index)->Selected = false;
 
-        cityBorders.push_back(scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-        cityBorders.last()->setPen(map->GetTileAt(index)->GetTilePen());
-    }
-
-    scene->redrawTile = false;
-}
-
-void Renderer::DrawTestUnits(Map *map, GameView* view)
-{
-    QPixmap *TestUnit = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
-    unitPixmap.push_back(view->addPixmap(*TestUnit));
-    unitPixmap.at(0)->setZValue(4);
-    for(int i = 0; i <map->GetBoardSize(); i++)
-    {
-        if(map->GetTileTypeAt(i) == GRASS || map->GetTileTypeAt(i) == DESERT)
-        {
-            unitPixmap.at(0)->setPos(map->GetTileAt(i)->GetItemTexturePoint());
-            unitPixmap.at(0)->setScale(2.0f);
-            map->GetTileAt(i)->ContainsUnit = true;
-            break;
-        }
-    }
-}
-
-void Renderer::DrawTestCities(Map *map, GameView *view)
-{
-    QPixmap *TestCity = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
-    cityPixmap.push_back(view->addPixmap(*TestCity));
-    cityPixmap.at(0)->setZValue(2);
-    for(int i = 0; i <map->GetBoardSize(); i++)
-    {
-        if(i + 90 < map->GetBoardSize())
-        {
-            int j = i + 100;
-
-            if(map->GetTileTypeAt(j) == GRASS || map->GetTileTypeAt(j) == DESERT)
-            {
-                if(map->GetTileAt(j)->ContainsUnit == false)
-                {
-                    qDebug() << "Configuring city for tile" << j;
-                    cityPixmap.at(0)->setPos(map->GetTileAt(j)->GetTexturePoint());
-                    cityPixmap.at(0)->setScale(2.0f);
-                    map->GetTileAt(j)->HasCity = true;
-                    map->GetTileAt(j)->SetControllingCiv(India);
-
-                    view->GetScene()->column = map->GetTileAt(j)->GetTileID().column;
-                    view->GetScene()->row = map->GetTileAt(j)->GetTileID().row;
-                    break;
-                }
-            }
-        }
-    }
-}

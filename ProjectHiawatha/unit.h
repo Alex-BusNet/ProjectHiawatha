@@ -1,20 +1,22 @@
 #ifndef UNIT_H
 #define UNIT_H
 
-#include <QPixmap>
+#include <QImage>
 #include <QList>
 #include "nation.h"
+#include "unittype.h"
 #include "tile.h"
+
 class Tile;
 
 class Unit
 {
 public:
     Unit();
-    Unit(Nation owner = India, bool isNonCombat = false, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int health = 100);
+    Unit(Nation owner = India, bool isNonCombat = false, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int health = 100, UnitType type = WORKER);
     ~Unit();
 
-    void SetUnitIcon(QPixmap *icon);
+    void SetUnitIcon(UnitType type);
     void SetOwner(Nation owner);
 //    void SetPosition(int column, int row);
     void SetPosition(int tileMapIndex);
@@ -27,11 +29,12 @@ public:
     void SetPath(QList<Tile*> newPath);
     void SetPixmapIndex(int index);
     void SetUnitListIndex(int index);
+    void SetUnitImage(QImage *image);
     void Use();
 
     void UpdatePath();
 
-    QPixmap* GetUnitIcon();
+    QImage* GetUnitIcon();
     Nation GetOwner();
     int GetTileIndex();
     int GetMovementPoints();
@@ -57,7 +60,7 @@ public:
 
 
 private:
-    QPixmap *unitIcon;
+    QImage *unitIcon;
 
     Nation belongsTo;
 //    Tile *position;
