@@ -316,7 +316,7 @@ void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
         cityPixmap.push_back(view->addPixmap(*cityImage));
         cityPixmap.last()->setZValue(2);
         cityPixmap.last()->setScale(2.0f);
-        cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetItemTexturePoint());
+        cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetTexturePoint());
     }
 }
 
@@ -336,13 +336,30 @@ void Renderer::AddCityLabel(QString name, Civilization* civ, GameView *view)
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
 {
     QPixmap *unitImage;
+    QImage *unit;
 
     for(int i = 0; i < units.size(); i++)
     {
-        unitImage = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
+        unit = new QImage("../ProjectHiawatha/Assets/Units/worker.png");
+
+        QRgb color = cc->GetCivColor(units.at(i)->GetOwner()).rgba();
+        for(int j = 0; j < 32; j++)
+        {
+            for(int k = 0; k < 32; k++)
+            {
+                if((unit->pixelColor(j,k) != QColor(Qt::black))
+                        && (unit->pixelColor(j,k).alpha() != 0))
+                {
+                    unit->setPixelColor(j, k, color);
+                }
+            }
+        }
+
+        unitImage = new QPixmap(unitImage->fromImage(*unit));
+
         unitPixmap.push_back(view->addPixmap(*unitImage));
         unitPixmap.last()->setZValue(2);
-        unitPixmap.last()->setScale(2.0f);
+        unitPixmap.last()->setScale(1.0f);
         // All unit images are stored in the unitPixmap vector.
         units.at(i)->SetPixmapIndex(unitPixmap.size() - 1);
         unitPixmap.last()->setPos(map->GetTileAt(units.at(i)->GetTileIndex())->GetItemTexturePoint());

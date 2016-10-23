@@ -75,7 +75,7 @@ Tile::Tile(int _posX, int _posY)
     center = QPoint(_posX + (22 * drawScale), _posY + (12 * drawScale));
     textCenter = QPoint(_posX + (15 * drawScale), _posY + (10 * drawScale));
     texturePoint = QPointF(_posX, _posY - (12 * drawScale));
-    itemTexturePoint = QPoint(_posX, _posY - (12 * drawScale));
+    itemTexturePoint = QPoint(_posX + (13 * drawScale), _posY - (3 * drawScale));
     cityLabelPoint = QPoint(_posX + (12 * drawScale), _posY - (10 * drawScale));
 
     this->poly << this->points[0]

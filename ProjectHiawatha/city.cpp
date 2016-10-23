@@ -37,8 +37,6 @@ int City::orientation(QPoint p, QPoint q, QPoint r)
 
 void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort)
 {
-//    qDebug() << "   lowX:" << lowX << "lowY:" << lowY << "upperX" << upperX << "upperY" << upperY;
-
     int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
     QVector<QPoint> tempPt;
 
@@ -117,13 +115,6 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
             }
         }
     }
-
-//    qDebug() << "       Sorted tempVect";
-//    for(int i = 0; i < tempPt.size(); i++)
-//    {
-//        qDebug() << "           " << tempPt[i];
-//    }
-
     int lastX = 0, lastY = 0;
 
     // Load the points into the cityBorder vector
@@ -136,11 +127,6 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         dstYUp = upperY - y;
         dstXLow = x - lowX;
         dstYLow = y - lowY;
-
-//        qDebug() << "       FindPoints Point:" << point;
-//        qDebug() << "           dstXUp:" << dstXUp << "dstXLow:" << dstXLow << "dstYLow:" << dstYLow << "dstYUp:" << dstYUp;
-//        qDebug() << "       x - lastX:" << x - lastX << "y - lastY:" << y - lastY;
-//        qDebug() << "           x:" << x << "y:" << y;
 
         // add some additional points in if the tiles are horizontally aligned. (dstY == 0)
         if(((abs(x - lastX) == 88) || (abs(x - lastX) == 176)) && (abs(y - lastY) == 0))
@@ -279,14 +265,12 @@ void City::DefineCityBorders()
     //Get the center of each tile the city controls and
     // load the point into the QVector
     QVector<QPoint> points;
-    qDebug() << "     Getting centers";
     int ptCount = 0;
     foreach(Tile* tile, cityControlledTiles)
     {
         for(int i = 0; i < 6; i++)
         {
             points.push_back(tile->GetHexPoint(i));
-            qDebug() << ptCount << ":" << points.last();
             ptCount++;
         }
     }
@@ -299,10 +283,9 @@ void City::DefineCityBorders()
 
     //Find the leftmost point in the points QVector
     int l = 0;
-    qDebug() << "     Finding leftmost point";
+
     for(int i = 1; i < numPts; i++)
     {
-//        qDebug() << "l:" << l << "i:" << i;
         if(points[i].x() < points[l].x())
             l = i;
     }
@@ -321,9 +304,6 @@ void City::DefineCityBorders()
 
         for(int i = 0; i < numPts; i++)
         {
-//            qDebug() << "p:" << p << "i:" << i << "q:" << q;
-//            qDebug() << "points[p]:" << points[p] << "points[i]:" << points[i] << "points[q]:" << points[q]
-//                         << "Orientation:" << orientation(points[p], points[i], points[q]);
             if(orientation(points[p], points[i], points[q]) == 2)
                 q = i;
         }
@@ -333,8 +313,6 @@ void City::DefineCityBorders()
     while(p != l);
 
     hull.push_back(points[l]);
-
-    qDebug() << "     Loading borders";
 
     //Load the resulting convex hull into the cityBorder QPolygon
     int lastX, lastY, currentX, currentY, newX, newY, dstX, dstY;
@@ -354,8 +332,6 @@ void City::DefineCityBorders()
 
             dstX = currentX - lastX;
             dstY = currentY - lastY;
-
-//            qDebug() << "           i:" << i << "point:" << hull[i] <<"  dstX:" << dstX << "  dstY:" << dstY;
 
             if(((abs(dstX) >= 88) || (abs(dstY) >= 74)))
             {
@@ -395,8 +371,6 @@ void City::DefineCityBorders()
 
         this->cityBorder.push_back(hull[i]);
     }
-
-    qDebug() << "     Done";
 }
 
 QString City::GetName()

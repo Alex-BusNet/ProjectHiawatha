@@ -2,7 +2,7 @@
 #define CIVCOLORS_H
 
 #include <QColor>
-
+#include "nation.h"
 
 class CivColors
 {
@@ -26,6 +26,40 @@ public:
         this->MONGOLIA_PRIMARY.setRgb(175, 38, 43, 255);
         this->AZTEC_PRIMARY.setRgb(175, 90, 0, 255);
         this->FRANCE_PRIMARY.setRgb(0, 124, 175, 255);
+    }
+
+    QColor GetCivColor(Nation nation)
+    {
+        switch(nation)
+        {
+        case NO_NATION:
+            return NO_NATION_PRIMARY;
+            break;
+        case America:
+            return AMERICA_PRIMARY;
+            break;
+        case Germany:
+            return GERMANY_PRIMARY;
+            break;
+        case India:
+            return INDIA_PRIMARY;
+            break;
+        case China:
+            return CHINA_PRIMARY;
+            break;
+        case Mongolia:
+            return MONGOLIA_PRIMARY;
+            break;
+        case Aztec:
+            return AZTEC_PRIMARY;
+            break;
+        case France:
+            return FRANCE_PRIMARY;
+            break;
+        default:
+            return NO_NATION_PRIMARY;
+            break;
+        }
     }
 };
 
