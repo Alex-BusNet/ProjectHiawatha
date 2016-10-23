@@ -35,6 +35,173 @@ int City::orientation(QPoint p, QPoint q, QPoint r)
     return (val > 0) ? 1 : 2;
 }
 
+void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort)
+{
+//    qDebug() << "   lowX:" << lowX << "lowY:" << lowY << "upperX" << upperX << "upperY" << upperY;
+
+    int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
+    QVector<QPoint> tempPt;
+
+    //Find any point that falls between the x and y bounds passed to the funtion.
+    foreach(QPoint point, ptVect)
+    {
+        x = point.x();
+        y = point.y();
+
+        if((x >= lowX) && (x <= upperX))
+        {
+            if((y >= lowY) && (y <= upperY))
+            {
+                // if the point falls between the bounds,
+                // place it in the temporary vector
+                tempPt.push_back(point);
+            }
+        }
+    }
+
+    // sort the vector from smallest x-value to largest x-value is reverseSort is false,
+    // else sort the vector from largest x-value to smallest x-value
+    for(int j = 0; j < tempPt.size(); j++)
+    {
+        for(int k = j + 1; k < tempPt.size(); k++)
+        {
+            if(!reverseSort)
+            {
+                if(tempPt[j].x() > tempPt[k].x())
+                {
+                    QPoint temp = tempPt[j];
+                    tempPt[j] = tempPt[k];
+                    tempPt[k] = temp;
+                }
+                else if(tempPt[j].x() == tempPt[k].x())
+                {
+                    if(tempPt[j].y() > tempPt[k].y())
+                    {
+                        QPoint temp = tempPt[j];
+                        tempPt[j] = tempPt[k];
+                        tempPt[k] = temp;
+                    }
+                }
+            }
+            else
+            {
+                if(tempPt[j].x() < tempPt[k].x())
+                {
+                    QPoint temp = tempPt[j];
+                    tempPt[j] = tempPt[k];
+                    tempPt[k] = temp;
+                }
+                else if(tempPt[j].x() == tempPt[k].x())
+                {
+                    if(tempPt[j].y() < tempPt[k].y())
+                    {
+                        QPoint temp = tempPt[j];
+                        tempPt[j] = tempPt[k];
+                        tempPt[k] = temp;
+                    }
+                }
+            }
+        }
+    }
+
+    // remove any duplicate points from the vector
+    //      Note: these duplicates come from the fact that
+    //      each polygon has points that overlap each other.
+    for(int i = 0; i < tempPt.size() - 1; i++)
+    {
+        if(tempPt[i].x() == tempPt[i + 1].x())
+        {
+            if(tempPt[i].y() == tempPt[i + 1].y())
+            {
+                tempPt.removeAt(i + 1);
+            }
+        }
+    }
+
+//    qDebug() << "       Sorted tempVect";
+//    for(int i = 0; i < tempPt.size(); i++)
+//    {
+//        qDebug() << "           " << tempPt[i];
+//    }
+
+    int lastX = 0, lastY = 0;
+
+    // Load the points into the cityBorder vector
+    foreach(QPoint point, tempPt)
+    {
+        x = point.x();
+        y = point.y();
+
+        dstXUp = upperX - x;
+        dstYUp = upperY - y;
+        dstXLow = x - lowX;
+        dstYLow = y - lowY;
+
+//        qDebug() << "       FindPoints Point:" << point;
+//        qDebug() << "           dstXUp:" << dstXUp << "dstXLow:" << dstXLow << "dstYLow:" << dstYLow << "dstYUp:" << dstYUp;
+//        qDebug() << "       x - lastX:" << x - lastX << "y - lastY:" << y - lastY;
+//        qDebug() << "           x:" << x << "y:" << y;
+
+        // add some additional points in if the tiles are horizontally aligned. (dstY == 0)
+        if(((abs(x - lastX) == 88) || (abs(x - lastX) == 176)) && (abs(y - lastY) == 0))
+        {
+            if(abs(x - lastX) == 88)
+            {
+                newX = (x + lastX) / 2;
+
+                if (lastX < x)
+                {
+                    newY = y + 24;
+                }
+                else if(lastX > x)
+                {
+                    newY = y - 24;
+                }
+
+                cityBorder.push_back(QPoint(newX, newY));
+            }
+            // This needs to be here because for some reason, if there are
+            // more than three points in a horizontal line, the last two won't register
+            // therefore a straight line is drawn. This block is supposed to fix that error.
+            else if(abs(x- lastX) == 176)
+            {
+                newX = (x + lastX) / 2;
+                newX -= 44;
+
+                if (lastX < x)
+                {
+                    newY = y + 24;
+                }
+                else if(lastX > x)
+                {
+                    newY = y - 24;
+                }
+
+                cityBorder.push_back(QPoint(newX, newY));
+
+                newX += 88;
+                cityBorder.push_back(QPoint(newX, newY));
+            }
+
+
+        }
+
+        //Store the x and y values for the next iteration.
+        lastX = x;
+        lastY = y;
+
+        // Don't load the point if it is the same as one of the bounding points
+        if(dstXLow == 0 && dstYUp == 0) { continue; }
+        else if(dstXUp == 0 && dstYLow == 0) { continue; }
+        else if(dstXLow == 0 && dstYLow == 0) { continue; }
+        else if(dstXUp == 0 && dstYUp == 0) { continue; }
+
+        // Load the point into the cityBorder vector.
+        cityBorder.push_back(point);
+
+    }
+}
+
 //Accessor and Mutators
 void City::SetCityAsCaptial()
 {
@@ -130,7 +297,7 @@ void City::DefineCityBorders()
     qDebug() << "     Finding leftmost point";
     for(int i = 1; i < numPts; i++)
     {
-        qDebug() << "l:" << l << "i:" << i;
+//        qDebug() << "l:" << l << "i:" << i;
         if(points[i].x() < points[l].x())
             l = i;
     }
@@ -163,37 +330,47 @@ void City::DefineCityBorders()
     hull.push_back(points[l]);
 
     qDebug() << "     Loading borders";
-    qDebug() << "       DISTANCE TESTING";
 
     //Load the resulting convex hull into the cityBorder QPolygon
+    int lastX, lastY, currentX, currentY, newX, newY, dstX, dstY;
     for(int i = 0; i < hull.size(); i++)
     {
         if(i > 1)
         {
-            int lastX = hull[i - 1].x();
-            int lastY = hull[i - 1].y();
-            int currentX = hull[i].x();
-            int currentY = hull[i].y();
-            int newX, newY;
-
+            lastX = hull[i - 1].x();
+            lastY = hull[i - 1].y();
+            currentX = hull[i].x();
+            currentY = hull[i].y();
 
             // Add a function or code block that checks the distance between two points
             // and if the distance is larger than normal (need to find out what this is)
             // then search points[] for any QPoint that is between the x pos and y pos
             // coordinates.
 
-            int dstX = currentX - lastX;
-            int dstY = currentY - lastY;
+            dstX = currentX - lastX;
+            dstY = currentY - lastY;
 
-            qDebug() << "           dstX:" << dstX << "  dstY:" << dstY;
+//            qDebug() << "           i:" << i << "point:" << hull[i] <<"  dstX:" << dstX << "  dstY:" << dstY;
 
-            if(currentX == lastX && currentY != lastY) // points are vertically aligned
+            if(((abs(dstX) >= 88) || (abs(dstY) >= 74)))
             {
-
-            }
-            else if(currentY == lastY) // points are horizontally aligned
-            {
-                if(lastX != currentX) //points are not the same; saftey check, this should always be true
+                if((currentX > lastX) && (currentY > lastY))
+                {
+                    FindPoints(lastX, lastY, currentX, currentY, points, false);
+                }
+                else if((currentX < lastX) && (currentY > lastY))
+                {
+                    FindPoints(currentX, lastY, lastX, currentY, points, true);
+                }
+                else if((currentX < lastX) && (currentY < lastY))
+                {
+                    FindPoints(currentX, currentY, lastX, lastY, points, true);
+                }
+                else if((currentX > lastX) && (currentY < lastY))
+                {
+                    FindPoints(lastX, currentY, currentX, lastY, points, false);
+                }
+                else if(dstY == 0)
                 {
                     newX = (currentX + lastX) / 2;
 
@@ -208,36 +385,6 @@ void City::DefineCityBorders()
 
                     cityBorder.push_back(QPoint(newX, newY));
                 }
-            }
-            else if(currentX > lastX) //point is on the top half of the border
-            {
-                if(currentY < lastY)
-                {
-                    newX = currentX;
-                    newY = lastY - 24;
-                }
-                else if(currentY > lastY)
-                {
-                    newX = lastX;
-                    newY = currentY - 24;
-                }
-
-                cityBorder.push_back(QPoint(newX, newY));
-            }
-            else if(currentX < lastX) // point is on the bottom half of the border
-            {
-                if(lastY < currentY)
-                {
-                    newX = currentX;
-                    newY = lastY + 24;
-                }
-                else if(lastY > currentY)
-                {
-                    newX = lastX;
-                    newY = currentY + 24;
-                }
-
-                cityBorder.push_back(QPoint(newX, newY));
             }
         }
 

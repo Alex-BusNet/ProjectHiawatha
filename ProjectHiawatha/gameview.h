@@ -25,6 +25,7 @@ public:
     QGraphicsRectItem* addRect(int x, int y, int width, int height, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsTextItem* addText(QString text);
 
+
     void removeRect(QGraphicsRectItem* rect);
 
     GameScene *GetScene();

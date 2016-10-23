@@ -328,6 +328,7 @@ void Renderer::AddCityLabel(QString name, Civilization* civ, GameView *view)
         cityLabels.push_back(view->addWidget(label));
         cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
     }
+
 }
 
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)

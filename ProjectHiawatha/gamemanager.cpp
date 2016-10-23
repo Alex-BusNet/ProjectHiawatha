@@ -76,8 +76,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     renderer->DrawHexScene(map, gameView);
 
     qDebug() << "Initializing Civs";
-    ////The 4 is for testing purposes;
-    InitCivs(player, numAI);
+    ////The 1 is for testing purposes;
+    /// Change to numAI when done.
+    InitCivs(player, 1);
 
     qDebug() << "   CivList size: " << civList.size();
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";

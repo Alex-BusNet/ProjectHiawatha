@@ -70,6 +70,8 @@ private:
 
     void TileToGetNext();
     int orientation(QPoint p, QPoint q, QPoint r);
+
+    void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort);
     QPolygon cityBorder;
 };
 

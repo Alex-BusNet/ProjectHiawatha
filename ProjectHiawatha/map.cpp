@@ -423,6 +423,7 @@ newrand:
 //            city->AddControlledTile(board.at(index - 18));
 //            city->AddControlledTile(board.at(index - 23));
 //            city->AddControlledTile(board.at(index - 42));
+//            city->AddControlledTile(board.at(index - 43));
 //            city->AddControlledTile(board.at(index + 2));
             city->UpdateCityYield();
 
