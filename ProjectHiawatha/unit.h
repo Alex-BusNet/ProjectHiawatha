@@ -26,6 +26,8 @@ public:
     void SetMaxHealth(int maxHealth);
     void SetPath(QList<Tile*> newPath);
     void SetPixmapIndex(int index);
+    void SetUnitListIndex(int index);
+    void Use();
 
     void UpdatePath();
 
@@ -39,7 +41,8 @@ public:
     int GetHealth();
     int GetMaxHealth();
     int GetPixmapIndex();
-
+    int GetRemainingUses();
+    int GetUnitListIndex();
     QList<Tile*> GetPath();
 
     bool isPathEmpty();
@@ -61,7 +64,7 @@ private:
 //    int colPosition;
 //    int rowPosition;
 
-    int pixmapIndex, dataMapIndex;
+    int pixmapIndex, dataMapIndex, unitListIndex;
     bool NonCombat;
     bool Settler;
 
@@ -71,6 +74,7 @@ private:
     int rangeStrength;
     int health;
     int maxHealth;
+    int uses;
 
     QList<Tile*> path;
 };

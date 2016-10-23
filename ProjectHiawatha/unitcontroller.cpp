@@ -160,10 +160,26 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
        int index = currentCiv->getCityIndex();
        City* newCity = new City();
        newCity->SetName(tempCityList.at(index));
+       newCity->SetCityIndex(currentCiv->GetCityList().size());
        currentCiv->AddCity(newCity);
     }else{
         //QMESSAGEBOX SAYING CANT FOUND CITY HERE
         //OR MAYBE PLAY A SOUND
+    }
+}
+
+void UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilization *currentCiv, TileImprovement improvement)
+{
+    if(unit->isNonCombat() && !unit->isSettler())
+    {
+        currentTile->SetTileImprovement(improvement);
+
+        unit->Use();
+
+        if(unit->GetRemainingUses() <= 0)
+        {
+            currentCiv->RemoveUnit(unit->GetUnitListIndex());
+        }
     }
 }
 

@@ -223,6 +223,11 @@ void City::SetControllingCiv(Nation owner)
     this->controllingCiv = owner;
 }
 
+void City::SetCityIndex(int index)
+{
+    this->cityIndex = index;
+}
+
 void City::UpdateCityYield()
 {
     qDebug() << "   City controls" << cityControlledTiles.size() << "tile(s)";
@@ -427,4 +432,9 @@ QVector<Tile *> City::GetControlledTiles()
 QPolygon City::GetCityBorders()
 {
     return this->cityBorder;
+}
+
+int City::GetCityIndex()
+{
+    return this->cityIndex;
 }

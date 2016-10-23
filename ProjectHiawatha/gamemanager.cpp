@@ -17,18 +17,22 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
+
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
     gameLayout = new QHBoxLayout();
     unitControlButtons = new QVBoxLayout();
     playerControlButtons = new QVBoxLayout();
     Yieldinfo = new QHBoxLayout();
+
     cityScreen = new CityScreen(this);
     techTree = new TechTree(this);
+
     cityScreenVisible = false;
     techTreeVisible = false;
     relocateUnit = false;
     turnEnded = false;
+
     playerCiv = player;
 
     if(!fullscreen)
@@ -286,12 +290,6 @@ void GameManager::paintEvent(QPaintEvent *event)
     QRect playerInfoRect(0, 0, this->width(), 20);
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
-//    paint.drawPixmap(5, 0, 20, 20 , );
-//    paint.drawPixmap(70, 0, 20, 20, );
-//    paint.drawPixmap(130, 0, 20, 20, );
-//    paint.drawPixmap(150, 0, 20, 20,);
-//    paint.drawPixmap(230, 0, 20, 20, );
-//    paint.drawText(playerInfoRect, Qt::AlignVCenter, renderer->SetYieldDisplay(civList.at(0)));
     paint.drawText(playerInfoRect, Qt::AlignRight, QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
 }
 
@@ -437,6 +435,30 @@ void GameManager::InitButtons()
 
     endTurn = new QPushButton("End Turn");
     connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
+
+    buildFarm = new QPushButton("Build Farm");
+    //connect()
+    buildFarm->setEnabled(false);
+
+    buildMine = new QPushButton("Build Mine");
+    //connect()
+    buildMine->setEnabled(false);
+
+    buildPlantation = new QPushButton("Build Plantation");
+    //connect()
+    buildPlantation->setEnabled(false);
+
+    buildTradePost = new QPushButton ("Build Trading Post");
+    //connect()
+    buildTradePost->setEnabled(false);
+
+    buildRoad = new QPushButton("Build Road");
+    //connect()
+    buildRoad->setEnabled(false);
+
+    foundCity = new QPushButton("Found City");
+    //connect()
+    foundCity->setEnabled(false);
 }
 
 void GameManager::InitLayouts()
@@ -445,6 +467,11 @@ void GameManager::InitLayouts()
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(800);
+    unitControlButtons->addWidget(buildFarm);
+    unitControlButtons->addWidget(buildMine);
+    unitControlButtons->addWidget(buildPlantation);
+    unitControlButtons->addWidget(buildTradePost);
+    unitControlButtons->addWidget(buildRoad);
     unitControlButtons->addWidget(moveUnit);
 
     gameLayout->addLayout(unitControlButtons);
@@ -564,7 +591,7 @@ void GameManager::showCity()
 
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
         cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);
-//        gameView->setDragMode(QGraphicsView::NoDrag);
+        gameView->setDragMode(QGraphicsView::NoDrag);
         cityScreen->show();
         cityScreenVisible = true;
     }
@@ -602,6 +629,12 @@ void GameManager::updateTiles()
         qDebug() << "   Done";
     }
 
+    if(gameView->GetScene()->citySelected  && !cityScreenVisible)
+    {
+        gameView->GetScene()->citySelected = false;
+        this->showCity();
+    }
+
     TurnController();
 
     if(gameView->GetScene()->redrawTile)
@@ -610,6 +643,12 @@ void GameManager::updateTiles()
     }
 
     this->update();
+
+    if(cityScreen->isHidden())
+    {
+        gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+        cityScreenVisible = false;
+    }
 }
 
 void GameManager::moveUnitTo()
@@ -643,6 +682,36 @@ void GameManager::showTechTree()
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         techTreeVisible = false;
     }
+}
+
+void GameManager::foundNewCity()
+{
+
+}
+
+void GameManager::buildNewRoad()
+{
+
+}
+
+void GameManager::buildNewFarm()
+{
+
+}
+
+void GameManager::buildNewPlantation()
+{
+
+}
+
+void GameManager::buildNewTradePost()
+{
+
+}
+
+void GameManager::buildNewMine()
+{
+
 }
 
 

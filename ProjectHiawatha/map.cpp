@@ -426,7 +426,7 @@ newrand:
 //            city->AddControlledTile(board.at(index - 43));
 //            city->AddControlledTile(board.at(index + 2));
             city->UpdateCityYield();
-
+            city->SetCityIndex(0);
             civs.at(i)->AddCity(city);
             city->DefineCityBorders();
 
@@ -454,7 +454,7 @@ newrand:
                 }
             }
 
-
+            unit->SetUnitListIndex(0);
             civs.at(i)->AddUnit(unit);
 
             qDebug() << "       UnitPos:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();

@@ -48,6 +48,12 @@ private:
     QPushButton *endTurn;
     QPushButton *moveUnit;
     QPushButton *showTechTreeButton;
+    QPushButton *buildFarm;
+    QPushButton *buildMine;
+    QPushButton *buildTradePost;
+    QPushButton *buildPlantation;
+    QPushButton *buildRoad;
+    QPushButton *foundCity;
     //=============
     //Dev Buttons
     QPushButton *renderPlusOne;
@@ -113,6 +119,12 @@ public slots:
     void moveUnitTo();
     void nextTurn();
     void showTechTree();
+    void foundNewCity();
+    void buildNewRoad();
+    void buildNewFarm();
+    void buildNewPlantation();
+    void buildNewTradePost();
+    void buildNewMine();
 };
 
 #endif // GAMEWINDOW_H

@@ -19,12 +19,12 @@ public:
     void SetMap(Map *map);
     void ProcessTile(Map *map, bool unitAwaitingRelocation);
 
-    bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered;
+    bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered, citySelected;
 
     void drawForeground(QPainter *painter, const QRectF &rect);
 
     int column, row;
-    Tile* unitTargetTile, *unitSelectedTile;
+    Tile* unitTargetTile, *unitSelectedTile, *cityTileSelected;
 
 private:
 

@@ -14,6 +14,7 @@ Unit::Unit()
     this->Updated = false;
     this->isFortified = false;
     this->isMelee = false;
+    this->uses = 1;
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
@@ -32,6 +33,12 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
     this->HasNoMovementLeft = false;
     this->isFortified = false;
     this->isMelee = true;
+
+    if(isNonCombat && !isSettler)
+    {
+        this->uses = 3;
+    }
+
     this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
@@ -141,6 +148,16 @@ int Unit::GetPixmapIndex()
     return this->pixmapIndex;
 }
 
+int Unit::GetRemainingUses()
+{
+    return this->uses;
+}
+
+int Unit::GetUnitListIndex()
+{
+    return this->unitListIndex;
+}
+
 QList<Tile *> Unit::GetPath()
 {
     return this->path;
@@ -177,6 +194,16 @@ void Unit::SetPath(QList<Tile *> newPath)
 void Unit::SetPixmapIndex(int index)
 {
     this->pixmapIndex = index;
+}
+
+void Unit::SetUnitListIndex(int index)
+{
+    this->unitListIndex = index;
+}
+
+void Unit::Use()
+{
+    this->uses--;
 }
 
 void Unit::UpdatePath()

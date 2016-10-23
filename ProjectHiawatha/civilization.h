@@ -26,6 +26,9 @@ public:
     void AddCity(City* city);
     void AddUnit(Unit* unit);
 
+    void RemoveCity(int cityIndex);
+    void RemoveUnit(int unitIndex);
+
     void SetUnitList(QVector<Unit*> list);
     void SetCityList(QVector<City*> list);
     void SetCivObj(Civilization *civ);

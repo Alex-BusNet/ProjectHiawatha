@@ -24,6 +24,7 @@ public:
     void SetName(QString name);
     void SetCityTile(Tile *tile);
     void SetControllingCiv(Nation owner);
+    void SetCityIndex(int index);
     void UpdateCityYield();
 
     void GarrisonWorker(Unit *worker);
@@ -43,6 +44,7 @@ public:
     Unit* GetGarrisonedWorker(int index);
     Unit* GetGarrisonedMilitary(int index);
 
+    int GetCityIndex();
     bool IsCityCaptial();
 
     ~City();
@@ -67,6 +69,7 @@ private:
     int productionYield;
     int scienceYield;
     int goldYield;
+    int cityIndex;
 
     void TileToGetNext();
     int orientation(QPoint p, QPoint q, QPoint r);

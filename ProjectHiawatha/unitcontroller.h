@@ -17,6 +17,7 @@ public:
     void MoveUnit(Unit *unit, Map *map, GameScene *scene);
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
     void FoundCity(Unit* unit, Tile* CurrentTile, Civilization* currentCiv);
+    void BuildImprovement(Unit* unit, Tile* currentTile, Civilization* currentCiv, TileImprovement improvement);
     Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
 
 private:

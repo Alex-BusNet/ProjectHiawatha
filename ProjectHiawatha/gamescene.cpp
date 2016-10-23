@@ -9,6 +9,7 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
     eventQueued = false;
     redrawTile = false;
     unitMoveOrdered = false;
+    citySelected = false;
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -106,7 +107,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             if(map->GetTileFromCoord(column, row)->HasCity)
             {
                 //This may not be needed.
-                map->GetTileFromCoord(column, row)->GetGoverningCity();
+                citySelected = true;
+                cityTileSelected = map->GetTileFromCoord(column, row);
             }
             else if(map->GetTileFromCoord(column, row)->ContainsUnit)
             {

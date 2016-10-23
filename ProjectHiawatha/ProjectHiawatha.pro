@@ -36,6 +36,7 @@ SOURCES += main.cpp\
     ai_controller.cpp \
     technology.cpp \
     techtree.cpp \
+    citylabel.cpp
 
     gameoptions.cpp \
 
@@ -66,6 +67,7 @@ HEADERS  += mainwindow.h \
     ai_controller.h \
     technology.h \
     techtree.h \
+    citylabel.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

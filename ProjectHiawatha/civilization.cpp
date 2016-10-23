@@ -239,6 +239,18 @@ void Civilization::AddUnit(Unit *unit)
     this->UnitList.push_back(unit);
 }
 
+void Civilization::RemoveCity(int cityIndex)
+{
+    delete this->currentCityList.at(cityIndex);
+    this->currentCityList.removeAt(cityIndex);
+}
+
+void Civilization::RemoveUnit(int unitIndex)
+{
+    delete this->GetUnitAt(unitIndex);
+    this->UnitList.removeAt(unitIndex);
+}
+
 void Civilization::SetUnitList(QVector<Unit *> list)
 {
     int i = 0;
