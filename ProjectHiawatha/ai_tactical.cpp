@@ -170,6 +170,7 @@ void AI_Tactical::settlercontrol(QVector<Tile *> CityToBeFounded){
 
 
 void AI_Tactical::workercontrol(){
+
     //for each worker
         //if garrissoned and not already improving a tile
             //start to the right of city and circle out within the city's tiles

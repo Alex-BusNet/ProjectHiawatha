@@ -6,7 +6,7 @@
 #include "tile.h"
 #include "unit.h"
 #include "civilization.h"
-
+#include "gamescene.h"
 
 class UnitController
 {

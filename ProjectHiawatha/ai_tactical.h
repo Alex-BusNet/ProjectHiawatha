@@ -4,6 +4,7 @@
 #ifndef AI_TACTICAL_H
 #define AI_TACTICAL_H
 #include "civilization.h"
+#include "unitcontroller.h"
 
 class AI_Tactical
 {
