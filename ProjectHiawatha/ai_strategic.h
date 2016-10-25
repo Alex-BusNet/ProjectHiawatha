@@ -6,11 +6,12 @@
 #include <ai_operational.h>
 #include <ai_tactical.h>
 #include "civilization.h"
+#include "map.h"
 
 class AI_Strategic
 {
 public:
-    AI_Strategic(Civilization *civ);//Probably use default constructor
+    AI_Strategic(Civilization *civ, Map *map);//Probably use default constructor
     //shouldn't need passed values
 
 private:

@@ -26,7 +26,7 @@ AI_Operational::AI_Operational()
 
 
 
-AI_Operational::AI_Operational(int midGoal, Civilization *civ)
+AI_Operational::AI_Operational(int midGoal, Civilization *civ, Map *map)
 {
     threatScan(highThreats, midThreats, lowThreats);
 
@@ -46,7 +46,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ)
         theaterPrep(civ, troopLocations);
     }
 
-    AI_Tactical *ai = new AI_Tactical(midGoal, civ, cityLocations, cityTarget, troopLocations, highThreats, midThreats, lowThreats);
+    AI_Tactical *ai = new AI_Tactical(midGoal, civ, map, cityLocations, cityTarget, troopLocations, highThreats, midThreats, lowThreats);
 }
 
 

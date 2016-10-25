@@ -28,7 +28,7 @@ AI_Tactical::AI_Tactical()
 
 }
 
-AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions, QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
+AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions, QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
 {
     highThreatProcessing(highThreats);
     midThreatProcessing(midThreats);
@@ -42,7 +42,7 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, QVector<Tile *> CityToB
     }
 
     settlercontrol(CityToBeFounded);
-    workercontrol();
+    workercontrol(civ, map);
 }
 
 
@@ -169,8 +169,23 @@ void AI_Tactical::settlercontrol(QVector<Tile *> CityToBeFounded){
 
 
 
-void AI_Tactical::workercontrol(){
+void AI_Tactical::workercontrol(Civilization *civ, Map *map){
 
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+
+    //Test target tile location
+    Tile *tile3x3y = map->GetTileFromCoord(3,3);
+
+    for(int i = 0; i<unitlist.length();i++){
+        if((unitlist.at(i)->isNonCombat())&&(!unitlist.at(i)->isSettler())){
+
+           // Tile *unitlocation = map->GetTileFromCoord(unitlist.at(i)->GetTileIndex());
+
+            //UnitControl->FindPath(unitlocation,tile3x3y,NULL,NULL,unitlist.at(i));
+            //Need to turn a tile index, and the target location (3,3) into tile objects.
+        }
+    }
     //for each worker
         //if garrissoned and not already improving a tile
             //start to the right of city and circle out within the city's tiles

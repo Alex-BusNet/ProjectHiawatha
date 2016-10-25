@@ -25,7 +25,7 @@ Probably called 1x per turn, and calls the operational AI, then tactical AI, fro
 #include "yield.h"
 #include "ai_controller.h"
 
-AI_Strategic::AI_Strategic(Civilization *civ)
+AI_Strategic::AI_Strategic(Civilization *civ, Map *map)
 {
 
 
@@ -33,7 +33,7 @@ AI_Strategic::AI_Strategic(Civilization *civ)
     //Some logic based on the different goal options
     cityProduction(midGoal, civ);
 
-    AI_Operational *ai = new AI_Operational(midGoal, civ);
+    AI_Operational *ai = new AI_Operational(midGoal, civ, map);
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
     //Pass it whether or not civ is preparing for / at war
