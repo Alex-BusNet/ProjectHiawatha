@@ -73,6 +73,7 @@ public:
     bool HasNoMovementLeft;
     bool isFortified;
     bool isMelee;
+    bool isRoadWorker;
     bool needsPath;
 
 

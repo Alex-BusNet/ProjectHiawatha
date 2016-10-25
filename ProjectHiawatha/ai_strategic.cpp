@@ -28,7 +28,7 @@ Probably called 1x per turn, and calls the operational AI, then tactical AI, fro
 
 AI_Strategic::AI_Strategic(Civilization *civ, Map *map, GameScene *scene)
 {
-qDebug()<<"Strategic AI Called";
+qDebug()<<"     Strategic AI Called";
 
     int midGoal = midTermGoal(civ);
     //Some logic based on the different goal options
@@ -91,7 +91,11 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ){
                     //Set city to build settler
                 }
                 else{
+
+                    //Should have Cities+1 workers
                     //logic for garrisoned and road workers
+                        //If worker is needed, should be built in the city that doesn't have a garrisoned worker
+                        //roadworker gets built in capitol early on
                     //Then build buildings
                     //Minimum military strength(defensive)
                 }

@@ -30,7 +30,7 @@ AI_Tactical::AI_Tactical()
 
 AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions, QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
 {
-    qDebug()<<"Tactical AI called";
+    qDebug()<<"             Tactical AI called";
     highThreatProcessing(highThreats);
     midThreatProcessing(midThreats);
     lowThreatProcessing(lowThreats);
@@ -45,7 +45,7 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *sc
     settlercontrol(CityToBeFounded);
     workercontrol(civ, map, scene);
 
-    qDebug()<<"AI Turn Complete for "<<civ->getCiv();
+    qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 }
 
 
@@ -173,20 +173,67 @@ void AI_Tactical::settlercontrol(QVector<Tile *> CityToBeFounded){
 
 
 void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
-    qDebug()<<"Worker Control Start";
-    QVector<Unit*> unitlist=civ->GetUnitList();
+    qDebug()<<"             Worker Control Start";
 
+    //Get list of units and make a controller
+    QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
 
     //Test target tile location
     Tile *tile3x3y = map->GetTileFromCoord(3,3);
     scene->column=3;
     scene->row=3;
+    //Manual settings like this cause rubber-banding
+
+    //Make sure a roadworker exists
+    bool roadWorkerExists=false;
 
     for(int i = 0; i<unitlist.length();i++){
+
+        //Find worker location
+        Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+
         if(civ->GetUnitList().at(i)->GetUnitType()==WORKER){
-            Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-            UnitControl->FindPath(unitlocation,tile3x3y,map,scene,unitlist.at(i));
+            if(civ->GetUnitList().at(i)->isFortified){
+
+                //Improve Tiles *******************
+            }
+            else if (civ->GetUnitList().at(i)->isRoadWorker){
+
+                roadWorkerExists=true;
+
+                //Build Roads ********************
+            }
+            else{
+                //Check each city for garrisoned worker
+                for(int j = 0; j<civ->GetCityList().length();j++){
+                    if(!civ->GetCityAt(j)->getHasWorker()){
+
+                        if(unitlocation==civ->GetCityAt(j)->GetCityTile()){
+                            //Garrison Worker
+                            civ->GetUnitList().at(i)->isFortified=true;
+                            civ->GetCityAt(j)->GarrisonWorker(civ->GetUnitList().at(i));
+                        }
+                        else {
+                            //Send the unused worker to city
+                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,scene,unitlist.at(i));
+                        }
+                    }
+                    else if(false==roadWorkerExists){
+
+                        civ->GetUnitList().at(i)->isRoadWorker=true;
+                        roadWorkerExists=true;
+                    }
+                }
+
+                //Find workers that aren't garrisoned or roadbuilding
+                //Match them with cities that don't have workers
+                    //Should actually be built in the correct city, so just immediately garisson if not roadworker
+                //or make them a roadworker if needed roadWorkerExists==false
+            }
+
+            //Test targetting
+            //UnitControl->FindPath(unitlocation,tile3x3y,map,scene,unitlist.at(i));
         }
     }
     //for each worker
@@ -197,7 +244,6 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
             //if not already building a road
                 //target a city not currently connected to capitol (bool val for this??)
 
-    qDebug()<< "End Worker Control";
 }
     //****************Worker Control***************
     //Unassigned but garrisoned workers will be targeted to the tile closest to the city

@@ -404,6 +404,21 @@ bool City::IsCityCaptial()
     return this->isCaptial;
 }
 
+void City::setCapitolConnection(bool flag)
+{
+    this->hasCapitolConnection=flag;
+}
+
+bool City::getCapitolConnection()
+{
+    return this->hasCapitolConnection;
+}
+
+bool City::getHasWorker()
+{
+    return this->hasWorker;
+}
+
 Yield* City::getCityYield()
 {
     return this->cityTotalYield;
