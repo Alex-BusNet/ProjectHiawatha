@@ -449,7 +449,7 @@ newrand:
                     if(!tile->ContainsUnit && !tile->HasCity)
                     {
                         unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
-                        unit->SetPosition(tile->GetTileID().columnm, tile->GetTileID().row);
+                        unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
                         tile->ContainsUnit = true;
                         break;
                     }

@@ -149,7 +149,7 @@ void GameView::zoomIn()
 
 void GameView::zoomOut()
 {
-    if(zoomScale > 1)
+    if(zoomScale > -1)
     {
         this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
         this->setResizeAnchor(QGraphicsView::AnchorUnderMouse);

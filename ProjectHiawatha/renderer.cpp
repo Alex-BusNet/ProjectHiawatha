@@ -45,7 +45,7 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
         // Set pen of vector to proper civ color (may require adjustment of if/else condition above
 
         tilePixmap.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
-        tilePixmap.at(i)->setScale(0.63f); //textureScale = 0.32f * drawScale
+        tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
         tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 

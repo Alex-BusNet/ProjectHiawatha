@@ -313,14 +313,20 @@ void Unit::SetUnitListIndex(int index)
     this->unitListIndex = index;
 }
 
+void Unit::SetUnitTargetTile(int column, int row)
+{
+    this->targetColPos = column;
+    this->targetRowPos = row;
+}
+
 void Unit::SetUnitImage(QImage *image)
 {
     this->unitIcon = image;
 }
 
-void Unit::SetUnitTargetTile(int tileIndex)
+void Unit::SetUnitTargetTileIndex(int tileIndex)
 {
-    this->targetTileIndex = index;
+    this->targetTileIndex = tileIndex;
 }
 
 void Unit::Use()
