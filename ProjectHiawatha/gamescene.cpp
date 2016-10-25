@@ -10,6 +10,7 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
     redrawTile = false;
     unitMoveOrdered = false;
     citySelected = false;
+    findUnit = false;
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -116,6 +117,7 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
                 qDebug() << "Unit tile selected";
                 unitSelectedTile = map->GetTileFromCoord(column, row);
                 isTileSelected = true;
+                findUnit = true;
             }
 
             // Tell GameManager that a tile needs to be redrawn.

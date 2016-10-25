@@ -19,7 +19,7 @@ public:
     void SetMap(Map *map);
     void ProcessTile(Map *map, bool unitAwaitingRelocation);
 
-    bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered, citySelected;
+    bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered, citySelected, findUnit;
 
     void drawForeground(QPainter *painter, const QRectF &rect);
 

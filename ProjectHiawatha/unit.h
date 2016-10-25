@@ -14,6 +14,7 @@ class Unit
 public:
     Unit();
     Unit(Nation owner = India, bool isNonCombat = true, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int health = 100, UnitType type = WORKER);
+    Unit(Nation owner = India, UnitType type = WORKER);
     ~Unit();
 
     void SetUnitIcon(UnitType type);
@@ -95,7 +96,7 @@ private:
     int rangeStrength;
     int health;
     int maxHealth;
-    int uses;
+    int uses; // uses = -1 for combat units.
 
     UnitType type;
 

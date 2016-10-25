@@ -437,7 +437,7 @@ newrand:
 
 //            qDebug() << "   Adding starting Unit";
 
-            unit = new Unit(civs.at(i)->getCiv(), true, false, 2, 1, 3, 5, WORKER);
+            unit = new Unit(civs.at(i)->getCiv(), WORKER);
             unit->SetOwner(civs.at(i)->getCiv());
             unit->RequiresOrders = true;
 

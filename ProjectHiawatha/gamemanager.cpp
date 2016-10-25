@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
+#include "unittype.h"
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -32,7 +33,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     techTreeVisible = false;
     relocateUnit = false;
     turnEnded = false;
-    findUnit = false;
+//    findUnit = false;
 
     playerCiv = player;
 
@@ -613,27 +614,30 @@ void GameManager::updateTiles()
     {
         moveUnit->setEnabled(true);
 
-//        if(findUnit)
-//        {
-//            unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
-//            findUnit = false;
-//        }
+        if(gameView->GetScene()->findUnit)
+        {
+            unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
+            gameView->GetScene()->findUnit = false;
 
-//        if(unitToMove->isNonCombat())
-//        {
-//            if(unitToMove->isSettler())
-//            {
-//                foundCity->setEnabled(true);
-//            }
-//            else
-//            {
-//                buildFarm->setEnabled(true);
-//                buildMine->setEnabled(true);
-//                buildPlantation->setEnabled(true);
-//                buildTradePost->setEnabled(true);
-//                buildRoad->setEnabled(true);
-//            }
-//        }
+            if(unitToMove->isNonCombat())
+            {
+                qDebug() << "   non-combat unit";
+                if(unitToMove->GetUnitType() == SETTLER)
+                {
+                    qDebug() << "       unit is settler";
+                    foundCity->setEnabled(true);
+                }
+                else if (unitToMove->GetUnitType() == WORKER);
+                {
+                    qDebug() << "       unit is worker";
+                    buildFarm->setEnabled(true);
+                    buildMine->setEnabled(true);
+                    buildPlantation->setEnabled(true);
+                    buildTradePost->setEnabled(true);
+                    buildRoad->setEnabled(true);
+                }
+            }
+        }
     }
 
     if(gameView->GetScene()->unitMoveOrdered)
@@ -678,7 +682,6 @@ void GameManager::updateTiles()
 void GameManager::moveUnitTo()
 {
     relocateUnit = true;
-    findUnit = true;
 }
 
 void GameManager::nextTurn()
