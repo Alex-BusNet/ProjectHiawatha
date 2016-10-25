@@ -4,13 +4,16 @@
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
 {
-
     isTileSelected = false;
     eventQueued = false;
     redrawTile = false;
     unitMoveOrdered = false;
     citySelected = false;
     findUnit = false;
+
+    processedData.column = 0;
+    processedData.row = 0;
+    processedData.newData = false;
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -26,7 +29,7 @@ void GameScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
     eventQueued = true;
 }
 
-void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
+TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
 {
     if(eventQueued == true)
     {
@@ -54,6 +57,7 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
         {
             // Drag Occured
             qDebug() << "Drag Screen";
+            processedData.newData = false;
         }
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
@@ -77,8 +81,13 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
 
             qDebug() << "   After Adjust: " << column << "," << row;
 
-            unitTargetTile = map->GetTileFromCoord(column, row);
-            unitMoveOrdered = true;
+            processedData.column = column;
+            processedData.row = row;
+            processedData.newData = true;
+            processedData.relocateOrderGiven = true;
+
+//            unitTargetTile = map->GetTileFromCoord(column, row);
+//            unitMoveOrdered = true;
 
         }
         else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos) && !unitAwaitingRelocation)
@@ -104,30 +113,39 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             }
 
             qDebug() << "   After Adjust: " << column << "," << row;
+            processedData.column = column;
+            processedData.row = row;
+            processedData.newData = true;
 
-            if(map->GetTileFromCoord(column, row)->HasCity)
-            {
-                //This may not be needed.
-                citySelected = true;
-                cityTileSelected = map->GetTileFromCoord(column, row);
-            }
-            else if(map->GetTileFromCoord(column, row)->ContainsUnit)
-            {
-                // set the global isTileSelected flag
-                qDebug() << "Unit tile selected";
-                unitSelectedTile = map->GetTileFromCoord(column, row);
-                isTileSelected = true;
-                findUnit = true;
-            }
+//            if(map->GetTileFromCoord(column, row)->HasCity)
+//            {
+//                //This may not be needed.
+//                citySelected = true;
+//                cityTileSelected = map->GetTileFromCoord(column, row);
+//            }
+//            else if(map->GetTileFromCoord(column, row)->ContainsUnit)
+//            {
+//                // set the global isTileSelected flag
+//                qDebug() << "Unit tile selected";
+//                unitSelectedTile = map->GetTileFromCoord(column, row);
+//                isTileSelected = true;
+//                findUnit = true;
+//            }
 
-            // Tell GameManager that a tile needs to be redrawn.
-            redrawTile = true;
+//            // Tell GameManager that a tile needs to be redrawn.
+//            redrawTile = true;
         }
 
         //Save the last mouse release position values
         lastScreenPos = mrScreenPos;
         lastScenePos = mrScenePos;
     }
+    else
+    {
+        processedData.newData = false;
+    }
+
+    return processedData;
 }
 
 void GameScene::drawForeground(QPainter *painter, const QRectF &rect)

@@ -17,6 +17,8 @@
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include "tiledata.h"
+#include <chrono>
 
 class GameManager : public QWidget
 {
@@ -83,6 +85,7 @@ private:
 
     QString *YieldDisplay;
 
+    Tile *unitTile, *targetTile;
 
     int zoomScale;
     int currentTurn, gameTurn;
@@ -93,7 +96,9 @@ private:
     bool relocateUnit;
     bool updateUnitPos;
     bool turnEnded, turnStarted;
-//    bool findUnit;
+    bool countTime;
+    bool citySelected, redrawTile, isTileSelected, cityTileSelected;
+    bool findUnit;
 
     Nation playerCiv;
 
@@ -105,9 +110,16 @@ private:
     void StartTurn();
     void EndTurn();
 
+    void UpdateTileData();
+
     void InitButtons();
     void InitLayouts();
     void InitYieldDisplay();
+
+    TileData processedData;
+
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
 
 signals:
 

@@ -9,6 +9,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include "unittype.h"
 
+
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 
@@ -34,7 +35,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     relocateUnit = false;
     turnEnded = false;
     turnStarted = true;
-//    findUnit = false;
+    countTime = false;
+    findUnit = false;
 
     playerCiv = player;
 
@@ -388,6 +390,8 @@ void GameManager::StartTurn()
 void GameManager::EndTurn()
 {
     qDebug() << "Ending Turn";
+    countTime = true;
+    begin = std::chrono::steady_clock::now();
 
     foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
     {
@@ -407,12 +411,95 @@ void GameManager::EndTurn()
         currentTurn = 0;
         turnEnded = false;
         turnStarted = true;
-//        StartTurn();
     }
     else
     {
         qDebug() << "AI turn next";
         currentTurn++;
+    }
+}
+
+void GameManager::UpdateTileData()
+{
+    if(processedData.newData && !processedData.relocateOrderGiven)
+    {
+        unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
+    }
+    else if(processedData.newData && processedData.relocateOrderGiven)
+    {
+        targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
+    }
+
+    if(unitTile->ContainsUnit && findUnit)
+    {
+        findUnit = false;
+        unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
+
+        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
+        {
+            unitTile->Selected = true;
+            moveUnit->setEnabled(true);
+            this->redrawTile = true;
+
+            if(unitToMove->isNonCombat())
+            {
+                qDebug() << "   non-combat unit";
+                if(unitToMove->GetUnitType() == SETTLER)
+                {
+                    qDebug() << "       unit is settler";
+                    if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
+                    {
+                        foundCity->setEnabled(true);
+                    }
+                }
+                else if (unitToMove->GetUnitType() == WORKER);
+                {
+                    qDebug() << "       unit is worker";
+                    buildFarm->setEnabled(true);
+                    buildMine->setEnabled(true);
+                    buildPlantation->setEnabled(true);
+                    buildTradePost->setEnabled(true);
+                    buildRoad->setEnabled(true);
+                }
+            }
+        }
+        else
+        {
+            qDebug() << "Player does not own that unit";
+        }
+    }
+    else if(unitTile->HasCity)
+    {
+        if(unitTile->GetControllingCiv() == civList.at(currentTurn)->getCiv())
+            this->citySelected = true;
+        else
+            qDebug() << "Player does not control this city";
+    }
+
+    if(processedData.relocateOrderGiven && !findUnit)
+    {
+//        unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
+        unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
+
+        qDebug() <<"    Finding path";
+        uc->FindPath(unitTile, targetTile, map, gameView->GetScene(), unitToMove);
+
+        relocateUnit = false;
+        processedData.relocateOrderGiven = false;
+        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+        this->redrawTile = true;
+        moveUnit->setEnabled(false);
+
+        if (unitToMove->GetUnitType() == WORKER);
+        {
+            buildFarm->setEnabled(false);
+            buildMine->setEnabled(false);
+            buildPlantation->setEnabled(false);
+            buildTradePost->setEnabled(false);
+            buildRoad->setEnabled(false);
+        }
+
+        qDebug() << "   Done";
     }
 }
 
@@ -613,82 +700,24 @@ void GameManager::showCity()
 
 void GameManager::updateTiles()
 {
-    gameView->GetScene()->ProcessTile(map, relocateUnit);
 
-    if(gameView->GetScene()->isTileSelected)
+    processedData = gameView->GetScene()->ProcessTile(relocateUnit);
+
+    if(processedData.newData)
     {
-        if(gameView->GetScene()->findUnit)
-        {
-            unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
-            gameView->GetScene()->findUnit = false;
-
-            if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
-            {
-                moveUnit->setEnabled(true);
-                if(unitToMove->isNonCombat())
-                {
-                    qDebug() << "   non-combat unit";
-                    if(unitToMove->GetUnitType() == SETTLER)
-                    {
-                        qDebug() << "       unit is settler";
-                        if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
-                        {
-                            foundCity->setEnabled(true);
-                        }
-                    }
-                    else if (unitToMove->GetUnitType() == WORKER);
-                    {
-                        qDebug() << "       unit is worker";
-                        buildFarm->setEnabled(true);
-                        buildMine->setEnabled(true);
-                        buildPlantation->setEnabled(true);
-                        buildTradePost->setEnabled(true);
-                        buildRoad->setEnabled(true);
-                    }
-                }
-            }
-            else
-            {
-                qDebug() << "Player does not own that unit";
-            }
-        }
+        findUnit = true;
+        this->UpdateTileData();
     }
 
-    if(gameView->GetScene()->unitMoveOrdered)
+    if(this->citySelected  && !cityScreenVisible)
     {
-        unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
-        unitToMove->SetUnitTargetTile(gameView->GetScene()->unitTargetTile->GetTileID().column, gameView->GetScene()->unitTargetTile->GetTileID().row);
-
-        qDebug() <<"    Finding path";
-        uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
-
-        relocateUnit = false;
-        gameView->GetScene()->unitMoveOrdered = false;
-        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
-        gameView->GetScene()->redrawTile = true;
-        moveUnit->setEnabled(false);
-
-        if (unitToMove->GetUnitType() == WORKER);
-        {
-            buildFarm->setEnabled(false);
-            buildMine->setEnabled(false);
-            buildPlantation->setEnabled(false);
-            buildTradePost->setEnabled(false);
-            buildRoad->setEnabled(false);
-        }
-
-        qDebug() << "   Done";
-    }
-
-    if(gameView->GetScene()->citySelected  && !cityScreenVisible)
-    {
-        gameView->GetScene()->citySelected = false;
+        this->citySelected = false;
         this->showCity();
     }
 
     TurnController();
-//qDebug()<<"turn controller";
-    if(gameView->GetScene()->redrawTile)
+
+    if(this->redrawTile)
     {
         renderer->UpdateScene(map, gameView->GetScene());
     }
@@ -699,6 +728,14 @@ void GameManager::updateTiles()
     {
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
+    }
+
+    //// FOR TESTING PURPOSES. I WANTED TO MAKE SURE THIS WASN'T TAKING UP ALOT OF TIME
+    end = std::chrono::steady_clock::now();
+    if(countTime == true)
+    {
+        countTime = false;
+        qDebug() << "------------------ Time to process AI Turns:" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "us";
     }
 }
 

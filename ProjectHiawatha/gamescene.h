@@ -7,6 +7,7 @@
 #include <QGraphicsSceneWheelEvent>
 #include <QPainter>
 #include <QWheelEvent>
+#include "tiledata.h"
 
 class GameScene : public QGraphicsScene
 {
@@ -17,9 +18,10 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
 
     void SetMap(Map *map);
-    void ProcessTile(Map *map, bool unitAwaitingRelocation);
+    TileData ProcessTile(bool unitAwaitingRelocation);
 
     bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered, citySelected, findUnit;
+//    bool newData;
 
     void drawForeground(QPainter *painter, const QRectF &rect);
 
@@ -28,6 +30,7 @@ public:
 
 private:
 
+    TileData processedData;
     QPointF mpScenePos, mpScreenPos, mrScenePos, mrScreenPos, lastScenePos, lastScreenPos;
 
 };

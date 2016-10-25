@@ -77,6 +77,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         //      reset the existing selected tile, if there is one.
         //      clear the global isTileSelected flag.
 //qDebug()<<(map->GetTileAt(index)==NULL);
+
         if(map->GetTileAt(index)->ContainsUnit)
         {
             if(!(map->GetTileAt(index)->Selected))

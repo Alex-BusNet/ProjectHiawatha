@@ -70,7 +70,8 @@ HEADERS  += mainwindow.h \
     techtree.h \
     citylabel.h \
     unittype.h \
-    heap.h
+    heap.h \
+    tiledata.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \
