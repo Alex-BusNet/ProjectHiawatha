@@ -92,7 +92,7 @@ private:
     bool techTreeVisible;
     bool relocateUnit;
     bool updateUnitPos;
-    bool turnEnded;
+    bool turnEnded, turnStarted;
 //    bool findUnit;
 
     Nation playerCiv;

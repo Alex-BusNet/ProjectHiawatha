@@ -298,7 +298,7 @@ void Map::GenerateMapEdge()
         {
             board.at(i)->SetTileTexture(WATER);
             board.at(i)->SetTileType(WATER);
-            board.at(i)->Walkable = false;
+            board.at(i)->Walkable = true;
         }
     }
 }

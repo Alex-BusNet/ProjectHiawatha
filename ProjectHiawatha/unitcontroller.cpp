@@ -194,6 +194,8 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
             return unit;
         }
     }
+
+    return new Unit(NO_NATION, WORKER);
 }
 
 int UnitController::GetDistance(Tile *a, Tile *b)
