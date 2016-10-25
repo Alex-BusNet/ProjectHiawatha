@@ -384,12 +384,12 @@ void GameManager::EndTurn()
     foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
     {
         qDebug() << "           is unit path empty:" << unit->isPathEmpty();
-        if(unit->needsPath)
-        {
-            qDebug() <<"    Finding path";
-            uc->FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, gameView->GetScene(), unit);
-        }
-        else if(!unit->RequiresOrders && !unit->isPathEmpty())
+//        if(unit->needsPath)
+//        {
+//            qDebug() <<"    Finding path";
+//            uc->FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, gameView->GetScene(), unit);
+//        }
+        /*else */if(!unit->RequiresOrders && !unit->isPathEmpty())
         {
             qDebug() << "  Updating unit positions";
             uc->MoveUnit(unit, map, gameView->GetScene());
@@ -613,11 +613,11 @@ void GameManager::updateTiles()
     {
         moveUnit->setEnabled(true);
 
-        if(findUnit)
-        {
-            unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
-            findUnit = false;
-        }
+//        if(findUnit)
+//        {
+//            unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
+//            findUnit = false;
+//        }
 
 //        if(unitToMove->isNonCombat())
 //        {
@@ -638,8 +638,17 @@ void GameManager::updateTiles()
 
     if(gameView->GetScene()->unitMoveOrdered)
     {
-//        unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
-       unitToMove->SetUnitTargetTile(gameView->GetScene()->unitSelectedTile->GetTileID().column, gameView->GetScene()->unitSelectedTile->GetTileID().row);
+        unitToMove = uc->FindUnitAtTile(gameView->GetScene()->unitSelectedTile, map, civList.at(currentTurn)->GetUnitList());
+        unitToMove->SetUnitTargetTile(gameView->GetScene()->unitTargetTile->GetTileID().column, gameView->GetScene()->unitTargetTile->GetTileID().row);
+
+        qDebug() <<"    Finding path";
+        uc->FindPath(gameView->GetScene()->unitSelectedTile, gameView->GetScene()->unitTargetTile, map, gameView->GetScene(), unitToMove);
+
+        relocateUnit = false;
+        gameView->GetScene()->unitMoveOrdered = false;
+        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+        gameView->GetScene()->redrawTile = true;
+        moveUnit->setEnabled(false);
         qDebug() << "   Done";
     }
 
@@ -650,7 +659,7 @@ void GameManager::updateTiles()
     }
 
     TurnController();
-qDebug()<<"turn controller";
+//qDebug()<<"turn controller";
     if(gameView->GetScene()->redrawTile)
     {
 

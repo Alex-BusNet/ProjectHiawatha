@@ -15,7 +15,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
         qDebug()<<"Start = End";
         return;
     }
-
+    qDebug() << "UnitController finding path";
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
 
