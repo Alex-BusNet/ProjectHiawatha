@@ -313,7 +313,7 @@ void GameManager::TurnController()
     else
     {
         StartTurn();
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn));
+        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), this->map, gameView->GetScene());
         future.waitForFinished();
         qDebug() << "   AI Turn Finished";
         EndTurn();
@@ -650,9 +650,10 @@ void GameManager::updateTiles()
     }
 
     TurnController();
-
+qDebug()<<"turn controller";
     if(gameView->GetScene()->redrawTile)
     {
+
         renderer->UpdateScene(map, gameView->GetScene());
     }
 

@@ -4,13 +4,14 @@
 #include "civilization.h"
 #include "ai_tactical.h"
 #include "map.h"
+#include "gamescene.h"
 class AI_Operational
 {
 public:
     AI_Operational();
 
     //Used Constructor
-    AI_Operational(int midGoal, Civilization *civ, Map *map);
+    AI_Operational(int midGoal, Civilization *civ, Map *map, GameScene *scene);
 
 private:
     void threatScan(QVector<Tile*> highThreats, QVector<Tile*> midThreats, QVector<Tile*> lowThreats);

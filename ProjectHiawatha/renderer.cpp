@@ -60,7 +60,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         // 20 is for duel sized maps (the default). That value will need to be adjusted later.
         int index = (col / 2) + (mapSizeX * row);
         static int lastIndex;
-
+qDebug()<<"gdfsasdfgter";
         // if the tile at the coordinates contains a unit
         //      if the tile contains a unit, check if it is the active selected tile
         //          if the tile is the active selected tile, reset the tile border to its controlling civ's color
@@ -77,9 +77,10 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         // else if the tile at the coordinates is empty
         //      reset the existing selected tile, if there is one.
         //      clear the global isTileSelected flag.
-
+//qDebug()<<(map->GetTileAt(index)==NULL);
         if(map->GetTileAt(index)->ContainsUnit)
         {
+            qDebug()<<"dsaaas";
             if(!(map->GetTileAt(index)->Selected))
             {
                 map->GetTileAt(index)->Selected = true;
@@ -100,10 +101,11 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
             tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
 
-//            scene->redrawTile = false;w
+            scene->redrawTile = false;
         }
         else if(map->GetTileAt(index)->HasCity)
         {
+            qDebug()<<"fasd";
             SetOutlinePen(NO_NATION);
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;
@@ -119,6 +121,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
         }
         else
         {
+            qDebug()<<"gh";
             SetOutlinePen(NO_NATION);
             map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
             map->GetTileAt(lastIndex)->Selected = false;

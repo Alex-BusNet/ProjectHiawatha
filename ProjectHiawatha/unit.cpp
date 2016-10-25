@@ -35,6 +35,7 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
     this->isFortified = false;
     this->isMelee = true;
     this->needsPath = false;
+    this->type = type;
 
     if(isNonCombat && !isSettler)
     {
@@ -277,6 +278,11 @@ int Unit::GetUnitListIndex()
 QList<Tile *> Unit::GetPath()
 {
     return this->path;
+}
+
+UnitType Unit::GetUnitType()
+{
+    return this->type;
 }
 
 bool Unit::isPathEmpty()

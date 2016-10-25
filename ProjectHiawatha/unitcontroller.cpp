@@ -11,6 +11,11 @@ UnitController::UnitController()
 
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScene *scene, Unit *unit)
 {
+    if(startTile==endTile){
+        qDebug()<<"Start = End";
+        return;
+    }
+
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
 

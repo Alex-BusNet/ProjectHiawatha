@@ -62,6 +62,8 @@ public:
 
     QList<Tile*> GetPath();
 
+    UnitType GetUnitType();
+
     bool isPathEmpty();
     bool isNonCombat();
     bool isSettler();
@@ -93,6 +95,8 @@ private:
     int health;
     int maxHealth;
     int uses;
+
+    UnitType type;
 
     QList<Tile*> path;
 };
