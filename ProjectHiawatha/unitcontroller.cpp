@@ -114,11 +114,6 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         qDebug() << "   Redrawing Tile";
         // Alert the renderer to redraw the map.
         scene->redrawTile = true;
-
-    }
-    else
-    {
-
     }
 }
 

@@ -15,6 +15,7 @@ Unit::Unit()
     this->isFortified = false;
     this->isMelee = false;
     this->uses = 1;
+    this->needsPath = false;
 //    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
@@ -33,6 +34,7 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
     this->HasNoMovementLeft = false;
     this->isFortified = false;
     this->isMelee = true;
+    this->needsPath = false;
 
     if(isNonCombat && !isSettler)
     {
@@ -146,16 +148,16 @@ void Unit::SetOwner(Nation owner)
     this->belongsTo = owner;
 }
 
-void Unit::SetPosition(int tileMapIndex)
+void Unit::SetPositionIndex(int tileMapIndex)
 {
     this->dataMapIndex = tileMapIndex;
 }
 
-//void Unit::SetPosition(int column, int row)
-//{
-//    this->colPosition = column;
-//    this->rowPosition = row;
-//}
+void Unit::SetPosition(int column, int row)
+{
+    this->colPosition = column;
+    this->rowPosition = row;
+}
 
 void Unit::SetMovementPoints(int pts)
 {
@@ -200,6 +202,31 @@ Nation Unit::GetOwner()
 int Unit::GetTileIndex()
 {
     return this->dataMapIndex;
+}
+
+int Unit::GetTargetTileIndex()
+{
+    return this->targetTileIndex;
+}
+
+int Unit::GetTileColumn()
+{
+    return this->colPosition;
+}
+
+int Unit::GetTileRow()
+{
+    return this->rowPosition;
+}
+
+int Unit::GetTargetTileColumn()
+{
+    return this->targetColPos;
+}
+
+int Unit::GetTargetTileRow()
+{
+    return this->targetRowPos;
 }
 
 int Unit::GetMovementPoints()
@@ -267,10 +294,6 @@ bool Unit::isSettler()
     return this->isSettler();
 }
 
-//bool Unit::NeedsOrders()
-//{
-//    return this->requiresOrders;
-//}
 
 void Unit::SetPath(QList<Tile *> newPath)
 {
@@ -293,6 +316,11 @@ void Unit::SetUnitListIndex(int index)
 void Unit::SetUnitImage(QImage *image)
 {
     this->unitIcon = image;
+}
+
+void Unit::SetUnitTargetTile(int tileIndex)
+{
+    this->targetTileIndex = index;
 }
 
 void Unit::Use()

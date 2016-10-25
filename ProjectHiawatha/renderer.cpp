@@ -45,11 +45,11 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
         // Set pen of vector to proper civ color (may require adjustment of if/else condition above
 
         tilePixmap.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
-        tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
+        tilePixmap.at(i)->setScale(0.63f); //textureScale = 0.32f * drawScale
         tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
     }
 
-    // Add map edge generation code here
+
 }
 
 void Renderer::UpdateScene(Map *map, GameScene *scene)
@@ -100,7 +100,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
             tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
 
-            scene->redrawTile = false;
+//            scene->redrawTile = false;w
         }
         else if(map->GetTileAt(index)->HasCity)
         {

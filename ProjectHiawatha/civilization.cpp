@@ -32,6 +32,7 @@ Civilization::Civilization(Nation name, bool isAI)
     this->cityIndex = 0;
     this->totalGold = 0;
     this->totalScience = 0;
+
     if(isAI)
     {
         this->isAIPlayer = true;

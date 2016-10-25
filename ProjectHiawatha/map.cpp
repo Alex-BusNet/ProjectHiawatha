@@ -438,7 +438,7 @@ newrand:
 //            qDebug() << "   Adding starting Unit";
 
             unit = new Unit(civs.at(i)->getCiv(), true, false, 2, 1, 3, 5, WORKER);
-//            unit->SetOwner(civs.at(i)->getCiv());
+            unit->SetOwner(civs.at(i)->getCiv());
             unit->RequiresOrders = true;
 
             foreach(Tile* tile, city->GetControlledTiles())
@@ -448,7 +448,8 @@ newrand:
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
                     {
-                        unit->SetPosition((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
+                        unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
+                        unit->SetPosition(tile->GetTileID().columnm, tile->GetTileID().row);
                         tile->ContainsUnit = true;
                         break;
                     }

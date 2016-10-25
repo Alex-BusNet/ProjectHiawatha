@@ -58,8 +58,8 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
         {
             // Move unit command Issued
             qDebug() << "Move Unit";
-            column = ceil(mrScenePos.x() / 46);
-            row = ceil(mrScenePos.y() / 75);
+            column = floor(mrScenePos.x() / 46);
+            row = floor(mrScenePos.y() / 76);
 
             qDebug() << "   Before Adjust: " << column << "," << row;
 
@@ -87,7 +87,7 @@ void GameScene::ProcessTile(Map *map, bool unitAwaitingRelocation)
             qDebug() << "ScenePos: " << mrScenePos;
 
             column = floor(mrScenePos.x() / 44);
-            row = floor(mrScenePos.y() / 74);
+            row = floor(mrScenePos.y() / 75);
 
             qDebug() << "   Before Adjust: " << column << "," << row;
 

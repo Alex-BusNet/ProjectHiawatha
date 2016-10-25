@@ -93,6 +93,7 @@ private:
     bool relocateUnit;
     bool updateUnitPos;
     bool turnEnded;
+    bool findUnit;
 
     Nation playerCiv;
 

@@ -1,6 +1,7 @@
 #include "city.h"
 #include <QDebug>
 
+
 City::City()
 {
     this->cityTotalYield = new Yield(1,1,1,1,1);
@@ -12,13 +13,29 @@ City::~City()
 
 }
 
-void City::TileToGetNext()
+void City::TilesToGetNext()
 {
     // Select the next tile to be claimed by a city based on:
     //  -Is the tile already claimed by another civ?
     //  -The total yield of the tile
     //  -Resources on tile
     //  -Tile type
+
+//    QList<Tile*> surroundingTiles;
+
+//    foreach(Tile* tile, cityControlledTiles)
+//    {
+//        surroundingTiles = map->GetNeighbors(tile);
+
+//        foreach(Tile* tile, surroundingTiles)
+//        {
+//            if(tile->GetControllingCiv() == this->GetControllingCiv())
+//            {
+//                surroundingTiles
+//            }
+//        }
+
+//    }
 
     //Store all eligible tiles in a heap.
 }
@@ -261,7 +278,6 @@ void City::AddControlledTile(Tile *tile)
 
 void City::DefineCityBorders()
 {
-
     //Get the center of each tile the city controls and
     // load the point into the QVector
     QVector<QPoint> points;
