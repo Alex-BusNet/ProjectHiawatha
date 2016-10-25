@@ -29,7 +29,7 @@ AI_Operational::AI_Operational()
 
 AI_Operational::AI_Operational(int midGoal, Civilization *civ, Map *map, GameScene *scene)
 {
-    qDebug()<<"Operational AI Called";
+    qDebug()<<"         Operational AI Called";
 
     threatScan(highThreats, midThreats, lowThreats);
 

@@ -49,6 +49,11 @@ public:
     int GetCityIndex();
     bool IsCityCaptial();
 
+    void setCapitolConnection(bool flag);
+    bool getCapitolConnection();
+
+    bool getHasWorker();
+
     ~City();
 
 private:
@@ -68,6 +73,7 @@ private:
     bool isCaptial;
     bool hasWorker;
     bool hasGarrison;
+    bool hasCapitolConnection;
 
     int productionYield;
     int scienceYield;

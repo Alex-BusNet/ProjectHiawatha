@@ -650,7 +650,7 @@ void GameManager::updateTiles()
     }
 
     TurnController();
-qDebug()<<"turn controller";
+//qDebug()<<"turn controller";
     if(gameView->GetScene()->redrawTile)
     {
 

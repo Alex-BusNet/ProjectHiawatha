@@ -36,6 +36,7 @@ Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, i
     this->isMelee = true;
     this->needsPath = false;
     this->type = type;
+    this->isRoadWorker=false;
 
     if(isNonCombat && !isSettler)
     {
