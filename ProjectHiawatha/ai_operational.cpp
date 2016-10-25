@@ -18,6 +18,7 @@ Control of overall unit placement
 */
 
 #include "ai_operational.h"
+#include <qdebug.h>
 
 AI_Operational::AI_Operational()
 {
@@ -28,6 +29,8 @@ AI_Operational::AI_Operational()
 
 AI_Operational::AI_Operational(int midGoal, Civilization *civ, Map *map, GameScene *scene)
 {
+    qDebug()<<"Operational AI Called";
+
     threatScan(highThreats, midThreats, lowThreats);
 
 

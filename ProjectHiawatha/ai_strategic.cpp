@@ -28,7 +28,7 @@ Probably called 1x per turn, and calls the operational AI, then tactical AI, fro
 
 AI_Strategic::AI_Strategic(Civilization *civ, Map *map, GameScene *scene)
 {
-qDebug()<<"Strategic AI";
+qDebug()<<"Strategic AI Called";
 
     int midGoal = midTermGoal(civ);
     //Some logic based on the different goal options

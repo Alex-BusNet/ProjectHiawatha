@@ -15,6 +15,7 @@ void AI_Controller::AddAIToList(AI_Strategic *ai)
 
 void AI_Controller::turnStarted(Civilization *civ, Map *map, GameScene *scene)
 {
+    qDebug()<<"AI Controller Called";
     //This calls the correct Strategic AI and starts their turn
     //aiList.at(aiIndex);
    //qDebug() << "AI" << aiIndex << "of" << aiList.size() <<"turn";

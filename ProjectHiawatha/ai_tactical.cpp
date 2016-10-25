@@ -30,6 +30,7 @@ AI_Tactical::AI_Tactical()
 
 AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions, QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
 {
+    qDebug()<<"Tactical AI called";
     highThreatProcessing(highThreats);
     midThreatProcessing(midThreats);
     lowThreatProcessing(lowThreats);
@@ -43,6 +44,8 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *sc
 
     settlercontrol(CityToBeFounded);
     workercontrol(civ, map, scene);
+
+    qDebug()<<"AI Turn Complete for "<<civ->getCiv();
 }
 
 
@@ -170,11 +173,10 @@ void AI_Tactical::settlercontrol(QVector<Tile *> CityToBeFounded){
 
 
 void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
-
+    qDebug()<<"Worker Control Start";
     QVector<Unit*> unitlist=civ->GetUnitList();
-    qDebug()<<"Unitlist";
+
     UnitController *UnitControl= new UnitController();
-    qDebug()<<"UnitController";
 
     //Test target tile location
     Tile *tile3x3y = map->GetTileFromCoord(3,3);
@@ -182,14 +184,9 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
     scene->row=3;
 
     for(int i = 0; i<unitlist.length();i++){
-            qDebug()<<"for";
         if(civ->GetUnitList().at(i)->GetUnitType()==WORKER){
-    qDebug()<<"if";
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-qDebug()<<"tile";
             UnitControl->FindPath(unitlocation,tile3x3y,map,scene,unitlist.at(i));
-            qDebug()<<"FindPath";
-            //Need to turn a tile index, and the target location (3,3) into tile objects.
         }
     }
     //for each worker
@@ -199,6 +196,8 @@ qDebug()<<"tile";
         //else (non-garrisonned workers should always be road workers
             //if not already building a road
                 //target a city not currently connected to capitol (bool val for this??)
+
+    qDebug()<< "End Worker Control";
 }
     //****************Worker Control***************
     //Unassigned but garrisoned workers will be targeted to the tile closest to the city
