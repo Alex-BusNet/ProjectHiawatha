@@ -36,6 +36,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     turnEnded = false;
     turnStarted = true;
     countTime = false;
+    citySelected = false;
     findUnit = false;
 
     playerCiv = player;
@@ -729,6 +730,7 @@ void GameManager::updateTiles()
 
     if(this->redrawTile)
     {
+//        this->redrawTile = false;
         renderer->UpdateScene(map, gameView->GetScene(), processedData);
     }
 
@@ -740,7 +742,7 @@ void GameManager::updateTiles()
         cityScreenVisible = false;
     }
 
-    //// FOR TESTING PURPOSES. I WANTED TO MAKE SURE THIS WASN'T TAKING UP ALOT OF TIME
+    //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING WASN'T TAKING UP A LOT OF TIME
     end = std::chrono::steady_clock::now();
     if(countTime == true)
     {

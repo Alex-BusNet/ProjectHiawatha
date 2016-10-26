@@ -90,7 +90,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
             {
                 SetOutlinePen(NO_NATION);
 
-                scene->isTileSelected = false;
+//                scene->isTileSelected = false;
                 map->GetTileFromCoord(col, row)->Selected = false;
             }
 
