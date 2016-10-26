@@ -21,7 +21,7 @@ public:
     Renderer(int mapSizeX);
 
     void DrawHexScene(Map *map, GameView *scene);
-    void UpdateScene(Map *map, GameScene *scene);
+    void UpdateScene(Map *map, GameScene *scene, TileData data);
     void UpdateUnits(Map *map, GameView *view, Unit *unit);
     void DrawGuiImages(QGraphicsScene *scene);
 

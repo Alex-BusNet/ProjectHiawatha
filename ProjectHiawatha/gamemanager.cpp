@@ -424,20 +424,30 @@ void GameManager::UpdateTileData()
     if(processedData.newData && !processedData.relocateOrderGiven)
     {
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
+
+        if(unitTile->Selected)
+        {
+            map->GetTileFromCoord(unitTile->GetTileID().column, unitTile->GetTileID().row)->Selected = false;
+        }
+
+        if(unitTile->ContainsUnit)
+        {
+            findUnit = true;
+        }
     }
     else if(processedData.newData && processedData.relocateOrderGiven)
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
     }
 
-    if(unitTile->ContainsUnit && findUnit)
+    if(findUnit)
     {
         findUnit = false;
         unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
         if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
         {
-            unitTile->Selected = true;
+            map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
             moveUnit->setEnabled(true);
             this->redrawTile = true;
 
@@ -452,7 +462,7 @@ void GameManager::UpdateTileData()
                         foundCity->setEnabled(true);
                     }
                 }
-                else if (unitToMove->GetUnitType() == WORKER);
+                else if (unitToMove->GetUnitType() == WORKER)
                 {
                     qDebug() << "       unit is worker";
                     buildFarm->setEnabled(true);
@@ -490,7 +500,7 @@ void GameManager::UpdateTileData()
         this->redrawTile = true;
         moveUnit->setEnabled(false);
 
-        if (unitToMove->GetUnitType() == WORKER);
+        if (unitToMove->GetUnitType() == WORKER)
         {
             buildFarm->setEnabled(false);
             buildMine->setEnabled(false);
@@ -705,7 +715,7 @@ void GameManager::updateTiles()
 
     if(processedData.newData)
     {
-        findUnit = true;
+//        findUnit = true;
         this->UpdateTileData();
     }
 
@@ -719,7 +729,7 @@ void GameManager::updateTiles()
 
     if(this->redrawTile)
     {
-        renderer->UpdateScene(map, gameView->GetScene());
+        renderer->UpdateScene(map, gameView->GetScene(), processedData);
     }
 
     this->update();

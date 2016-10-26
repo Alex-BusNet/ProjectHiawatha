@@ -52,11 +52,11 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
 
 }
 
-void Renderer::UpdateScene(Map *map, GameScene *scene)
+void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
 {
-    if(scene->redrawTile)
-    {
-        int col = scene->column, row = scene->row;
+//    if(redraw)
+//    {
+        int col = data.column, row = data.row;
         // 20 is for duel sized maps (the default). That value will need to be adjusted later.
         int index = (col / 2) + (mapSizeX * row);
         static int lastIndex;
@@ -100,7 +100,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
             tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
 
-            scene->redrawTile = false;
+//            scene->redrawTile = false;
         }
         else if(map->GetTileAt(index)->HasCity)
         {
@@ -115,7 +115,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
 
             map->GetTileAt(index)->GetGoverningCity();
             scene->isTileSelected = false;
-            scene->redrawTile = false;
+//            scene->redrawTile = false;
         }
         else
         {
@@ -129,9 +129,9 @@ void Renderer::UpdateScene(Map *map, GameScene *scene)
             tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
             scene->isTileSelected = false;
-            scene->redrawTile = false;
+//            scene->redrawTile = false;
         }
-    }
+//    }
 }
 
 void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
