@@ -68,6 +68,14 @@ public:
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
 
+    //AI Funcs
+    void setLowThreats(QVector<Tile*> lowThreats);
+    void setMidThreats(QVector<Tile*> midThreats);
+    void setHighThreats(QVector<Tile*> highThreats);
+    QVector<Tile*> getLowThreats();
+    QVector<Tile*> getMidThreats();
+    QVector<Tile*> getHighThreats();
+
 private:
     Nation name;
     //Enum for leader?
@@ -98,6 +106,9 @@ private:
 
     //AI stuff
     bool isAIPlayer;
+    QVector<Tile*> lowThreats;
+    QVector<Tile*> midThreats;
+    QVector<Tile*> highThreats;
 };
 
 #endif // CIVILIZATION_H

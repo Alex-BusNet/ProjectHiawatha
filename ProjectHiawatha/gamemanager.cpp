@@ -324,7 +324,7 @@ void GameManager::TurnController()
     else
     {
         StartTurn();
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), this->map, gameView->GetScene());
+        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map, gameView->GetScene());
         future.waitForFinished();
         qDebug() << "   AI Turn Finished";
         EndTurn();

@@ -15,10 +15,10 @@ class AI_Tactical
 public:
     AI_Tactical();
 
-    AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *scene, QVector<Tile*> CityToBeFounded, City *cityTarget, QVector<Tile*> TroopPositions, QVector<Tile*> highThreats, QVector<Tile*> midThreats, QVector<Tile*> lowThreats);
+    AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile*> CityToBeFounded, City *cityTarget, QVector<Tile*> TroopPositions);
 
     //2 functions, depending if the civ is attacking or defending
-    void Prep(Civilization *civ, QVector<Tile*> TroopPositions);
+    void Prep(Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile*> TroopPositions);
     void AtWar(Civilization *civ, City *cityTarget);
 
 
@@ -26,9 +26,9 @@ private:
 
     void settlercontrol(QVector<Tile *>  CityToBeFounded);
     void workercontrol(Civilization *civ, Map *map, GameScene *scene);
-    void highThreatProcessing(QVector<Tile*> highThreats);
-    void midThreatProcessing(QVector<Tile*> midThreats);
-    void lowThreatProcessing(QVector<Tile*> lowThreats);
+    void highThreatProcessing(Civilization *civ, Civilization *player);
+    void midThreatProcessing(Civilization *civ, Civilization *player);
+    void lowThreatProcessing(Civilization *civ, Civilization *player);
 
 
 };

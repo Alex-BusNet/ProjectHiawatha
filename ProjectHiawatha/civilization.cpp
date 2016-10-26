@@ -230,6 +230,36 @@ void Civilization::loadCities(QString filename)
     }
 }
 
+void Civilization::setLowThreats(QVector<Tile *> lowThreats)
+{
+    this->lowThreats=lowThreats;
+}
+
+void Civilization::setMidThreats(QVector<Tile *> midThreats)
+{
+    this->midThreats=midThreats;
+}
+
+void Civilization::setHighThreats(QVector<Tile *> highThreats)
+{
+    this->highThreats=highThreats;
+}
+
+QVector<Tile *> Civilization::getLowThreats()
+{
+    return this->lowThreats;
+}
+
+QVector<Tile *> Civilization::getMidThreats()
+{
+    return this->midThreats;
+}
+
+QVector<Tile *> Civilization::getHighThreats()
+{
+    return this->highThreats;
+}
+
 void Civilization::AddCity(City *city)
 {
     this->currentCityList.push_back(city);

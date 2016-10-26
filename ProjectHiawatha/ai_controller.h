@@ -15,7 +15,7 @@ public:
 
     void AddAIToList(AI_Strategic *ai);
 
-    void turnStarted(Civilization *civ, Map *map,GameScene *scene);
+    void turnStarted(Civilization *civ, Civilization *player, Map *map, GameScene *scene);
 
 private:
     QVector<AI_Strategic*> aiList;

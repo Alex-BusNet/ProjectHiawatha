@@ -27,29 +27,29 @@ AI_Operational::AI_Operational()
 
 
 
-AI_Operational::AI_Operational(int midGoal, Civilization *civ, Map *map, GameScene *scene)
+AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene)
 {
     qDebug()<<"         Operational AI Called";
 
-    threatScan(highThreats, midThreats, lowThreats);
+    threatScan(civ, player);
 
 
     if(1==midGoal){
         cityLocation(civ);
     }
     else if(2==midGoal){
-        theaterPrep(civ, troopLocations);
+        theaterPrep(civ, player, troopLocations);
     }
     else if(3==midGoal){
-       theaterAtWar(civ, cityTarget);
+       theaterAtWar(civ, player, cityTarget);
     }
     else{
         //Probably not anything for operational in this context, aside from threat detection
         //midgoal==4 is resource gathering - run theaterprep?
-        theaterPrep(civ, troopLocations);
+        theaterPrep(civ, player, troopLocations);
     }
 
-    AI_Tactical *ai = new AI_Tactical(midGoal, civ, map, scene, cityLocations, cityTarget, troopLocations, highThreats, midThreats, lowThreats);
+    AI_Tactical *ai = new AI_Tactical(midGoal, civ, player, map, scene, cityLocations, cityTarget, troopLocations);
 }
 
 
@@ -62,7 +62,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Map *map, GameSce
 
 
 
-void AI_Operational::threatScan(QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
+void AI_Operational::threatScan(Civilization *civ, Civilization *player)
 {
     //Units within territory are added to highThreats
     //Using the Map::GetNeighbors(Tile *node) algorithm
@@ -86,7 +86,7 @@ void AI_Operational::threatScan(QVector<Tile *> highThreats, QVector<Tile *> mid
 
 
 
-void AI_Operational::theaterAtWar(Civilization *civ, City *cityTarget){
+void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget){
     //scan outward for nearest player city
         //Sets it as city target
 }
@@ -102,8 +102,8 @@ void AI_Operational::theaterAtWar(Civilization *civ, City *cityTarget){
 
 
 
-void AI_Operational::theaterPrep(Civilization *civ, QVector<Tile *> troopLocations){
-    //Scans for polayer's nearest city
+void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVector<Tile *> troopLocations){
+    //Scans for player's nearest city
         //Locates open tiles within civ's borders that are near the enemy city
             //Maybe does the rotational scan out from the located city?
             //adds tiles within ai's civ to vector, starting with nearest to enemy city

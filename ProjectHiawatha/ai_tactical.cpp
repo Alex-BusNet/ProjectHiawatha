@@ -28,18 +28,18 @@ AI_Tactical::AI_Tactical()
 
 }
 
-AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions, QVector<Tile *> highThreats, QVector<Tile *> midThreats, QVector<Tile *> lowThreats)
+AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
 {
     qDebug()<<"             Tactical AI called";
-    highThreatProcessing(highThreats);
-    midThreatProcessing(midThreats);
-    lowThreatProcessing(lowThreats);
+    highThreatProcessing(civ, player);
+    midThreatProcessing(civ, player);
+    lowThreatProcessing(civ, player);
 
     if(3==midGoal){
         AtWar(civ, cityTarget);
     }
     else{
-        Prep(civ, TroopPositions);
+        Prep(civ, player, map, scene, TroopPositions);
     }
 
     settlercontrol(CityToBeFounded);
@@ -50,8 +50,33 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Map *map, GameScene *sc
 
 
 
-void AI_Tactical::Prep(Civilization *civ, QVector<Tile *> TroopPositions)
+void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile *> TroopPositions)
 {
+    qDebug()<<"             Prep Control Start";
+
+    //Get list of units and make a controller
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+
+    for(int i = 0; i<unitlist.length();i++){
+
+        //Test target tile location
+        Tile *tile3x3y = map->GetTileFromCoord(3,3);
+        scene->column=3;
+        scene->row=3;
+
+        //Find Troop location
+        Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+
+        if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+            //Will need additional logic for other unit types
+
+            UnitControl->FindPath(unitlocation,player->GetCityAt(0)->GetCityTile(),map,scene,unitlist.at(i));
+
+
+        }
+
+    }
     //Scroll through a vector of the military units,
         //check each to see if it has moves remaining
         //direct it into an appropriate tile
@@ -89,7 +114,7 @@ void AI_Tactical::AtWar(Civilization *civ, City *cityTarget)
 
 
 
-void AI_Tactical::highThreatProcessing(QVector<Tile *> highThreats){
+void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player){
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack in the next 3 turns
@@ -115,7 +140,7 @@ void AI_Tactical::highThreatProcessing(QVector<Tile *> highThreats){
             //remove enemy from vector if killed
 
 
-void AI_Tactical::midThreatProcessing(QVector<Tile *> midThreats){
+void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player){
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack this or next turn
@@ -134,7 +159,7 @@ void AI_Tactical::midThreatProcessing(QVector<Tile *> midThreats){
         //each appropriate unit will target the closest remaining mid threat (unless more than 3 turns away)
             //remove enemy from vector if killed
 
-void AI_Tactical::lowThreatProcessing(QVector<Tile *> lowThreats){
+void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player){
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack this turn
@@ -180,9 +205,9 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
     UnitController *UnitControl= new UnitController();
 
     //Test target tile location
-    Tile *tile3x3y = map->GetTileFromCoord(3,3);
-    scene->column=3;
-    scene->row=3;
+//    Tile *tile3x3y = map->GetTileFromCoord(3,3);
+//    scene->column=3;
+//    scene->row=3;
     //Manual settings like this cause rubber-banding
 
     //Make sure a roadworker exists
