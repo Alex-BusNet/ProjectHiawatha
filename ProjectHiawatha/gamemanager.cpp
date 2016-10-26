@@ -732,7 +732,6 @@ void GameManager::updateTiles()
 
     if(processedData.newData)
     {
-//        findUnit = true;
         this->UpdateTileData();
     }
 
@@ -746,7 +745,7 @@ void GameManager::updateTiles()
 
     if(this->redrawTile)
     {
-//        this->redrawTile = false;
+        this->redrawTile = false;
         renderer->UpdateScene(map, gameView->GetScene(), processedData);
     }
 

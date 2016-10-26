@@ -56,6 +56,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
 {
 //    if(redraw)
 //    {
+    qDebug() << "   Updating Scene";
         int col = data.column, row = data.row;
         // 20 is for duel sized maps (the default). That value will need to be adjusted later.
         int index = (col / 2) + (mapSizeX * row);
