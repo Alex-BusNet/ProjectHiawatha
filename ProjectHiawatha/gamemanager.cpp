@@ -422,21 +422,21 @@ void GameManager::EndTurn()
 
 void GameManager::UpdateTileData()
 {
-    if(processedData.newData && !processedData.relocateOrderGiven)
+    if(/*processedData.newData && */!processedData.relocateOrderGiven)
     {
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
-        if(unitTile->Selected)
+        if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected)
         {
             map->GetTileFromCoord(unitTile->GetTileID().column, unitTile->GetTileID().row)->Selected = false;
         }
 
-        if(unitTile->ContainsUnit)
+        if(map->GetTileFromCoord(processedData.column, processedData.row)->ContainsUnit)
         {
             findUnit = true;
         }
     }
-    else if(processedData.newData && processedData.relocateOrderGiven)
+    else if(/*processedData.newData && */processedData.relocateOrderGiven)
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
     }
@@ -511,6 +511,22 @@ void GameManager::UpdateTileData()
         }
 
         qDebug() << "   Done";
+    }
+
+    if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
+    {
+        moveUnit->setEnabled(false);
+
+        if (unitToMove->GetUnitType() == WORKER)
+        {
+            buildFarm->setEnabled(false);
+            buildMine->setEnabled(false);
+            buildPlantation->setEnabled(false);
+            buildTradePost->setEnabled(false);
+            buildRoad->setEnabled(false);
+        }
+
+        redrawTile = true;
     }
 }
 

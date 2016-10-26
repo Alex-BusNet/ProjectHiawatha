@@ -80,9 +80,9 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
 
         if(map->GetTileAt(index)->ContainsUnit)
         {
-            if(!(map->GetTileAt(index)->Selected))
+            if((map->GetTileAt(index)->Selected))
             {
-                map->GetTileAt(index)->Selected = true;
+//                map->GetTileAt(index)->Selected = true;
                 outlinePen.setColor(Qt::yellow);
                 lastIndex = index;
             }
@@ -114,7 +114,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
             tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
             map->GetTileAt(index)->GetGoverningCity();
-            scene->isTileSelected = false;
+//            scene->isTileSelected = false;
 //            scene->redrawTile = false;
         }
         else
@@ -128,7 +128,7 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
             tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
             tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
-            scene->isTileSelected = false;
+//            scene->isTileSelected = false;
 //            scene->redrawTile = false;
         }
 //    }

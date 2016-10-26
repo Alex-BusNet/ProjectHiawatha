@@ -62,7 +62,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
-            qDebug() << "Move Unit";
+            qDebug() << " Move Unit";
             column = 0.5 + (mrScenePos.x() / 45);
             row = 0.5 + (mrScenePos.y() / 75);
 
@@ -85,10 +85,6 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
             processedData.row = row;
             processedData.newData = true;
             processedData.relocateOrderGiven = true;
-
-//            unitTargetTile = map->GetTileFromCoord(column, row);
-//            unitMoveOrdered = true;
-
         }
         else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos) && !unitAwaitingRelocation)
         {
@@ -116,24 +112,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
             processedData.column = column;
             processedData.row = row;
             processedData.newData = true;
-
-//            if(map->GetTileFromCoord(column, row)->HasCity)
-//            {
-//                //This may not be needed.
-//                citySelected = true;
-//                cityTileSelected = map->GetTileFromCoord(column, row);
-//            }
-//            else if(map->GetTileFromCoord(column, row)->ContainsUnit)
-//            {
-//                // set the global isTileSelected flag
-//                qDebug() << "Unit tile selected";
-//                unitSelectedTile = map->GetTileFromCoord(column, row);
-//                isTileSelected = true;
-//                findUnit = true;
-//            }
-
-//            // Tell GameManager that a tile needs to be redrawn.
-//            redrawTile = true;
+            processedData.relocateOrderGiven = false;
         }
 
         //Save the last mouse release position values
@@ -143,6 +122,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
     else
     {
         processedData.newData = false;
+        processedData.relocateOrderGiven = false;
     }
 
     return processedData;
