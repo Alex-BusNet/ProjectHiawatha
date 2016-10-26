@@ -54,85 +54,73 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
 
 void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
 {
-//    if(redraw)
-//    {
-    qDebug() << "   Updating Scene";
-        int col = data.column, row = data.row;
-        // 20 is for duel sized maps (the default). That value will need to be adjusted later.
-        int index = (col / 2) + (mapSizeX * row);
-        static int lastIndex;
-        // if the tile at the coordinates contains a unit
-        //      if the tile contains a unit, check if it is the active selected tile
-        //          if the tile is the active selected tile, reset the tile border to its controlling civ's color
-        //              clear the tile's selected flag and the global isTileSelected flag.
-        //          else, set the tiles border color to yellow
-        //
-        //      find the index of the tile in the render map vector (tiles)
-        //      replace the existing tile with the updated tile (including the updated boarder color)
-        //      set the render map's tile pen at the replaced index, to the border pen of the new tile.
-        // else if the tile at the coordinates contains a city
-        //      reset the existing selected tile, if there is one
-        //      clear the global isTileSelected flag
-        //      open the city screen.
-        // else if the tile at the coordinates is empty
-        //      reset the existing selected tile, if there is one.
-        //      clear the global isTileSelected flag.
-//qDebug()<<(map->GetTileAt(index)==NULL);
+    int col = data.column, row = data.row;
+    int index = (col / 2) + (mapSizeX * row);
+    static int lastIndex;
+    // if the tile at the coordinates contains a unit
+    //      if the tile contains a unit, check if it is the active selected tile
+    //          if the tile is the active selected tile, reset the tile border to its controlling civ's color
+    //              clear the tile's selected flag and the global isTileSelected flag.
+    //          else, set the tiles border color to yellow
+    //
+    //      find the index of the tile in the render map vector (tiles)
+    //      replace the existing tile with the updated tile (including the updated boarder color)
+    //      set the render map's tile pen at the replaced index, to the border pen of the new tile.
+    // else if the tile at the coordinates contains a city
+    //      reset the existing selected tile, if there is one
+    //      clear the global isTileSelected flag
+    //      open the city screen.
+    // else if the tile at the coordinates is empty
+    //      reset the existing selected tile, if there is one.
+    //      clear the global isTileSelected flag.
 
-        if(map->GetTileAt(index)->ContainsUnit)
+    if(map->GetTileAt(index)->ContainsUnit)
+    {
+        if((map->GetTileAt(index)->Selected))
         {
-            if((map->GetTileAt(index)->Selected))
-            {
 //                map->GetTileAt(index)->Selected = true;
-                outlinePen.setColor(Qt::yellow);
-                lastIndex = index;
-            }
-            else
-            {
-                SetOutlinePen(NO_NATION);
-
-//                scene->isTileSelected = false;
-                map->GetTileFromCoord(col, row)->Selected = false;
-            }
-
-            map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
-            scene->removeItem(tiles.at(lastIndex));
-            tiles.remove(index);
-            tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
-            tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
-
-//            scene->redrawTile = false;
-        }
-        else if(map->GetTileAt(index)->HasCity)
-        {
-            SetOutlinePen(NO_NATION);
-            map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
-            map->GetTileAt(lastIndex)->Selected = false;
-
-            scene->removeItem(tiles.at(lastIndex));
-            tiles.remove(lastIndex);
-            tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-            tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
-
-            map->GetTileAt(index)->GetGoverningCity();
-//            scene->isTileSelected = false;
-//            scene->redrawTile = false;
+            outlinePen.setColor(Qt::yellow);
+            lastIndex = index;
         }
         else
         {
             SetOutlinePen(NO_NATION);
-            map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
-            map->GetTileAt(lastIndex)->Selected = false;
 
-            scene->removeItem(tiles.at(lastIndex));
-            tiles.remove(lastIndex);
-            tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-            tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
-
-//            scene->isTileSelected = false;
-//            scene->redrawTile = false;
+            map->GetTileFromCoord(col, row)->Selected = false;
         }
-//    }
+
+        map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
+        scene->removeItem(tiles.at(lastIndex));
+        tiles.remove(index);
+        tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
+        tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
+
+//            scene->redrawTile = false;
+    }
+    else if(map->GetTileAt(index)->HasCity)
+    {
+        SetOutlinePen(NO_NATION);
+        map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
+        map->GetTileAt(lastIndex)->Selected = false;
+
+        scene->removeItem(tiles.at(lastIndex));
+        tiles.remove(lastIndex);
+        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+
+        map->GetTileAt(index)->GetGoverningCity();
+    }
+    else
+    {
+        SetOutlinePen(NO_NATION);
+        map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
+        map->GetTileAt(lastIndex)->Selected = false;
+
+        scene->removeItem(tiles.at(lastIndex));
+        tiles.remove(lastIndex);
+        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+    }
 }
 
 void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)

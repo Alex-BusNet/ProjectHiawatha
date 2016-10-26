@@ -459,7 +459,30 @@ newrand:
             unit->SetUnitListIndex(0);
             civs.at(i)->AddUnit(unit);
 
-            qDebug() << "       UnitPos:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
+            unit = new Unit(civs.at(i)->getCiv(), WARRIOR);
+            unit->SetOwner(civs.at(i)->getCiv());
+            unit->RequiresOrders = true;
+
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
+                if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
+                {
+                    if(!tile->ContainsUnit && !tile->HasCity)
+                    {
+                        unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
+                        unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
+                        tile->ContainsUnit = true;
+                        break;
+                    }
+                }
+            }
+
+            unit->SetUnitListIndex(1);
+            civs.at(i)->AddUnit(unit);
+
+            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
+            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString();
         }
     }
 }
