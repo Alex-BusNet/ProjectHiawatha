@@ -64,6 +64,24 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
 void AI_Operational::threatScan(Civilization *civ, Civilization *player)
 {
+    qDebug()<<"Threatscan";
+    for(int i = 0; i<player->GetUnitList().length(); i++){
+        int unitTileColumn = player->GetUnitAt(i)->GetTileColumn();
+        int unitTileRow = player->GetUnitAt(i)->GetTileRow();
+
+        qDebug()<<"Column: "<<unitTileColumn<<" Row: "<<unitTileRow<<" TileID: "<<player->GetUnitAt(i)->GetTileIndex();
+        //Column and Row are not changing?
+
+        Tile *tile1 = new Tile(unitTileRow, unitTileColumn);
+
+        if(tile1->GetControllingCiv()==civ->getCiv()){
+            //compare with tiles owned by AI?
+            qDebug()<<"Invasion";
+        }
+        else{
+            qDebug()<<"Not Invasion";
+        }
+    }
     //Units within territory are added to highThreats
     //Using the Map::GetNeighbors(Tile *node) algorithm
         //search radially out from controlled tiles
