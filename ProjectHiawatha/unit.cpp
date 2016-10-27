@@ -209,6 +209,7 @@ void Unit::SetUnitIcon(UnitType type)
     default:
         break;
     }
+
 }
 
 void Unit::SetOwner(Nation owner)

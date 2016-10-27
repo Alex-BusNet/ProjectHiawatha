@@ -226,6 +226,23 @@ void Renderer::SetOutlinePen(Nation owner)
     outlinePen.setWidth(5);
 }
 
+void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
+{
+    QProgressBar *health = new QProgressBar();
+    health->setGeometry(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
+                       map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1,
+                       35, 5);
+    health->setMaximum(unit->GetMaxHealth());
+    health->setMinimum(0);
+    health->setValue(unit->GetHealth());
+    health->setMaximumWidth(35);
+    health->setMaximumHeight(5);
+    health->setTextVisible(false);
+
+    unitHealthBars.push_back(view->addWidget(health));
+    unitHealthBars.last()->setZValue(6);
+}
+
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
 {
 
@@ -318,6 +335,7 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
         // All unit images are stored in the unitPixmap vector.
         units.at(i)->SetPixmapIndex(unitPixmap.size() - 1);
         unitPixmap.last()->setPos(map->GetTileAt(units.at(i)->GetTileIndex())->GetItemTexturePoint());
+        AddUnitHealthBars(units.at(i), map, view);
     }
 }
 

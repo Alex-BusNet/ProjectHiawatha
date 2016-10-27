@@ -51,6 +51,7 @@ private:
     QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsProxyWidget*> cityLabels;
     QVector<QGraphicsProxyWidget*> cityHealthBars;
+    QVector<QGraphicsProxyWidget*> unitHealthBars;
 
     QPolygon borders;
     CivColors *cc;
@@ -58,6 +59,7 @@ private:
     QGraphicsRectItem *YieldDisplay;
 
     void SetOutlinePen(Nation owner);
+    void AddUnitHealthBars(Unit *unit, Map *map, GameView *view);
     int mapSizeX;
 
 };
