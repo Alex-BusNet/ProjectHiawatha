@@ -38,6 +38,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     countTime = false;
     citySelected = false;
     findUnit = false;
+    attackNearby = false;
 
     playerCiv = player;
 
@@ -98,7 +99,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
 
         renderer->AddCityLabel(civList.at(i)->GetNextCityName(), civList.at(i), gameView);
-
+        renderer->DrawCityHealthBars(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
         civList.at(i)->UpdateCivYield();
@@ -436,7 +437,7 @@ void GameManager::UpdateTileData()
             findUnit = true;
         }
     }
-    else if(/*processedData.newData && */processedData.relocateOrderGiven)
+    else if(attackNearby || processedData.relocateOrderGiven)
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
     }
@@ -444,40 +445,48 @@ void GameManager::UpdateTileData()
     if(findUnit)
     {
         findUnit = false;
-        unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
+//        if(!attackNearby)
+//        {
+            unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
-        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
-        {
-            map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
-            moveUnit->setEnabled(true);
-            this->redrawTile = true;
-
-            if(unitToMove->isNonCombat())
+            if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
             {
-                qDebug() << "   non-combat unit";
-                if(unitToMove->GetUnitType() == SETTLER)
+                map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
+                moveUnit->setEnabled(true);
+                this->redrawTile = true;
+
+                if(unitToMove->isNonCombat())
                 {
-                    qDebug() << "       unit is settler";
-                    if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
+                    qDebug() << "   non-combat unit";
+                    if(unitToMove->GetUnitType() == SETTLER)
                     {
-                        foundCity->setEnabled(true);
+                        qDebug() << "       unit is settler";
+                        if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
+                        {
+                            foundCity->setEnabled(true);
+                        }
+                    }
+                    else if (unitToMove->GetUnitType() == WORKER)
+                    {
+                        qDebug() << "       unit is worker";
+                        buildFarm->setEnabled(true);
+                        buildMine->setEnabled(true);
+                        buildPlantation->setEnabled(true);
+                        buildTradePost->setEnabled(true);
+                        buildRoad->setEnabled(true);
                     }
                 }
-                else if (unitToMove->GetUnitType() == WORKER)
-                {
-                    qDebug() << "       unit is worker";
-                    buildFarm->setEnabled(true);
-                    buildMine->setEnabled(true);
-                    buildPlantation->setEnabled(true);
-                    buildTradePost->setEnabled(true);
-                    buildRoad->setEnabled(true);
-                }
             }
-        }
-        else
-        {
-            qDebug() << "Player does not own that unit";
-        }
+            else
+            {
+                qDebug() << "Player does not own that unit";
+            }
+//        }
+//        else
+//        {
+//            attackNearby = false;
+//            targetUnit = uc->FindUnitAtTile(targetTile, map, civ);
+//        }
     }
     else if(unitTile->HasCity)
     {
@@ -580,6 +589,10 @@ void GameManager::InitButtons()
     foundCity = new QPushButton("Found City");
     connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
     foundCity->setEnabled(false);
+
+    attackUnit = new QPushButton("Attack");
+    connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
+    attackUnit->setEnabled(false);
 }
 
 void GameManager::InitLayouts()
@@ -588,6 +601,7 @@ void GameManager::InitLayouts()
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(800);
+    unitControlButtons->addWidget(attackUnit);
     unitControlButtons->addWidget(foundCity);
     unitControlButtons->addWidget(buildFarm);
     unitControlButtons->addWidget(buildMine);
@@ -827,6 +841,11 @@ void GameManager::buildNewTradePost()
 void GameManager::buildNewMine()
 {
 
+}
+
+void GameManager::attackMelee()
+{
+    attackNearby = true;
 }
 
 

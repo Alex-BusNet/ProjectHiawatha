@@ -30,6 +30,7 @@ public:
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
     void AddCityLabel(QString name, Civilization *civ, GameView *view);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
+    void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
@@ -49,6 +50,7 @@ private:
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsProxyWidget*> cityLabels;
+    QVector<QGraphicsProxyWidget*> cityHealthBars;
 
     QPolygon borders;
     CivColors *cc;

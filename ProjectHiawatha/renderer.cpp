@@ -3,6 +3,7 @@
 #include "civcolors.h"
 #include <QPen>
 #include <QDebug>
+#include <QProgressBar>
 
 #ifndef MAXSIZE
 #define MAXSIZE 128
@@ -317,6 +318,26 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
         // All unit images are stored in the unitPixmap vector.
         units.at(i)->SetPixmapIndex(unitPixmap.size() - 1);
         unitPixmap.last()->setPos(map->GetTileAt(units.at(i)->GetTileIndex())->GetItemTexturePoint());
+    }
+}
+
+void Renderer::DrawCityHealthBars(QVector<City *> cities, GameView *scene)
+{
+    QProgressBar* health;
+    foreach(City *city, cities)
+    {
+        health = new QProgressBar();
+        health->setGeometry(city->GetCityTile()->GetCityLabelPoint().x() - 15,
+                            city->GetCityTile()->GetCityLabelPoint().y() + 15,
+                            75, 10);
+        health->setMaximumWidth(75);
+        health->setMaximumHeight(10);
+        health->setMaximum(100);
+        health->setMinimum(0);
+        health->setValue(100);
+        health->setTextVisible(false);
+        cityHealthBars.push_back(scene->addWidget(health));
+        cityHealthBars.last()->setZValue(6);
     }
 }
 
