@@ -20,17 +20,19 @@ public:
 
     Renderer(int mapSizeX);
 
-    void DrawHexScene(Map *map, GameView *scene);
     void UpdateScene(Map *map, GameScene *scene, TileData data);
     void UpdateUnits(Map *map, GameView *view, Unit *unit);
-    void DrawGuiImages(QGraphicsScene *scene);
 
-    void DrawCityBorders(Map *map, QVector<City *> cities, GameScene *scene);
+    void DrawHexScene(Map *map, GameView *scene);
+    void DrawGuiImages(QGraphicsScene *scene);
     void DrawCityBorders(QVector<City *> cities, GameScene *scene, Nation owner);
-    void LoadCities(QVector<City*> cities, Map *map, GameView *view);
-    void AddCityLabel(QString name, Civilization *civ, GameView *view);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
     void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
+
+    void LoadCities(QVector<City*> cities, Map *map, GameView *view);
+    void AddCityLabel(QString name, Civilization *civ, GameView *view);
+    void AddCity(City* city, Map *map, GameView *view);
+    void AddUnit(Unit* unit, Map *map, GameView *view);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);

@@ -95,8 +95,6 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
         tiles.remove(index);
         tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
         tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
-
-//            scene->redrawTile = false;
     }
     else if(map->GetTileAt(index)->HasCity)
     {
@@ -248,21 +246,6 @@ void Renderer::DrawGuiImages(QGraphicsScene *scene)
 
 }
 
-void Renderer::DrawCityBorders(Map *map, QVector<City*> cities, GameScene *scene)
-{
-    for(int i = 0; i < cities.size(); i++)
-    {
-        foreach(Tile* tile, cities.at(i)->GetControlledTiles())
-        {
-            SetOutlinePen(tile->GetControllingCiv());
-            tile->SetTilePen(outlinePen);
-
-            cityBorders.push_back(scene->addPolygon(tile->GetTilePolygon()));
-            cityBorders.last()->setPen(tile->GetTilePen());
-        }
-    }
-}
-
 void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation owner)
 {
     SetOutlinePen(owner);
@@ -279,15 +262,9 @@ void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation o
 
 void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
 {
-    QPixmap *cityImage;
-
     for(int i = 0; i < cities.size(); i++)
     {
-        cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
-        cityPixmap.push_back(view->addPixmap(*cityImage));
-        cityPixmap.last()->setZValue(2);
-        cityPixmap.last()->setScale(2.0f);
-        cityPixmap.last()->setPos(map->GetTileFromCoord(cities.at(i)->GetCityTile()->GetTileID())->GetTexturePoint());
+        this->AddCity(cities.at(i), map, view);
     }
 }
 
@@ -304,56 +281,75 @@ void Renderer::AddCityLabel(QString name, Civilization* civ, GameView *view)
 
 }
 
-void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
+void Renderer::AddCity(City *city, Map *map, GameView *view)
 {
-    QPixmap *unitImage;
-    QImage *unit;
+    QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
+    cityPixmap.push_back(view->addPixmap(*cityImage));
+    cityPixmap.last()->setZValue(2);
+    cityPixmap.last()->setScale(2.0f);
+    cityPixmap.last()->setPos(map->GetTileFromCoord(city->GetCityTile()->GetTileID())->GetTexturePoint());
+}
 
-    for(int i = 0; i < units.size(); i++)
+void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
+{
+    QPixmap *unitPix;
+    QImage *unitImage;
+
+    unitImage = unit->GetUnitIcon();
+
+    QRgb color = cc->GetCivColor(unit->GetOwner()).rgba();
+    for(int j = 0; j < 32; j++)
     {
-        unit = units.at(i)->GetUnitIcon();//new QImage("../ProjectHiawatha/Assets/Units/worker.png");
-
-        QRgb color = cc->GetCivColor(units.at(i)->GetOwner()).rgba();
-        for(int j = 0; j < 32; j++)
+        for(int k = 0; k < 32; k++)
         {
-            for(int k = 0; k < 32; k++)
+            if((unitImage->pixelColor(j,k) != QColor(Qt::black))
+                    && (unitImage->pixelColor(j,k).alpha() != 0))
             {
-                if((unit->pixelColor(j,k) != QColor(Qt::black))
-                        && (unit->pixelColor(j,k).alpha() != 0))
-                {
-                    unit->setPixelColor(j, k, color);
-                }
+                unitImage->setPixelColor(j, k, color);
             }
         }
+    }
 
-        units.at(i)->SetUnitImage(unit);
-        unitImage = new QPixmap(unitImage->fromImage(*unit));
+    unit->SetUnitImage(unitImage);
+    unitPix = new QPixmap(unitPix->fromImage(*unitImage));
 
-        unitPixmap.push_back(view->addPixmap(*unitImage));
-        unitPixmap.last()->setZValue(2);
-        unitPixmap.last()->setScale(1.0f);
-        // All unit images are stored in the unitPixmap vector.
-        units.at(i)->SetPixmapIndex(unitPixmap.size() - 1);
-        unitPixmap.last()->setPos(map->GetTileAt(units.at(i)->GetTileIndex())->GetItemTexturePoint());
-        AddUnitHealthBars(units.at(i), map, view);
+    unitPixmap.push_back(view->addPixmap(*unitPix));
+    unitPixmap.last()->setZValue(2);
+    unitPixmap.last()->setScale(1.0f);
+    unit->SetPixmapIndex(unitPixmap.size() - 1);
+    unitPixmap.last()->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
+
+    AddUnitHealthBars(unit, map, view);
+}
+
+void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
+{
+    for(int i = 0; i < units.size(); i++)
+    {
+        this->AddUnit(units.at(i), map, view);
     }
 }
 
 void Renderer::DrawCityHealthBars(QVector<City *> cities, GameView *scene)
 {
     QProgressBar* health;
+
     foreach(City *city, cities)
     {
         health = new QProgressBar();
         health->setGeometry(city->GetCityTile()->GetCityLabelPoint().x() - 15,
                             city->GetCityTile()->GetCityLabelPoint().y() + 15,
                             75, 10);
+
         health->setMaximumWidth(75);
         health->setMaximumHeight(10);
+
         health->setMaximum(100);
         health->setMinimum(0);
+
         health->setValue(100);
         health->setTextVisible(false);
+
         cityHealthBars.push_back(scene->addWidget(health));
         cityHealthBars.last()->setZValue(6);
     }

@@ -102,6 +102,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         renderer->DrawCityHealthBars(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
+
         civList.at(i)->UpdateCivYield();
     }
 
