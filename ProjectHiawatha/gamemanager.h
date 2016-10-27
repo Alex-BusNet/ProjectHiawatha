@@ -56,6 +56,7 @@ private:
     QPushButton *buildPlantation;
     QPushButton *buildRoad;
     QPushButton *foundCity;
+    QPushButton *attackUnit;
     //=============
     //Dev Buttons
     QPushButton *renderPlusOne;
@@ -81,7 +82,7 @@ private:
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
 
-    Unit* unitToMove;
+    Unit* unitToMove, *targetUnit;
 
     QString *YieldDisplay;
 
@@ -99,6 +100,7 @@ private:
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
     bool findUnit;
+    bool attackNearby;
 
     Nation playerCiv;
 
@@ -139,6 +141,7 @@ public slots:
     void buildNewPlantation();
     void buildNewTradePost();
     void buildNewMine();
+    void attackMelee();
 };
 
 #endif // GAMEWINDOW_H

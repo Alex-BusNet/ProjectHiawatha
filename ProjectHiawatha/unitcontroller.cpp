@@ -49,7 +49,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
 
         foreach(Tile* neighbor, neighborList)
         {
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor))
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit)
             {
                 continue;
             }
@@ -145,7 +145,9 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     AtkBonus += 1;
     AtkBonus *= 10;
 
-    int damageDealt = (attacker->GetStrength() * attacker->GetHealth() * AtkBonus) - (target->GetStrength() * target->GetHealth() + (target->GetStrength() * fortifyBonus));
+    int damageDealt = ((attacker->GetStrength() * attacker->GetHealth() * AtkBonus) - (target->GetStrength() * target->GetHealth() + (target->GetStrength() * fortifyBonus))) + 1;
+    //Deal minimum 1 damage for any attack.
+    damageDealt = damageDealt < 0 ? 1 : damageDealt;
     int damageReceived = damageDealt * (fortifyBonus / AtkBonus) * melee;
 
     target->SetHealth(target->GetHealth() - damageDealt);
