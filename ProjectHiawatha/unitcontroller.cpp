@@ -97,6 +97,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         qDebug() << "   Updating Position";
         //update the unit's position
         unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
+        unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
 
         qDebug() << "   Setting new tile data";
         // Set the data for the unit's new tile
