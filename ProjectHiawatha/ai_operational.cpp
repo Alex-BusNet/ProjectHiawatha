@@ -49,7 +49,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
         theaterPrep(civ, player, troopLocations);
     }
 
-    AI_Tactical *ai = new AI_Tactical(midGoal, civ, player, map, scene, cityLocations, cityTarget, troopLocations);
+    AI_Tactical(midGoal, civ, player, map, scene, cityLocations, cityTarget, troopLocations);
 }
 
 
