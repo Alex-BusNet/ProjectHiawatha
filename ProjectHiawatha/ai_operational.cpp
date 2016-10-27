@@ -70,7 +70,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player)
         int unitTileRow = player->GetUnitAt(i)->GetTileRow();
 
         qDebug()<<"Column: "<<unitTileColumn<<" Row: "<<unitTileRow<<" TileID: "<<player->GetUnitAt(i)->GetTileIndex();
-        //Column and Row are not changing?
+        //Column and Row are not changing, but TileID is.
 
         Tile *tile1 = new Tile(unitTileRow, unitTileColumn);
 
