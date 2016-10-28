@@ -9,7 +9,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include "unittype.h"
 
-
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 
@@ -816,7 +815,9 @@ void GameManager::showTechTree()
 
 void GameManager::foundNewCity()
 {
-
+    // Need to call AddCity(City* city, Map *map, GameView *view) and
+    // AddCityLabel(QString name, Civilization *civ, GameView *view)
+    // from the renderer after creating the new city object
 }
 
 void GameManager::buildNewRoad()

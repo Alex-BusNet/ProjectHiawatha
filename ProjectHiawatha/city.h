@@ -28,6 +28,7 @@ public:
     void SetControllingCiv(Nation owner);
     void SetCityIndex(int index);
     void UpdateCityYield();
+    void SetCityHealthBarIndex(int index);
 
     void GarrisonWorker(Unit *worker);
     void GarrisonMilitary(Unit *military);
@@ -47,6 +48,7 @@ public:
     Unit* GetGarrisonedMilitary(int index);
 
     int GetCityIndex();
+    int GetCityHealthBarIndex();
     bool IsCityCaptial();
 
     void setCapitolConnection(bool flag);
@@ -79,6 +81,7 @@ private:
     int scienceYield;
     int goldYield;
     int cityIndex;
+    int cityHealthBarIndex;
 
     void TilesToGetNext();
     int orientation(QPoint p, QPoint q, QPoint r);

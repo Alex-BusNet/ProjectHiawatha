@@ -62,6 +62,7 @@ private:
 
     void SetOutlinePen(Nation owner);
     void AddUnitHealthBars(Unit *unit, Map *map, GameView *view);
+    void AddCityHealthBars(City* city, Map *map, GameView *view);
     int mapSizeX;
 
 };

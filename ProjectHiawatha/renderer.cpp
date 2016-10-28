@@ -124,19 +124,20 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
 
 void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
 {
-    QPixmap *unitImage;
-
     if(view->GetScene()->redrawTile)
     {
         qDebug() << "       Moving Unit";
-        view->GetScene()->removeItem(unitPixmap.at(unit->GetPixmapIndex()));
-        unitImage = new QPixmap(unitImage->fromImage(*unit->GetUnitIcon()));
 
-        unitPixmap.replace(unit->GetPixmapIndex(), view->addPixmap(*unitImage));
-        unitPixmap.at(unit->GetPixmapIndex())->setScale(1.0f);
-        unitPixmap.at(unit->GetPixmapIndex())->setZValue(2);
         unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
+        qDebug() << "   Unit health:" << unit->GetHealth() << " healthBar value:" << static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).value();
+        if((unit->GetHealth() / 100.0) != ( static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).value() / 100.0))
+        {
+            static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).setValue(unit->GetHealth());
+        }
+
+        unitHealthBars.at(unit->GetHealthBarIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
+                                                             map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1);
     }
 }
 
@@ -233,12 +234,35 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     health->setMaximum(unit->GetMaxHealth());
     health->setMinimum(0);
     health->setValue(unit->GetHealth());
+    qDebug() << "   Health bar init value:" << health->value();
     health->setMaximumWidth(35);
     health->setMaximumHeight(5);
     health->setTextVisible(false);
 
     unitHealthBars.push_back(view->addWidget(health));
     unitHealthBars.last()->setZValue(6);
+    unit->SetHealthBarIndex(unitHealthBars.size() - 1);
+}
+
+void Renderer::AddCityHealthBars(City *city, Map *map, GameView *view)
+{
+    QProgressBar *health = new QProgressBar();
+    health->setGeometry(city->GetCityTile()->GetCityLabelPoint().x() - 15,
+                        city->GetCityTile()->GetCityLabelPoint().y() + 15,
+                        75, 10);
+
+    health->setMaximumWidth(75);
+    health->setMaximumHeight(10);
+
+    health->setMaximum(100);
+    health->setMinimum(0);
+
+    health->setValue(100);
+    health->setTextVisible(false);
+
+    cityHealthBars.push_back(view->addWidget(health));
+    cityHealthBars.last()->setZValue(6);
+    city->SetCityHealthBarIndex(cityHealthBars.size() - 1);
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
@@ -288,6 +312,8 @@ void Renderer::AddCity(City *city, Map *map, GameView *view)
     cityPixmap.last()->setZValue(2);
     cityPixmap.last()->setScale(2.0f);
     cityPixmap.last()->setPos(map->GetTileFromCoord(city->GetCityTile()->GetTileID())->GetTexturePoint());
+
+    this->AddCityHealthBars(city, map, view);
 }
 
 void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)

@@ -99,6 +99,11 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
         unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
 
+        //=========================================
+        // DAMAGE TESTING
+        unit->SetHealth(unit->GetMaxHealth() / 2);
+        //=========================================
+
         qDebug() << "   Setting new tile data";
         // Set the data for the unit's new tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;

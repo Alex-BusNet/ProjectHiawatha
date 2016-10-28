@@ -26,6 +26,7 @@ public:
     void SetUnitListIndex(int index);
     void SetUnitTargetTileIndex(int tileIndex);
     void SetUnitTargetTile(int column, int row);
+    void SetHealthBarIndex(int index);
 
     void SetMovementPoints(int pts);
     void SetStrength(int strength);
@@ -49,6 +50,7 @@ public:
     int GetTileRow();
     int GetTargetTileColumn();
     int GetTargetTileRow();
+    int GetHealthBarIndex();
 
     int GetMovementPoints();
     int GetStrength();
@@ -86,7 +88,7 @@ private:
     int colPosition, targetColPos;
     int rowPosition, targetRowPos;
 
-    int pixmapIndex, dataMapIndex, unitListIndex, targetTileIndex;
+    int pixmapIndex, dataMapIndex, unitListIndex, targetTileIndex, healthBarIndex;
     bool NonCombat;
     bool Settler;
 

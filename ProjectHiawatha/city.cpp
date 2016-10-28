@@ -253,6 +253,11 @@ void City::UpdateCityYield()
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
 }
 
+void City::SetCityHealthBarIndex(int index)
+{
+    this->cityHealthBarIndex = index;
+}
+
 void City::GarrisonWorker(Unit *worker)
 {
     if(worker->isNonCombat())
@@ -442,4 +447,9 @@ QPolygon City::GetCityBorders()
 int City::GetCityIndex()
 {
     return this->cityIndex;
+}
+
+int City::GetCityHealthBarIndex()
+{
+    return this->cityHealthBarIndex;
 }

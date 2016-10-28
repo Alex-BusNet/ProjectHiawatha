@@ -298,6 +298,11 @@ int Unit::GetTargetTileRow()
     return this->targetRowPos;
 }
 
+int Unit::GetHealthBarIndex()
+{
+    return this->healthBarIndex;
+}
+
 int Unit::GetMovementPoints()
 {
     return this->movementPoints;
@@ -391,6 +396,11 @@ void Unit::SetUnitTargetTile(int column, int row)
 {
     this->targetColPos = column;
     this->targetRowPos = row;
+}
+
+void Unit::SetHealthBarIndex(int index)
+{
+    this->healthBarIndex = index;
 }
 
 void Unit::SetUnitImage(QImage *image)
