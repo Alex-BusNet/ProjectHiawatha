@@ -3,7 +3,8 @@
 #include <qmath.h>
 #include <QSet>
 #include <QDebug>
-
+#include <ctime>
+#include <QTime>
 UnitController::UnitController()
 {
 
@@ -88,10 +89,10 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         if(!unit->isPathEmpty())
         {
             qDebug() << "       Tiles in path:" << unit->GetPath().size();
-            foreach(Tile* tile, unit->GetPath())
-            {
-                qDebug() << "       " << tile->GetTileIDString();
-            }
+//            foreach(Tile* tile, unit->GetPath())
+//            {
+//                qDebug() << "       " << tile->GetTileIDString();
+//            }
         }
 
         qDebug() << "   Updating Position";
@@ -115,11 +116,11 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
             unit->UpdatePath();
 
             //// FOR DEBUGGING PURPOSES
-            qDebug() << "       Tiles left in path:" << unit->GetPath().size();
-            foreach(Tile* tile, unit->GetPath())
-            {
-                qDebug() << "       " << tile->GetTileIDString();
-            }
+//            qDebug() << "       Tiles left in path:" << unit->GetPath().size();
+//            foreach(Tile* tile, unit->GetPath())
+//            {
+//                qDebug() << "       " << tile->GetTileIDString();
+//            }
         }
 
         qDebug() << "   Redrawing Tile";
@@ -130,31 +131,53 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
 
 void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 {
-    if(attackFromWater)
-        waterPenalty = 0.8;
+    float waterPenalty = 0.0f, fortifyBonus = 0.0f;
+    float AtkBonus, melee;
+
+    qDebug() << "--Attacking";
+    qDebug() << "   FromWater:" << attackFromWater;
+
+    if(attackFromWater == true)
+    {
+        waterPenalty = 0.8f;
+    }
     else
-        waterPenalty = 1; // No penalty
+    {
+        waterPenalty = 1.0f; // No penalty
+    }
+
+    qDebug() << "   waterPenalty:" << waterPenalty;
 
     if(target->isFortified)
-        fortifyBonus = 0.4;
+        fortifyBonus = 0.4f;
     else
-        fortifyBonus = 0;
+        fortifyBonus = 0.4f;
+
+    qDebug() << "   forifyBonus:" << fortifyBonus;
 
     if(target->isMelee)
-        melee = 1;
+        melee = 1.0f;
     else
-        melee = 0;
+        melee = 0.0f;
 
-    srand(0);
+    qDebug() << "   melee:" << melee;
 
-    AtkBonus = (static_cast<double>(rand())/ RAND_MAX) * 4;
-    AtkBonus += 1;
-    AtkBonus *= 10;
+    srand(QTime::currentTime().msec());
 
-    int damageDealt = ((attacker->GetStrength() * attacker->GetHealth() * AtkBonus) - (target->GetStrength() * target->GetHealth() + (target->GetStrength() * fortifyBonus))) + 1;
-    //Deal minimum 1 damage for any attack.
-    damageDealt = damageDealt < 0 ? 1 : damageDealt;
-    int damageReceived = damageDealt * (fortifyBonus / AtkBonus) * melee;
+    AtkBonus = (static_cast<double>(rand())/ RAND_MAX) * 100.0;
+    qDebug() << "   AtkBonus:" << AtkBonus;
+
+    //Need to adjust this for range units attacking.
+    qDebug() << "       Damage Dealt Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
+    qDebug() << "       Damage Dealt Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
+
+    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty)) - ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
+//    //Deal minimum 1 damage for any attack.
+    qDebug() << "   DamageDealt before adjust:" << damageDealt;
+    damageDealt = damageDealt < 0 ? 1 : damageDealt > 100 ? damageDealt - 100 : damageDealt;
+    float damageReceived = damageDealt * (fortifyBonus / AtkBonus) * melee;
+
+    qDebug() << "           Damage Dealt:" << damageDealt << "Damage Recieved:" << damageReceived;
 
     target->SetHealth(target->GetHealth() - damageDealt);
     attacker->SetHealth(attacker->GetHealth() - damageReceived);

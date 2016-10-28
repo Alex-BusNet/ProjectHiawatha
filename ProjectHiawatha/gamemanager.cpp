@@ -405,6 +405,9 @@ void GameManager::EndTurn()
             uc->MoveUnit(unit, map, gameView->GetScene());
             renderer->UpdateUnits(map, gameView, unit);
         }
+
+        if(currentTurn == 0 && unit->GetUnitType() == WARRIOR)
+            uc->Attack(unit, civList.at(1)->GetUnitAt(1), false);
     }
 
     if(currentTurn == civList.size() - 1)

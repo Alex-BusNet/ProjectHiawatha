@@ -24,7 +24,6 @@ private:
     int GetDistance(Tile* a, Tile *b);
     void RetracePath(Tile *start, Tile *end, Map *map, Unit *unit);
 
-    int waterPenalty, fortifyBonus, AtkBonus, melee;
 };
 
 #endif // UNITCONTROLLER_H

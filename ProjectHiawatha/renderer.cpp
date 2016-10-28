@@ -130,11 +130,11 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
 
         unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
-        qDebug() << "   Unit health:" << unit->GetHealth() << " healthBar value:" << static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).value();
-        if((unit->GetHealth() / 100.0) != ( static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).value() / 100.0))
-        {
-            static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).setValue(unit->GetHealth());
-        }
+//        qDebug() << "   Unit health:" << unit->GetHealth() << " healthBar value:" << static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())).value();
+//        if((unit->GetHealth() / 100.0) != ( static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())).value() / 100.0))
+//        {
+//            static_cast<QProgressBar>(unitHealthBars.at(unit->GetHealthBarIndex())->widget()).setValue(unit->GetHealth());
+//        }
 
         unitHealthBars.at(unit->GetHealthBarIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
                                                              map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1);
@@ -234,11 +234,11 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     health->setMaximum(unit->GetMaxHealth());
     health->setMinimum(0);
     health->setValue(unit->GetHealth());
-    qDebug() << "   Health bar init value:" << health->value();
     health->setMaximumWidth(35);
     health->setMaximumHeight(5);
     health->setTextVisible(false);
 
+//    unitHealthProgressBars.push_back(health);
     unitHealthBars.push_back(view->addWidget(health));
     unitHealthBars.last()->setZValue(6);
     unit->SetHealthBarIndex(unitHealthBars.size() - 1);

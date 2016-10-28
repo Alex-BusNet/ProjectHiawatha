@@ -12,6 +12,7 @@
 #include <qlabel.h>
 #include <QPolygon>
 #include <QGraphicsProxyWidget>
+#include <QProgressBar>
 
 class Renderer
 {
@@ -54,6 +55,7 @@ private:
     QVector<QGraphicsProxyWidget*> cityLabels;
     QVector<QGraphicsProxyWidget*> cityHealthBars;
     QVector<QGraphicsProxyWidget*> unitHealthBars;
+    QVector<QProgressBar*>unitHealthProgressBars;
 
     QPolygon borders;
     CivColors *cc;
