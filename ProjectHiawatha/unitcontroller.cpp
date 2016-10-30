@@ -270,11 +270,11 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
 
     //// This is for debugging purposes
     ///  Displays the path that the unit is to take;
-    qDebug() << "   Path:";
-    foreach(Tile* hex, path)
-    {
-          qDebug() << "   "<<hex->GetTileIDString();
-    }
+//    qDebug() << "   Path:";
+//    foreach(Tile* hex, path)
+//    {
+//          qDebug() << "   "<<hex->GetTileIDString();
+//    }
 
     //This sets the path the unit needs to take.
     qDebug() << "   Setting unit path";
