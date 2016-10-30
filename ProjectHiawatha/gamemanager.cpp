@@ -155,6 +155,7 @@ void GameManager::InitCivs(Nation player, int numAI)
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
     civ->setTechIndex(0);
+    civ->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt",player);
     QString str = "../ProjectHiawatha/Assets/CityLists/";
     QString str2;
     switch (player)

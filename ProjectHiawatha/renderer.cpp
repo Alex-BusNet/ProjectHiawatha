@@ -324,17 +324,17 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
     unitImage = unit->GetUnitIcon();
 
     QRgb color = cc->GetCivColor(unit->GetOwner()).rgba();
-    for(int j = 0; j < 32; j++)
-    {
-        for(int k = 0; k < 32; k++)
-        {
-            if((unitImage->pixelColor(j,k) != QColor(Qt::black))
-                    && (unitImage->pixelColor(j,k).alpha() != 0))
-            {
-                unitImage->setPixelColor(j, k, color);
-            }
-        }
-    }
+//    for(int j = 0; j < 32; j++)
+//    {
+//        for(int k = 0; k < 32; k++)
+//        {
+//            if((unitImage->pixelColor(j,k) != QColor(Qt::black))
+//                    && (unitImage->pixelColor(j,k).alpha() != 0))
+//            {
+//                unitImage->setPixelColor(j, k, color);
+//            }
+//        }
+//    }
 
     unit->SetUnitImage(unitImage);
     unitPix = new QPixmap(unitPix->fromImage(*unitImage));

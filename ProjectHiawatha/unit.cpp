@@ -20,32 +20,32 @@ Unit::Unit()
 }
 
 
-Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, int strength, int range, int health, UnitType type)
-{
-    SetUnitIcon(type);
+//Unit::Unit(Nation owner, bool isNonCombat, bool isSettler, int movementPoints, int strength, int range,int rangeStrength, int health, UnitType type)
+//{
+//    SetUnitIcon(type);
 
-    this->belongsTo = owner;
-    this->NonCombat = isNonCombat;
-    this->Settler = isSettler;
-    this->movementPoints = movementPoints;
-    this->strength = strength;
-    this->range = range;
-    this->health = health;
-    this->RequiresOrders = true;
-    this->Updated = false;
-    this->HasNoMovementLeft = false;
-    this->isFortified = false;
-    this->isMelee = true;
-    this->needsPath = false;
-    this->type = type;
-    this->isRoadWorker=false;
-    this->maxHealth = this->health;
-
-    if(isNonCombat && !isSettler)
-    {
-        this->uses = 3;
-    }
-}
+//    this->belongsTo = owner;
+//    this->NonCombat = isNonCombat;
+//    this->Settler = isSettler;
+//    this->movementPoints = movementPoints;
+//    this->strength = strength;
+//    this->range = range;
+//    this->health = health;
+//    this->RequiresOrders = true;
+//    this->Updated = false;
+//    this->HasNoMovementLeft = false;
+//    this->isFortified = false;
+//    this->isMelee = true;
+//    this->needsPath = false;
+//    this->type = type;
+//    this->isRoadWorker=false;
+//    this->maxHealth = this->health;
+//    this->rangeStrength = rangeStrength;
+//    if(isNonCombat && !isSettler)
+//    {
+//        this->uses = 3;
+//    }
+//}
 
 Unit::Unit(Nation owner, UnitType type)
 {
@@ -217,6 +217,11 @@ void Unit::SetOwner(Nation owner)
     this->belongsTo = owner;
 }
 
+void Unit::SetName(QString str)
+{
+    this->name = str;
+}
+
 void Unit::SetPositionIndex(int tileMapIndex)
 {
     this->dataMapIndex = tileMapIndex;
@@ -303,6 +308,11 @@ int Unit::GetHealthBarIndex()
     return this->healthBarIndex;
 }
 
+int Unit::GetCost()
+{
+    return this->cost;
+}
+
 int Unit::GetMovementPoints()
 {
     return this->movementPoints;
@@ -346,6 +356,11 @@ int Unit::GetRemainingUses()
 int Unit::GetUnitListIndex()
 {
     return this->unitListIndex;
+}
+
+QString Unit::GetName()
+{
+    return this->name;
 }
 
 QList<Tile *> Unit::GetPath()
@@ -401,6 +416,11 @@ void Unit::SetUnitTargetTile(int column, int row)
 void Unit::SetHealthBarIndex(int index)
 {
     this->healthBarIndex = index;
+}
+
+void Unit::SetCost(int price)
+{
+    this->cost = price;
 }
 
 void Unit::SetUnitImage(QImage *image)

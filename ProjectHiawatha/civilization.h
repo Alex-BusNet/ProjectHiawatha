@@ -67,7 +67,7 @@ public:
     void setCurrentTech(Technology* tech);
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
-
+    void loadUnits(QString filename, Nation nation);
     //AI Funcs
     void setLowThreats(QVector<Tile*> lowThreats);
     void setMidThreats(QVector<Tile*> midThreats);
@@ -88,6 +88,8 @@ private:
         //Will contain all of the civ's Cities
 
     QVector<QString> initialCityList;
+
+    QVector<Unit*> initialUnitList;
 
     int cityIndex;
 
