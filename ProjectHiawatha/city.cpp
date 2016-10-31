@@ -13,8 +13,8 @@ City::~City()
 
 }
 
-void City::TilesToGetNext()
-{
+//void City::TilesToGetNext()
+//{
     // Select the next tile to be claimed by a city based on:
     //  -Is the tile already claimed by another civ?
     //  -The total yield of the tile
@@ -27,18 +27,32 @@ void City::TilesToGetNext()
 //    {
 //        surroundingTiles = map->GetNeighbors(tile);
 
+//        int surroundCount = 0;
+
 //        foreach(Tile* tile, surroundingTiles)
 //        {
-//            if(tile->GetControllingCiv() == this->GetControllingCiv())
+//            if(tile->GetControllingCiv() != NO_NATION)
 //            {
-//                surroundingTiles
+//                qDebug() << "---------SurroundingTiles at" << surroundCount << "is already owned";
+//                surroundingTiles.removeAt(surroundCount);
 //            }
-//        }
+//            else
+//            {
+//                tileQueue.push(tile);
+//            }
 
+//            surroundCount++;
+//        }
 //    }
 
+//    foreach(Tile* tile, tileQueue)
+//    {
+//        qDebug() << "           tileQueue:" << tile->GetTileIDString();
+//    }
+
+
     //Store all eligible tiles in a heap.
-}
+//}
 
 // 0 = p, q, and r are colinear
 // 1 = Clockwise
@@ -392,6 +406,7 @@ void City::DefineCityBorders()
 
         this->cityBorder.push_back(hull[i]);
     }
+
 }
 
 QString City::GetName()

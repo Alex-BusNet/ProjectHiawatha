@@ -6,6 +6,7 @@
 #include <ctime>
 #include "biome.h"
 #include "unittype.h"
+#include <queue>
 
 Map::Map()
 {
@@ -365,6 +366,54 @@ void Map::CleanMap()
 
 }
 
+void Map::GetTileQueue(City *city)
+{
+    QList<Tile*> surroundingTiles;
+
+    foreach(Tile* tile, city->GetControlledTiles())
+    {
+        surroundingTiles = GetNeighbors(tile);
+
+        int surroundCount = 0;
+
+        foreach(Tile* tile, surroundingTiles)
+        {
+            if((tile->GetControllingCiv() != NO_NATION) ||
+                    ((tile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
+                     (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)))
+            {
+                qDebug() << "---------SurroundingTiles at" << tile->GetTileIDString() << "is already owned";
+                surroundingTiles.removeAt(surroundCount);
+            }
+            else
+            {
+                if(city->tileQueue.size() > 1)
+                {
+                    if(!city->tileQueue.contains(tile))
+                    {
+                        city->tileQueue.push_back(tile);
+                    }
+                    else
+                    {
+                        qDebug() << "--------------------Tile already added";
+                    }
+                }
+                else
+                {
+                    city->tileQueue.push_back(tile);
+                }
+            }
+
+            surroundCount++;
+        }
+    }
+
+    foreach(Tile* tile, city->tileQueue)
+    {
+        qDebug() << "               tileQueue:" << tile->GetTileIDString();
+    }
+}
+
 void Map::SpawnCivs(QVector<Civilization*> civs)
 {
     //=====================
@@ -430,6 +479,7 @@ newrand:
             city->SetCityIndex(0);
             civs.at(i)->AddCity(city);
             city->DefineCityBorders();
+            this->GetTileQueue(city);
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;

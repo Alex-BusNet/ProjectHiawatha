@@ -46,6 +46,8 @@ private:
     void GenerateMapEdge();
     void GenerateBiomes();
     void CleanMap();
+
+    void GetTileQueue(City *city);
 };
 
 #endif // MAP_H

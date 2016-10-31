@@ -1,15 +1,15 @@
 #ifndef CITY_H
 #define CITY_H
+
 #include <QVector>
 #include <QWidget>
 #include <QString>
-//#include "map.h"
-#include "nation.h"
-#include "tile.h"
-#include "yield.h"
 #include <QPoint>
 #include <QPolygon>
 #include <queue>
+#include "nation.h"
+#include "tile.h"
+#include "yield.h"
 
 class Tile;
 class Unit;
@@ -58,6 +58,8 @@ public:
 
     ~City();
 
+//    void TilesToGetNext();
+    QVector<Tile*> tileQueue;
 private:
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
@@ -67,7 +69,6 @@ private:
     Nation controllingCiv;
     Tile *cityTile;
 
-    std::priority_queue<Tile*> tileQueue;
     QVector<Tile*> borderTiles;
 
     Yield* cityTotalYield;
@@ -83,7 +84,6 @@ private:
     int cityIndex;
     int cityHealthBarIndex;
 
-    void TilesToGetNext();
     int orientation(QPoint p, QPoint q, QPoint r);
 
     void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort);
