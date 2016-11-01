@@ -135,50 +135,70 @@ void Unit::SetUnitIcon(UnitType type)
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/spearman.png");
         break;
     case PIKEMAN:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/pikeman.png");
         break;
     case HORSEMAN:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/horseman.png");
         break;
     case SCOUT:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/scout.png");
         break;
     case HORSE_ARCHER:
         break;
     case CATAPULT:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/catapult.png");
         break;
     case TREBUCHET:
         break;
     case TRIREME:
         break;
     case GALLEY:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/galley.png");
         break;
     case KNIGHT:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/knight.png");
         break;
     case CROSSBOWMAN:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/crossbowman.png");
         break;
     case LANDSNACK:
         break;
     case LONGSWORDSMAN:
         break;
+    case SWORDSMAN:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/swordsman.png");
+        break;
     case MUSKETMAN:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/musketman.png");
         break;
     case RIFLEMAN:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/rifleman.png");
         break;
     case CARAVEL:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/caravel.png");
         break;
     case CANNON:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/cannon.png");
         break;
     case LANCER:
         break;
     case CAVALRY:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/cavalry.png");
         break;
     case INFANTRY:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/infantry.png");
         break;
     case FRIGATE:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/frigate.png");
         break;
     case IRONCLAD:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/ironclad.png");
         break;
     case ARTILLERY:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/artillery.png");
         break;
     case TANK:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/tank.png");
         break;
     case PARATROOPER:
         break;
@@ -187,20 +207,38 @@ void Unit::SetUnitIcon(UnitType type)
     case AA:
         break;
     case BATTLESHIP:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/battleship.png");
+        break;
+    case CARRIER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/carrier.png");
         break;
     case SUBMARINE:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/submarine.png");
         break;
     case NUKE:
         break;
     case MOBILE_SAM:
         break;
-    case MODERN_INFANTRY:
+    case HELICOPTER_GUNSHIP:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/helicopter_gunship.png");
+        break;
+    case MECHANIZED_INFANTRY:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/mechanized_infantry.png");
         break;
     case MODERN_ARMOR:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/modern_armor.png");
         break;
     case FIGHTER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/fighter.png");
         break;
     case BOMBER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/bomber.png");
+        break;
+    case JET_FIGHTER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/jet_fighter.png");
+        break;
+    case STEALTH_BOMBER:
+        this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/stealth_bomber.png");
         break;
     case GDR:
         break;
