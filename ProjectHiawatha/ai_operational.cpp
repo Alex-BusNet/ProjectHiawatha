@@ -31,7 +31,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 {
     qDebug()<<"         Operational AI Called";
 
-    threatScan(civ, player);
+    threatScan(civ, player, map);
 
 
     if(1==midGoal){
@@ -62,24 +62,19 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
 
 
-void AI_Operational::threatScan(Civilization *civ, Civilization *player)
+void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *map)
 {
     qDebug()<<"Threatscan";
     for(int i = 0; i<player->GetUnitList().length(); i++){
-        int unitTileColumn = player->GetUnitAt(i)->GetTileColumn();
-        int unitTileRow = player->GetUnitAt(i)->GetTileRow();
 
-        qDebug()<<"Column: "<<unitTileColumn<<" Row: "<<unitTileRow<<" TileID: "<<player->GetUnitAt(i)->GetTileIndex();
-        //Column and Row are not changing, but TileID is.
-
-        Tile *tile1 = new Tile(unitTileRow, unitTileColumn);
-
-        if(tile1->GetControllingCiv()==civ->getCiv()){
+        if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
             //compare with tiles owned by AI?
             qDebug()<<"Invasion";
+            QVector<Unit*> tempVec = civ->getHighThreats();
+            tempVec.push_back(player->GetUnitAt(i));
+            civ->setHighThreats(tempVec);
         }
         else{
-            qDebug()<<"Not Invasion";
         }
     }
     //Units within territory are added to highThreats

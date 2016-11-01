@@ -271,32 +271,32 @@ void Civilization::loadUnits(QString filename, Nation nation)
 
 }
 
-void Civilization::setLowThreats(QVector<Tile *> lowThreats)
+void Civilization::setLowThreats(QVector<Unit *> lowThreats)
 {
     this->lowThreats=lowThreats;
 }
 
-void Civilization::setMidThreats(QVector<Tile *> midThreats)
+void Civilization::setMidThreats(QVector<Unit *> midThreats)
 {
     this->midThreats=midThreats;
 }
 
-void Civilization::setHighThreats(QVector<Tile *> highThreats)
+void Civilization::setHighThreats(QVector<Unit *> highThreats)
 {
     this->highThreats=highThreats;
 }
 
-QVector<Tile *> Civilization::getLowThreats()
+QVector<Unit *> Civilization::getLowThreats()
 {
     return this->lowThreats;
 }
 
-QVector<Tile *> Civilization::getMidThreats()
+QVector<Unit *> Civilization::getMidThreats()
 {
     return this->midThreats;
 }
 
-QVector<Tile *> Civilization::getHighThreats()
+QVector<Unit *> Civilization::getHighThreats()
 {
     return this->highThreats;
 }

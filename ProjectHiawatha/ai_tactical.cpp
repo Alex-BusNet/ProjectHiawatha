@@ -31,7 +31,6 @@ AI_Tactical::AI_Tactical()
 AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
 {
     qDebug()<<"             Tactical AI called";
-    highThreatProcessing(civ, player);
     midThreatProcessing(civ, player);
     lowThreatProcessing(civ, player);
 
@@ -45,6 +44,7 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, M
     settlercontrol(CityToBeFounded);
     workercontrol(civ, map, scene);
 
+    highThreatProcessing(civ, player, map, scene);
     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 }
 
@@ -61,18 +61,18 @@ void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, GameSc
     for(int i = 0; i<unitlist.length();i++){
 
         //Test target tile location
-        Tile *tile3x3y = map->GetTileFromCoord(3,3);
-        scene->column=3;
-        scene->row=3;
+//        Tile *tile3x3y = map->GetTileFromCoord(3,3);
+//        scene->column=3;
+//        scene->row=3;
 
         //Find Troop location
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
-        if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+        if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR&&(!civ->GetUnitList().at(i)->HasNoMovementLeft)){
             //Will need additional logic for other unit types
 
-            UnitControl->FindPath(unitlocation,player->GetCityAt(0)->GetCityTile(),map,scene,unitlist.at(i));
-
+          //  UnitControl->FindPath(unitlocation,player->GetCityAt(0)->GetCityTile(),map,scene,unitlist.at(i));
+            //Charges enemy capitol
 
         }
 
@@ -114,7 +114,51 @@ void AI_Tactical::AtWar(Civilization *civ, City *cityTarget)
 
 
 
-void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player){
+void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
+
+    qDebug()<<"             High Threat Processing Start";
+
+    //Get list of units and make a controller
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+    QVector<Unit*> threatVec;
+    for(int i=0;i<civ->getHighThreats().length();i++){
+        threatVec.push_back(civ->getHighThreats().at(i));
+    }
+
+    for(int i = 0; i<unitlist.length();i++){
+        if(!threatVec.isEmpty()){
+                qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
+        //Find Troop location
+            Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+
+            if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+                //Logic should be for all combat units
+            //Will need additional logic for other unit types
+
+                qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                //Doesn't seem to work for now, but it is finding the target
+                //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+            }
+
+        }
+
+    }
+
+//    for(int i = 0; i<player->GetUnitList().length(); i++){
+
+//        if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
+//            //compare with tiles owned by AI?
+//            qDebug()<<"Invasion";
+//            QVector<Tile*> tempVec = civ->getHighThreats();
+//            tempVec.push_back(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex()));
+//            civ->setHighThreats(tempVec);
+//        }
+//        else{
+//        }
+//    }
+
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack in the next 3 turns

@@ -69,12 +69,12 @@ public:
     void loadCities(QString filename);
     void loadUnits(QString filename, Nation nation);
     //AI Funcs
-    void setLowThreats(QVector<Tile*> lowThreats);
-    void setMidThreats(QVector<Tile*> midThreats);
-    void setHighThreats(QVector<Tile*> highThreats);
-    QVector<Tile*> getLowThreats();
-    QVector<Tile*> getMidThreats();
-    QVector<Tile*> getHighThreats();
+    void setLowThreats(QVector<Unit *> lowThreats);
+    void setMidThreats(QVector<Unit *> midThreats);
+    void setHighThreats(QVector<Unit *> highThreats);
+    QVector<Unit *> getLowThreats();
+    QVector<Unit *> getMidThreats();
+    QVector<Unit *> getHighThreats();
 
 private:
     Nation name;
@@ -108,9 +108,9 @@ private:
 
     //AI stuff
     bool isAIPlayer;
-    QVector<Tile*> lowThreats;
-    QVector<Tile*> midThreats;
-    QVector<Tile*> highThreats;
+    QVector<Unit*> lowThreats;
+    QVector<Unit*> midThreats;
+    QVector<Unit*> highThreats;
 };
 
 #endif // CIVILIZATION_H

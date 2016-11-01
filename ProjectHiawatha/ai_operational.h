@@ -14,7 +14,7 @@ public:
     AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene);
 
 private:
-    void threatScan(Civilization *civ, Civilization *player);
+    void threatScan(Civilization *civ, Civilization *player, Map *map);
     void theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget);
     void theaterPrep(Civilization *civ, Civilization *player, QVector<Tile*> troopLocations);
     void cityLocation(Civilization *civ);
