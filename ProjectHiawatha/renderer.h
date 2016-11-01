@@ -23,6 +23,7 @@ public:
 
     void UpdateScene(Map *map, GameScene *scene, TileData data);
     void UpdateUnits(Map *map, GameView *view, Unit *unit);
+    void UpdateCityBorders(City* city, GameScene *scene, Nation owner);
 
     void DrawHexScene(Map *map, GameView *scene);
     void DrawGuiImages(QGraphicsScene *scene);

@@ -141,6 +141,14 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit)
     }
 }
 
+void Renderer::UpdateCityBorders(City *city, GameScene *scene, Nation owner)
+{
+    SetOutlinePen(owner);
+
+    scene->removeItem(cityBorders.at(city->GetCityBordersIndex()));
+    cityBorders.replace(city->GetCityBordersIndex(), scene->addPolygon(city->GetCityBorders(), outlinePen));
+}
+
 void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView *view)
 {
     for(int i = 0; i < map->GetBoardSize(); i++)
@@ -274,13 +282,14 @@ void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation o
 {
     SetOutlinePen(owner);
 
-    for(int i = 0; i < cities.size(); i++)
+    int i = 0;
+    foreach(City* city, cities)
     {
-        foreach(City* city, cities)
-        {
-            cityBorders.push_back(scene->addPolygon(city->GetCityBorders(), outlinePen));
-            cityBorders.last()->setPen(outlinePen);
-        }
+        city->SetCityBordersIndex(i);
+        i++;
+
+        cityBorders.push_back(scene->addPolygon(city->GetCityBorders(), outlinePen));
+        cityBorders.last()->setPen(outlinePen);
     }
 }
 

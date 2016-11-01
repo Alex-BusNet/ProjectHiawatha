@@ -374,4 +374,14 @@ int Tile::fCost()
     return gCost + hCost;
 }
 
+void Tile::SetCivListIndex(int index)
+{
+    this->occupyingCivListIndex = index;
+}
+
+int Tile::GetCivListIndex()
+{
+    return this->occupyingCivListIndex;
+}
+
 

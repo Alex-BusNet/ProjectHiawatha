@@ -74,13 +74,14 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
     scene->unitMoveOrdered = false;
 }
 
-void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
+void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civListIndex)
 {
     if(!unit->isPathEmpty())
     {
         qDebug() << "   Clearing Tile Data";
         // Clear the data from the current tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
+        map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(-1);
 
         if(map->GetTileAt(unit->GetTileIndex())->Selected)
                 map->GetTileAt(unit->GetTileIndex())->Selected = false;
@@ -99,7 +100,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene)
         //update the unit's position
         unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
         unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
-
+        map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
         //=========================================
         // DAMAGE TESTING
         unit->SetHealth(unit->GetMaxHealth() / 2);

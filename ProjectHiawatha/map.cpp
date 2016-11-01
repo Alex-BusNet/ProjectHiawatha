@@ -282,6 +282,8 @@ void Map::GenerateMap()
                 board.at(i)->SetMoveCost(2);
             }
         }
+
+        board.at(i)->SetCivListIndex(-1);
     }
 }
 
@@ -478,8 +480,9 @@ newrand:
             city->UpdateCityYield();
             city->SetCityIndex(0);
             civs.at(i)->AddCity(city);
-            city->DefineCityBorders();
+            city->DefineCityBorders(false);
             this->GetTileQueue(city);
+            city->SortTileQueue();
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;
@@ -500,6 +503,7 @@ newrand:
                     {
                         unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
                         unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
+                        tile->SetCivListIndex(i);
                         tile->ContainsUnit = true;
                         break;
                     }

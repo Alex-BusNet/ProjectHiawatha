@@ -62,6 +62,7 @@ private:
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
     QPushButton *showDummyCityScreen;
+    QPushButton *claimNextTile;
     //=============
 
     CityScreen *cityScreen;
@@ -142,6 +143,7 @@ public slots:
     void buildNewTradePost();
     void buildNewMine();
     void attackMelee();
+    void claimTile();
 };
 
 #endif // GAMEWINDOW_H

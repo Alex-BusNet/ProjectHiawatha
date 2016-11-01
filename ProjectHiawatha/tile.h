@@ -92,6 +92,9 @@ public:
     int fCost();
     TileID parent;
 
+    void SetCivListIndex(int index);
+    int GetCivListIndex();
+
 private:
     TileType type;
     Yield* yield;
@@ -104,6 +107,7 @@ private:
     QPen outlinePen;
     City *city;
     int moveCost;
+    int occupyingCivListIndex;
 
     //==Hex tiles==
     QPoint points[7];

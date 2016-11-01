@@ -403,7 +403,7 @@ void GameManager::EndTurn()
         if(!unit->RequiresOrders && !unit->isPathEmpty())
         {
             qDebug() << "  Updating unit positions";
-            uc->MoveUnit(unit, map, gameView->GetScene());
+            uc->MoveUnit(unit, map, gameView->GetScene(), currentTurn);
             renderer->UpdateUnits(map, gameView, unit);
         }
 
@@ -449,8 +449,8 @@ void GameManager::UpdateTileData()
     if(findUnit)
     {
         findUnit = false;
-//        if(!attackNearby)
-//        {
+        if(!attackNearby)
+        {
             unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
             if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
@@ -485,12 +485,13 @@ void GameManager::UpdateTileData()
             {
                 qDebug() << "Player does not own that unit";
             }
-//        }
-//        else
-//        {
-//            attackNearby = false;
-//            targetUnit = uc->FindUnitAtTile(targetTile, map, civ);
-//        }
+        }
+        else
+        {
+            attackNearby = false;
+            targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetUnitList());
+            uc->Attack(unitToMove, targetUnit, false);
+        }
     }
     else if(unitTile->HasCity)
     {
@@ -597,6 +598,10 @@ void GameManager::InitButtons()
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
     attackUnit->setEnabled(false);
+
+    claimNextTile = new QPushButton("Claim Next Tile");
+    connect(claimNextTile, SIGNAL(clicked(bool)), this, SLOT(claimTile()));
+
 }
 
 void GameManager::InitLayouts()
@@ -630,6 +635,7 @@ void GameManager::InitLayouts()
     hLayout->addWidget(renderPlusOne);
     hLayout->addWidget(renderMinusOne);
     hLayout->addWidget(showDummyCityScreen);
+    hLayout->addWidget(claimNextTile);
 
     vLayout->addLayout(hLayout);
 }
@@ -852,6 +858,17 @@ void GameManager::buildNewMine()
 void GameManager::attackMelee()
 {
     attackNearby = true;
+}
+
+void GameManager::claimTile()
+{
+    if(!civList.at(0)->GetCityAt(0)->tileQueue.isEmpty())
+    {
+        civList.at(0)->GetCityAt(0)->AddControlledTile(civList.at(0)->GetCityAt(0)->tileQueue.first());
+        civList.at(0)->GetCityAt(0)->tileQueue.removeFirst();
+        civList.at(0)->GetCityAt(0)->DefineCityBorders(true);
+        renderer->UpdateCityBorders(civList.at(0)->GetCityAt(0), gameView->GetScene(), civList.at(0)->getCiv());
+    }
 }
 
 

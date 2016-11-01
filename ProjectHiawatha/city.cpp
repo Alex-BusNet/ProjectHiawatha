@@ -13,46 +13,36 @@ City::~City()
 
 }
 
-//void City::TilesToGetNext()
-//{
+void City::SortTileQueue()
+{
     // Select the next tile to be claimed by a city based on:
     //  -Is the tile already claimed by another civ?
     //  -The total yield of the tile
     //  -Resources on tile
     //  -Tile type
 
-//    QList<Tile*> surroundingTiles;
+    for(int i = 0; i < tileQueue.size(); i++)
+    {
+        for(int j = i + 1; j < tileQueue.size(); j++)
+        {
+            if(tileQueue[j]->GetYield()->GetGoldYield() > tileQueue[i]->GetYield()->GetGoldYield())
+            {
+                Tile* temp = tileQueue[i];
+                tileQueue[i] = tileQueue[j];
+                tileQueue[j] = temp;
+            }
+        }
+    }
 
-//    foreach(Tile* tile, cityControlledTiles)
-//    {
-//        surroundingTiles = map->GetNeighbors(tile);
-
-//        int surroundCount = 0;
-
-//        foreach(Tile* tile, surroundingTiles)
-//        {
-//            if(tile->GetControllingCiv() != NO_NATION)
-//            {
-//                qDebug() << "---------SurroundingTiles at" << surroundCount << "is already owned";
-//                surroundingTiles.removeAt(surroundCount);
-//            }
-//            else
-//            {
-//                tileQueue.push(tile);
-//            }
-
-//            surroundCount++;
-//        }
-//    }
-
-//    foreach(Tile* tile, tileQueue)
-//    {
-//        qDebug() << "           tileQueue:" << tile->GetTileIDString();
-//    }
+    qDebug() << "   ---Sorting TileQueue";
+    foreach(Tile* tile, tileQueue)
+    {
+        qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
+    }
 
 
     //Store all eligible tiles in a heap.
-//}
+}
 
 // 0 = p, q, and r are colinear
 // 1 = Clockwise
@@ -217,6 +207,8 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         cityBorder.push_back(point);
 
     }
+
+
 }
 
 //Accessor and Mutators
@@ -295,8 +287,13 @@ void City::AddControlledTile(Tile *tile)
     this->cityControlledTiles.push_back(tile);
 }
 
-void City::DefineCityBorders()
+void City::DefineCityBorders(bool redefine)
 {
+    if(redefine)
+    {
+        cityBorder.clear();
+    }
+
     //Get the center of each tile the city controls and
     // load the point into the QVector
     QVector<QPoint> points;
@@ -327,6 +324,8 @@ void City::DefineCityBorders()
 
     int p = l, q;
 
+//    qDebug() << "------Leftmost point at:" << l << points[l];
+
     //This uses the Jarvis March / Gift-wrapping method for finding the convex hull
     // that encompasses all points in the set
     qDebug() << "     Finding convex hull";
@@ -347,7 +346,8 @@ void City::DefineCityBorders()
     }
     while(p != l);
 
-    hull.push_back(points[l]);
+    if(hull.last().x() != hull.first().x())
+        hull.push_back(points[l]);
 
     //Load the resulting convex hull into the cityBorder QPolygon
     int lastX, lastY, currentX, currentY, newX, newY, dstX, dstY;
@@ -407,6 +407,17 @@ void City::DefineCityBorders()
         this->cityBorder.push_back(hull[i]);
     }
 
+//    qDebug() << "------------CityBorder points";
+//    foreach(QPoint point, cityBorder)
+//    {
+//        qDebug() << "           " << point;
+//    }
+
+}
+
+void City::SetCityBordersIndex(int index)
+{
+    this->cityBordersIndex = index;
 }
 
 QString City::GetName()
@@ -467,4 +478,9 @@ int City::GetCityIndex()
 int City::GetCityHealthBarIndex()
 {
     return this->cityHealthBarIndex;
+}
+
+int City::GetCityBordersIndex()
+{
+    return this->cityBordersIndex;
 }

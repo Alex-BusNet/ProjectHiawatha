@@ -34,7 +34,8 @@ public:
     void GarrisonMilitary(Unit *military);
     void AddControlledTile(Tile* tile);
 
-    void DefineCityBorders();
+    void DefineCityBorders(bool redefine);
+    void SetCityBordersIndex(int index);
 
     QString GetName();
     Tile* GetCityTile();
@@ -49,6 +50,7 @@ public:
 
     int GetCityIndex();
     int GetCityHealthBarIndex();
+    int GetCityBordersIndex();
     bool IsCityCaptial();
 
     void setCapitolConnection(bool flag);
@@ -58,7 +60,7 @@ public:
 
     ~City();
 
-//    void TilesToGetNext();
+    void SortTileQueue();
     QVector<Tile*> tileQueue;
 private:
     QVector<Tile*> cityControlledTiles;
@@ -83,6 +85,7 @@ private:
     int goldYield;
     int cityIndex;
     int cityHealthBarIndex;
+    int cityBordersIndex;
 
     int orientation(QPoint p, QPoint q, QPoint r);
 
