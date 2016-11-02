@@ -80,10 +80,12 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 
     // sort the vector from smallest x-value to largest x-value is reverseSort is false,
     // else sort the vector from largest x-value to smallest x-value
+    qDebug() << "           reverseSort:" << reverseSort;
     for(int j = 0; j < tempPt.size(); j++)
     {
         for(int k = j + 1; k < tempPt.size(); k++)
         {
+//            qDebug() << "       --tempPt[" << j << "]" << tempPt[j] << "tempPt[" << k << "]" << tempPt[k];
             if(!reverseSort)
             {
                 if(tempPt[j].x() > tempPt[k].x())
@@ -91,16 +93,20 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                     QPoint temp = tempPt[j];
                     tempPt[j] = tempPt[k];
                     tempPt[k] = temp;
+                    qDebug() << "           x greater";
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
+                    qDebug() << "           x equal";
                     if(tempPt[j].y() > tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
                         tempPt[k] = temp;
+                        qDebug() << "           y greater";
                     }
                 }
+
             }
             else
             {
@@ -109,14 +115,17 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                     QPoint temp = tempPt[j];
                     tempPt[j] = tempPt[k];
                     tempPt[k] = temp;
+                    qDebug() << "           x less than";
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
+                    qDebug() << "           x equal";
                     if(tempPt[j].y() < tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
                         tempPt[k] = temp;
+                        qDebug() << "           y less than";
                     }
                 }
             }
@@ -132,10 +141,14 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         {
             if(tempPt[i].y() == tempPt[i + 1].y())
             {
+//                qDebug() << "       --Removing point:" << tempPt[i +1];
                 tempPt.removeAt(i + 1);
             }
         }
+
+        qDebug() << "       tempPt[" << i << "]" << tempPt[i];
     }
+    qDebug() << "       tempPt[" << tempPt.size() - 1 << "]" << tempPt.last();
     int lastX = 0, lastY = 0;
 
     // Load the points into the cityBorder vector
@@ -368,7 +381,9 @@ void City::DefineCityBorders(bool redefine)
             dstX = currentX - lastX;
             dstY = currentY - lastY;
 
-            if(((abs(dstX) >= 88) || (abs(dstY) >= 74)))
+            qDebug() << "   dstX:" << dstX << "dstY:" << dstY;
+
+            if(((abs(dstX) >= 88) || (abs(dstY) >= 50)))
             {
                 if((currentX > lastX) && (currentY > lastY))
                 {
@@ -400,6 +415,19 @@ void City::DefineCityBorders(bool redefine)
                     }
 
                     cityBorder.push_back(QPoint(newX, newY));
+                }
+                else if(dstX == 0)
+                {
+                    if(lastY > currentY)
+                    {
+                        qDebug() << "     Vertically aligned, left side";
+                        FindPoints(lastX, currentY, currentX + 44, lastY, points, true);
+                    }
+                    else if(lastY < currentY)
+                    {
+                        qDebug() << "     Vertically aligned, right side";
+                        FindPoints(lastX - 44, lastY, currentX, currentY, points, false);
+                    }
                 }
             }
         }
