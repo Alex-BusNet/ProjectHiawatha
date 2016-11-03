@@ -67,7 +67,6 @@ public:
     void setCurrentTech(Technology* tech);
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
-    void loadUnits(QString filename, Nation nation);
     //AI Funcs
     void setLowThreats(QVector<Unit *> lowThreats);
     void setMidThreats(QVector<Unit *> midThreats);
@@ -89,7 +88,7 @@ private:
 
     QVector<QString> initialCityList;
 
-    QVector<Unit*> initialUnitList;
+
 
     int cityIndex;
 

@@ -15,11 +15,13 @@ public:
     Unit();
     //Unit(Nation owner = India, bool isNonCombat = true, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int rangeStrength = 2, int health = 100, UnitType type = WORKER);
     Unit(Nation owner = India, UnitType type = WORKER);
+    Unit(int index);
     ~Unit();
 
     void SetUnitIcon(UnitType type);
     void SetOwner(Nation owner);
     void SetName(QString str);
+    void setUnlocked(int unlock);
     void SetPosition(int column, int row);
     void SetPositionIndex(int tileMapIndex);
     void SetPixmapIndex(int index);
@@ -67,7 +69,7 @@ public:
     QList<Tile*> GetPath();
 
     UnitType GetUnitType();
-
+    int  isUnlocked();
     bool isPathEmpty();
     bool isNonCombat();
     bool isSettler();
@@ -101,7 +103,7 @@ private:
     int maxHealth;
     int uses; // uses = -1 for combat units.
     int cost;
-
+    int unlocked;
     UnitType type;
 
     QList<Tile*> path;

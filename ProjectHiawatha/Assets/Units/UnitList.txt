@@ -1,33 +1,33 @@
-Archer, 50, 5, 7, 2, 2
-Galley, 50, 5, 3, 3, 2
-Scout, 30, 4, 0, 2, 0
-Settler, 100, 0, 0, 2, 0
-Spearman, 60, 7, 0, 2, 0
-Warrior, 45, 6, 0, 2, 0
-Worker, 70, 0, 0, 2, 0
-Catapult, 80, 5, 12, 2, 2
-Swordsman, 80, 12, 0, 2, 0
-Crossbowman, 125, 10, 15, 2, 2
-Knight, 125, 19, 0, 3, 0
-Pikeman, 90, 10, 0, 2, 0
-Cannon, 190, 13, 27, 2, 2
-Caravel, 120, 15, 7, 6, 2
-Cavalry, 225, 25, 0, 3, 0
-Frigate, 190, 30, 15, 5, 2
-Musketman, 150, 16, 0, 2, 0
-Rifleman, 225, 25, 0, 2, 0
-Artillery, 330, 16, 32, 2, 3
-Battleship, 380, 60, 32, 4, 3
-Carrier, 380, 30, 0, 5, 0
-Destroyer, 380, 35, 22, 8, 2
-Fighter, 380, 0, 40, 0, 8
-Infantry, 320, 36, 0, 2, 0
-Ironclad, 275, 35, 18, 4, 2
-Submarine, 375, 25, 60, 5, 3
-Tank, 375, 50, 0, 5, 0
-Bomber, 375, 0, 50, 0, 10
-Helicopter Gunship, 425, 50, 0, 6, 0
-Jet Fighter, 425, 0, 60, 0, 10
-Mechanized Infantry, 380, 50, 0, 3, 0
-Modern Armor, 425, 80, 0, 5, 0
-Stealth Bomber, 425, 0, 80, 0, 20
+Archer, 50, 5, 7, 2, 2, 1
+Galley, 50, 5, 3, 3, 2, 1
+Scout, 30, 4, 0, 2, 0, 1
+Settler, 100, 0, 0, 2, 0, 1
+Spearman, 60, 7, 0, 2, 0, 0
+Warrior, 45, 6, 0, 2, 0, 1
+Worker, 70, 0, 0, 2, 0, 1
+Catapult, 80, 5, 12, 2, 2, 0
+Swordsman, 80, 12, 0, 2, 0, 0
+Crossbowman, 125, 10, 15, 2, 2, 0
+Knight, 125, 19, 0, 3, 0, 0
+Pikeman, 90, 10, 0, 2, 0, 0
+Cannon, 190, 13, 27, 2, 2, 0
+Caravel, 120, 15, 7, 6, 2, 0
+Cavalry, 225, 25, 0, 3, 0, 0
+Frigate, 190, 30, 15, 5, 2, 0
+Musketman, 150, 16, 0, 2, 0, 0
+Rifleman, 225, 25, 0, 2, 0, 0
+Artillery, 330, 16, 32, 2, 3, 0
+Battleship, 380, 60, 32, 4, 3, 0
+Carrier, 380, 30, 0, 5, 0, 0
+Destroyer, 380, 35, 22, 8, 2, 0
+Fighter, 380, 0, 40, 0, 8, 0
+Infantry, 320, 36, 0, 2, 0, 0
+Ironclad, 275, 35, 18, 4, 2, 0
+Submarine, 375, 25, 60, 5, 3, 0
+Tank, 375, 50, 0, 5, 0, 0
+Bomber, 375, 0, 50, 0, 10, 0
+Helicopter Gunship, 425, 50, 0, 6, 0, 0
+Jet Fighter, 425, 0, 60, 0, 10, 0
+Mechanized Infantry, 380, 50, 0, 3, 0, 0
+Modern Armor, 425, 80, 0, 5, 0, 0
+Stealth Bomber, 425, 0, 80, 0, 20, 0

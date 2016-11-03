@@ -16,6 +16,7 @@ Unit::Unit()
     this->isMelee = false;
     this->uses = 1;
     this->needsPath = false;
+    this->unlocked = 0;
 //    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
@@ -59,6 +60,27 @@ Unit::Unit(Nation owner, UnitType type)
     this->needsPath = false;
     this->type = type;
     this->maxHealth = this->health;
+    this->unlocked = 0;
+}
+
+Unit::Unit(int index)
+{
+    index = 0;
+    this->belongsTo = India;
+    this->NonCombat = false;
+    this->Settler = false;
+    this->movementPoints = 2;
+    this->strength = 1;
+    this->range = 3;
+    this->health = 100;
+    this->maxHealth = 100;
+    this->RequiresOrders = true;
+    this->Updated = false;
+    this->isFortified = false;
+    this->isMelee = false;
+    this->uses = 1;
+    this->needsPath = false;
+    this->unlocked = 0;
 }
 
 Unit::~Unit()
@@ -74,64 +96,18 @@ void Unit::SetUnitIcon(UnitType type)
     switch(type)
     {
     case WORKER:
-        this->NonCombat = true;
-        this->Settler = false;
-        this->movementPoints = 2;
-        this->strength = 0;
-        this->range = 3;
-        this->health = 100;
-        this->isRoadWorker = false;
-        this->uses = 3;
-        this->isMelee = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/worker.png");
         break;
     case SETTLER:
-        this->NonCombat = true;
-        this->Settler = true;
-        this->movementPoints = 2;
-        this->strength = 0;
-        this->range = 3;
-        this->health = 100;
-        this->isRoadWorker = false;
-        this->uses = 1;
-        this->isMelee = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/settler.png");
         break;
     case WARRIOR:
-        this->NonCombat = false;
-        this->Settler = false;
-        this->movementPoints = 2;
-        this->strength = 5;
-        this->range = 3;
-        this->health = 100;
-        this->isRoadWorker = false;
-        this->uses = 3;
-        this->isMelee = true;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/warrior.png");
         break;
     case ARCHER:
-        this->NonCombat = false;
-        this->Settler = false;
-        this->movementPoints = 3;
-        this->strength = 5;
-        this->range = 3;
-        this->rangeStrength = 10;
-        this->health = 100;
-        this->isRoadWorker = false;
-        this->uses = -1;
-        this->isMelee = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/archer.png");
         break;
     case SPEARMAN:
-        this->NonCombat = false;
-        this->Settler = false;
-        this->movementPoints = 4;
-        this->strength = 10;
-        this->range = 3;
-        this->health = 100;
-        this->isRoadWorker = false;
-        this->uses = -1;
-        this->isMelee = true;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/spearman.png");
         break;
     case PIKEMAN:
@@ -258,6 +234,11 @@ void Unit::SetOwner(Nation owner)
 void Unit::SetName(QString str)
 {
     this->name = str;
+}
+
+void Unit::setUnlocked(int unlock)
+{
+    this->unlocked = unlock;
 }
 
 void Unit::SetPositionIndex(int tileMapIndex)
@@ -409,6 +390,11 @@ QList<Tile *> Unit::GetPath()
 UnitType Unit::GetUnitType()
 {
     return this->type;
+}
+
+int Unit::isUnlocked()
+{
+    return this->unlocked;
 }
 
 bool Unit::isPathEmpty()

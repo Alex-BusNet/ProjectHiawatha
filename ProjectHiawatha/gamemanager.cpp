@@ -155,7 +155,6 @@ void GameManager::InitCivs(Nation player, int numAI)
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
     civ->setTechIndex(0);
-    civ->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt",player);
     QString str = "../ProjectHiawatha/Assets/CityLists/";
     QString str2;
     switch (player)
@@ -738,6 +737,7 @@ void GameManager::showCity()
         //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
         cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
+        cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->updateList();
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
 
