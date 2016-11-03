@@ -62,6 +62,8 @@ public:
 
     void SortTileQueue();
     QVector<Tile*> tileQueue;
+
+    bool UpdateProgress();
 private:
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
@@ -86,11 +88,13 @@ private:
     int cityIndex;
     int cityHealthBarIndex;
     int cityBordersIndex;
+    int turnsToBorderGrowth;
 
     int orientation(QPoint p, QPoint q, QPoint r);
 
     void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort);
     QPolygon cityBorder;
+
 };
 
 

@@ -5,6 +5,7 @@
 City::City()
 {
     this->cityTotalYield = new Yield(1,1,1,1,1);
+    this->turnsToBorderGrowth = 0;
 }
 
 
@@ -44,6 +45,24 @@ void City::SortTileQueue()
     //Store all eligible tiles in a heap.
 }
 
+bool City::UpdateProgress()
+{
+    qDebug() << "       " << this->name << " turns to growth:" << turnsToBorderGrowth;
+    if(turnsToBorderGrowth == 0)
+    {
+        this->AddControlledTile(this->tileQueue.first());
+        this->tileQueue.removeFirst();
+        this->DefineCityBorders(true);
+        this->turnsToBorderGrowth = floor(20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)));
+        return true;
+    }
+    else
+    {
+        this->turnsToBorderGrowth--;
+        return false;
+    }
+}
+
 // 0 = p, q, and r are colinear
 // 1 = Clockwise
 // 2 = Counterclockwise
@@ -59,6 +78,8 @@ int City::orientation(QPoint p, QPoint q, QPoint r)
 void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort)
 {
     int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
+
+//    qDebug() << "   upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
     QVector<QPoint> tempPt;
 
     //Find any point that falls between the x and y bounds passed to the funtion.
@@ -78,9 +99,9 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         }
     }
 
-    // sort the vector from smallest x-value to largest x-value is reverseSort is false,
+    // sort the vector from smallest x-value to largest x-value if reverseSort is false,
     // else sort the vector from largest x-value to smallest x-value
-    qDebug() << "           reverseSort:" << reverseSort;
+//    qDebug() << "           reverseSort:" << reverseSort;
     for(int j = 0; j < tempPt.size(); j++)
     {
         for(int k = j + 1; k < tempPt.size(); k++)
@@ -93,17 +114,21 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                     QPoint temp = tempPt[j];
                     tempPt[j] = tempPt[k];
                     tempPt[k] = temp;
-                    qDebug() << "           x greater";
+//                    qDebug() << "           x greater";
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-                    qDebug() << "           x equal";
+//                    qDebug() << "           x equal";
                     if(tempPt[j].y() > tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
                         tempPt[k] = temp;
-                        qDebug() << "           y greater";
+//                        qDebug() << "           y greater";
+                    }
+                    else if(tempPt[j].y() < tempPt[k].y())
+                    {
+//                        qDebug() << "       y less than";
                     }
                 }
 
@@ -115,17 +140,21 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                     QPoint temp = tempPt[j];
                     tempPt[j] = tempPt[k];
                     tempPt[k] = temp;
-                    qDebug() << "           x less than";
+//                    qDebug() << "           x less than";
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-                    qDebug() << "           x equal";
+//                    qDebug() << "           x equal";
                     if(tempPt[j].y() < tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
                         tempPt[k] = temp;
-                        qDebug() << "           y less than";
+//                        qDebug() << "           y less";
+                    }
+                    else if(tempPt[j].y() > tempPt[k].y())
+                    {
+//                        qDebug() << "       y greater than";
                     }
                 }
             }
@@ -146,9 +175,9 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
             }
         }
 
-        qDebug() << "       tempPt[" << i << "]" << tempPt[i];
+//        qDebug() << "       tempPt[" << i << "]" << tempPt[i];
     }
-    qDebug() << "       tempPt[" << tempPt.size() - 1 << "]" << tempPt.last();
+//    qDebug() << "       tempPt[" << tempPt.size() - 1 << "]" << tempPt.last();
     int lastX = 0, lastY = 0;
 
     // Load the points into the cityBorder vector
@@ -381,7 +410,7 @@ void City::DefineCityBorders(bool redefine)
             dstX = currentX - lastX;
             dstY = currentY - lastY;
 
-            qDebug() << "   dstX:" << dstX << "dstY:" << dstY;
+//            qDebug() << "   dstX:" << dstX << "dstY:" << dstY;
 
             if(((abs(dstX) >= 88) || (abs(dstY) >= 50)))
             {
@@ -420,13 +449,13 @@ void City::DefineCityBorders(bool redefine)
                 {
                     if(lastY > currentY)
                     {
-                        qDebug() << "     Vertically aligned, left side";
-                        FindPoints(lastX, currentY, currentX + 44, lastY, points, true);
+//                        qDebug() << "     Vertically aligned, left side";
+                        FindPoints(lastX - 50, currentY, currentX, lastY, points, true);
                     }
                     else if(lastY < currentY)
                     {
-                        qDebug() << "     Vertically aligned, right side";
-                        FindPoints(lastX - 44, lastY, currentX, currentY, points, false);
+//                        qDebug() << "     Vertically aligned, right side";
+                        FindPoints(lastX - 50, lastY, currentX, currentY, points, false);
                     }
                 }
             }
@@ -440,6 +469,8 @@ void City::DefineCityBorders(bool redefine)
 //    {
 //        qDebug() << "           " << point;
 //    }
+
+    this->turnsToBorderGrowth = floor(20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)));
 
 }
 

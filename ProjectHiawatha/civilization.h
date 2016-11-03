@@ -46,7 +46,7 @@ public:
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
 
-    void UpdateProgress();
+    bool UpdateProgress();
 
     QVector<Technology*> GetTechList();
 

@@ -102,10 +102,25 @@ QVector<Unit *> Civilization::GetUnitList()
     return this->UnitList;
 }
 
-void Civilization::UpdateProgress()
+bool Civilization::UpdateProgress()
 {
     this->totalGold += this->getCivYield()->GetGoldYield();
     this->totalScience += this->getCivYield()->GetScienceYield();
+
+    bool redraw = false;
+    foreach(City* city, this->currentCityList)
+    {
+        if(city->UpdateProgress() && !redraw)
+        {
+            redraw = true;
+        }
+        else if(!redraw)
+        {
+            redraw = false;
+        }
+    }
+
+    return redraw;
 }
 
 QVector<QString> Civilization::GetInitialCityList()

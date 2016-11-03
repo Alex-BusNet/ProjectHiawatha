@@ -385,7 +385,13 @@ void GameManager::StartTurn()
         culText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
 
-    civList.at(currentTurn)->UpdateProgress();
+    if(civList.at(currentTurn)->UpdateProgress())
+    {
+        foreach(City* city, civList.at(currentTurn)->GetCityList())
+        {
+            renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
+        }
+    }
 
     qDebug() << "  Starting turn for civ" << currentTurn;
 }
@@ -751,7 +757,6 @@ void GameManager::showCity()
 
 void GameManager::updateTiles()
 {
-
     processedData = gameView->GetScene()->ProcessTile(relocateUnit);
 
     if(processedData.newData)

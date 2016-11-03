@@ -470,15 +470,10 @@ newrand:
                 tile->SetControllingCiv(civs.at(i)->getCiv());
                 city->AddControlledTile(tile);
             }
-//            city->AddControlledTile(board.at(index - 2));
-//            city->AddControlledTile(board.at(index - 3));
-//            city->AddControlledTile(board.at(index - 18));
-//            city->AddControlledTile(board.at(index - 23));
-//            city->AddControlledTile(board.at(index - 42));
-//            city->AddControlledTile(board.at(index - 43));
-//            city->AddControlledTile(board.at(index + 2));
+
             city->UpdateCityYield();
             city->SetCityIndex(0);
+            city->SetName(civs.at(i)->GetInitialCityList().at(civs.at(i)->getCityIndex()));
             civs.at(i)->AddCity(city);
             city->DefineCityBorders(false);
             this->GetTileQueue(city);
