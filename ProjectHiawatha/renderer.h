@@ -22,7 +22,7 @@ public:
     Renderer(int mapSizeX);
 
     void UpdateScene(Map *map, GameScene *scene, TileData data);
-    void UpdateUnits(Map *map, GameView *view, Unit *unit);
+    void UpdateUnits(Map *map, GameScene *view, Unit *unit);
     void UpdateCityBorders(City* city, GameScene *scene, Nation owner);
 
     void DrawHexScene(Map *map, GameView *scene);
@@ -54,9 +54,9 @@ private:
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsProxyWidget*> cityLabels;
-    QVector<QGraphicsProxyWidget*> cityHealthBars;
-    QVector<QGraphicsProxyWidget*> unitHealthBars;
-    QVector<QProgressBar*>unitHealthProgressBars;
+    QVector<QGraphicsRectItem*> cityHealthBars;
+    QVector<QGraphicsRectItem*> unitHealthBars;
+    QVector<QRect*>unitHealthRects;
 
     QPolygon borders;
     CivColors *cc;

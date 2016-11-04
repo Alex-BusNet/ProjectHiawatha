@@ -53,7 +53,7 @@ bool City::UpdateProgress()
         this->AddControlledTile(this->tileQueue.first());
         this->tileQueue.removeFirst();
         this->DefineCityBorders(true);
-        this->turnsToBorderGrowth = floor(20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)));
+        this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)))/this->cityTotalYield->GetCultureYield());
         return true;
     }
     else
