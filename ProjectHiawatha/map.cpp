@@ -511,7 +511,8 @@ newrand:
             unit = new Unit(civs.at(i)->getCiv(), WARRIOR);
             unit->SetOwner(civs.at(i)->getCiv());
             unit->RequiresOrders = true;
-
+            unit->SetStrength(6);
+            unit->SetMovementPoints(2);
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;

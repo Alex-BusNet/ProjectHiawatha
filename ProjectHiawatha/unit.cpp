@@ -59,6 +59,7 @@ Unit::Unit(Nation owner, UnitType type)
     this->isFortified = false;
     this->needsPath = false;
     this->type = type;
+    this->health = 100;
     this->maxHealth = this->health;
     this->unlocked = 0;
 }
