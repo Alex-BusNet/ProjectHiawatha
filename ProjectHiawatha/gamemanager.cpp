@@ -743,7 +743,9 @@ void GameManager::showCity()
         cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+        cityScreen->getCityInfo(civList.at(0)->GetCityAt(0));
         cityScreen->updateList();
+
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
 
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());

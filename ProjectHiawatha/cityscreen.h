@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <building.h>
 #include "unit.h"
+#include "city.h"
 #include <QVector>
 #include <QString>
 #include <QListWidgetItem>
@@ -24,6 +25,7 @@ public:
     void loadBuildings(QString filename);
     void loadUnits(QString filename);
     void updateList();
+    void getCityInfo(City* currentCity);
 private slots:
     void on_listWidget_itemSelectionChanged();
 
@@ -31,11 +33,17 @@ private slots:
 
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
+
+
+    void on_listWidget_2_itemSelectionChanged();
+
 private:
     Ui::CityScreen *ui;
     QVector<Building*> buildings;
     QVector<Unit*> initialUnitList;
     QString str;
+    int productionYield;
+
 
 };
 

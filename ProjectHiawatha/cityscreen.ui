@@ -13,17 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QListWidget" name="listWidget">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>70</y>
-     <width>271</width>
-     <height>191</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="picture">
    <property name="geometry">
     <rect>
      <x>630</x>
@@ -36,7 +26,7 @@
     <string>TextLabel</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="Bonus">
    <property name="geometry">
     <rect>
      <x>620</x>
@@ -49,11 +39,11 @@
     <string>TextLabel</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="description">
    <property name="geometry">
     <rect>
      <x>620</x>
-     <y>300</y>
+     <y>280</y>
      <width>231</width>
      <height>81</height>
     </rect>
@@ -62,7 +52,7 @@
     <string>TextLabel</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_4">
+  <widget class="QLabel" name="city_name">
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -91,8 +81,8 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>290</y>
+     <x>90</x>
+     <y>350</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -101,11 +91,11 @@
     <string>Current Proudction</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_6">
+  <widget class="QLabel" name="current_production_name">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>310</y>
+     <x>90</x>
+     <y>370</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -117,8 +107,8 @@
   <widget class="QProgressBar" name="progressBar">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>330</y>
+     <x>90</x>
+     <y>390</y>
      <width>118</width>
      <height>23</height>
     </rect>
@@ -126,6 +116,49 @@
    <property name="value">
     <number>24</number>
    </property>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>411</width>
+     <height>301</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>1</number>
+   </property>
+   <widget class="QWidget" name="Buildings">
+    <attribute name="title">
+     <string>Tab 1</string>
+    </attribute>
+    <widget class="QListWidget" name="listWidget">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>40</y>
+       <width>271</width>
+       <height>191</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="Units">
+    <attribute name="title">
+     <string>Tab 2</string>
+    </attribute>
+    <widget class="QListWidget" name="listWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>30</y>
+       <width>256</width>
+       <height>192</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <resources/>

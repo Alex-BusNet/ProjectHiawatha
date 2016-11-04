@@ -21,10 +21,12 @@ CityScreen::CityScreen(QWidget *parent) :
     }
     ui->setupUi(this);
     QPixmap pic("../ProjectHiawatha/Assets/Buildings/walls.png");
-    ui->label->setPixmap(pic);
-    ui->label_2->setText("Walls");
-    ui->label_3->setText("+5000 Defense");
-    ui->label_6->setText(str);
+    ui->picture->setPixmap(pic);
+    ui->city_name->setText("Walls");
+    ui->Bonus->setText("+5000 Defense");
+    ui->current_production_name->setText(str);
+    ui->tabWidget->setTabText(0, "Buildings");
+    ui->tabWidget->setTabText(1, "Units");
     ui->progressBar->setMinimum(0);
 
 
@@ -126,14 +128,12 @@ void CityScreen::loadUnits(QString filename)
 
 void CityScreen::updateList()
 {
-    int index = 0;
     for(int i = 0;i<initialUnitList.size();i++)
     {
-        ui->listWidget->addItem(initialUnitList.at(i)->GetName());
-        index++;
+        ui->listWidget_2->addItem(initialUnitList.at(i)->GetName());
         if(initialUnitList.at(i)->isUnlocked()==0)
         {
-               ui->listWidget->item(i)->setHidden(true);
+               ui->listWidget_2->item(i)->setHidden(true);
         }
 
     }
@@ -142,11 +142,17 @@ void CityScreen::updateList()
         ui->listWidget->addItem(buildings.at(j)->getName());
         if(buildings.at(j)->isUnlocked()==false)
         {
-               ui->listWidget->item(index)->setHidden(true);
+               ui->listWidget->item(j)->setHidden(true);
         }
 
     }
     update();
+}
+
+void CityScreen::getCityInfo(City *currentCity)
+{
+    ui->city_name->setText(currentCity->GetName());
+    //productionYield = currentCity->getCityYield()->GetProductionYield();
 }
 
 void CityScreen::on_listWidget_itemSelectionChanged()
@@ -160,22 +166,28 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     qDebug()<<"str2: "<<str2;
     str.append(str2);
     qDebug()<<"str: "<<str;
-    ui->label_2->setText(str);
-    ui->label_3->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
+    ui->Bonus->setText(str);
+    ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
     update();
 }
 
 void CityScreen::on_pushButton_clicked()
 {
-    str = (ui->label_6->text());
+    str = (ui->current_production_name->text());
     this->close();
 }
 
 void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-    ui->label_6->setText(item->text());
+    ui->current_production_name->setText(item->text());
     ui->progressBar->setMaximum(buildings.at(ui->listWidget->currentRow())->getBuildingMaintenanceCost());
     ui->progressBar->setValue(10);
     update();
+
+}
+
+void CityScreen::on_listWidget_2_itemSelectionChanged()
+{
+    ui->description->setText(initialUnitList.at(ui->listWidget_2->currentRow())->GetName());
 
 }
