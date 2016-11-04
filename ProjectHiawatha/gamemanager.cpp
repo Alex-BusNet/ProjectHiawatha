@@ -401,19 +401,24 @@ void GameManager::EndTurn()
     countTime = true;
     begin = std::chrono::steady_clock::now();
 
-    foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
+    for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
     {
-        qDebug() << "           is unit path empty:" << unit->isPathEmpty();
+        qDebug() << "           is unit path empty:" << civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty();
 
-        if(!unit->RequiresOrders && !unit->isPathEmpty())
+        if(!civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders && !civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty())
         {
             qDebug() << "  Updating unit positions";
-            uc->MoveUnit(unit, map, gameView->GetScene(), currentTurn);
-            renderer->UpdateUnits(map, gameView, unit);
+            uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, gameView->GetScene(), currentTurn);
+//            renderer->UpdateUnits(map, gameView->GetScene(), civList.at(currentTurn)->GetUnitAt(i));
         }
 
-        if(currentTurn == 0 && unit->GetUnitType() == WARRIOR)
-            uc->Attack(unit, civList.at(1)->GetUnitAt(1), false);
+        if(currentTurn == 0 && civList.at(currentTurn)->GetUnitAt(i)->GetUnitType() == WARRIOR)
+        {
+            uc->Attack(civList.at(currentTurn)->GetUnitAt(i), civList.at(1)->GetUnitAt(1), false);
+        }
+
+        renderer->UpdateUnits(map, gameView->GetScene(), civList.at(currentTurn)->GetUnitAt(i));
+
     }
 
     if(currentTurn == civList.size() - 1)

@@ -103,7 +103,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
         //=========================================
         // DAMAGE TESTING
-        unit->SetHealth(unit->GetMaxHealth() / 2);
+//        unit->SetHealth(unit->GetMaxHealth() / 2);
         //=========================================
 
         qDebug() << "   Setting new tile data";
@@ -169,19 +169,22 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     qDebug() << "   AtkBonus:" << AtkBonus;
 
     //Need to adjust this for range units attacking.
-    qDebug() << "       Damage Dealt Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
-    qDebug() << "       Damage Dealt Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
+    qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
+    qDebug() << "       Damage Sustained by Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
-    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty)) - ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
-//    //Deal minimum 1 damage for any attack.
+    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
+    float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
+
+    //Deal minimum 1 damage for any attack.
     qDebug() << "   DamageDealt before adjust:" << damageDealt;
-    damageDealt = damageDealt < 0 ? 1 : damageDealt > 100 ? damageDealt - 100 : damageDealt;
-    float damageReceived = damageDealt * (fortifyBonus / AtkBonus) * melee;
+    damageDealt = damageDealt < damageSustained ? 1 : damageDealt > 100 ? damageDealt - damageSustained - 100 : damageDealt - damageSustained;
+
+    float damageReceived = (damageDealt - damageSustained) * (fortifyBonus / AtkBonus) * melee;
 
     qDebug() << "           Damage Dealt:" << damageDealt << "Damage Recieved:" << damageReceived;
 
-    target->SetHealth(target->GetHealth() - damageDealt);
-    attacker->SetHealth(attacker->GetHealth() - damageReceived);
+    target->SetHealth(damageDealt);
+    attacker->SetHealth(damageReceived);
 }
 
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)

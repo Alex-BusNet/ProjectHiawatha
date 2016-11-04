@@ -274,7 +274,7 @@ void Unit::SetRangeStrength(int rangeStr)
 
 void Unit::SetHealth(int health)
 {
-    this->health = health;
+    this->health -= health;
 }
 
 void Unit::SetMaxHealth(int maxHealth)

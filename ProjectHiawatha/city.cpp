@@ -48,12 +48,13 @@ void City::SortTileQueue()
 bool City::UpdateProgress()
 {
     qDebug() << "       " << this->name << " turns to growth:" << turnsToBorderGrowth;
+
     if(turnsToBorderGrowth == 0)
     {
         this->AddControlledTile(this->tileQueue.first());
         this->tileQueue.removeFirst();
         this->DefineCityBorders(true);
-        this->turnsToBorderGrowth = floor(20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)));
+        this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)))/this->cityTotalYield->GetCultureYield());
         return true;
     }
     else
@@ -470,7 +471,7 @@ void City::DefineCityBorders(bool redefine)
 //        qDebug() << "           " << point;
 //    }
 
-    this->turnsToBorderGrowth = floor(20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1)));
+    this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
 
 }
 
