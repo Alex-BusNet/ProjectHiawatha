@@ -348,8 +348,6 @@ Unit* Civilization::GetUnitAt(int index)
     if(index < this->UnitList.size())
     {
         return this->UnitList.at(index);
-
-
     }
     else
     {
