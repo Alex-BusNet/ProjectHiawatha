@@ -101,10 +101,6 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
         unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
         unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
-        //=========================================
-        // DAMAGE TESTING
-//        unit->SetHealth(unit->GetMaxHealth() / 2);
-        //=========================================
 
         qDebug() << "   Setting new tile data";
         // Set the data for the unit's new tile
@@ -133,7 +129,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
 void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 {
     float waterPenalty = 0.0f, fortifyBonus = 0.0f;
-    float AtkBonus, melee;
+    float AtkBonus = 1.5f, melee;
 
     qDebug() << "--Attacking";
     qDebug() << "   FromWater:" << attackFromWater;
@@ -163,10 +159,10 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 
     qDebug() << "   melee:" << melee;
 
-    srand(QTime::currentTime().msec());
+//    srand(QTime::currentTime().msec());
 
-    AtkBonus = (static_cast<double>(rand())/ RAND_MAX) * 100.0;
-    qDebug() << "   AtkBonus:" << AtkBonus;
+//    AtkBonus = (static_cast<double>(rand())/ RAND_MAX) * 100.0;
+//    qDebug() << "   AtkBonus:" << AtkBonus;
 
     //Need to adjust this for range units attacking.
     qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
@@ -177,7 +173,7 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 
     //Deal minimum 1 damage for any attack.
     qDebug() << "   DamageDealt before adjust:" << damageDealt;
-    damageDealt = damageDealt < damageSustained ? 1 : damageDealt > 100 ? damageDealt - damageSustained - 100 : damageDealt - damageSustained;
+//    damageDealt = damageDealt < damageSustained ? 1 : damageDealt > 100 ? damageDealt - damageSustained - 100 : damageDealt - damageSustained;
 
     float damageReceived = (damageDealt - damageSustained) * (fortifyBonus / AtkBonus) * melee;
 

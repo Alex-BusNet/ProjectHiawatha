@@ -122,30 +122,22 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
     }
 }
 
-void Renderer::UpdateUnits(Map *map, GameScene *view, Unit *unit)
+void Renderer::UpdateUnits(Map *map, GameScene *view, Unit *unit, bool unitMoved)
 {
-    if(view->redrawTile)
+    qDebug() << "       Moving Unit" << unit->GetName();
+
+    unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
+
+    qDebug() << "   Unit health:" << unit->GetHealth() << "Unit Max health:" << unit->GetMaxHealth() << " healthBar value:" << unitHealthBars.at(unit->GetHealthBarIndex())->rect().width() << "Health Ratio:" << (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth());
+    if((unit->GetHealth() / unit->GetMaxHealth()) != 1 || unitMoved)
     {
-        qDebug() << "       Moving Unit" << unit->GetName();
+        qDebug() << "Updating HealthBars" << unit->GetName() << unit->GetTileIndex();
+        view->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
 
-        unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
-
-        qDebug() << "   Unit health:" << unit->GetHealth() << "Unit Max health:" << unit->GetMaxHealth() << " healthBar value:" << unitHealthBars.at(unit->GetHealthBarIndex())->rect().width() << "Health Ratio:" << (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth());
-        if((unit->GetHealth() / unit->GetMaxHealth()) != 1)
-        {
-            qDebug() << "Updating HealthBars";
-            view->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
-
-            unitHealthBars.replace(unit->GetHealthBarIndex(), view->addRect(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
-                                                                            map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1,
-                                                                            ceil(35 * (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth())), 5, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
-            unitHealthBars.at(unit->GetHealthBarIndex())->setZValue(6);
-        }
-        else
-        {
-            unitHealthBars.at(unit->GetHealthBarIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
-                                                             map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1);
-        }
+        unitHealthBars.replace(unit->GetHealthBarIndex(), view->addRect(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
+                                                                        map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1,
+                                                                        ceil(35 * (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth())), 5, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
+        unitHealthBars.at(unit->GetHealthBarIndex())->setZValue(6);
     }
 }
 
@@ -273,7 +265,7 @@ void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation o
 {
     SetOutlinePen(owner);
 
-    int i = 0;
+    static int i = 0;
     foreach(City* city, cities)
     {
         city->SetCityBordersIndex(i);
@@ -282,6 +274,7 @@ void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation o
         cityBorders.push_back(scene->addPolygon(city->GetCityBorders(), outlinePen));
         cityBorders.last()->setPen(outlinePen);
     }
+    qDebug() << "cityBorders size:" << cityBorders.size();
 }
 
 void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
@@ -292,17 +285,12 @@ void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
     }
 }
 
-void Renderer::AddCityLabel(QString name, Civilization* civ, GameView *view)
+void Renderer::AddCityLabel(City* city, GameView *view)
 {
-    QLabel* label;
-    foreach(City* city, civ->GetCityList())
-    {
-        label  = new QLabel(QString(" %1 ").arg(name));
-        label->setAutoFillBackground(true);
-        cityLabels.push_back(view->addWidget(label));
-        cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
-    }
-
+    QLabel* label = new QLabel(QString(" %1 ").arg(city->GetName()));
+    label->setAutoFillBackground(true);
+    cityLabels.push_back(view->addWidget(label));
+    cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
 }
 
 void Renderer::AddCity(City *city, Map *map, GameView *view)
@@ -314,6 +302,7 @@ void Renderer::AddCity(City *city, Map *map, GameView *view)
     cityPixmap.last()->setPos(map->GetTileFromCoord(city->GetCityTile()->GetTileID())->GetTexturePoint());
 
     this->AddCityHealthBars(city, map, view);
+    this->AddCityLabel(city, view);
 }
 
 void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
@@ -346,6 +335,12 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
     unitPixmap.last()->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
     AddUnitHealthBars(unit, map, view);
+}
+
+void Renderer::RemoveUnit(Unit *unit, GameScene *scene)
+{
+    scene->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
+    scene->removeItem(unitPixmap.at(unit->GetPixmapIndex()));
 }
 
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)

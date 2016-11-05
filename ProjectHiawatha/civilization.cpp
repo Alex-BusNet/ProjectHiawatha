@@ -338,6 +338,7 @@ City* Civilization::GetCityAt(int index)
     else
     {
         //If the index is too large, return the capital
+        qDebug() << "CityList -- Index out of range";
         return this->currentCityList.at(0);
     }
 }
@@ -352,7 +353,7 @@ Unit* Civilization::GetUnitAt(int index)
     else
     {
         qDebug() << "UnitList -- Index out of range";
-        return NULL;
+        return this->UnitList.at(0);
     }
 }
 

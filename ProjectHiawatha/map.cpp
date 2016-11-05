@@ -488,6 +488,7 @@ newrand:
             unit = new Unit(civs.at(i)->getCiv(), WORKER);
             unit->SetOwner(civs.at(i)->getCiv());
             unit->RequiresOrders = true;
+            unit->SetName("Worker");
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
@@ -513,6 +514,7 @@ newrand:
             unit->RequiresOrders = true;
             unit->SetStrength(6);
             unit->SetMovementPoints(2);
+            unit->SetName("Warrior");
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
@@ -531,7 +533,7 @@ newrand:
             unit->SetUnitListIndex(1);
             civs.at(i)->AddUnit(unit);
 
-            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
+            qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
             qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString();
         }
     }

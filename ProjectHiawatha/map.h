@@ -33,6 +33,7 @@ public:
     bool setContains(QSet<Tile*> set, Tile *tile);
 //    void run();
     void SpawnCivs(QVector<Civilization*> civs);
+    void GetTileQueue(City *city);
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;
@@ -47,7 +48,6 @@ private:
     void GenerateBiomes();
     void CleanMap();
 
-    void GetTileQueue(City *city);
 };
 
 #endif // MAP_H

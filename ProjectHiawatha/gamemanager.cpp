@@ -97,8 +97,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
 
-        renderer->AddCityLabel(civList.at(i)->GetNextCityName(), civList.at(i), gameView);
-        renderer->DrawCityHealthBars(civList.at(i)->GetCityList(), gameView);
+//        renderer->AddCityLabel(civList.at(i)->GetNextCityName(), civList.at(i), gameView);
+//        renderer->DrawCityHealthBars(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
 
@@ -119,7 +119,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 //        guiRects.at(i)->setZValue(6);
 //    }
 
-//    renderer->DrawGuiText(map, stringData, gameView);
+    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     gameView->SetGameMap(map);
@@ -388,6 +388,11 @@ void GameManager::StartTurn()
     {
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
+//            city->AddControlledTile(city->tileQueue.first());
+//            city->tileQueue.removeFirst();
+//            city->DefineCityBorders(true);
+//            city->UpdateCityYield();
+            map->GetTileQueue(city);
             renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
         }
     }
@@ -400,26 +405,40 @@ void GameManager::EndTurn()
     qDebug() << "Ending Turn";
     countTime = true;
     begin = std::chrono::steady_clock::now();
+    bool unitMoved = false;
 
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
     {
         qDebug() << "           is unit path empty:" << civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty();
 
-        Unit* unit = civList.at(currentTurn)->GetUnitAt(i);
+//        Unit* unit = civList.at(currentTurn)->GetUnitAt(i);
 
-        if(!unit->RequiresOrders && !unit->isPathEmpty())
+        if(!civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders && !civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty())
         {
             qDebug() << "  Updating unit positions";
-            uc->MoveUnit(unit, map, gameView->GetScene(), currentTurn);
-            renderer->UpdateUnits(map, gameView->GetScene(), unit);
+            uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, gameView->GetScene(), currentTurn);
+            unitMoved = true;
         }
 
+        ////This is for testing the attack calculations;
         if(currentTurn == 0 && civList.at(currentTurn)->GetUnitAt(i)->GetUnitType() == WARRIOR)
         {
-            uc->Attack(unit, civList.at(1)->GetUnitAt(1), false);
-            renderer->UpdateUnits(map, gameView->GetScene(), unit);
+            if(civList.at(1)->GetUnitAt(1)->GetUnitType() == WARRIOR)
+            {
+                uc->Attack(civList.at(currentTurn)->GetUnitAt(i), civList.at(1)->GetUnitAt(1), false);
+            }
         }
 
+        if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
+        {
+            qDebug() << "----Removing Unit";
+            renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView->GetScene());
+            civList.at(currentTurn)->RemoveUnit(i);
+        }
+        else
+        {
+            renderer->UpdateUnits(map, gameView->GetScene(), civList.at(currentTurn)->GetUnitAt(i), unitMoved);
+        }
     }
 
     if(currentTurn == civList.size() - 1)

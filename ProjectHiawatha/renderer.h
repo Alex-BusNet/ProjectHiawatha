@@ -22,7 +22,7 @@ public:
     Renderer(int mapSizeX);
 
     void UpdateScene(Map *map, GameScene *scene, TileData data);
-    void UpdateUnits(Map *map, GameScene *view, Unit *unit);
+    void UpdateUnits(Map *map, GameScene *view, Unit *unit, bool unitMoved);
     void UpdateCityBorders(City* city, GameScene *scene, Nation owner);
 
     void DrawHexScene(Map *map, GameView *scene);
@@ -32,9 +32,12 @@ public:
     void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
 
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
-    void AddCityLabel(QString name, Civilization *civ, GameView *view);
+
+    void AddCityLabel(City* city, GameView *view);
     void AddCity(City* city, Map *map, GameView *view);
     void AddUnit(Unit* unit, Map *map, GameView *view);
+
+    void RemoveUnit(Unit *unit, GameScene *scene);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
@@ -47,16 +50,17 @@ private:
 //    QVector<Unit*> units;
 
     QVector<QGraphicsPolygonItem*> tiles;
-    QVector<QGraphicsPolygonItem*> mapBorders;
-    QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> tilePixmap;
-    QVector<QGraphicsPixmapItem*> unitPixmap;
+    QVector<QGraphicsPolygonItem*> mapBorders;
+
+    QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> cityPixmap;
-    QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsProxyWidget*> cityLabels;
     QVector<QGraphicsRectItem*> cityHealthBars;
+
+    QVector<QGraphicsPixmapItem*> unitPixmap;
+    QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsRectItem*> unitHealthBars;
-    QVector<QRect*>unitHealthRects;
 
     QPolygon borders;
     CivColors *cc;
