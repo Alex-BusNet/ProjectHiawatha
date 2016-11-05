@@ -10,6 +10,7 @@
 #include "nation.h"
 #include "tile.h"
 #include "yield.h"
+#include "datatypes.h"
 
 class Tile;
 class Unit;
@@ -18,6 +19,8 @@ class City
 {
 public:
     City();
+
+    enum focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
 
     //Accessor and Mutators
     void UpdateCityYield(Yield yield);
@@ -56,6 +59,9 @@ public:
     void setCapitolConnection(bool flag);
     bool getCapitolConnection();
 
+    void SetCitizenCount(int count);
+    int GetCitizenCount();
+
     bool getHasWorker();
 
     ~City();
@@ -63,7 +69,7 @@ public:
     void SortTileQueue();
     QVector<Tile*> tileQueue;
 
-    bool UpdateProgress();
+    Update_t UpdateProgress();
 private:
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
@@ -89,6 +95,8 @@ private:
     int cityHealthBarIndex;
     int cityBordersIndex;
     int turnsToBorderGrowth;
+    int citizens;
+    int turnsToNewCitizen;
 
     int orientation(QPoint p, QPoint q, QPoint r);
 

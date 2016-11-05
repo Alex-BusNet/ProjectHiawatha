@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <QVector>
 #include <civcolors.h>
+#include "datatypes.h"
 
 class City;
 class AI_Controller;
@@ -39,6 +40,7 @@ public:
     Nation getCiv();
     Civilization* GetCivObject();
     Yield* getCivYield();
+
     int getHappiness();
     int GetTotalGold();
     int GetTotalScience();
@@ -46,7 +48,7 @@ public:
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
 
-    bool UpdateProgress();
+    Update_t UpdateProgress();
 
     QVector<Technology*> GetTechList();
 

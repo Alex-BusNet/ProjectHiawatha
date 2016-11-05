@@ -102,21 +102,27 @@ QVector<Unit *> Civilization::GetUnitList()
     return this->UnitList;
 }
 
-bool Civilization::UpdateProgress()
+Update_t Civilization::UpdateProgress()
 {
     this->totalGold += this->getCivYield()->GetGoldYield();
     this->totalScience += this->getCivYield()->GetScienceYield();
 
-    bool redraw = false;
+    Update_t redraw;
     foreach(City* city, this->currentCityList)
     {
-        if(city->UpdateProgress() && !redraw)
+        Update_t cityProgress = city->UpdateProgress();
+        if(cityProgress.updateBorders && !redraw.updateBorders)
         {
-            redraw = true;
+            redraw.updateBorders = true;
         }
-        else if(!redraw)
+        else if(!redraw.updateBorders)
         {
-            redraw = false;
+            redraw.updateBorders = false;
+        }
+
+        if(cityProgress.updateCitizens)
+        {
+            this->UpdateCivYield();
         }
     }
 

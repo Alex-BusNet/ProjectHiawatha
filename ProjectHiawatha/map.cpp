@@ -427,7 +427,7 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     // bigger borders for cities.
     //
     // This may change later to where the player gets a warrior
-    // and a settler instead of a city to start.
+    // and a settler instead of a city, warrior, and worker to start.
     //
     //=====================
 
@@ -475,9 +475,11 @@ newrand:
             city->SetCityIndex(0);
             city->SetName(civs.at(i)->GetInitialCityList().at(civs.at(i)->getCityIndex()));
             civs.at(i)->AddCity(city);
+            city->SetCitizenCount(1);
             city->DefineCityBorders(false);
             this->GetTileQueue(city);
             city->SortTileQueue();
+            city->GetControlledTiles().at(city->GetCitizenCount() - 1)->IsWorked = true;
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;
@@ -515,6 +517,7 @@ newrand:
             unit->SetStrength(6);
             unit->SetMovementPoints(2);
             unit->SetName("Warrior");
+
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;

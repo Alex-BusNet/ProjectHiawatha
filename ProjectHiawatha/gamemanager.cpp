@@ -8,6 +8,7 @@
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
 #include "unittype.h"
+#include "datatypes.h"
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -59,8 +60,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
     updateTimer->start();
 
-//    QWidget::setMouseTracking(true);
-
     qDebug() << "Creating new Renderer";
 
     renderer = new Renderer(mapSizeX);
@@ -96,9 +95,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
-
-//        renderer->AddCityLabel(civList.at(i)->GetNextCityName(), civList.at(i), gameView);
-//        renderer->DrawCityHealthBars(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
 
@@ -143,8 +139,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
 
     qDebug() << "Done.";
-
-//    StartTurn();
 }
 
 void GameManager::InitCivs(Nation player, int numAI)
@@ -335,6 +329,16 @@ void GameManager::TurnController()
 
 void GameManager::StartTurn()
 {
+    Update_t update = civList.at(currentTurn)->UpdateProgress();
+    if(update.updateBorders)
+    {
+        foreach(City* city, civList.at(currentTurn)->GetCityList())
+        {
+            map->GetTileQueue(city);
+            renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
+        }
+    }
+
     if(currentTurn == 0)
     {
         gameTurn++;
@@ -384,18 +388,7 @@ void GameManager::StartTurn()
         culText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
 
-    if(civList.at(currentTurn)->UpdateProgress())
-    {
-        foreach(City* city, civList.at(currentTurn)->GetCityList())
-        {
-//            city->AddControlledTile(city->tileQueue.first());
-//            city->tileQueue.removeFirst();
-//            city->DefineCityBorders(true);
-//            city->UpdateCityYield();
-            map->GetTileQueue(city);
-            renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
-        }
-    }
+
 
     qDebug() << "  Starting turn for civ" << currentTurn;
 }
@@ -628,10 +621,6 @@ void GameManager::InitButtons()
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
     attackUnit->setEnabled(false);
-
-    claimNextTile = new QPushButton("Claim Next Tile");
-    connect(claimNextTile, SIGNAL(clicked(bool)), this, SLOT(claimTile()));
-
 }
 
 void GameManager::InitLayouts()
@@ -665,7 +654,6 @@ void GameManager::InitLayouts()
     hLayout->addWidget(renderPlusOne);
     hLayout->addWidget(renderMinusOne);
     hLayout->addWidget(showDummyCityScreen);
-    hLayout->addWidget(claimNextTile);
 
     vLayout->addLayout(hLayout);
 }
@@ -733,7 +721,6 @@ void GameManager::InitYieldDisplay()
 
     vLayout->insertLayout(0, Yieldinfo);
 }
-
 
 void GameManager::closeGame()
 {
@@ -892,16 +879,7 @@ void GameManager::attackMelee()
     attackNearby = true;
 }
 
-void GameManager::claimTile()
-{
-    if(!civList.at(0)->GetCityAt(0)->tileQueue.isEmpty())
-    {
-        civList.at(0)->GetCityAt(0)->AddControlledTile(civList.at(0)->GetCityAt(0)->tileQueue.first());
-        civList.at(0)->GetCityAt(0)->tileQueue.removeFirst();
-        civList.at(0)->GetCityAt(0)->DefineCityBorders(true);
-        renderer->UpdateCityBorders(civList.at(0)->GetCityAt(0), gameView->GetScene(), civList.at(0)->getCiv());
-    }
-}
+
 
 
 

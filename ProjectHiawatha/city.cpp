@@ -1,7 +1,6 @@
 #include "city.h"
 #include <QDebug>
 
-
 City::City()
 {
     this->cityTotalYield = new Yield(1,1,1,1,1);
@@ -45,24 +44,41 @@ void City::SortTileQueue()
     //Store all eligible tiles in a heap.
 }
 
-bool City::UpdateProgress()
+Update_t City::UpdateProgress()
 {
     qDebug() << "       " << this->name << " turns to growth:" << turnsToBorderGrowth;
-
+    Update_t update{false, false};
     if(turnsToBorderGrowth == 0)
     {
         this->AddControlledTile(this->tileQueue.first());
         this->tileQueue.removeFirst();
         this->DefineCityBorders(true);
-        this->UpdateCityYield();
-        this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
-        return true;
+        this->turnsToBorderGrowth = floor((20 + (pow(10*(this->cityControlledTiles.size() - 1), 1.1))) / this->cityTotalYield->GetCultureYield());
+        update.updateBorders = true;
     }
     else
     {
         this->turnsToBorderGrowth--;
-        return false;
     }
+
+    qDebug() << "       " << this->name << " turns to new citizen" << turnsToNewCitizen;
+    if(turnsToNewCitizen == 0)
+    {
+        this->citizens++;
+        this->turnsToNewCitizen = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
+
+        if(this->citizens < this->GetControlledTiles().size())
+            this->GetControlledTiles().at(citizens - 1)->IsWorked = true;
+
+        this->UpdateCityYield();
+        update.updateCitizens = true;
+    }
+    else
+    {
+        this->turnsToNewCitizen--;
+    }
+
+    return update;
 }
 
 // 0 = p, q, and r are colinear
@@ -292,12 +308,16 @@ void City::UpdateCityYield()
 
     foreach(Tile *tile, cityControlledTiles)
     {
-        newGold += tile->GetYield()->GetGoldYield();
-        newProd += tile->GetYield()->GetProductionYield();
-        newSci += tile->GetYield()->GetScienceYield();
-        newFood += tile->GetYield()->GetFoodYield();
-        newCul += tile->GetYield()->GetCultureYield();
+        qDebug() << "   Tile at:" << tile->GetTileIDString() << "isWorked:" << tile->IsWorked;
 
+        if(tile->IsWorked)
+        {
+            newGold += tile->GetYield()->GetGoldYield();
+            newProd += tile->GetYield()->GetProductionYield();
+            newSci += tile->GetYield()->GetScienceYield();
+            newFood += tile->GetYield()->GetFoodYield();
+            newCul += tile->GetYield()->GetCultureYield();
+        }
     }
 
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
@@ -475,6 +495,7 @@ void City::DefineCityBorders(bool redefine)
     if(!redefine)
     {
         this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
+        this->turnsToNewCitizen = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
     }
 }
 
@@ -506,6 +527,16 @@ void City::setCapitolConnection(bool flag)
 bool City::getCapitolConnection()
 {
     return this->hasCapitolConnection;
+}
+
+void City::SetCitizenCount(int count)
+{
+    this->citizens = count;
+}
+
+int City::GetCitizenCount()
+{
+    return this->citizens;
 }
 
 bool City::getHasWorker()
