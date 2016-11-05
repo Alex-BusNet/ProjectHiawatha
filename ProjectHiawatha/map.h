@@ -46,6 +46,7 @@ private:
     void GenerateMap();
     void GenerateMapEdge();
     void GenerateBiomes();
+    void GenerateResources();
     void CleanMap();
 
 };

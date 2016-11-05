@@ -115,7 +115,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 //        guiRects.at(i)->setZValue(6);
 //    }
 
-    renderer->DrawGuiText(map, stringData, gameView);
+//    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     gameView->SetGameMap(map);
@@ -414,13 +414,13 @@ void GameManager::EndTurn()
         }
 
         ////This is for testing the attack calculations;
-        if(currentTurn == 0 && civList.at(currentTurn)->GetUnitAt(i)->GetUnitType() == WARRIOR)
-        {
-            if(civList.at(1)->GetUnitAt(1)->GetUnitType() == WARRIOR)
-            {
-                uc->Attack(civList.at(currentTurn)->GetUnitAt(i), civList.at(1)->GetUnitAt(1), false);
-            }
-        }
+//        if(currentTurn == 0 && civList.at(currentTurn)->GetUnitAt(i)->GetUnitType() == WARRIOR)
+//        {
+//            if(civList.at(1)->GetUnitAt(1)->GetUnitType() == WARRIOR)
+//            {
+//                uc->Attack(civList.at(currentTurn)->GetUnitAt(i), civList.at(1)->GetUnitAt(1), false);
+//            }
+//        }
 
         if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
         {
@@ -491,6 +491,12 @@ void GameManager::UpdateTileData()
                         if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
                         {
                             foundCity->setEnabled(true);
+                            buildFarm->setEnabled(false);
+                            buildMine->setEnabled(false);
+                            buildPlantation->setEnabled(false);
+                            buildTradePost->setEnabled(false);
+                            buildRoad->setEnabled(false);
+                            attackUnit->setEnabled(false);
                         }
                     }
                     else if (unitToMove->GetUnitType() == WORKER)
@@ -501,6 +507,7 @@ void GameManager::UpdateTileData()
                         buildPlantation->setEnabled(true);
                         buildTradePost->setEnabled(true);
                         buildRoad->setEnabled(true);
+                        attackUnit->setEnabled(false);
                     }
                 }
 
@@ -510,6 +517,11 @@ void GameManager::UpdateTileData()
                 {
                     if(tile->GetCivListIndex() != (0 | -1))
                     {
+                        buildFarm->setEnabled(false);
+                        buildMine->setEnabled(false);
+                        buildPlantation->setEnabled(false);
+                        buildTradePost->setEnabled(false);
+                        buildRoad->setEnabled(false);
                         attackUnit->setEnabled(true);
                         break;
                     }
@@ -524,6 +536,7 @@ void GameManager::UpdateTileData()
         {
             attackNearby = false;
             targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetUnitList());
+            attackUnit->setEnabled(false);
             uc->Attack(unitToMove, targetUnit, false);
         }
     }
@@ -548,6 +561,7 @@ void GameManager::UpdateTileData()
         map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
         this->redrawTile = true;
         moveUnit->setEnabled(false);
+        attackUnit->setEnabled(false);
 
         if (unitToMove->GetUnitType() == WORKER)
         {
@@ -556,6 +570,7 @@ void GameManager::UpdateTileData()
             buildPlantation->setEnabled(false);
             buildTradePost->setEnabled(false);
             buildRoad->setEnabled(false);
+            attackUnit->setEnabled(false);
         }
 
         qDebug() << "   Done";
@@ -572,6 +587,7 @@ void GameManager::UpdateTileData()
             buildPlantation->setEnabled(false);
             buildTradePost->setEnabled(false);
             buildRoad->setEnabled(false);
+            attackUnit->setEnabled(false);
         }
 
         redrawTile = true;

@@ -173,7 +173,6 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 
     //Deal minimum 1 damage for any attack.
     qDebug() << "   DamageDealt before adjust:" << damageDealt;
-//    damageDealt = damageDealt < damageSustained ? 1 : damageDealt > 100 ? damageDealt - damageSustained - 100 : damageDealt - damageSustained;
 
     float damageReceived = (damageDealt - damageSustained) * (fortifyBonus / AtkBonus) * melee;
 

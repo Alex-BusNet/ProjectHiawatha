@@ -4,6 +4,7 @@
 #include <QPen>
 #include <QDebug>
 #include <QProgressBar>
+#include "resources.h"
 
 #ifndef MAXSIZE
 #define MAXSIZE 128
@@ -48,9 +49,109 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
         tilePixmap.push_back(scene->addPixmap((*(map->GetTilePixmap(i)))));
         tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
         tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+
+        if(map->GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
+        {
+            switch(map->GetTileAt(i)->GetStratResource())
+            {
+            case IRON:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/iron.png"))));
+                break;
+            case HORSES:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/horses.png"))));
+                break;
+            case URANIUM:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/uranium.png"))));
+                break;
+            case ALUMINUM:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/aluminum.png"))));
+                break;
+            case COAL:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/coal.png"))));
+                break;
+            case OIL:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/oil.png"))));
+                break;
+            }
+
+            resourcePixmap.last()->setScale(0.5f);
+            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setZValue(3);
+        }
+        else if(map->GetTileAt(i)->GetLuxResource() != NO_LUXURY)
+        {
+            switch(map->GetTileAt(i)->GetLuxResource())
+            {
+            case WHEAT:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/wheat.png"))));
+                break;
+            case CATTLE:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/cattle.png"))));
+                break;
+            case DEER:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/deer.png"))));
+                break;
+            case FISH:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/fish.png"))));
+                break;
+            case WHALES:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/whales.png"))));
+                break;
+            case BANANAS:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/bananas.png"))));
+                break;
+            case GOLD:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/gold.png"))));
+                break;
+            case GEMS:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/gems.png"))));
+                break;
+            case MARBLE:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/marble.png"))));
+                break;
+            case IVORY:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/ivory.png"))));
+                break;
+            case DYES:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/dyes.png"))));
+                break;
+            case SPICES:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/spices.png"))));
+                break;
+            case SILK:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/silk.png"))));
+                break;
+            case SUGAR:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/sugar.png"))));
+                break;
+            case COTTON:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/cotton.png"))));
+                break;
+            case PEARLS:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/pearls.png"))));
+                break;
+            case INCENSE:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/incense.png"))));
+                break;
+            case WINE:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/wine.png"))));
+                break;
+            case SILVER:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/silver.png"))));
+                break;
+            case FURS:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/furs.png"))));
+                break;
+            case SHEEP:
+                resourcePixmap.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/sheep.png"))));
+                break;
+            }
+
+            resourcePixmap.last()->setScale(0.5f);
+            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setZValue(3);
+        }
     }
-
-
 }
 
 void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
@@ -248,7 +349,7 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
 void Renderer::AddCityHealthBars(City *city, Map *map, GameView *view)
 {
     QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 15,
-                              city->GetCityTile()->GetItemTexturePoint().y() + 15,
+                              city->GetCityTile()->GetItemTexturePoint().y() + 11,
                               65, 5);
 
     city->SetCityHealthBarIndex(cityHealthBars.size());

@@ -77,6 +77,8 @@ Tile::Tile(int _posX, int _posY)
     texturePoint = QPointF(_posX, _posY - (12 * drawScale));
     itemTexturePoint = QPoint(_posX + (13 * drawScale), _posY - (3 * drawScale));
     cityLabelPoint = QPoint(_posX + (12 * drawScale), _posY - (10 * drawScale));
+    resourceIconPoint = QPoint(_posX + (7 * drawScale), _posY + (17 * drawScale));
+    tileImprovementIconPoint = QPoint(_posX + (30 * drawScale), _posY + (20 * drawScale));
 
     this->poly << this->points[0]
             << this->points[1]
@@ -267,6 +269,16 @@ QPoint Tile::GetCityLabelPoint()
     return this->cityLabelPoint;
 }
 
+QPoint Tile::GetTileImprovementPoint()
+{
+    return this->tileImprovementIconPoint;
+}
+
+QPoint Tile::GetResourceIconPoint()
+{
+    return this->resourceIconPoint;
+}
+
 QPolygon Tile::GetTilePolygon()
 {
     return this->poly;
@@ -382,6 +394,22 @@ void Tile::SetCivListIndex(int index)
 int Tile::GetCivListIndex()
 {
     return this->occupyingCivListIndex;
+}
+
+void Tile::SetResource(Strategic strat, Luxury lux)
+{
+    this->stratResource = strat;
+    this->luxResource = lux;
+}
+
+int Tile::GetStratResource()
+{
+    return this->stratResource;
+}
+
+int Tile::GetLuxResource()
+{
+    return this->luxResource;
 }
 
 

@@ -13,6 +13,7 @@
 #include <QPolygonF>
 #include <QRect>
 #include <stdint.h>
+#include "resources.h"
 
 typedef struct {int column; int row;} TileID;
 
@@ -72,6 +73,8 @@ public:
     QPointF GetTexturePoint();
     QPoint GetItemTexturePoint();
     QPoint GetCityLabelPoint();
+    QPoint GetTileImprovementPoint();
+    QPoint GetResourceIconPoint();
 
     QPolygon GetTilePolygon();
     QRect GetTileRect();
@@ -95,6 +98,10 @@ public:
     void SetCivListIndex(int index);
     int GetCivListIndex();
 
+    void SetResource(Strategic strat, Luxury lux);
+    int GetStratResource();
+    int GetLuxResource();
+
 private:
     TileType type;
     Yield* yield;
@@ -109,6 +116,9 @@ private:
     int moveCost;
     int occupyingCivListIndex;
 
+    Strategic stratResource;
+    Luxury luxResource;
+
     //==Hex tiles==
     QPoint points[7];
     QPoint center;
@@ -116,6 +126,8 @@ private:
     QPointF texturePoint;
     QPoint itemTexturePoint;
     QPoint cityLabelPoint;
+    QPoint resourceIconPoint;
+    QPoint tileImprovementIconPoint;
 
     int hexPosX;
     int hexPosY;

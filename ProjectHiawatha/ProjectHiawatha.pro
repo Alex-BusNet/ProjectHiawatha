@@ -72,7 +72,8 @@ HEADERS  += mainwindow.h \
     unittype.h \
     heap.h \
     tiledata.h \
-    datatypes.h
+    datatypes.h \
+    resources.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

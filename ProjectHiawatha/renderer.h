@@ -52,7 +52,7 @@ private:
     QVector<QGraphicsPolygonItem*> tiles;
     QVector<QGraphicsPixmapItem*> tilePixmap;
     QVector<QGraphicsPolygonItem*> mapBorders;
-
+    QVector<QGraphicsPixmapItem*> resourcePixmap;
     QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsProxyWidget*> cityLabels;

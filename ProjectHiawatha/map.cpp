@@ -95,6 +95,7 @@ void Map::InitHexMap()
     GenerateBiomes();
     GenerateMapEdge();
     GenerateMap();
+    GenerateResources();
     CleanMap();
     InitTerrain();
 }
@@ -581,6 +582,162 @@ void Map::GenerateBiomes()
             {
                 board.at(i)->SetTileBiome(OCEAN);
             }
+        }
+    }
+}
+
+void Map::GenerateResources()
+{
+    int resource;
+
+    //These weights are used to tell the Mersenne Twister
+    // how often to generate a particular number.
+    // These numbers can be greater than one.
+    double weights[] =
+    {
+        1.0, // No Strategic
+        0.1, // Iron
+        0.1, // Horses
+        0.1, // Uranium
+        0.1, // Aluminum
+        0.1, // Coal
+        0.1, // Oil
+  /* ------------------------*/
+        1.0, // No Luxury
+        0.1, // Wheat
+        0.1, // Cattle
+        0.1, // Deer
+        0.0, // Fish
+        0.0, // Whales
+        0.1, // Bananas
+        0.1, // Gold
+        0.1, // Gems
+        0.1, // Marble
+        0.1, // Ivory
+        0.1, // Dyes
+        0.1, // Spices
+        0.1, // Silk
+        0.1, // Sugar
+        0.1, // Cotton
+        0.0, // Pearls
+        0.1, // Incense
+        0.1, // Wine
+        0.1, // Silver
+        0.1, // Furs
+        0.1  // Sheep
+    };
+    // Seed the RNG
+    qsrand(QTime::currentTime().msec());
+    // Create a Mersenne Twister using the random_device
+    std::mt19937 gen(qrand());
+    // Add the probability weigths to the Mersenne Twister
+    std::discrete_distribution<> d(std::begin(weights), std::end(weights));
+
+    for(int i = 0; i < board.size(); i++)
+    {
+        resource = d(gen);
+        qDebug() << "--Board Tile Type:" << board.at(i)->GetTileTypeString();
+        if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST))
+        {
+            qDebug() << "   Resource:" << resource;
+            /// Need to set this so they also update the tile yields.
+            switch(resource)
+            {
+            case NO_STRATEGIC:
+                board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+                break;
+            case IRON:
+                board.at(i)->SetResource(IRON, NO_LUXURY);
+                break;
+            case HORSES:
+                board.at(i)->SetResource(HORSES, NO_LUXURY);
+                break;
+            case URANIUM:
+                board.at(i)->SetResource(URANIUM, NO_LUXURY);
+                break;
+            case ALUMINUM:
+                board.at(i)->SetResource(ALUMINUM, NO_LUXURY);
+                break;
+            case COAL:
+                board.at(i)->SetResource(COAL, NO_LUXURY);
+                break;
+            case OIL:
+                board.at(i)->SetResource(OIL, NO_LUXURY);
+                break;
+            case NO_LUXURY:
+                board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+                break;
+            case WHEAT:
+                board.at(i)->SetResource(NO_STRATEGIC, WHEAT);
+                break;
+            case CATTLE:
+                board.at(i)->SetResource(NO_STRATEGIC, CATTLE);
+                break;
+            case DEER:
+                board.at(i)->SetResource(NO_STRATEGIC, DEER);
+                break;
+            case FISH:
+                board.at(i)->SetResource(NO_STRATEGIC, FISH);
+                break;
+            case WHALES:
+                board.at(i)->SetResource(NO_STRATEGIC, WHALES);
+                break;
+            case BANANAS:
+                board.at(i)->SetResource(NO_STRATEGIC, BANANAS);
+                break;
+            case GOLD:
+                board.at(i)->SetResource(NO_STRATEGIC, GOLD);
+                break;
+            case GEMS:
+                board.at(i)->SetResource(NO_STRATEGIC, GEMS);
+                break;
+            case MARBLE:
+                board.at(i)->SetResource(NO_STRATEGIC, MARBLE);
+                break;
+            case IVORY:
+                board.at(i)->SetResource(NO_STRATEGIC, IVORY);
+                break;
+            case DYES:
+                board.at(i)->SetResource(NO_STRATEGIC, DYES);
+                break;
+            case SPICES:
+                board.at(i)->SetResource(NO_STRATEGIC, SPICES);
+                break;
+            case SILK:
+                board.at(i)->SetResource(NO_STRATEGIC, SILK);
+                break;
+            case SUGAR:
+                board.at(i)->SetResource(NO_STRATEGIC, SUGAR);
+                break;
+            case COTTON:
+                board.at(i)->SetResource(NO_STRATEGIC, COTTON);
+                break;
+            case PEARLS:
+                board.at(i)->SetResource(NO_STRATEGIC, PEARLS);
+                break;
+            case INCENSE:
+                board.at(i)->SetResource(NO_STRATEGIC, INCENSE);
+                break;
+            case WINE:
+                board.at(i)->SetResource(NO_STRATEGIC, WINE);
+                break;
+            case SILVER:
+                board.at(i)->SetResource(NO_STRATEGIC, SILVER);
+                break;
+            case FURS:
+                board.at(i)->SetResource(NO_STRATEGIC, FURS);
+                break;
+            case SHEEP:
+                board.at(i)->SetResource(NO_STRATEGIC, SHEEP);
+                break;
+            default:
+                board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+                break;
+            }
+        }
+        else
+        {
+            board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
         }
     }
 }
