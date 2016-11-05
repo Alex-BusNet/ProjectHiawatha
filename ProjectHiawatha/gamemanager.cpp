@@ -503,6 +503,17 @@ void GameManager::UpdateTileData()
                         buildRoad->setEnabled(true);
                     }
                 }
+
+                QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
+
+                foreach(Tile *tile, tiles)
+                {
+                    if(tile->GetCivListIndex() != (0 | -1))
+                    {
+                        attackUnit->setEnabled(true);
+                        break;
+                    }
+                }
             }
             else
             {

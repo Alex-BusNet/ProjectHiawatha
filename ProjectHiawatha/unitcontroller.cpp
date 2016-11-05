@@ -219,9 +219,9 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
     int tIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
     foreach(Unit* unit, unitList)
     {
-        qDebug() << "           Unit belongs to:" << unit->GetOwner();
         if(unit->GetTileIndex() == tIndex)
         {
+            qDebug() << "           Unit belongs to:" << this->NationName(unit->GetOwner());
             return unit;
         }
     }

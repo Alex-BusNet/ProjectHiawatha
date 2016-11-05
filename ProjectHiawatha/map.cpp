@@ -527,6 +527,7 @@ newrand:
                     {
                         unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
                         unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
+                        tile->SetCivListIndex(i);
                         tile->ContainsUnit = true;
                         break;
                     }

@@ -24,6 +24,28 @@ private:
     int GetDistance(Tile* a, Tile *b);
     void RetracePath(Tile *start, Tile *end, Map *map, Unit *unit);
 
+    QString NationName(Nation nation)
+    {
+        switch(nation)
+        {
+        case America:
+            return QString("America");
+        case Germany:
+            return QString("Germany");
+        case India:
+            return QString("India");
+        case China:
+            return QString("China");
+        case Mongolia:
+            return QString("Mongolia");
+        case Aztec:
+            return QString("Aztec");
+        case France:
+            return QString("France");
+        default:
+            return QString("No Nation");
+        }
+    }
 };
 
 #endif // UNITCONTROLLER_H
