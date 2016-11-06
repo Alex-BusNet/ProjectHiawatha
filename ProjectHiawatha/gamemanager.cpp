@@ -1,5 +1,6 @@
 #include "gamemanager.h"
 #include <QDebug>
+#include <QMessageBox>
 #include <QDialog>
 #include <QLabel>
 #include <QThread>
@@ -39,7 +40,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     citySelected = false;
     findUnit = false;
     attackNearby = false;
-
+    currentProductionName = "No Production Selected";
     playerCiv = player;
 
     if(!fullscreen)
@@ -393,6 +394,26 @@ void GameManager::StartTurn()
         }
 
         year += yearPerTurn;
+        int accumulatedProduction;
+        int productionCost;
+        for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
+            civList.at(0)->GetCityList().at(i)->setAccumulatedProduction(civList.at(0)->GetCityList().at(i)->getCityYield()->GetProductionYield());
+             accumulatedProduction = civList.at(0)->GetCityList().at(i)->getAccumulatedProduction();
+             productionCost = civList.at(0)->GetCityList().at(i)->getCurrentProductionCost();
+             qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
+             qDebug()<<"PRODUCTION COST: "<<productionCost;
+            if(accumulatedProduction >= productionCost && gameTurn != 1)
+            {
+                civList.at(0)->GetCityList().at(i)->resetAccumulatedProduction();
+                civList.at(0)->GetCityList().at(i)->setProductionFisished(true);
+                QMessageBox* mBox = new QMessageBox();
+                mBox->setText("Production has finished");
+                mBox->exec();
+                qDebug()<<"Production finished";
+
+            }
+
+        }
 
         goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
@@ -814,29 +835,32 @@ void GameManager::zoomOut()
 
 void GameManager::showCity()
 {
+
+
     if(!cityScreenVisible)
     {
+
         if(cityScreen != NULL)
         {
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
         //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
+        //cityScreen->setCurrentProductionName(currentProductionName);
         cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(civList.at(0)->GetCityAt(0));
         cityScreen->updateList();
+        cityScreen->updateWidget();
 
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
-
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
         cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);
         gameView->setDragMode(QGraphicsView::NoDrag);
         cityScreen->show();
         cityScreenVisible = true;
-    }
-    else
+    }else
     {
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);

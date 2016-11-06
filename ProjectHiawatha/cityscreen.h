@@ -21,11 +21,12 @@ class CityScreen : public QWidget
 public:
     explicit CityScreen(QWidget *parent = 0);
     ~CityScreen();
-    void paintEvent(QPaintEvent*e);
-    void loadBuildings(QString filename);
-    void loadUnits(QString filename);
-    void updateList();
-    void getCityInfo(City* currentCity);
+    void    paintEvent(QPaintEvent*e);
+    void    loadBuildings(QString filename);
+    void    loadUnits(QString filename);
+    void    updateList();
+    void    getCityInfo(City* city);
+    void    updateWidget();
 private slots:
     void on_listWidget_itemSelectionChanged();
 
@@ -41,8 +42,10 @@ private:
     Ui::CityScreen *ui;
     QVector<Building*> buildings;
     QVector<Unit*> initialUnitList;
+    City* currentCity;
     QString str;
     int productionYield;
+    int currentCost;
 
 
 };

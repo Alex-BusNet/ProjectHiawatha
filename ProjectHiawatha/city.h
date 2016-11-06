@@ -61,7 +61,19 @@ public:
 
     void SetCitizenCount(int count);
     int GetCitizenCount();
-
+    int getCurrentProductionCost();
+    void setCurrentProductionCost(int cost);
+    int getAccumulatedProduction();
+    void setAccumulatedProduction(int total);
+    void resetAccumulatedProduction();
+    void setProductionName(QString name);
+    void setProductionIndex(int index);
+    void setProductionFisished(bool isFinished);
+    bool getProductionFinished();
+    void setIsUnit(bool isUnit);
+    bool getIsUnit();
+    int getProductionIndex();
+    QString getProductionName();
     bool getHasWorker();
 
     ~City();
@@ -76,6 +88,7 @@ private:
     QVector<Unit*> StationedMilitary;
 
     QString name;
+    QString currentProductionName;
     Nation controllingCiv;
     Tile *cityTile;
 
@@ -87,7 +100,8 @@ private:
     bool hasWorker;
     bool hasGarrison;
     bool hasCapitolConnection;
-
+    bool productionFinished;
+    bool productionUnit;
     int productionYield;
     int scienceYield;
     int goldYield;
@@ -97,7 +111,9 @@ private:
     int turnsToBorderGrowth;
     int citizens;
     int turnsToNewCitizen;
-
+    int currentProductionCost;
+    int accumulatedProduction;
+    int productionIndex;
     int orientation(QPoint p, QPoint q, QPoint r);
 
     void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort);

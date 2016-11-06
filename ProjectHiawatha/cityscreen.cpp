@@ -15,18 +15,15 @@ CityScreen::CityScreen(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CityScreen)
 {
-    if(str.isEmpty())
-    {
-        str =  "No Current Production";
-    }
+
     ui->setupUi(this);
     QPixmap pic("../ProjectHiawatha/Assets/Buildings/walls.png");
     ui->picture->setPixmap(pic);
     ui->city_name->setText("Walls");
     ui->Bonus->setText("+5000 Defense");
-    ui->current_production_name->setText(str);
     ui->tabWidget->setTabText(0, "Buildings");
     ui->tabWidget->setTabText(1, "Units");
+    ui->tabWidget->setTabText(2, "Completed Buildings");
     ui->progressBar->setMinimum(0);
 
 
@@ -149,23 +146,42 @@ void CityScreen::updateList()
     update();
 }
 
-void CityScreen::getCityInfo(City *currentCity)
+void CityScreen::getCityInfo(City *city)
 {
+    currentCity = city;
     ui->city_name->setText(currentCity->GetName());
-    //productionYield = currentCity->getCityYield()->GetProductionYield();
+    productionYield = currentCity->getCityYield()->GetProductionYield();
 }
+
+void CityScreen::updateWidget()
+{
+    ui->current_production_name->setText(currentCity->getProductionName());
+    ui->progressBar->setValue(currentCity->getAccumulatedProduction());
+    if(currentCity->getProductionFinished())
+    {
+        if(currentCity->getIsUnit()){
+
+        }else{
+            ui->listWidget_3->addItem(ui->listWidget->item(currentCity->getProductionIndex())->text());
+           delete ui->listWidget->takeItem(currentCity->getProductionIndex());
+            qDebug()<<"ELSE IS RUNNING";
+        }
+    }
+
+}
+
+
+
+
 
 void CityScreen::on_listWidget_itemSelectionChanged()
 {
     QString str = "+";
     QString str2;
     str2 = str2.number(buildings.at(ui->listWidget->currentRow())->getBonusValue());
-    qDebug()<<"Bonus Value: "<<buildings.at(ui->listWidget->currentRow())->getBonusValue();
     QString str3 = buildings.at(ui->listWidget->currentRow())->getbonusType();
     str2.append(str3);
-    qDebug()<<"str2: "<<str2;
     str.append(str2);
-    qDebug()<<"str: "<<str;
     ui->Bonus->setText(str);
     ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
     update();
@@ -174,14 +190,18 @@ void CityScreen::on_listWidget_itemSelectionChanged()
 void CityScreen::on_pushButton_clicked()
 {
     str = (ui->current_production_name->text());
-    this->close();
+    qDebug()<<"STR: "<<str;
+    this->hide();
 }
 
 void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
     ui->current_production_name->setText(item->text());
-    ui->progressBar->setMaximum(buildings.at(ui->listWidget->currentRow())->getBuildingMaintenanceCost());
-    ui->progressBar->setValue(10);
+    currentCity->setProductionName(item->text());
+    ui->progressBar->setMaximum(buildings.at(ui->listWidget->currentRow())->getProductionCost());
+    currentCity->setCurrentProductionCost(buildings.at(ui->listWidget->currentRow())->getProductionCost());
+    currentCity->setProductionIndex(ui->listWidget->currentRow());
+    ui->progressBar->setValue(currentCity->getAccumulatedProduction());
     update();
 
 }

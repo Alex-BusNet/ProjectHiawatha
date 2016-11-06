@@ -93,6 +93,7 @@ private:
     int currentTurn, gameTurn;
     float year, yearPerTurn;
 
+    QString currentProductionName;
     bool cityScreenVisible;
     bool techTreeVisible;
     bool relocateUnit;

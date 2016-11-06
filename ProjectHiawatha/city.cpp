@@ -5,6 +5,9 @@ City::City()
 {
     this->cityTotalYield = new Yield(1,1,1,1,1);
     this->turnsToBorderGrowth = 0;
+    this->accumulatedProduction = 0;
+    this->productionFinished = false;
+    this->productionUnit = false;
 }
 
 
@@ -540,6 +543,71 @@ void City::SetCitizenCount(int count)
 int City::GetCitizenCount()
 {
     return this->citizens;
+}
+
+int City::getCurrentProductionCost()
+{
+    return this->currentProductionCost;
+}
+
+void City::setCurrentProductionCost(int cost)
+{
+    this->currentProductionCost = cost;
+}
+
+int City::getAccumulatedProduction()
+{
+    return this->accumulatedProduction;
+}
+
+void City::setAccumulatedProduction(int total)
+{
+    this->accumulatedProduction += total;
+}
+
+void City::resetAccumulatedProduction()
+{
+    this->accumulatedProduction = 0;
+}
+
+void City::setProductionName(QString name)
+{
+    this->currentProductionName = name;
+}
+
+void City::setProductionIndex(int index)
+{
+    this->productionIndex = index;
+}
+
+void City::setProductionFisished(bool isFinished)
+{
+    this->productionFinished = isFinished;
+}
+
+bool City::getProductionFinished()
+{
+    return this->productionFinished;
+}
+
+void City::setIsUnit(bool isUnit)
+{
+    this->productionUnit = isUnit;
+}
+
+bool City::getIsUnit()
+{
+    return this->productionUnit;
+}
+
+int City::getProductionIndex()
+{
+    return this->productionIndex;
+}
+
+QString City::getProductionName()
+{
+    return this->currentProductionName;
 }
 
 bool City::getHasWorker()
