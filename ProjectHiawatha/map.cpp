@@ -213,7 +213,8 @@ void Map::GenerateMap()
         0.15,    //Desert = 2
         0.05,    //Mountain = 3
         0.15,    //Hill = 4
-        0.1      //Forest = 5
+        0.1,     //Forest = 5
+        0.1      //Plains = 6
     };
     // Seed the RNG
     qsrand(QTime::currentTime().msec());
@@ -232,6 +233,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(WATER);
                 board.at(i)->SetTileTexture(WATER);
+                board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
                 board.at(i)->Walkable = false;
             }
         }
@@ -241,7 +243,7 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(GRASS);
                 board.at(i)->SetTileTexture(GRASS);
-                board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
+                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 2, 0);
                 board.at(i)->SetMoveCost(1);
             }
         }
@@ -269,7 +271,6 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(HILL);
                 board.at(i)->SetTileTexture(HILL);
-                board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
                 board.at(i)->SetMoveCost(2);
             }
         }
@@ -279,8 +280,18 @@ void Map::GenerateMap()
             {
                 board.at(i)->SetTileType(FOREST);
                 board.at(i)->SetTileTexture(FOREST);
-                board.at(i)->GetYield()->ChangeYield(1,1,0,1,0);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 1, 0);
                 board.at(i)->SetMoveCost(2);
+            }
+        }
+        else if(dbl == 6)
+        {
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            {
+                board.at(i)->SetTileType(PLAINS_TILE);
+                board.at(i)->SetTileTexture(PLAINS_TILE);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 1, 0);
+                board.at(i)->SetMoveCost(1);
             }
         }
 
@@ -371,6 +382,7 @@ void Map::CleanMap()
 
 void Map::GetTileQueue(City *city)
 {
+    qDebug() << "--Getting Tile Queue";
     QList<Tile*> surroundingTiles;
 
     foreach(Tile* tile, city->GetControlledTiles())
@@ -415,6 +427,7 @@ void Map::GetTileQueue(City *city)
 //    {
 //        qDebug() << "               tileQueue:" << tile->GetTileIDString();
 //    }
+    qDebug() << "--Done";
 }
 
 void Map::SpawnCivs(QVector<Civilization*> civs)
@@ -649,87 +662,114 @@ void Map::GenerateResources()
                 break;
             case IRON:
                 board.at(i)->SetResource(IRON, NO_LUXURY);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case HORSES:
                 board.at(i)->SetResource(HORSES, NO_LUXURY);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case URANIUM:
                 board.at(i)->SetResource(URANIUM, NO_LUXURY);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case ALUMINUM:
                 board.at(i)->SetResource(ALUMINUM, NO_LUXURY);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case COAL:
                 board.at(i)->SetResource(COAL, NO_LUXURY);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case OIL:
                 board.at(i)->SetResource(OIL, NO_LUXURY);
+                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case NO_LUXURY:
                 board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
                 break;
             case WHEAT:
                 board.at(i)->SetResource(NO_STRATEGIC, WHEAT);
+                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case CATTLE:
                 board.at(i)->SetResource(NO_STRATEGIC, CATTLE);
+                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case DEER:
                 board.at(i)->SetResource(NO_STRATEGIC, DEER);
+                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case FISH:
                 board.at(i)->SetResource(NO_STRATEGIC, FISH);
+                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 2, 0);
                 break;
             case WHALES:
                 board.at(i)->SetResource(NO_STRATEGIC, WHALES);
+                board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
                 break;
             case BANANAS:
                 board.at(i)->SetResource(NO_STRATEGIC, BANANAS);
+                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case GOLD:
                 board.at(i)->SetResource(NO_STRATEGIC, GOLD);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case GEMS:
                 board.at(i)->SetResource(NO_STRATEGIC, GEMS);
+                board.at(i)->GetYield()->ChangeYield(3, 0, 0, 0, 0);
                 break;
             case MARBLE:
                 board.at(i)->SetResource(NO_STRATEGIC, MARBLE);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case IVORY:
                 board.at(i)->SetResource(NO_STRATEGIC, IVORY);
+                board.at(i)->GetYield()->ChangeYield(1, 0, 0, 0, 0);
                 break;
             case DYES:
                 board.at(i)->SetResource(NO_STRATEGIC, DYES);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SPICES:
                 board.at(i)->SetResource(NO_STRATEGIC, SPICES);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SILK:
                 board.at(i)->SetResource(NO_STRATEGIC, SILK);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SUGAR:
                 board.at(i)->SetResource(NO_STRATEGIC, SUGAR);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case COTTON:
                 board.at(i)->SetResource(NO_STRATEGIC, COTTON);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case PEARLS:
                 board.at(i)->SetResource(NO_STRATEGIC, PEARLS);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case INCENSE:
                 board.at(i)->SetResource(NO_STRATEGIC, INCENSE);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case WINE:
                 board.at(i)->SetResource(NO_STRATEGIC, WINE);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SILVER:
                 board.at(i)->SetResource(NO_STRATEGIC, SILVER);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case FURS:
                 board.at(i)->SetResource(NO_STRATEGIC, FURS);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SHEEP:
                 board.at(i)->SetResource(NO_STRATEGIC, SHEEP);
+                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             default:
                 board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);

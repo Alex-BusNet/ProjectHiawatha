@@ -154,6 +154,28 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
             resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
             resourcePixmap.last()->setZValue(3);
         }
+
+        if(map->GetTileAt(i)->GetControllingCiv() != NO_NATION)
+        {
+            if(map->GetTileAt(i)->IsWorked)
+            {
+                tileWorked.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png"))));
+            }
+            else
+            {
+                tileWorked.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png"))));
+            }
+
+            tileWorked.last()->setScale(0.6f);
+            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+            tileWorked.last()->setZValue(3);
+        }
+        else
+        {
+            tileWorked.push_back(scene->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png"))));
+            tileWorked.last()->setOpacity(0);
+            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+        }
     }
 }
 
@@ -389,6 +411,7 @@ void Renderer::DrawCityBorders(QVector<City*> cities, GameScene *scene, Nation o
 
         cityBorders.push_back(scene->addPolygon(city->GetCityBorders(), outlinePen));
         cityBorders.last()->setPen(outlinePen);
+
     }
     qDebug() << "cityBorders size:" << cityBorders.size();
 }
@@ -399,6 +422,26 @@ void Renderer::LoadCities(QVector<City*> cities, Map *map, GameView *view)
     {
         this->AddCity(cities.at(i), map, view);
     }
+}
+
+void Renderer::SetTileWorkedIcon(Tile *tile, GameScene *view)
+{
+    int index = (tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row);
+
+    view->removeItem(tileWorked.at(index));
+
+    if(tile->IsWorked)
+    {
+        tileWorked.replace(index, view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png"))));
+    }
+    else
+    {
+        tileWorked.replace(index, view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png"))));
+    }
+
+    tileWorked.at(index)->setScale(0.6f);
+    tileWorked.at(index)->setPos(tile->GetResourceIconPoint().x() + 23, tile->GetResourceIconPoint().y() + 10);
+    tileWorked.at(index)->setZValue(3);
 }
 
 void Renderer::AddCityLabel(City* city, GameView *view)

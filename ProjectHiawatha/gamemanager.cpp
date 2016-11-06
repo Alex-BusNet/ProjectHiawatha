@@ -98,6 +98,14 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
 
+        for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
+        {
+            foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
+            {
+                renderer->SetTileWorkedIcon(tile, gameView->GetScene());
+            }
+        }
+
         civList.at(i)->UpdateCivYield();
     }
 
@@ -336,6 +344,11 @@ void GameManager::StartTurn()
         {
             map->GetTileQueue(city);
             renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
+
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                renderer->SetTileWorkedIcon(tile, gameView->GetScene());
+            }
         }
     }
 
@@ -439,8 +452,6 @@ void GameManager::EndTurn()
         {
             renderer->UpdateUnits(map, gameView->GetScene(), civList.at(currentTurn)->GetUnitAt(i), unitMoved);
         }
-
-
     }
 
     if(currentTurn == 0)

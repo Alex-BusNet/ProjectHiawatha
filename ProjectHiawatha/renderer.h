@@ -33,6 +33,8 @@ public:
 
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
 
+    void SetTileWorkedIcon(Tile* tile, GameScene *view);
+
     void AddCityLabel(City* city, GameView *view);
     void AddCity(City* city, Map *map, GameView *view);
     void AddUnit(Unit* unit, Map *map, GameView *view);
@@ -54,6 +56,8 @@ private:
     QVector<QGraphicsPolygonItem*> mapBorders;
     QVector<QGraphicsPixmapItem*> resourcePixmap;
     QVector<QGraphicsEllipseItem*> tileCircles;
+
+    QVector<QGraphicsPixmapItem*> tileWorked;
 
     QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> cityPixmap;

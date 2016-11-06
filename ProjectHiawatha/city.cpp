@@ -21,6 +21,8 @@ void City::SortTileQueue()
     //  -Resources on tile
     //  -Tile type
 
+    qDebug() << "   ---Sorting TileQueue";
+
     for(int i = 0; i < tileQueue.size(); i++)
     {
         for(int j = i + 1; j < tileQueue.size(); j++)
@@ -34,7 +36,6 @@ void City::SortTileQueue()
         }
     }
 
-//    qDebug() << "   ---Sorting TileQueue";
 //    foreach(Tile* tile, tileQueue)
 //    {
 //        qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
@@ -497,6 +498,8 @@ void City::DefineCityBorders(bool redefine)
         this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
         this->turnsToNewCitizen = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
     }
+
+    qDebug() << "       Done";
 }
 
 void City::SetCityBordersIndex(int index)

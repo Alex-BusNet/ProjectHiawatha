@@ -320,10 +320,10 @@ void Tile::SetTileTexture(TileType type)
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/desert.png");
         break;
     case MOUNTAIN:
-         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/mountain.png");
+         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/mountain_alt.png");
         break;
     case ICE:
-        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/ice.png");
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/snow.png");
         break;
     case COAST:
         //This may or may not be added.
@@ -334,6 +334,12 @@ void Tile::SetTileTexture(TileType type)
         break;
     case FOREST:
          this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/forest.png");
+        break;
+    case SNOW:
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/snow.png");
+        break;
+    case PLAINS_TILE:
+        this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/plains.png");
         break;
     default:
         this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/water_flat.png");
