@@ -21,6 +21,7 @@ public:
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon, const QPen &pen);
     QGraphicsPixmapItem* addPixmap(const QPixmap &pixmap);
     QGraphicsProxyWidget* addWidget(QWidget *widget);
+    QGraphicsEllipseItem* addEllipse(const QRect &rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsRectItem* addRect(QRect *rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsRectItem* addRect(int x, int y, int width, int height, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsTextItem* addText(QString text);

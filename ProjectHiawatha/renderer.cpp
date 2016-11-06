@@ -43,6 +43,9 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
         tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
         tiles.at(i)->setZValue(1);
         tiles.at(i)->setOpacity(50);
+
+        tileCircles.push_back(scene->addEllipse(map->GetTileAt(i)->GetTileRect(), outlinePen));
+        tileCircles.last()->setZValue(2);
         // Create new vector that stores the oddly-shaped border polygon for each civ (this may be one vector per civ)
         // Set pen of vector to proper civ color (may require adjustment of if/else condition above
 
@@ -154,48 +157,50 @@ void Renderer::DrawHexScene(Map *map, GameView *scene)
     }
 }
 
-void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
+void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data, bool attackSelection)
 {
-    int col = data.column, row = data.row;
-    int index = (col / 2) + (mapSizeX * row);
+    int index = (data.column / 2) + (mapSizeX * data.row);
     static int lastIndex;
-    // if the tile at the coordinates contains a unit
-    //      if the tile contains a unit, check if it is the active selected tile
-    //          if the tile is the active selected tile, reset the tile border to its controlling civ's color
-    //              clear the tile's selected flag and the global isTileSelected flag.
-    //          else, set the tiles border color to yellow
-    //
-    //      find the index of the tile in the render map vector (tiles)
-    //      replace the existing tile with the updated tile (including the updated boarder color)
-    //      set the render map's tile pen at the replaced index, to the border pen of the new tile.
-    // else if the tile at the coordinates contains a city
-    //      reset the existing selected tile, if there is one
-    //      clear the global isTileSelected flag
-    //      open the city screen.
-    // else if the tile at the coordinates is empty
-    //      reset the existing selected tile, if there is one.
-    //      clear the global isTileSelected flag.
 
     if(map->GetTileAt(index)->ContainsUnit)
     {
-        if((map->GetTileAt(index)->Selected))
+        if((map->GetTileAt(index)->Selected) || attackSelection)
         {
-//                map->GetTileAt(index)->Selected = true;
-            outlinePen.setColor(Qt::yellow);
-            lastIndex = index;
+            if(lastIndex != index)
+            {
+                if(!attackSelection)
+                {
+                    scene->removeItem(tileCircles.at(lastIndex));
+                    outlinePen.setColor(Qt::yellow);
+                    lastIndex = index;
+                }
+                else
+                {
+                    outlinePen.setColor(Qt::red);
+                }
+            }
+            else
+            {
+                SetOutlinePen(NO_NATION);
+                map->GetTileAt(index)->Selected = false;
+            }
         }
         else
         {
             SetOutlinePen(NO_NATION);
-
-            map->GetTileFromCoord(col, row)->Selected = false;
+            map->GetTileAt(index)->Selected = false;
         }
 
-        map->GetTileFromCoord(col, row)->SetTilePen(outlinePen);
-        scene->removeItem(tiles.at(lastIndex));
-        tiles.remove(index);
-        tiles.insert(index, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon(), outlinePen));
-        tiles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
+        map->GetTileAt(index)->SetTilePen(outlinePen);
+
+//        scene->removeItem(tiles.at(lastIndex));
+//        tiles.remove(lastIndex);
+//        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+//        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+
+        tileCircles.remove(index);
+        tileCircles.replace(index, scene->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
+        tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
     }
     else if(map->GetTileAt(index)->HasCity)
     {
@@ -203,10 +208,15 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
         map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
         map->GetTileAt(lastIndex)->Selected = false;
 
-        scene->removeItem(tiles.at(lastIndex));
-        tiles.remove(lastIndex);
-        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+//        scene->removeItem(tiles.at(lastIndex));
+//        tiles.remove(lastIndex);
+//        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+//        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+
+        scene->removeItem(tileCircles.at(lastIndex));
+        tileCircles.remove(index);
+        tileCircles.replace(index, scene->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
+        tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
 
         map->GetTileAt(index)->GetGoverningCity();
     }
@@ -216,23 +226,26 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data)
         map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
         map->GetTileAt(lastIndex)->Selected = false;
 
-        scene->removeItem(tiles.at(lastIndex));
-        tiles.remove(lastIndex);
-        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+//        scene->removeItem(tiles.at(lastIndex));
+//        tiles.remove(lastIndex);
+//        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
+//        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
+
+        scene->removeItem(tileCircles.at(lastIndex));
+        tileCircles.remove(index);
+        tileCircles.replace(index, scene->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
+        tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
     }
 }
 
 void Renderer::UpdateUnits(Map *map, GameScene *view, Unit *unit, bool unitMoved)
 {
-    qDebug() << "       Moving Unit" << unit->GetName();
-
     unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
-    qDebug() << "   Unit health:" << unit->GetHealth() << "Unit Max health:" << unit->GetMaxHealth() << " healthBar value:" << unitHealthBars.at(unit->GetHealthBarIndex())->rect().width() << "Health Ratio:" << (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth());
+//    qDebug() << "   Unit health:" << unit->GetHealth() << "Unit Max health:" << unit->GetMaxHealth() << " healthBar value:" << unitHealthBars.at(unit->GetHealthBarIndex())->rect().width() << "Health Ratio:" << (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth());
     if((unit->GetHealth() / unit->GetMaxHealth()) != 1 || unitMoved)
     {
-        qDebug() << "Updating HealthBars" << unit->GetName() << unit->GetTileIndex();
+//        qDebug() << "Updating HealthBars" << unit->GetName() << unit->GetTileIndex();
         view->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
 
         unitHealthBars.replace(unit->GetHealthBarIndex(), view->addRect(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),

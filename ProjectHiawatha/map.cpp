@@ -385,7 +385,7 @@ void Map::GetTileQueue(City *city)
                     ((tile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
                      (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)))
             {
-                qDebug() << "---------SurroundingTiles at" << tile->GetTileIDString() << "is already owned";
+//                qDebug() << "---------SurroundingTiles at" << tile->GetTileIDString() << "is already owned";
                 surroundingTiles.removeAt(surroundCount);
             }
             else
@@ -398,7 +398,7 @@ void Map::GetTileQueue(City *city)
                     }
                     else
                     {
-                        qDebug() << "--------------------Tile already added";
+//                        qDebug() << "--------------------Tile already added";
                     }
                 }
                 else
@@ -411,10 +411,10 @@ void Map::GetTileQueue(City *city)
         }
     }
 
-    foreach(Tile* tile, city->tileQueue)
-    {
-        qDebug() << "               tileQueue:" << tile->GetTileIDString();
-    }
+//    foreach(Tile* tile, city->tileQueue)
+//    {
+//        qDebug() << "               tileQueue:" << tile->GetTileIDString();
+//    }
 }
 
 void Map::SpawnCivs(QVector<Civilization*> civs)
@@ -463,6 +463,7 @@ newrand:
 
             city->SetCityAsCaptial();
             city->SetCityTile(board.at(index));
+            board.at(index)->SetCivListIndex(i);
             city->SetControllingCiv(civs.at(i)->getCiv());
             city->GetCityTile()->SetYield(5,5,5,5,5);
 

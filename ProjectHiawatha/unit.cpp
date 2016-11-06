@@ -97,32 +97,41 @@ void Unit::SetUnitIcon(UnitType type)
     switch(type)
     {
     case WORKER:
+        this->NonCombat = true;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/worker.png");
         break;
     case SETTLER:
+        this->NonCombat = true;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/settler.png");
         break;
     case WARRIOR:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/warrior.png");
         break;
     case ARCHER:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/archer.png");
         break;
     case SPEARMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/spearman.png");
         break;
     case PIKEMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/pikeman.png");
         break;
     case HORSEMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/horseman.png");
         break;
     case SCOUT:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/scout.png");
         break;
     case HORSE_ARCHER:
         break;
     case CATAPULT:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/catapult.png");
         break;
     case TREBUCHET:
@@ -130,12 +139,15 @@ void Unit::SetUnitIcon(UnitType type)
     case TRIREME:
         break;
     case GALLEY:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/galley.png");
         break;
     case KNIGHT:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/knight.png");
         break;
     case CROSSBOWMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/crossbowman.png");
         break;
     case LANDSNACK:
@@ -143,38 +155,49 @@ void Unit::SetUnitIcon(UnitType type)
     case LONGSWORDSMAN:
         break;
     case SWORDSMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/swordsman.png");
         break;
     case MUSKETMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/musketman.png");
         break;
     case RIFLEMAN:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/rifleman.png");
         break;
     case CARAVEL:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/caravel.png");
         break;
     case CANNON:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/cannon.png");
         break;
     case LANCER:
         break;
     case CAVALRY:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/cavalry.png");
         break;
     case INFANTRY:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/infantry.png");
         break;
     case FRIGATE:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/frigate.png");
         break;
     case IRONCLAD:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/ironclad.png");
         break;
     case ARTILLERY:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/artillery.png");
         break;
     case TANK:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/tank.png");
         break;
     case PARATROOPER:
@@ -184,12 +207,15 @@ void Unit::SetUnitIcon(UnitType type)
     case AA:
         break;
     case BATTLESHIP:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/battleship.png");
         break;
     case CARRIER:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/carrier.png");
         break;
     case SUBMARINE:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/submarine.png");
         break;
     case NUKE:
@@ -197,24 +223,31 @@ void Unit::SetUnitIcon(UnitType type)
     case MOBILE_SAM:
         break;
     case HELICOPTER_GUNSHIP:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/helicopter_gunship.png");
         break;
     case MECHANIZED_INFANTRY:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/mechanized_infantry.png");
         break;
     case MODERN_ARMOR:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/modern_armor.png");
         break;
     case FIGHTER:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/fighter.png");
         break;
     case BOMBER:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/bomber.png");
         break;
     case JET_FIGHTER:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/jet_fighter.png");
         break;
     case STEALTH_BOMBER:
+        this->NonCombat = false;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/stealth_bomber.png");
         break;
     case GDR:

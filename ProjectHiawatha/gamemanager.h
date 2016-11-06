@@ -57,6 +57,7 @@ private:
     QPushButton *buildRoad;
     QPushButton *foundCity;
     QPushButton *attackUnit;
+
     //=============
     //Dev Buttons
     QPushButton *renderPlusOne;

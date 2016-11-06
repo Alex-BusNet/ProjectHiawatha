@@ -34,11 +34,11 @@ void City::SortTileQueue()
         }
     }
 
-    qDebug() << "   ---Sorting TileQueue";
-    foreach(Tile* tile, tileQueue)
-    {
-        qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
-    }
+//    qDebug() << "   ---Sorting TileQueue";
+//    foreach(Tile* tile, tileQueue)
+//    {
+//        qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
+//    }
 
 
     //Store all eligible tiles in a heap.

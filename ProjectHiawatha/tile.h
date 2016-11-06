@@ -136,6 +136,7 @@ private:
     int hexRowOffset;
 
     QPolygon poly;
+    QRect cirlceRect;
 };
 
 #endif // TILE_H

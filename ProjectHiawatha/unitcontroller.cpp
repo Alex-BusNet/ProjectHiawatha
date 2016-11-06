@@ -16,7 +16,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
         qDebug()<<"Start = End";
         return;
     }
-    qDebug() << "UnitController finding path";
+//    qDebug() << "UnitController finding path";
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
 
@@ -78,7 +78,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
 {
     if(!unit->isPathEmpty())
     {
-        qDebug() << "   Clearing Tile Data";
+//        qDebug() << "   Clearing Tile Data";
         // Clear the data from the current tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(-1);
@@ -96,17 +96,17 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
 //            }
         }
 
-        qDebug() << "   Updating Position";
+//        qDebug() << "   Updating Position";
         //update the unit's position
         unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
         unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
 
-        qDebug() << "   Setting new tile data";
+//        qDebug() << "   Setting new tile data";
         // Set the data for the unit's new tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
 
-        qDebug() << "   Removing Point";
+//        qDebug() << "   Removing Point";
         // Remove the point from path
         if(!unit->isPathEmpty())
         {
@@ -120,7 +120,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
 //            }
         }
 
-        qDebug() << "   Redrawing Tile";
+//        qDebug() << "   Redrawing Tile";
         // Alert the renderer to redraw the map.
         scene->redrawTile = true;
     }
@@ -132,6 +132,7 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     float AtkBonus = 1.5f, melee;
 
     qDebug() << "--Attacking";
+    qDebug() << "   Attacker belongs to:" << NationName(attacker->GetOwner()) << "Target belongs to:" << NationName(target->GetOwner());
     qDebug() << "   FromWater:" << attackFromWater;
 
     if(attackFromWater == true)
@@ -171,7 +172,6 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
-    //Deal minimum 1 damage for any attack.
     qDebug() << "   DamageDealt before adjust:" << damageDealt;
 
     float damageReceived = (damageDealt - damageSustained) * (fortifyBonus / AtkBonus) * melee;

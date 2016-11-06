@@ -139,6 +139,7 @@ QVector<Technology *> Civilization::GetTechList()
 {
     return this->techList;
 }
+
 QString Civilization::GetNextCityName()
 {
     //We need to increment the cityIndex before getting the value since

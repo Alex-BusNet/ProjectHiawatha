@@ -33,6 +33,11 @@ QGraphicsProxyWidget *GameView::addWidget(QWidget *widget)
     return this->game->addWidget(widget);
 }
 
+QGraphicsEllipseItem *GameView::addEllipse(const QRect &rect, const QPen &pen, const QBrush &brush)
+{
+    return this->game->addEllipse(rect, pen, brush);
+}
+
 QGraphicsRectItem *GameView::addRect(QRect *rect, const QPen &pen, const QBrush &brush)
 {
     return this->game->addRect(*rect, pen, brush);

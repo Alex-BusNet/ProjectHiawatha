@@ -115,7 +115,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 //        guiRects.at(i)->setZValue(6);
 //    }
 
-//    renderer->DrawGuiText(map, stringData, gameView);
+    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     gameView->SetGameMap(map);
@@ -388,8 +388,6 @@ void GameManager::StartTurn()
         culText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
 
-
-
     qDebug() << "  Starting turn for civ" << currentTurn;
 }
 
@@ -403,8 +401,6 @@ void GameManager::EndTurn()
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
     {
         qDebug() << "           is unit path empty:" << civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty();
-
-//        Unit* unit = civList.at(currentTurn)->GetUnitAt(i);
 
         if(!civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders && !civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty())
         {
@@ -450,8 +446,9 @@ void GameManager::EndTurn()
 
 void GameManager::UpdateTileData()
 {
-    if(/*processedData.newData && */!processedData.relocateOrderGiven)
+    if(!processedData.relocateOrderGiven && !attackNearby)
     {
+        qDebug() << "Relocation not ordered";
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
         if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected)
@@ -466,7 +463,13 @@ void GameManager::UpdateTileData()
     }
     else if(attackNearby || processedData.relocateOrderGiven)
     {
+        qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven;
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
+
+        if(map->GetTileFromCoord(processedData.column, processedData.row)->ContainsUnit)
+        {
+            findUnit = true;
+        }
     }
 
     if(findUnit)
@@ -510,20 +513,30 @@ void GameManager::UpdateTileData()
                         attackUnit->setEnabled(false);
                     }
                 }
-
-                QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
-
-                foreach(Tile *tile, tiles)
+                else //Combat Unit button controls
                 {
-                    if(tile->GetCivListIndex() != (0 | -1))
+                    qDebug() << "    unit is combat type";
+                    QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
+
+                    foreach(Tile *tile, tiles)
                     {
-                        buildFarm->setEnabled(false);
-                        buildMine->setEnabled(false);
-                        buildPlantation->setEnabled(false);
-                        buildTradePost->setEnabled(false);
-                        buildRoad->setEnabled(false);
-                        attackUnit->setEnabled(true);
-                        break;
+                        qDebug() << "   CivListIndex:" << tile->GetCivListIndex();
+                        if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
+                        {
+                            if(!attackUnit->isEnabled())
+                            {
+                                buildFarm->setEnabled(false);
+                                buildMine->setEnabled(false);
+                                buildPlantation->setEnabled(false);
+                                buildTradePost->setEnabled(false);
+                                buildRoad->setEnabled(false);
+                                attackUnit->setEnabled(true);
+                            }
+
+                            TileData enemy{tile->GetTileID().column, tile->GetTileID().row, false, false};
+                            qDebug() << "--Enemy at" << enemy.column << "," << enemy.row;
+                            renderer->UpdateScene(map, gameView->GetScene(), enemy, true);
+                        }
                     }
                 }
             }
@@ -538,6 +551,12 @@ void GameManager::UpdateTileData()
             targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetUnitList());
             attackUnit->setEnabled(false);
             uc->Attack(unitToMove, targetUnit, false);
+
+            renderer->UpdateUnits(map, gameView->GetScene(), unitToMove, false);
+            renderer->UpdateUnits(map, gameView->GetScene(), targetUnit, false);
+
+            renderer->UpdateScene(map, gameView->GetScene(), TileData{unitToMove->GetTileColumn(), unitToMove->GetTileRow(), false, false}, false);
+            renderer->UpdateScene(map, gameView->GetScene(), TileData{targetUnit->GetTileColumn(), targetUnit->GetTileRow(), false, false}, false);
         }
     }
     else if(unitTile->HasCity)
@@ -560,35 +579,27 @@ void GameManager::UpdateTileData()
         processedData.relocateOrderGiven = false;
         map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
         this->redrawTile = true;
-        moveUnit->setEnabled(false);
-        attackUnit->setEnabled(false);
 
-        if (unitToMove->GetUnitType() == WORKER)
-        {
-            buildFarm->setEnabled(false);
-            buildMine->setEnabled(false);
-            buildPlantation->setEnabled(false);
-            buildTradePost->setEnabled(false);
-            buildRoad->setEnabled(false);
-            attackUnit->setEnabled(false);
-        }
+        attackUnit->setEnabled(false);
+        buildFarm->setEnabled(false);
+        buildMine->setEnabled(false);
+        buildPlantation->setEnabled(false);
+        buildTradePost->setEnabled(false);
+        buildRoad->setEnabled(false);
+        moveUnit->setEnabled(false);
 
         qDebug() << "   Done";
     }
 
     if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
     {
+        attackUnit->setEnabled(false);
+        buildFarm->setEnabled(false);
+        buildMine->setEnabled(false);
+        buildPlantation->setEnabled(false);
+        buildTradePost->setEnabled(false);
+        buildRoad->setEnabled(false);
         moveUnit->setEnabled(false);
-
-        if (unitToMove->GetUnitType() == WORKER)
-        {
-            buildFarm->setEnabled(false);
-            buildMine->setEnabled(false);
-            buildPlantation->setEnabled(false);
-            buildTradePost->setEnabled(false);
-            buildRoad->setEnabled(false);
-            attackUnit->setEnabled(false);
-        }
 
         redrawTile = true;
     }
@@ -816,7 +827,7 @@ void GameManager::updateTiles()
     if(this->redrawTile)
     {
         this->redrawTile = false;
-        renderer->UpdateScene(map, gameView->GetScene(), processedData);
+        renderer->UpdateScene(map, gameView->GetScene(), processedData, false);
     }
 
     this->update();
@@ -904,6 +915,7 @@ void GameManager::buildNewMine()
 void GameManager::attackMelee()
 {
     attackNearby = true;
+    qDebug() << "Attack nearby to true";
 }
 
 

@@ -21,7 +21,7 @@ public:
 
     Renderer(int mapSizeX);
 
-    void UpdateScene(Map *map, GameScene *scene, TileData data);
+    void UpdateScene(Map *map, GameScene *scene, TileData data, bool attackSelection);
     void UpdateUnits(Map *map, GameScene *view, Unit *unit, bool unitMoved);
     void UpdateCityBorders(City* city, GameScene *scene, Nation owner);
 
@@ -53,6 +53,8 @@ private:
     QVector<QGraphicsPixmapItem*> tilePixmap;
     QVector<QGraphicsPolygonItem*> mapBorders;
     QVector<QGraphicsPixmapItem*> resourcePixmap;
+    QVector<QGraphicsEllipseItem*> tileCircles;
+
     QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsProxyWidget*> cityLabels;

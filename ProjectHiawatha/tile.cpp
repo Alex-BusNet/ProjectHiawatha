@@ -90,6 +90,8 @@ Tile::Tile(int _posX, int _posY)
 
     this->tileTexture = QPixmap("../ProjectHiawatha/Assets/Textures/grass.png");
 
+    this->cirlceRect = QRect(_posX + (2 * drawScale), _posY - (8 * drawScale), 80, 80);
+
     Checked = false;
     owner = NO_NATION;
     city = new City();
@@ -282,6 +284,11 @@ QPoint Tile::GetResourceIconPoint()
 QPolygon Tile::GetTilePolygon()
 {
     return this->poly;
+}
+
+QRect Tile::GetTileRect()
+{
+    return this->cirlceRect;
 }
 
 int Tile::GetHexPosX()
