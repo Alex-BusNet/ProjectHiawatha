@@ -398,6 +398,17 @@ void GameManager::EndTurn()
     begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
 
+    if(currentTurn == 0)
+    {
+        attackUnit->setEnabled(false);
+        buildFarm->setEnabled(false);
+        buildMine->setEnabled(false);
+        buildPlantation->setEnabled(false);
+        buildTradePost->setEnabled(false);
+        buildRoad->setEnabled(false);
+        moveUnit->setEnabled(false);
+    }
+
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
     {
         qDebug() << "           is unit path empty:" << civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty();
@@ -428,6 +439,13 @@ void GameManager::EndTurn()
         {
             renderer->UpdateUnits(map, gameView->GetScene(), civList.at(currentTurn)->GetUnitAt(i), unitMoved);
         }
+
+
+    }
+
+    if(currentTurn == 0)
+    {
+        renderer->UpdateScene(map, gameView->GetScene(), processedData, false);
     }
 
     if(currentTurn == civList.size() - 1)
@@ -516,6 +534,14 @@ void GameManager::UpdateTileData()
                 else //Combat Unit button controls
                 {
                     qDebug() << "    unit is combat type";
+
+                    foundCity->setEnabled(false);
+                    buildFarm->setEnabled(false);
+                    buildMine->setEnabled(false);
+                    buildPlantation->setEnabled(false);
+                    buildTradePost->setEnabled(false);
+                    buildRoad->setEnabled(false);
+
                     QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
 
                     foreach(Tile *tile, tiles)

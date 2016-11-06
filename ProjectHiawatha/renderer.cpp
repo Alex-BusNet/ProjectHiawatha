@@ -181,6 +181,8 @@ void Renderer::UpdateScene(Map *map, GameScene *scene, TileData data, bool attac
             }
             else
             {
+                qDebug() << "Deselecting tile";
+                scene->removeItem(tileCircles.at(lastIndex));
                 SetOutlinePen(NO_NATION);
                 map->GetTileAt(index)->Selected = false;
             }
