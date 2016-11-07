@@ -34,6 +34,8 @@ Tile::Tile(int _posX, int _posY)
     this->yield = new Yield(0,0,0,0,0);
     this->improvement = NONE;
     this->biome = EMPTY;
+    this->stratResource = NO_STRATEGIC;
+    this->luxResource = NO_LUXURY;
 
     IsWorked = false;
     HasRoad = false;
