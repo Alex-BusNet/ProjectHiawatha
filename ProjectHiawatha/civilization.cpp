@@ -111,6 +111,7 @@ Update_t Civilization::UpdateProgress()
     foreach(City* city, this->currentCityList)
     {
         Update_t cityProgress = city->UpdateProgress();
+
         if(cityProgress.updateBorders && !redraw.updateBorders)
         {
             redraw.updateBorders = true;

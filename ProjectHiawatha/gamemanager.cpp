@@ -346,6 +346,14 @@ void GameManager::StartTurn()
             map->GetTileQueue(city);
             renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
 
+        }
+    }
+
+    if(update.updateCitizens)
+    {
+        foreach(City* city, civList.at(currentTurn)->GetCityList())
+        {
+            qDebug() << "----Updating tiles worked";
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView->GetScene());
@@ -394,6 +402,7 @@ void GameManager::StartTurn()
         }
 
         year += yearPerTurn;
+
         int accumulatedProduction;
         int productionCost;
         for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
