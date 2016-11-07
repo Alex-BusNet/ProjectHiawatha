@@ -385,13 +385,29 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
 
 void Renderer::AddCityHealthBars(City *city, Map *map, GameView *view)
 {
-    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 12,
-                              city->GetCityTile()->GetCityLabelPoint().y() + 12,
+    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 14,
                               65, 5);
 
     city->SetCityHealthBarIndex(cityHealthBars.size());
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
     cityHealthBars.last()->setZValue(6);
+
+    QRect *production = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                                  city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                                  65, 2);
+
+    city->SetCityProductionBarIndex(cityProductionBars.size());
+    cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::black)), QBrush(QColor(Qt::darkRed))));
+    cityProductionBars.last()->setZValue(6);
+
+    QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 19,
+                              65, 2);
+
+    city->SetCityGrowthBarIndex(cityGrowthBars.size());
+    cityGrowthBars.push_back(view->addRect(growth, QPen(QColor(Qt::black)), QBrush(QColor(Qt::cyan))));
+    cityGrowthBars.last()->setZValue(6);
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)

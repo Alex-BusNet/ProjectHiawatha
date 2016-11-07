@@ -515,6 +515,16 @@ void City::SetCityHealthBarIndex(int index)
     this->cityHealthBarIndex = index;
 }
 
+void City::SetCityProductionBarIndex(int index)
+{
+    this->cityProductionBarIndex = index;
+}
+
+void City::SetCityGrowthBarIndex(int index)
+{
+    this->cityGrowthBarIndex = index;
+}
+
 void City::GarrisonWorker(Unit *worker)
 {
     if(worker->isNonCombat())

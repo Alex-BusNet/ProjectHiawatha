@@ -32,6 +32,8 @@ public:
     void SetCityIndex(int index);
     void UpdateCityYield();
     void SetCityHealthBarIndex(int index);
+    void SetCityProductionBarIndex(int index);
+    void SetCityGrowthBarIndex(int index);
 
     void GarrisonWorker(Unit *worker);
     void GarrisonMilitary(Unit *military);
@@ -107,18 +109,24 @@ private:
     bool hasCapitolConnection;
     bool productionFinished;
     bool productionUnit;
+
     int productionYield;
     int scienceYield;
     int goldYield;
+
     int cityIndex;
     int cityHealthBarIndex;
     int cityBordersIndex;
+    int cityProductionBarIndex;
+    int cityGrowthBarIndex;
     int turnsToBorderGrowth;
     int citizens;
     int turnsToNewCitizen;
+
     int currentProductionCost;
     int accumulatedProduction;
     int productionIndex;
+
     int orientation(QPoint p, QPoint q, QPoint r);
 
     void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort);

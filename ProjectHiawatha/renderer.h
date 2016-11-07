@@ -63,7 +63,8 @@ private:
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsProxyWidget*> cityLabels;
     QVector<QGraphicsRectItem*> cityHealthBars;
-
+    QVector<QGraphicsRectItem*> cityProductionBars;
+    QVector<QGraphicsRectItem*> cityGrowthBars;
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsRectItem*> unitHealthBars;
