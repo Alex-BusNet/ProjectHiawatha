@@ -411,7 +411,7 @@ void GameManager::StartTurn()
              productionCost = civList.at(0)->GetCityList().at(i)->getCurrentProductionCost();
              qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
              qDebug()<<"PRODUCTION COST: "<<productionCost;
-            if(accumulatedProduction >= productionCost && gameTurn != 1)
+            if(accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0)
             {
                 civList.at(0)->GetCityList().at(i)->resetAccumulatedProduction();
                 civList.at(0)->GetCityList().at(i)->setProductionFisished(true);
@@ -855,14 +855,12 @@ void GameManager::showCity()
         }
         cityScreen = new CityScreen(this);
         //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
-        //cityScreen->setCurrentProductionName(currentProductionName);
         cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(civList.at(0)->GetCityAt(0));
         cityScreen->updateList();
         cityScreen->updateWidget();
-
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
         cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);

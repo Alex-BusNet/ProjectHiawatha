@@ -8,6 +8,7 @@ City::City()
     this->accumulatedProduction = 0;
     this->productionFinished = false;
     this->productionUnit = false;
+    this->currentProductionName = "No Current Production";
 }
 
 
