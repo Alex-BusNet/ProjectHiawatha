@@ -385,8 +385,8 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
 
 void Renderer::AddCityHealthBars(City *city, Map *map, GameView *view)
 {
-    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 15,
-                              city->GetCityTile()->GetItemTexturePoint().y() + 11,
+    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 12,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 12,
                               65, 5);
 
     city->SetCityHealthBarIndex(cityHealthBars.size());

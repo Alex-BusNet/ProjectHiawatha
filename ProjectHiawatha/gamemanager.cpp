@@ -40,6 +40,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     citySelected = false;
     findUnit = false;
     attackNearby = false;
+    focusChanged = false;
+
     currentProductionName = "No Production Selected";
     playerCiv = player;
 
@@ -349,8 +351,13 @@ void GameManager::StartTurn()
         }
     }
 
-    if(update.updateCitizens)
+    if(update.updateCitizens || this->focusChanged)
     {
+        if(this->focusChanged == true)
+        {
+            this->focusChanged = false;
+        }
+
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             qDebug() << "----Updating tiles worked";
@@ -726,6 +733,21 @@ void GameManager::InitButtons()
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
     attackUnit->setEnabled(false);
+
+    goldFocus = new QPushButton("Gold Focus");
+    connect(goldFocus, SIGNAL(clicked(bool)), this, SLOT(SetGoldFocus()));
+
+    productionFocus = new QPushButton("Production Focus");
+    connect(productionFocus, SIGNAL(clicked(bool)), this, SLOT(SetProdFocus()));
+
+    scienceFocus = new QPushButton("Science Focus");
+    connect(scienceFocus, SIGNAL(clicked(bool)), this, SLOT(SetScienceFocus()));
+
+    foodFocus = new QPushButton("Food Focus");
+    connect(foodFocus, SIGNAL(clicked(bool)), this, SLOT(SetFoodFocus()));
+
+    cultureFocus = new QPushButton("Culture Focus");
+    connect(cultureFocus, SIGNAL(clicked(bool)), this, SLOT(SetCultureFocus()));
 }
 
 void GameManager::InitLayouts()
@@ -750,6 +772,11 @@ void GameManager::InitLayouts()
 
     playerControlButtons->addWidget(exitGame);
     playerControlButtons->addSpacing(700);
+    playerControlButtons->addWidget(goldFocus);
+    playerControlButtons->addWidget(productionFocus);
+    playerControlButtons->addWidget(scienceFocus);
+    playerControlButtons->addWidget(foodFocus);
+    playerControlButtons->addWidget(cultureFocus);
     playerControlButtons->addWidget(endTurn);
 
     gameLayout->addLayout(playerControlButtons);
@@ -898,6 +925,7 @@ void GameManager::updateTiles()
         renderer->UpdateScene(map, gameView->GetScene(), processedData, false);
     }
 
+
     this->update();
 
     if(cityScreen->isHidden())
@@ -984,6 +1012,37 @@ void GameManager::attackMelee()
 {
     attackNearby = true;
     qDebug() << "Attack nearby to true";
+}
+
+/// These are for testing the setting and changing the focus of a city.
+void GameManager::SetGoldFocus()
+{
+    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::GOLD_FOCUS);
+    this->focusChanged = true;
+}
+
+void GameManager::SetProdFocus()
+{
+    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::PRODUCTION_FOCUS);
+    this->focusChanged = true;
+}
+
+void GameManager::SetScienceFocus()
+{
+    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::SCIENCE_FOCUS);
+    this->focusChanged = true;
+}
+
+void GameManager::SetFoodFocus()
+{
+    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::FOOD_FOCUS);
+    this->focusChanged = true;
+}
+
+void GameManager::SetCultureFocus()
+{
+    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::CULTURE_FOCUS);
+    this->focusChanged = true;
 }
 
 

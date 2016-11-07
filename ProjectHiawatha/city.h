@@ -20,7 +20,7 @@ class City
 public:
     City();
 
-    enum focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
+    enum Focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
 
     //Accessor and Mutators
     void UpdateCityYield(Yield yield);
@@ -78,10 +78,14 @@ public:
 
     ~City();
 
+    void SortControlledTiles();
     void SortTileQueue();
     QVector<Tile*> tileQueue;
 
     Update_t UpdateProgress();
+
+    void SetCityFocus(Focus focus);
+    Focus GetCityFocus();
 private:
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
@@ -91,6 +95,7 @@ private:
     QString currentProductionName;
     Nation controllingCiv;
     Tile *cityTile;
+    Focus cityFocus;
 
     QVector<Tile*> borderTiles;
 

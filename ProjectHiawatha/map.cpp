@@ -494,7 +494,8 @@ newrand:
             city->DefineCityBorders(false);
             this->GetTileQueue(city);
             city->SortTileQueue();
-            city->GetControlledTiles().at(city->GetCitizenCount() - 1)->IsWorked = true;
+            city->SortControlledTiles();
+            city->GetControlledTiles().first()->IsWorked = true;
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;

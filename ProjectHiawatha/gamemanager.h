@@ -63,6 +63,11 @@ private:
     QPushButton *renderPlusOne;
     QPushButton *renderMinusOne;
     QPushButton *showDummyCityScreen;
+    QPushButton *goldFocus;
+    QPushButton *productionFocus;
+    QPushButton *scienceFocus;
+    QPushButton *foodFocus;
+    QPushButton *cultureFocus;
     //=============
 
     CityScreen *cityScreen;
@@ -103,6 +108,7 @@ private:
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
     bool findUnit;
     bool attackNearby;
+    bool focusChanged;
 
     Nation playerCiv;
 
@@ -144,6 +150,11 @@ public slots:
     void buildNewTradePost();
     void buildNewMine();
     void attackMelee();
+    void SetGoldFocus();
+    void SetProdFocus();
+    void SetScienceFocus();
+    void SetFoodFocus();
+    void SetCultureFocus();
 };
 
 #endif // GAMEWINDOW_H
