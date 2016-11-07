@@ -460,6 +460,36 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameScene *view)
     tileWorked.at(index)->setZValue(3);
 }
 
+void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
+{
+    int index = city->GetCityGrowthBarIndex();
+
+    view->GetScene()->removeItem(cityGrowthBars.at(index));
+
+    QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 19,
+                              65 / city->GetTurnsToNewCitizen(),
+                              2);
+
+    cityGrowthBars.replace(index, view->addRect(growth, QPen(QColor(Qt::black)), QBrush(QColor(Qt::cyan))));
+    cityGrowthBars.at(index)->setZValue(6);
+}
+
+void Renderer::UpdateCityProductionBar(City *city, GameView *view)
+{
+    int index = city->GetCityProductionBarIndex();
+
+    view->GetScene()->removeItem(cityProductionBars.at(index));
+
+    QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 19,
+                              65 * (city->getAccumulatedProduction() / city->getCurrentProductionCost()) + 1,
+                              2);
+
+    cityGrowthBars.replace(index, view->addRect(growth, QPen(QColor(Qt::black)), QBrush(QColor(Qt::cyan))));
+    cityGrowthBars.at(index)->setZValue(6);
+}
+
 void Renderer::AddCityLabel(City* city, GameView *view)
 {
     QLabel* label = new QLabel(QString(" %1 ").arg(city->GetName()));
@@ -470,11 +500,11 @@ void Renderer::AddCityLabel(City* city, GameView *view)
 
 void Renderer::AddCity(City *city, Map *map, GameView *view)
 {
-    QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944.png");
+    QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944_alt.png");
     cityPixmap.push_back(view->addPixmap(*cityImage));
     cityPixmap.last()->setZValue(2);
-    cityPixmap.last()->setScale(2.0f);
-    cityPixmap.last()->setPos(map->GetTileFromCoord(city->GetCityTile()->GetTileID())->GetTexturePoint());
+    cityPixmap.last()->setScale(1.0f);
+    cityPixmap.last()->setPos(map->GetTileFromCoord(city->GetCityTile()->GetTileID())->GetTexturePoint().x() + 22, city->GetCityTile()->GetTexturePoint().y() + 24);
 
     this->AddCityHealthBars(city, map, view);
     this->AddCityLabel(city, view);

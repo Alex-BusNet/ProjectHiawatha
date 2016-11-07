@@ -56,6 +56,8 @@ public:
     int GetCityIndex();
     int GetCityHealthBarIndex();
     int GetCityBordersIndex();
+    int GetCityGrowthBarIndex();
+    int GetCityProductionBarIndex();
     bool IsCityCaptial();
 
     void setCapitolConnection(bool flag);
@@ -63,6 +65,8 @@ public:
 
     void SetCitizenCount(int count);
     int GetCitizenCount();
+    int GetFoodNeededToGrow();
+    int GetTurnsToNewCitizen();
     int getCurrentProductionCost();
     void setCurrentProductionCost(int cost);
     int getAccumulatedProduction();
@@ -88,6 +92,7 @@ public:
 
     void SetCityFocus(Focus focus);
     Focus GetCityFocus();
+
 private:
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
@@ -120,6 +125,8 @@ private:
     int cityProductionBarIndex;
     int cityGrowthBarIndex;
     int turnsToBorderGrowth;
+    int foodNeededToGrow;\
+    int foodSurplus;
     int citizens;
     int turnsToNewCitizen;
 

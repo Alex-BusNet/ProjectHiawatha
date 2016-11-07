@@ -34,6 +34,8 @@ public:
     void LoadCities(QVector<City*> cities, Map *map, GameView *view);
 
     void SetTileWorkedIcon(Tile* tile, GameScene *view);
+    void UpdateCityGrowthBar(City* city, GameView *view);
+    void UpdateCityProductionBar(City* city, GameView *scene);
 
     void AddCityLabel(City* city, GameView *view);
     void AddCity(City* city, Map *map, GameView *view);

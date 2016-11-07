@@ -364,6 +364,7 @@ void GameManager::StartTurn()
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView->GetScene());
+//                renderer->UpdateCityGrowthBar(city, gameView);
             }
         }
     }
@@ -427,6 +428,10 @@ void GameManager::StartTurn()
                 mBox->exec();
                 qDebug()<<"Production finished";
 
+            }
+            else
+            {
+//                renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(i), gameView);
             }
 
         }
@@ -871,8 +876,6 @@ void GameManager::zoomOut()
 
 void GameManager::showCity()
 {
-
-
     if(!cityScreenVisible)
     {
 
@@ -894,11 +897,13 @@ void GameManager::showCity()
         gameView->setDragMode(QGraphicsView::NoDrag);
         cityScreen->show();
         cityScreenVisible = true;
-    }else
+    }
+    else
     {
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
+//        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
     }
 }
 
