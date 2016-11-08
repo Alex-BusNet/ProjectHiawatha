@@ -514,9 +514,7 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
 {
     QPixmap *unitPix;
     QImage *unitImage;
-
     unitImage = unit->GetUnitIcon();
-
     QRgb color = cc->GetCivColor(unit->GetOwner()).rgba();
     for(int j = 0; j < 32; j++)
     {
@@ -529,16 +527,13 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
             }
         }
     }
-
     unit->SetUnitImage(unitImage);
     unitPix = new QPixmap(unitPix->fromImage(*unitImage));
-
     unitPixmap.push_back(view->addPixmap(*unitPix));
     unitPixmap.last()->setZValue(2);
     unitPixmap.last()->setScale(1.0f);
     unit->SetPixmapIndex(unitPixmap.size() - 1);
     unitPixmap.last()->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
-
     AddUnitHealthBars(unit, map, view);
 }
 

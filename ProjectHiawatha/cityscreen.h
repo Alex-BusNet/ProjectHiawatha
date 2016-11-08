@@ -38,6 +38,8 @@ private slots:
 
     void on_listWidget_2_itemSelectionChanged();
 
+    void on_listWidget_2_itemDoubleClicked(QListWidgetItem *item);
+
 private:
     Ui::CityScreen *ui;
     QVector<Building*> buildings;

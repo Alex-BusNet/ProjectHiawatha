@@ -74,16 +74,18 @@ public:
     void resetAccumulatedProduction();
     void setProductionName(QString name);
     void setProductionIndex(int index);
-    void setProductionFisished(bool isFinished);
+    void setProductionFinished(bool isFinished);
     bool getProductionFinished();
     void setIsUnit(bool isUnit);
     bool getIsUnit();
     int getProductionIndex();
+    Unit* getProducedUnit();
+    void setProducedUnit(Unit* unit);
     QString getProductionName();
     bool getHasWorker();
-
+    void    loadUnits(QString filename);
     ~City();
-
+    QVector<Unit*> getInitialUnitList();
     void SortControlledTiles();
     void SortTileQueue();
     QVector<Tile*> tileQueue;
@@ -97,7 +99,8 @@ private:
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
     QVector<Unit*> StationedMilitary;
-
+    QVector<Unit*> initialUnitList;
+    Unit*   producedUnit;
     QString name;
     QString currentProductionName;
     Nation controllingCiv;

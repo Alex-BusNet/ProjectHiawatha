@@ -341,6 +341,10 @@ void GameManager::TurnController()
 void GameManager::StartTurn()
 {
     Update_t update = civList.at(currentTurn)->UpdateProgress();
+    for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
+        civList.at(0)->GetCityList().at(i)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+    }
+
     if(update.updateBorders)
     {
         foreach(City* city, civList.at(currentTurn)->GetCityList())
@@ -410,7 +414,6 @@ void GameManager::StartTurn()
         }
 
         year += yearPerTurn;
-
         int accumulatedProduction;
         int productionCost;
         for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
@@ -422,11 +425,41 @@ void GameManager::StartTurn()
             if(accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0)
             {
                 civList.at(0)->GetCityList().at(i)->resetAccumulatedProduction();
-                civList.at(0)->GetCityList().at(i)->setProductionFisished(true);
+                civList.at(0)->GetCityList().at(i)->setProductionFinished(true);
                 QMessageBox* mBox = new QMessageBox();
                 mBox->setText("Production has finished");
                 mBox->exec();
                 qDebug()<<"Production finished";
+                if(civList.at(0)->GetCityList().at(i)->getIsUnit()){
+                    civList.at(0)->GetCityList().at(i)->setProducedUnit(civList.at(0)->GetCityList().at(i)->getInitialUnitList().at(civList.at(0)->GetCityList().at(i)->getProductionIndex()));
+                    Unit* unit = civList.at(0)->GetCityList().at(i)->getProducedUnit();
+                    unit->SetOwner(civList.at(0)->getCiv());
+
+                    qDebug()<<"STRENGTH: "<<unit->GetStrength();
+                    int mapSize = map->GetMapSizeX();
+                    int cityPosition = ((civList.at(0)->GetCityList().at(i)->GetCityTile()->GetTileID().column)/2) + ((civList.at(0)->GetCityList().at(i)->GetCityTile()->GetTileID().row) * mapSize);
+                    if(map->GetTileAt(cityPosition+1)->ContainsUnit || !(map->GetTileAt(cityPosition+1)->Walkable)){
+                        if(map->GetTileAt(cityPosition-1)->ContainsUnit|| !(map->GetTileAt(cityPosition-1)->Walkable)){
+                            if(map->GetTileAt(cityPosition-map->GetMapSizeX())|| !(map->GetTileAt(cityPosition-map->GetMapSizeX())->Walkable)){
+
+                            }else{
+                                unit->SetPositionIndex(cityPosition-map->GetMapSizeX());
+                                map->GetTileAt(cityPosition-map->GetMapSizeX())->ContainsUnit = true;
+                            }
+                        }else{
+                            unit->SetPositionIndex(cityPosition-1);
+                            map->GetTileAt(cityPosition-1)->ContainsUnit = true;
+                        }
+                    }else{
+                        unit->SetPositionIndex(cityPosition+1);
+                        map->GetTileAt(cityPosition+1)->ContainsUnit = true;
+                    }
+
+
+                    civList.at(0)->AddUnit(unit);
+                    qDebug()<<"HOUSTON WE HAVE PROBLEMO";
+                    renderer->AddUnit(unit,map,gameView);
+                }
 
             }
             else

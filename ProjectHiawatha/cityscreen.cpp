@@ -98,6 +98,8 @@ void CityScreen::loadUnits(QString filename)
           int movement = unitInfo[4].toInt();
           int range = unitInfo[5].toInt();
           int unlocked = unitInfo[6].toInt();
+          int enumValue = unitInfo[7].toInt();
+          UnitType type = static_cast<UnitType>(enumValue);
           Unit* tempUnit = new Unit(0);
           tempUnit->SetName(unitInfo[0]);
           tempUnit->SetCost(cost);
@@ -106,6 +108,8 @@ void CityScreen::loadUnits(QString filename)
           tempUnit->SetRange(range);
           tempUnit->SetRangeStrength(rangeStrength);
           tempUnit->setUnlocked(unlocked);
+          qDebug()<<"TYPE: "<<type;
+          tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
           qDebug()<<initialUnitList.at(0)->GetName();
 
@@ -160,12 +164,15 @@ void CityScreen::updateWidget()
     if(currentCity->getProductionFinished())
     {
         if(currentCity->getIsUnit()){
+            currentCity->setProducedUnit(initialUnitList.at(currentCity->getProductionIndex()));
 
         }else{
             ui->listWidget_3->addItem(ui->listWidget->item(currentCity->getProductionIndex())->text());
            delete ui->listWidget->takeItem(currentCity->getProductionIndex());
             qDebug()<<"ELSE IS RUNNING";
         }
+
+        currentCity->setProductionFinished(false);
     }
 
 }
@@ -201,6 +208,7 @@ void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
     ui->progressBar->setMaximum(buildings.at(ui->listWidget->currentRow())->getProductionCost());
     currentCity->setCurrentProductionCost(buildings.at(ui->listWidget->currentRow())->getProductionCost());
     currentCity->setProductionIndex(ui->listWidget->currentRow());
+    currentCity->setIsUnit(false);
     ui->progressBar->setValue(currentCity->getAccumulatedProduction());
     update();
 
@@ -210,4 +218,16 @@ void CityScreen::on_listWidget_2_itemSelectionChanged()
 {
     ui->description->setText(initialUnitList.at(ui->listWidget_2->currentRow())->GetName());
 
+}
+
+void CityScreen::on_listWidget_2_itemDoubleClicked(QListWidgetItem *item)
+{
+    ui->current_production_name->setText(item->text());
+    currentCity->setProductionName(item->text());
+    ui->progressBar->setMaximum(initialUnitList.at(ui->listWidget_2->currentRow())->GetCost());
+    currentCity->setCurrentProductionCost(initialUnitList.at(ui->listWidget_2->currentRow())->GetCost());
+    currentCity->setProductionIndex(ui->listWidget_2->currentRow());
+    currentCity->setIsUnit(true);
+    ui->progressBar->setValue(currentCity->getAccumulatedProduction());
+    update();
 }

@@ -1,5 +1,7 @@
 #include "city.h"
 #include <QDebug>
+#include <QMessageBox>
+#include <QFile>
 
 City::City()
 {
@@ -16,6 +18,11 @@ City::City()
 City::~City()
 {
 
+}
+
+QVector<Unit *> City::getInitialUnitList()
+{
+    return this->initialUnitList;
 }
 
 void City::SortControlledTiles()
@@ -784,7 +791,7 @@ void City::setProductionIndex(int index)
     this->productionIndex = index;
 }
 
-void City::setProductionFisished(bool isFinished)
+void City::setProductionFinished(bool isFinished)
 {
     this->productionFinished = isFinished;
 }
@@ -809,6 +816,16 @@ int City::getProductionIndex()
     return this->productionIndex;
 }
 
+Unit *City::getProducedUnit()
+{
+    return this->producedUnit;
+}
+
+void City::setProducedUnit(Unit *unit)
+{
+    this->producedUnit = unit;
+}
+
 QString City::getProductionName()
 {
     return this->currentProductionName;
@@ -817,6 +834,52 @@ QString City::getProductionName()
 bool City::getHasWorker()
 {
     return this->hasWorker;
+}
+
+void City::loadUnits(QString filename)
+{
+    QFile inputFile(filename);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          QStringList unitInfo = line.split(",");
+          qDebug()<<"Unit Name: "<<unitInfo[0];
+          int cost = unitInfo[1].toInt();
+          int strength = unitInfo[2].toInt();
+          int rangeStrength = unitInfo[3].toInt();
+          int movement = unitInfo[4].toInt();
+          int range = unitInfo[5].toInt();
+          int unlocked = unitInfo[6].toInt();
+          int enumValue = unitInfo[7].toInt();
+          UnitType type = static_cast<UnitType>(enumValue);
+          Unit* tempUnit = new Unit(0);
+          tempUnit->SetName(unitInfo[0]);
+          tempUnit->SetCost(cost);
+          tempUnit->SetMovementPoints(movement);
+          tempUnit->SetStrength(strength);
+          tempUnit->SetRange(range);
+          tempUnit->SetRangeStrength(rangeStrength);
+          tempUnit->setUnlocked(unlocked);
+          qDebug()<<"TYPE: "<<type;
+          tempUnit->SetUnitIcon(type);
+          initialUnitList.push_back(tempUnit);
+          qDebug()<<initialUnitList.at(0)->GetName();
+
+       }
+       inputFile.close();
+       qDebug()<<initialUnitList.at(1)->GetName();
+       qDebug()<<initialUnitList.at(10)->GetName();
+    }else
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("File Not Found");
+        mBox->exec();
+        qDebug()<<"File Not Found";
+
+    }
 }
 
 Yield* City::getCityYield()
