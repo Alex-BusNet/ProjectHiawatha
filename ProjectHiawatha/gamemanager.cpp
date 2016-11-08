@@ -416,6 +416,7 @@ void GameManager::StartTurn()
         }
 
         year += yearPerTurn;
+
         int accumulatedProduction;
         int productionCost;
         for(int i = 0; i<civList.at(0)->GetCityList().size();i++)

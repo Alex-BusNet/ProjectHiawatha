@@ -401,21 +401,6 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
     cityHealthBars.last()->setZValue(6);
 
-    //-------------------------------------------------------------------------------
-    QRect *production = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
-                                  city->GetCityTile()->GetCityLabelPoint().y() + 12,
-                                  1, 2);
-
-    outline = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
-                        city->GetCityTile()->GetCityLabelPoint().y() + 12,
-                        65, 2);
-
-    cityBarOutlines.push_back(view->addRect(outline, QPen(QColor(Qt::black)), QBrush(QColor(Qt::transparent))));
-    cityBarOutlines.last()->setZValue(7);
-
-    city->SetCityProductionBarIndex(cityProductionBars.size());
-    cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
-    cityProductionBars.last()->setZValue(6);
 
     //--------------------------------------------------------------------------------
     QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
@@ -433,6 +418,23 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityGrowthBars.push_back(view->addRect(growth, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::cyan))));
     cityGrowthBars.last()->setZValue(6);
 
+    //-------------------------------------------------------------------------------
+    QRect *production = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                                  city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                                  1, 2);
+
+    outline = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                        city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                        65, 2);
+
+    cityBarOutlines.push_back(view->addRect(outline, QPen(QColor(Qt::black)), QBrush(QColor(Qt::transparent))));
+    cityBarOutlines.last()->setZValue(7);
+
+    city->SetCityProductionBarIndex(cityProductionBars.size());
+    cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
+    cityProductionBars.last()->setZValue(6);
+
+    qDebug() << "   Done" << cityProductionBars.size() << &view;
     //---------------------------------------------------------------------------------
 }
 
@@ -495,10 +497,10 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 
     qDebug() << "----Food needed to grow:" << city->GetFoodNeededToGrow() << "Surplus:" << city->GetFoodSurplus();
     int barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus()))));
-    qDebug() << "---New growth bar length:" << barSize;
 
     barSize = barSize <= 0 ? 1 : barSize;
 
+    qDebug() << "-----New growth bar length:" << barSize;
     QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
                               city->GetCityTile()->GetCityLabelPoint().y() + 19,
                               barSize, 2);
@@ -511,33 +513,29 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
 {
     qDebug() << "--Updating Production bar for" << city->GetName();
     int index = city->GetCityProductionBarIndex();
-
-    view->GetScene()->removeItem(cityProductionBars.at(index));
+    view->removeItem(cityProductionBars.at(index));
     qDebug() << "---Current Production:" << city->getProductionName();
-    qDebug() << "----Generating new Bar" << city->getAccumulatedProduction() << city->getCurrentProductionCost();
+    qDebug() << "----Generating new Bar. Accumulated:" << city->getAccumulatedProduction() << "Production cost" << city->getCurrentProductionCost();
     qDebug() << "-----No Production:" << (city->getProductionName() == "No Current Production");
 
-    QRect *prod;
+    int barSize = ceil(65 * (static_cast<double>(city->getAccumulatedProduction()) / (city->getCurrentProductionCost() + 1)));
+
     if(city->getProductionName() == "No Current Production")
     {
-        prod = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
-                                  city->GetCityTile()->GetCityLabelPoint().y() + 12,
-                                  1,2);
+        barSize = 1;
     }
     else
     {
-        int barSize = 65 - ceil(65 * (static_cast<double>(city->getAccumulatedProduction()) / (city->getCurrentProductionCost() + 1)) + 1);
-        qDebug() << "------New Bar length:" << barSize;
-        prod = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
-                                  city->GetCityTile()->GetCityLabelPoint().y() + 12,
-                                  barSize, 2);
+        barSize = barSize <= 0 ? 1 : barSize;
     }
 
-    qDebug() << "----Replacing bar";
-    cityGrowthBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
-    cityGrowthBars.at(index)->setZValue(6);
+    qDebug() << "------New Bar length:" << barSize;
+    QRect *prod = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                                  city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                                  barSize, 2);
 
-    qDebug() << "Done";
+    cityProductionBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
+    cityProductionBars.at(index)->setZValue(6);
 }
 
 void Renderer::AddCityLabel(City* city, GameView *view)
