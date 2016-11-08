@@ -487,7 +487,7 @@ void GameManager::StartTurn()
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
-        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
+        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->getCivYield()->GetCultureYield()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
 
     qDebug() << "  Starting turn for civ" << currentTurn;
