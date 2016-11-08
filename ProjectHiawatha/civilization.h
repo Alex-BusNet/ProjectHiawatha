@@ -44,6 +44,7 @@ public:
     int getHappiness();
     int GetTotalGold();
     int GetTotalScience();
+    int GetTotalCulture();
 
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
@@ -105,7 +106,7 @@ private:
 
     int happiness;
     int techIndex;
-    int totalScience, totalGold;
+    int totalScience, totalGold, totalCulture;
 
     //AI stuff
     bool isAIPlayer;

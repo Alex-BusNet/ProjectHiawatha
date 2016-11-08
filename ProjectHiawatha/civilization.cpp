@@ -32,6 +32,7 @@ Civilization::Civilization(Nation name, bool isAI)
     this->cityIndex = 0;
     this->totalGold = 0;
     this->totalScience = 0;
+    this->totalCulture = 0;
 
     if(isAI)
     {
@@ -92,6 +93,11 @@ int Civilization::GetTotalScience()
     return this->totalScience;
 }
 
+int Civilization::GetTotalCulture()
+{
+    return this->totalCulture;
+}
+
 QVector<City *> Civilization::GetCityList()
 {
     return this->currentCityList;
@@ -106,8 +112,9 @@ Update_t Civilization::UpdateProgress()
 {
     this->totalGold += this->getCivYield()->GetGoldYield();
     this->totalScience += this->getCivYield()->GetScienceYield();
+    this->totalCulture += this->getCivYield()->GetCultureYield();
 
-    Update_t redraw{false, false};
+    Update_t redraw{false, false, false};
     foreach(City* city, this->currentCityList)
     {
         Update_t cityProgress = city->UpdateProgress();
@@ -126,6 +133,12 @@ Update_t Civilization::UpdateProgress()
             qDebug() << "--------Updating citizens";
             this->UpdateCivYield();
             redraw.updateCitizens = true;
+        }
+
+        if(cityProgress.productionFinished)
+        {
+            qDebug() << "---------Production Finished";
+            redraw.productionFinished = true;
         }
     }
 

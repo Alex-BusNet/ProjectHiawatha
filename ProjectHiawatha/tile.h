@@ -14,8 +14,8 @@
 #include <QRect>
 #include <stdint.h>
 #include "resources.h"
+#include "datatypes.h"
 
-typedef struct {int column; int row;} TileID;
 
 //class City;
 

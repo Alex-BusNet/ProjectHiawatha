@@ -420,15 +420,15 @@ void GameManager::StartTurn()
         int productionCost;
         for(int i = 0; i<civList.at(0)->GetCityList().size();i++)
         {
-            civList.at(0)->GetCityList().at(i)->setAccumulatedProduction(civList.at(0)->GetCityList().at(i)->getCityYield()->GetProductionYield());
+//            civList.at(0)->GetCityList().at(i)->setAccumulatedProduction(civList.at(0)->GetCityList().at(i)->getCityYield()->GetProductionYield());
             accumulatedProduction = civList.at(0)->GetCityList().at(i)->getAccumulatedProduction();
             productionCost = civList.at(0)->GetCityList().at(i)->getCurrentProductionCost();
             qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
             qDebug()<<"PRODUCTION COST: "<<productionCost;
 
-            if(accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0)
+            if(update.productionFinished /*accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0*/)
             {
-                civList.at(0)->GetCityList().at(i)->resetAccumulatedProduction();
+//                civList.at(0)->GetCityList().at(i)->resetAccumulatedProduction();
                 civList.at(0)->GetCityList().at(i)->setProductionFinished(true);
                 QMessageBox* mBox = new QMessageBox();
                 mBox->setText("Production has finished");
@@ -487,7 +487,7 @@ void GameManager::StartTurn()
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
-        culText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetCultureYield()));
+        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
 
     qDebug() << "  Starting turn for civ" << currentTurn;
@@ -950,7 +950,7 @@ void GameManager::showCity()
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
-        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
+//        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
     }
 }
 
