@@ -1,6 +1,6 @@
 #ifndef YIELD_H
 #define YIELD_H
-
+#include "datatypes.h"
 /*
  *
  * This class is used to provide the total yield output for tiles.
@@ -8,7 +8,7 @@
  * It is used to store, update, and retrieve the yield data for a single object
  *
  */
-typedef struct {int gold, production, research, food, culture;} YieldStruct;
+
 
 class Yield
 {

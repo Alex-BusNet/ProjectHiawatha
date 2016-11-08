@@ -199,7 +199,7 @@ void City::SortTileQueue()
 Update_t City::UpdateProgress()
 {
     qDebug() << "       " << this->name << " turns to growth:" << turnsToBorderGrowth;
-    Update_t update{false, false};
+    Update_t update{false, false, false};
 
     if(turnsToBorderGrowth == 0)
     {
@@ -235,10 +235,13 @@ Update_t City::UpdateProgress()
     {
         //Increment the number of citizens in the city
         this->citizens++;
+
+        //// THIS CALCULATION NEEDS TO CHANGE
         // Calculate the number of turns until a new citizen is born
         this->foodNeededToGrow = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
         this->foodSurplus = this->cityTotalYield->GetFoodYield() - this->citizens;
         this->turnsToNewCitizen = this->foodNeededToGrow / this->foodSurplus;
+
         // If the city has more tiles than there are citizens then put a citizen to work.
         if(this->citizens < this->GetControlledTiles().size())
         {
@@ -259,6 +262,15 @@ Update_t City::UpdateProgress()
     {
         this->turnsToNewCitizen--;
     }
+
+    this->accumulatedProduction += this->cityTotalYield->GetProductionYield();
+
+    if(this->accumulatedProduction >= this->currentProductionCost && (this->currentProductionName != "No Current Production"))
+    {
+        this->accumulatedProduction = 0;
+        update.productionFinished = true;
+    }
+
 
     return update;
 }

@@ -7,7 +7,7 @@
 #include <QGraphicsSceneWheelEvent>
 #include <QPainter>
 #include <QWheelEvent>
-#include "tiledata.h"
+#include "datatypes.h"
 
 class GameScene : public QGraphicsScene
 {
