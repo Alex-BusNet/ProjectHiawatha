@@ -228,12 +228,19 @@ QString Tile::GetTileTypeString()
     case COAST:
         //This may or may not be added.
         //It is going to require some logic to get the right texture.
+        return QString("Coast");
         break;
     case HILL:
         return QString("Hill");
         break;
     case FOREST:
         return QString("Forest");
+        break;
+    case PLAINS_TILE:
+        return QString("Plains");
+        break;
+    case SNOW:
+        return QString("Snow");
         break;
     }
 }

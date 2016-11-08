@@ -21,19 +21,19 @@ public:
 
     Renderer(int mapSizeX);
 
-    void UpdateScene(Map *map, GameScene *scene, TileData data, bool attackSelection);
-    void UpdateUnits(Map *map, GameScene *view, Unit *unit, bool unitMoved);
-    void UpdateCityBorders(City* city, GameScene *scene, Nation owner);
+    void UpdateScene(Map *map, GameView *view, TileData data, bool attackSelection);
+    void UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved);
+    void UpdateCityBorders(City* city, GameView *view, Nation owner);
 
     void DrawHexScene(Map *map, GameView *scene);
     void DrawGuiImages(QGraphicsScene *scene);
-    void DrawCityBorders(QVector<City *> cities, GameScene *scene, Nation owner);
+    void DrawCityBorders(QVector<City *> cities, GameView *view, Nation owner);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
     void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
 
     void LoadCities(QVector<City*> cities, GameView *view);
 
-    void SetTileWorkedIcon(Tile* tile, GameScene *view);
+    void SetTileWorkedIcon(Tile* tile, GameView *view);
     void UpdateCityGrowthBar(City* city, GameView *view);
     void UpdateCityProductionBar(City* city, GameView *view);
 
@@ -41,7 +41,7 @@ public:
     void AddCity(City* city, GameView *view);
     void AddUnit(Unit* unit, Map *map, GameView *view);
 
-    void RemoveUnit(Unit *unit, GameScene *scene);
+    void RemoveUnit(Unit *unit, GameView *view);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
@@ -49,7 +49,7 @@ public:
     QString SetYieldDisplay(Map *map);
     QString SetYieldDisplay(Civilization *player);
 
-    void AddCityHealthBars(City* city, GameScene *view);
+    void AddCityHealthBars(City* city, GameView *view);
 private:
 //    QVector<City*> cities;
 //    QVector<Unit*> units;

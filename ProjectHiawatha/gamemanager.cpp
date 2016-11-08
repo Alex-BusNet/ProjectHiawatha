@@ -99,15 +99,15 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-        renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
+        renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView, civList.at(i)->getCiv());
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
-            renderer->AddCityHealthBars(civList.at(i)->GetCityAt(j), gameView->GetScene());
+            renderer->AddCityHealthBars(civList.at(i)->GetCityAt(j), gameView);
 
             foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
             {
-                renderer->SetTileWorkedIcon(tile, gameView->GetScene());
+                renderer->SetTileWorkedIcon(tile, gameView);
             }
         }
 
@@ -352,7 +352,7 @@ void GameManager::StartTurn()
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             map->GetTileQueue(city);
-            renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
+            renderer->UpdateCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
         }
     }
 
@@ -368,7 +368,7 @@ void GameManager::StartTurn()
             qDebug() << "----Updating tiles worked";
             foreach(Tile* tile, city->GetControlledTiles())
             {
-                renderer->SetTileWorkedIcon(tile, gameView->GetScene());
+                renderer->SetTileWorkedIcon(tile, gameView);
             }
 
             renderer->UpdateCityGrowthBar(city, gameView);
@@ -534,18 +534,18 @@ void GameManager::EndTurn()
         if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
         {
             qDebug() << "----Removing Unit";
-            renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView->GetScene());
+            renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView);
             civList.at(currentTurn)->RemoveUnit(i);
         }
         else
         {
-            renderer->UpdateUnits(map, gameView->GetScene(), civList.at(currentTurn)->GetUnitAt(i), unitMoved);
+            renderer->UpdateUnits(map, gameView, civList.at(currentTurn)->GetUnitAt(i), unitMoved);
         }
     }
 
     if(currentTurn == 0)
     {
-        renderer->UpdateScene(map, gameView->GetScene(), processedData, false);
+        renderer->UpdateScene(map, gameView, processedData, false);
     }
 
     if(currentTurn == civList.size() - 1)
@@ -661,7 +661,7 @@ void GameManager::UpdateTileData()
 
                             TileData enemy{tile->GetTileID().column, tile->GetTileID().row, false, false};
                             qDebug() << "--Enemy at" << enemy.column << "," << enemy.row;
-                            renderer->UpdateScene(map, gameView->GetScene(), enemy, true);
+                            renderer->UpdateScene(map, gameView, enemy, true);
                         }
                     }
                 }
@@ -678,11 +678,11 @@ void GameManager::UpdateTileData()
             attackUnit->setEnabled(false);
             uc->Attack(unitToMove, targetUnit, false);
 
-            renderer->UpdateUnits(map, gameView->GetScene(), unitToMove, false);
-            renderer->UpdateUnits(map, gameView->GetScene(), targetUnit, false);
+            renderer->UpdateUnits(map, gameView, unitToMove, false);
+            renderer->UpdateUnits(map, gameView, targetUnit, false);
 
-            renderer->UpdateScene(map, gameView->GetScene(), TileData{unitToMove->GetTileColumn(), unitToMove->GetTileRow(), false, false}, false);
-            renderer->UpdateScene(map, gameView->GetScene(), TileData{targetUnit->GetTileColumn(), targetUnit->GetTileRow(), false, false}, false);
+            renderer->UpdateScene(map, gameView, TileData{unitToMove->GetTileColumn(), unitToMove->GetTileRow(), false, false}, false);
+            renderer->UpdateScene(map, gameView, TileData{targetUnit->GetTileColumn(), targetUnit->GetTileRow(), false, false}, false);
         }
     }
     else if(unitTile->HasCity)
@@ -974,7 +974,7 @@ void GameManager::updateTiles()
     if(this->redrawTile)
     {
         this->redrawTile = false;
-        renderer->UpdateScene(map, gameView->GetScene(), processedData, false);
+        renderer->UpdateScene(map, gameView, processedData, false);
     }
 
 
