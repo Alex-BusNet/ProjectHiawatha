@@ -107,7 +107,7 @@ Update_t Civilization::UpdateProgress()
     this->totalGold += this->getCivYield()->GetGoldYield();
     this->totalScience += this->getCivYield()->GetScienceYield();
 
-    Update_t redraw;
+    Update_t redraw{false, false};
     foreach(City* city, this->currentCityList)
     {
         Update_t cityProgress = city->UpdateProgress();
@@ -123,7 +123,9 @@ Update_t Civilization::UpdateProgress()
 
         if(cityProgress.updateCitizens)
         {
+            qDebug() << "--------Updating citizens";
             this->UpdateCivYield();
+            redraw.updateCitizens = true;
         }
     }
 

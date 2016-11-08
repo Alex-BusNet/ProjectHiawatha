@@ -97,12 +97,14 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
     for(int i = 0; i < civList.size(); i++)
     {
-        renderer->LoadCities(civList.at(i)->GetCityList(), map, gameView);
+        renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
         renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView->GetScene(), civList.at(i)->getCiv());
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
+            renderer->AddCityHealthBars(civList.at(i)->GetCityAt(j), gameView->GetScene());
+
             foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView->GetScene());
@@ -351,7 +353,6 @@ void GameManager::StartTurn()
         {
             map->GetTileQueue(city);
             renderer->UpdateCityBorders(city, gameView->GetScene(), civList.at(currentTurn)->getCiv());
-
         }
     }
 
@@ -368,8 +369,9 @@ void GameManager::StartTurn()
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView->GetScene());
-//                renderer->UpdateCityGrowthBar(city, gameView);
             }
+
+            renderer->UpdateCityGrowthBar(city, gameView);
         }
     }
 
@@ -416,12 +418,14 @@ void GameManager::StartTurn()
         year += yearPerTurn;
         int accumulatedProduction;
         int productionCost;
-        for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
+        for(int i = 0; i<civList.at(0)->GetCityList().size();i++)
+        {
             civList.at(0)->GetCityList().at(i)->setAccumulatedProduction(civList.at(0)->GetCityList().at(i)->getCityYield()->GetProductionYield());
-             accumulatedProduction = civList.at(0)->GetCityList().at(i)->getAccumulatedProduction();
-             productionCost = civList.at(0)->GetCityList().at(i)->getCurrentProductionCost();
-             qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
-             qDebug()<<"PRODUCTION COST: "<<productionCost;
+            accumulatedProduction = civList.at(0)->GetCityList().at(i)->getAccumulatedProduction();
+            productionCost = civList.at(0)->GetCityList().at(i)->getCurrentProductionCost();
+            qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
+            qDebug()<<"PRODUCTION COST: "<<productionCost;
+
             if(accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0)
             {
                 civList.at(0)->GetCityList().at(i)->resetAccumulatedProduction();
@@ -430,7 +434,8 @@ void GameManager::StartTurn()
                 mBox->setText("Production has finished");
                 mBox->exec();
                 qDebug()<<"Production finished";
-                if(civList.at(0)->GetCityList().at(i)->getIsUnit()){
+                if(civList.at(0)->GetCityList().at(i)->getIsUnit())
+                {
                     civList.at(0)->GetCityList().at(i)->setProducedUnit(civList.at(0)->GetCityList().at(i)->getInitialUnitList().at(civList.at(0)->GetCityList().at(i)->getProductionIndex()));
                     Unit* unit = civList.at(0)->GetCityList().at(i)->getProducedUnit();
                     unit->SetOwner(civList.at(0)->getCiv());
@@ -438,19 +443,28 @@ void GameManager::StartTurn()
                     qDebug()<<"STRENGTH: "<<unit->GetStrength();
                     int mapSize = map->GetMapSizeX();
                     int cityPosition = ((civList.at(0)->GetCityList().at(i)->GetCityTile()->GetTileID().column)/2) + ((civList.at(0)->GetCityList().at(i)->GetCityTile()->GetTileID().row) * mapSize);
-                    if(map->GetTileAt(cityPosition+1)->ContainsUnit || !(map->GetTileAt(cityPosition+1)->Walkable)){
-                        if(map->GetTileAt(cityPosition-1)->ContainsUnit|| !(map->GetTileAt(cityPosition-1)->Walkable)){
-                            if(map->GetTileAt(cityPosition-map->GetMapSizeX())|| !(map->GetTileAt(cityPosition-map->GetMapSizeX())->Walkable)){
+                    if(map->GetTileAt(cityPosition+1)->ContainsUnit || !(map->GetTileAt(cityPosition+1)->Walkable))
+                    {
+                        if(map->GetTileAt(cityPosition-1)->ContainsUnit|| !(map->GetTileAt(cityPosition-1)->Walkable))
+                        {
+                            if(map->GetTileAt(cityPosition-map->GetMapSizeX())|| !(map->GetTileAt(cityPosition-map->GetMapSizeX())->Walkable))
+                            {
 
-                            }else{
+                            }
+                            else
+                            {
                                 unit->SetPositionIndex(cityPosition-map->GetMapSizeX());
                                 map->GetTileAt(cityPosition-map->GetMapSizeX())->ContainsUnit = true;
                             }
-                        }else{
+                        }
+                        else
+                        {
                             unit->SetPositionIndex(cityPosition-1);
                             map->GetTileAt(cityPosition-1)->ContainsUnit = true;
                         }
-                    }else{
+                    }
+                    else
+                    {
                         unit->SetPositionIndex(cityPosition+1);
                         map->GetTileAt(cityPosition+1)->ContainsUnit = true;
                     }
@@ -460,13 +474,13 @@ void GameManager::StartTurn()
                     qDebug()<<"HOUSTON WE HAVE PROBLEMO";
                     renderer->AddUnit(unit,map,gameView);
                 }
-
             }
             else
             {
-//                renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(i), gameView);
+                renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(i), gameView);
             }
 
+            renderer->UpdateCityGrowthBar(civList.at(0)->GetCityAt(i), gameView);
         }
 
         goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
@@ -936,7 +950,7 @@ void GameManager::showCity()
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
-//        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
+        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
     }
 }
 

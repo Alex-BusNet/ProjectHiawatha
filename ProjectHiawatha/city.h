@@ -67,6 +67,7 @@ public:
     int GetCitizenCount();
     int GetFoodNeededToGrow();
     int GetTurnsToNewCitizen();
+    int GetFoodSurplus();
     int getCurrentProductionCost();
     void setCurrentProductionCost(int cost);
     int getAccumulatedProduction();

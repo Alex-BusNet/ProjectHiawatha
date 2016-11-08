@@ -31,14 +31,14 @@ public:
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
     void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
 
-    void LoadCities(QVector<City*> cities, Map *map, GameView *view);
+    void LoadCities(QVector<City*> cities, GameView *view);
 
     void SetTileWorkedIcon(Tile* tile, GameScene *view);
     void UpdateCityGrowthBar(City* city, GameView *view);
-    void UpdateCityProductionBar(City* city, GameView *scene);
+    void UpdateCityProductionBar(City* city, GameView *view);
 
     void AddCityLabel(City* city, GameView *view);
-    void AddCity(City* city, Map *map, GameView *view);
+    void AddCity(City* city, GameView *view);
     void AddUnit(Unit* unit, Map *map, GameView *view);
 
     void RemoveUnit(Unit *unit, GameScene *scene);
@@ -49,6 +49,7 @@ public:
     QString SetYieldDisplay(Map *map);
     QString SetYieldDisplay(Civilization *player);
 
+    void AddCityHealthBars(City* city, GameScene *view);
 private:
 //    QVector<City*> cities;
 //    QVector<Unit*> units;
@@ -67,6 +68,7 @@ private:
     QVector<QGraphicsRectItem*> cityHealthBars;
     QVector<QGraphicsRectItem*> cityProductionBars;
     QVector<QGraphicsRectItem*> cityGrowthBars;
+    QVector<QGraphicsRectItem*> cityBarOutlines;
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsRectItem*> unitHealthBars;
@@ -78,7 +80,6 @@ private:
 
     void SetOutlinePen(Nation owner);
     void AddUnitHealthBars(Unit *unit, Map *map, GameView *view);
-    void AddCityHealthBars(City* city, Map *map, GameView *view);
     int mapSizeX;
 
 };
