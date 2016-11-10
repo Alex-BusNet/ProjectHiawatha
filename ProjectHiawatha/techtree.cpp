@@ -10,6 +10,7 @@ TechTree::TechTree(QWidget *parent) :
     ui->tabWidget->setTabText(0,"Current Tech");
     ui->tabWidget->setTabText(1,"Next Tech");
     ui->tabWidget->setTabText(2,"Future Techs");
+    ui->progressBar->setMinimum(0);
 
 }
 
@@ -18,7 +19,7 @@ TechTree::~TechTree()
     delete ui;
 }
 
-void TechTree::loadData(Technology *currentTech, Technology *nextTech)
+void TechTree::loadData(Technology *currentTech, Technology *nextTech, int currentProgress)
 {
     QString str = "../ProjectHiawatha/Assets/Techs/";
     QString str2 = currentTech->getName();
@@ -43,5 +44,7 @@ void TechTree::loadData(Technology *currentTech, Technology *nextTech)
     ui->label_3->setText(nextTech->getName());
     ui->label_4->setPixmap(pic2.scaled(ui->label_4->size()));
     ui->label_5->setText(tempStr2);
+    ui->progressBar->setMaximum(cost.toInt());
+    ui->progressBar->setValue(currentProgress);
     this->update();
 }

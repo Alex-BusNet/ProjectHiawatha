@@ -37,7 +37,7 @@ public:
     void SetHealth(int health);
     void SetMaxHealth(int maxHealth);
     void SetPath(QList<Tile*> newPath);
-
+    void SetTechIndex(int index);
     void SetUnitImage(QImage *image);
     void Use();
 
@@ -61,7 +61,7 @@ public:
     int GetHealth();
     int GetMaxHealth();
     int GetRemainingUses();
-
+    int GetTechIndex();
     int GetPixmapIndex();
     int GetUnitListIndex();
 
@@ -104,6 +104,7 @@ private:
     int uses; // uses = -1 for combat units.
     int cost;
     int unlocked;
+    int techIndex;
     UnitType type;
 
     QList<Tile*> path;

@@ -33,7 +33,8 @@ Civilization::Civilization(Nation name, bool isAI)
     this->totalGold = 0;
     this->totalScience = 0;
     this->totalCulture = 0;
-
+    this->accumulatedScience = 0;
+    this->techIndex = 0;
     if(isAI)
     {
         this->isAIPlayer = true;
@@ -209,14 +210,29 @@ void Civilization::loadTechs(QString filename)
     }
 }
 
+void Civilization::setAccumulatedScience(int science)
+{
+    this->accumulatedScience += science;
+}
+
+int Civilization::getAccumulatedScience(void)
+{
+    return this->accumulatedScience;
+}
+
+void Civilization::resetAccumulatedScience()
+{
+    this->accumulatedScience = 0;
+}
+
 int Civilization::getTechIndex()
 {
     return this->techIndex;
 }
 
-void Civilization::setTechIndex(int index)
+void Civilization::setTechIndex()
 {
-    this->techIndex = index;
+    this->techIndex++;
 }
 
 Technology *Civilization::getCurrentTech()

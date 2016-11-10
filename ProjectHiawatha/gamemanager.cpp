@@ -161,7 +161,6 @@ void GameManager::InitCivs(Nation player, int numAI)
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
-    civ->setTechIndex(0);
     QString str = "../ProjectHiawatha/Assets/CityLists/";
     QString str2;
     switch (player)
@@ -343,6 +342,8 @@ void GameManager::TurnController()
 void GameManager::StartTurn()
 {
     Update_t update = civList.at(currentTurn)->UpdateProgress();
+
+    //THIS MIGHT NEED TO BE MOVED EVENTUALLY
     for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
         civList.at(0)->GetCityList().at(i)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
     }
@@ -416,7 +417,32 @@ void GameManager::StartTurn()
         }
 
         year += yearPerTurn;
+        int scienceYield = civList.at(0)->getCivYield()->GetScienceYield();
+        civList.at(0)->setAccumulatedScience(scienceYield);
+        int accumulatedScience = civList.at(0)->getAccumulatedScience();
+        int techCost = civList.at(0)->getCurrentTech()->getCost();
+        if(accumulatedScience >= techCost)
+        {
+            QMessageBox* mBox = new QMessageBox();
+            mBox->setText("Tech has finished");
+            mBox->exec();
+            qDebug()<<"Tech finished";
+            civList.at(0)->setTechIndex();
+            int techIndex = civList.at(0)->getTechIndex();
+            for(int i = 0; i<civList.at(0)->GetCityList().size();i++){
 
+                for(int j = 0; j<civList.at(0)->GetCityList().at(i)->getInitialUnitList().size();j++){
+                    if(civList.at(0)->GetCityList().at(0)->getInitialUnitList().at(j)->GetTechIndex() == (techIndex-1)){
+                        qDebug()<<"UNLOCKING: "<<civList.at(0)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
+                        civList.at(0)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
+                    }
+                }
+            }
+
+            civList.at(0)->setNextTech(civList.at(0)->GetTechList().at(techIndex+1));
+            civList.at(0)->setCurrentTech(civList.at(0)->GetTechList().at(techIndex));
+            civList.at(0)->resetAccumulatedScience();
+        }
         int accumulatedProduction;
         int productionCost;
         for(int i = 0; i<civList.at(0)->GetCityList().size();i++)
@@ -1016,7 +1042,7 @@ void GameManager::showTechTree()
             delete techTree;
         }
         techTree = new TechTree(this);
-        techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech());
+        techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech(),civList.at(0)->getAccumulatedScience());
         techTree->setGeometry(100, 25, this->width() - 190, this->height() - 150);
         techTree->show();
         techTreeVisible = true;

@@ -63,8 +63,11 @@ public:
 
 //    void startTurn(int aiIndex);
     void loadTechs(QString filename);
+    void setAccumulatedScience(int science);
+    int getAccumulatedScience(void);
+    void resetAccumulatedScience();
     int getTechIndex();
-    void setTechIndex(int index);
+    void setTechIndex();
     Technology* getCurrentTech();
     Technology *getNextTech();
     void setCurrentTech(Technology* tech);
@@ -107,6 +110,7 @@ private:
     int happiness;
     int techIndex;
     int totalScience, totalGold, totalCulture;
+    int accumulatedScience;
 
     //AI stuff
     bool isAIPlayer;

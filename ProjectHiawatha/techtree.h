@@ -15,7 +15,7 @@ class TechTree : public QWidget
 public:
     explicit TechTree(QWidget *parent = 0);
     ~TechTree();
-    void loadData(Technology* currentTech, Technology* nextTech);
+    void loadData(Technology* currentTech, Technology* nextTech, int currentProgress);
 
 private:
     Ui::TechTree *ui;

@@ -406,6 +406,11 @@ int Unit::GetRemainingUses()
     return this->uses;
 }
 
+int Unit::GetTechIndex()
+{
+    return this->techIndex;
+}
+
 int Unit::GetUnitListIndex()
 {
     return this->unitListIndex;
@@ -453,6 +458,11 @@ void Unit::SetPath(QList<Tile *> newPath)
     {
         this->path.push_back(tile);
     }
+}
+
+void Unit::SetTechIndex(int index)
+{
+    this->techIndex = index;
 }
 
 void Unit::SetPixmapIndex(int index)

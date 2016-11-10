@@ -874,6 +874,7 @@ void City::loadUnits(QString filename)
           int range = unitInfo[5].toInt();
           int unlocked = unitInfo[6].toInt();
           int enumValue = unitInfo[7].toInt();
+          int techIndex = unitInfo[8].toInt();
           UnitType type = static_cast<UnitType>(enumValue);
           Unit* tempUnit = new Unit(0);
           tempUnit->SetName(unitInfo[0]);
@@ -883,6 +884,7 @@ void City::loadUnits(QString filename)
           tempUnit->SetRange(range);
           tempUnit->SetRangeStrength(rangeStrength);
           tempUnit->setUnlocked(unlocked);
+          tempUnit->SetTechIndex(techIndex);
           qDebug()<<"TYPE: "<<type;
           tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
