@@ -98,10 +98,12 @@ void Unit::SetUnitIcon(UnitType type)
     {
     case WORKER:
         this->NonCombat = true;
+        this->strength = 1;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/worker.png");
         break;
     case SETTLER:
         this->NonCombat = true;
+        this->strength = 1;
         this->unitIcon = new QImage("../ProjectHiawatha/Assets/Units/settler.png");
         break;
     case WARRIOR:
