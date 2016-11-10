@@ -41,7 +41,7 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, M
         Prep(civ, player, map, scene, TroopPositions);
     }
 
-    settlercontrol(CityToBeFounded);
+    settlercontrol(civ, map, scene, CityToBeFounded);
     workercontrol(civ, map, scene);
 
     highThreatProcessing(civ, player, map, scene);
@@ -134,11 +134,13 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
 
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
                 //Logic should be for all combat units
-            //Will need additional logic for other unit types
+            //Will need additional logic for other unit types (ranged, etc)
 
                 qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+
                 UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
-                //Doesn't seem to work for now, but it is finding the target
+                //finds and attacks the target - But it ignores range
+                //Nedd to have it move into range, then attack
                 //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
             }
 
@@ -217,7 +219,26 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player){
             //remove enemy from vector if killed
 
 
-void AI_Tactical::settlercontrol(QVector<Tile *> CityToBeFounded){
+void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded){
+
+    qDebug()<<"Settler Control";
+
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+
+
+    for(int i = 0; i<unitlist.length();i++){
+
+        //Find worker location
+        Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+
+        if(civ->GetUnitList().at(i)->GetUnitType()==SETTLER){
+
+            UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,scene,unitlist.at(i));
+
+
+        }
+    }
     //For each settler
         //Target Path to (i) city in list
         //if it is at the location with moves left, found city

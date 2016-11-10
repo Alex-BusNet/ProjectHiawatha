@@ -77,6 +77,7 @@ public:
     void setLowThreats(QVector<Unit *> lowThreats);
     void setMidThreats(QVector<Unit *> midThreats);
     void setHighThreats(QVector<Unit *> highThreats);
+    void clearThreats();
     QVector<Unit *> getLowThreats();
     QVector<Unit *> getMidThreats();
     QVector<Unit *> getHighThreats();

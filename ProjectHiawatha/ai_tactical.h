@@ -24,7 +24,7 @@ public:
 
 private:
 
-    void settlercontrol(QVector<Tile *>  CityToBeFounded);
+    void settlercontrol(Civilization *civ, Map *map, GameScene *scene, QVector<Tile *>  CityToBeFounded);
     void workercontrol(Civilization *civ, Map *map, GameScene *scene);
     void highThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene);
     void midThreatProcessing(Civilization *civ, Civilization *player);

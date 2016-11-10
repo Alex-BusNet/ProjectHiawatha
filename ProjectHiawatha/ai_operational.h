@@ -17,7 +17,7 @@ private:
     void threatScan(Civilization *civ, Civilization *player, Map *map);
     void theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget);
     void theaterPrep(Civilization *civ, Civilization *player, QVector<Tile*> troopLocations);
-    void cityLocation(Civilization *civ);
+    void cityLocation(Civilization *civ, Map *map);
 
      QVector<Tile*> cityLocations;
      City *cityTarget;

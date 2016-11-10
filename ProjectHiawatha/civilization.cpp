@@ -300,6 +300,13 @@ void Civilization::setHighThreats(QVector<Unit *> highThreats)
     this->highThreats=highThreats;
 }
 
+void Civilization::clearThreats()
+{
+    this->highThreats.clear();
+    this->midThreats.clear();
+    this->lowThreats.clear();
+}
+
 QVector<Unit *> Civilization::getLowThreats()
 {
     return this->lowThreats;

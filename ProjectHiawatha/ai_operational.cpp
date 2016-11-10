@@ -35,7 +35,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
 
     if(1==midGoal){
-        cityLocation(civ);
+        cityLocation(civ, map);
     }
     else if(2==midGoal){
         theaterPrep(civ, player, troopLocations);
@@ -65,10 +65,14 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *map)
 {
     qDebug()<<"Threatscan";
+    civ->clearThreats();
+    //Clear threats each time, else they remain after the unit dies
+
     for(int i = 0; i<player->GetUnitList().length(); i++){
 
         if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
-            //compare with tiles owned by AI?
+            //Expansion tiles don't seem to register as being owned by the civ here.
+
             qDebug()<<"Invasion";
             QVector<Unit*> tempVec = civ->getHighThreats();
             tempVec.push_back(player->GetUnitAt(i));
@@ -78,6 +82,8 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
         }
     }
     //Units within territory are added to highThreats
+
+
     //Using the Map::GetNeighbors(Tile *node) algorithm
         //search radially out from controlled tiles
             //Units within 1 of territory added to midThreats
@@ -130,8 +136,13 @@ void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVecto
         //careful not to be too obvious - Fog of War buffer zone?
 
 
-void AI_Operational::cityLocation(Civilization *civ){
+void AI_Operational::cityLocation(Civilization *civ, Map *map){
+    qDebug()<<"City Locations";
     for(int i=0; i<(15-civ->GetCityList().length());i++){
+        cityLocations.push_back(map->GetTileAt(255));
+        //Settler Test
+
+
         //Locates appropriate number of city sites - logic?
             //Plans for 10 cities, but finds an extra 5 sites to account for sites being taken
     }

@@ -44,7 +44,7 @@ qDebug()<<"Midgoal "<<midGoal;
 
 int AI_Strategic::midTermGoal(Civilization *civ){
     int goal;
-    if(civ->GetCityList().length()<10&&civ->getHappiness()>2){
+    if(civ->GetCityList().length()<10/*&&civ->getHappiness()>2*/){
         goal=1;//Settle more cities
         //Tweak for settlers currently active
         //Happiness of 2 is arbitrary negative impact of new city
@@ -60,6 +60,7 @@ int AI_Strategic::midTermGoal(Civilization *civ){
     else{
         goal=4;//Build resources
     }
+    qDebug()<<"Goal = "<<goal;
     return goal;
 }
 
@@ -83,12 +84,17 @@ int AI_Strategic::midTermGoal(Civilization *civ){
 
 
 void AI_Strategic::cityProduction(int midGoal, Civilization *civ){
+    qDebug()<<"City Production";
     for(int i =0;i < civ->GetCityList().length(); i++){
 
         //if(NULL==cityproduction){/Determine if city is currently building something
             if(1==midGoal){//Settle more cities
                 if((civ->GetCityAt(i))->IsCityCaptial()){//Only capital builds settlers - logistical parameter
+                    civ->GetCityAt(i)->setProductionName("Settler");
+                    qDebug()<<"     Settler";
                     //Set city to build settler
+
+                    //Not currently producing units?
                 }
                 else{
 
