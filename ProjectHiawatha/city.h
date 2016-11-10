@@ -97,6 +97,7 @@ public:
     Focus GetCityFocus();
 
 private:
+    enum SortOrder {LRBT, LRTB, RLTB, RLBT};
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
     QVector<Unit*> StationedMilitary;
@@ -140,7 +141,7 @@ private:
 
     int orientation(QPoint p, QPoint q, QPoint r);
 
-    void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort);
+    void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, SortOrder sortOrder);
     QPolygon cityBorder;
 
 };

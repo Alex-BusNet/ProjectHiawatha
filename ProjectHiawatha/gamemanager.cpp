@@ -331,6 +331,7 @@ void GameManager::TurnController()
     else
     {
         StartTurn();
+        qDebug() << "running AI";
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map, gameView->GetScene());
         future.waitForFinished();
         qDebug() << "   AI Turn Finished";
@@ -354,6 +355,10 @@ void GameManager::StartTurn()
         {
             map->GetTileQueue(city);
             renderer->UpdateCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                renderer->SetTileWorkedIcon(tile, gameView);
+            }
         }
     }
 
@@ -372,7 +377,7 @@ void GameManager::StartTurn()
                 renderer->SetTileWorkedIcon(tile, gameView);
             }
 
-            renderer->UpdateCityGrowthBar(city, gameView);
+//            renderer->UpdateCityGrowthBar(city, gameView);
         }
     }
 
@@ -417,9 +422,10 @@ void GameManager::StartTurn()
         }
 
         year += yearPerTurn;
+
         int scienceYield = civList.at(0)->getCivYield()->GetScienceYield();
         civList.at(0)->setAccumulatedScience(scienceYield);
-        int accumulatedScience = civList.at(0)->getAccumulatedScience();
+        int accumulatedScience = 0;//civList.at(0)->getAccumulatedScience();
         int techCost = civList.at(0)->getCurrentTech()->getCost();
         if(accumulatedScience >= techCost)
         {
@@ -514,7 +520,7 @@ void GameManager::StartTurn()
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
-        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->getCivYield()->GetCultureYield()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
+        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
     }
 
     qDebug() << "  Starting turn for civ" << currentTurn;
@@ -977,7 +983,7 @@ void GameManager::showCity()
         cityScreen->hide();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
-//        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
+        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
     }
 }
 

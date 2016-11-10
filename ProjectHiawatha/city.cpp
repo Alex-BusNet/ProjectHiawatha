@@ -204,7 +204,7 @@ Update_t City::UpdateProgress()
     if(turnsToBorderGrowth == 0)
     {
         //Gets the first available tile from the tile queue, and adds it to cityControlledTiles.
-        foreach(Tile* tile, this->cityControlledTiles)
+        foreach(Tile* tile, this->tileQueue)
         {
             if(tile->GetControllingCiv() == NO_NATION)
             {
@@ -301,11 +301,12 @@ int City::orientation(QPoint p, QPoint q, QPoint r)
     return (val > 0) ? 1 : 2;
 }
 
-void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, bool reverseSort)
+void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, SortOrder sortOrder)
 {
     int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
 
 //    qDebug() << "   upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
+    qDebug() << "   --SortOrder:" << sortOrder;
     QVector<QPoint> tempPt;
 
     //Find any point that falls between the x and y bounds passed to the funtion.
@@ -327,60 +328,84 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 
     // sort the vector from smallest x-value to largest x-value if reverseSort is false,
     // else sort the vector from largest x-value to smallest x-value
-//    qDebug() << "           reverseSort:" << reverseSort;
     for(int j = 0; j < tempPt.size(); j++)
     {
         for(int k = j + 1; k < tempPt.size(); k++)
         {
-//            qDebug() << "       --tempPt[" << j << "]" << tempPt[j] << "tempPt[" << k << "]" << tempPt[k];
-            if(!reverseSort)
+            if(sortOrder == LRTB)
             {
+                //Sort left to right, top to bottom
                 if(tempPt[j].x() > tempPt[k].x())
                 {
                     QPoint temp = tempPt[j];
                     tempPt[j] = tempPt[k];
                     tempPt[k] = temp;
-//                    qDebug() << "           x greater";
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-//                    qDebug() << "           x equal";
                     if(tempPt[j].y() > tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
                         tempPt[k] = temp;
-//                        qDebug() << "           y greater";
-                    }
-                    else if(tempPt[j].y() < tempPt[k].y())
-                    {
-//                        qDebug() << "       y less than";
                     }
                 }
 
             }
-            else
+            else if(sortOrder == RLTB)
             {
+                //Sort right to left, top to bottom
                 if(tempPt[j].x() < tempPt[k].x())
                 {
                     QPoint temp = tempPt[j];
                     tempPt[j] = tempPt[k];
                     tempPt[k] = temp;
-//                    qDebug() << "           x less than";
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-//                    qDebug() << "           x equal";
                     if(tempPt[j].y() < tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
                         tempPt[k] = temp;
-//                        qDebug() << "           y less";
                     }
-                    else if(tempPt[j].y() > tempPt[k].y())
+                }
+            }
+            else if(sortOrder == RLBT)
+            {
+                //Sort right to left, bottom to top
+                if(tempPt[j].x() < tempPt[k].x())
+                {
+                    QPoint temp = tempPt[j];
+                    tempPt[j] = tempPt[k];
+                    tempPt[k] = temp;
+                }
+                else if(tempPt[j].x() == tempPt[k].x())
+                {
+                    if(tempPt[j].y() > tempPt[k].y())
                     {
-//                        qDebug() << "       y greater than";
+                        QPoint temp = tempPt[j];
+                        tempPt[j] = tempPt[k];
+                        tempPt[k] = temp;
+                    }
+                }
+            }
+            else if(sortOrder == LRBT)
+            {
+                //Sort left to right, bottom to top
+                if(tempPt[j].x() > tempPt[k].x())
+                {
+                    QPoint temp = tempPt[j];
+                    tempPt[j] = tempPt[k];
+                    tempPt[k] = temp;
+                }
+                else if(tempPt[j].x() == tempPt[k].x())
+                {
+                    if(tempPt[j].y() > tempPt[k].y())
+                    {
+                        QPoint temp = tempPt[j];
+                        tempPt[j] = tempPt[k];
+                        tempPt[k] = temp;
                     }
                 }
             }
@@ -418,7 +443,7 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         dstYLow = y - lowY;
 
         // add some additional points in if the tiles are horizontally aligned. (dstY == 0)
-        if(((abs(x - lastX) == 88) || (abs(x - lastX) == 176)) && (abs(y - lastY) == 0))
+        if(/*((abs(x - lastX) == 88) || (abs(x - lastX) == 176)) && */(abs(y - lastY) == 0))
         {
             if(abs(x - lastX) == 88)
             {
@@ -438,7 +463,7 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
             // This needs to be here because for some reason, if there are
             // more than three points in a horizontal line, the last two won't register
             // therefore a straight line is drawn. This block is supposed to fix that error.
-            else if(abs(x- lastX) == 176)
+            else if(abs(x - lastX) == 176)
             {
                 newX = (x + lastX) / 2;
                 newX -= 44;
@@ -457,8 +482,6 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                 newX += 88;
                 cityBorder.push_back(QPoint(newX, newY));
             }
-
-
         }
 
         //Store the x and y values for the next iteration.
@@ -508,6 +531,16 @@ void City::SetCityIndex(int index)
 void City::UpdateCityYield()
 {
     qDebug() << "   City controls" << cityControlledTiles.size() << "tile(s)";
+    //Clear the current YPT
+    int oldGold = this->cityTotalYield->GetGoldYield() * -1,
+            oldProd = this->cityTotalYield->GetProductionYield() * -1,
+            oldSci = this->cityTotalYield->GetScienceYield() * -1,
+            oldFood = this->cityTotalYield->GetFoodYield() * -1,
+            oldCul = this->cityTotalYield->GetCultureYield() * -1;
+
+    this->cityTotalYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
+
+    //Recalculate the city's YPT
     int newGold = cityTile->GetYield()->GetGoldYield(),
             newProd = cityTile->GetYield()->GetProductionYield(),
             newSci = cityTile->GetYield()->GetScienceYield(),
@@ -650,25 +683,25 @@ void City::DefineCityBorders(bool redefine)
             dstX = currentX - lastX;
             dstY = currentY - lastY;
 
-//            qDebug() << "   dstX:" << dstX << "dstY:" << dstY;
+            qDebug() << "   currentX:" << currentX << "lastX:" << lastX  << "dstX:" << dstX << "currentY:" << currentY << "lastY:" << lastY << "dstY:" << dstY;
 
             if(((abs(dstX) >= 88) || (abs(dstY) >= 50)))
             {
                 if((currentX > lastX) && (currentY > lastY))
                 {
-                    FindPoints(lastX, lastY, currentX, currentY, points, false);
+                    FindPoints(lastX, lastY, currentX, currentY, points, LRTB);
                 }
                 else if((currentX < lastX) && (currentY > lastY))
                 {
-                    FindPoints(currentX, lastY, lastX, currentY, points, true);
+                    FindPoints(currentX, lastY, lastX, currentY, points, RLTB);
                 }
                 else if((currentX < lastX) && (currentY < lastY))
                 {
-                    FindPoints(currentX, currentY, lastX, lastY, points, true);
+                    FindPoints(currentX, currentY, lastX, lastY, points, RLBT);
                 }
                 else if((currentX > lastX) && (currentY < lastY))
                 {
-                    FindPoints(lastX, currentY, currentX, lastY, points, false);
+                    FindPoints(lastX, currentY, currentX, lastY, points, LRBT);
                 }
                 else if(dstY == 0)
                 {
@@ -689,13 +722,13 @@ void City::DefineCityBorders(bool redefine)
                 {
                     if(lastY > currentY)
                     {
-//                        qDebug() << "     Vertically aligned, left side";
-                        FindPoints(lastX - 50, currentY, currentX, lastY, points, true);
+                        qDebug() << "     --Vertically aligned, left side";
+                        FindPoints(lastX - 50, currentY, currentX, lastY, points, LRBT);
                     }
                     else if(lastY < currentY)
                     {
-//                        qDebug() << "     Vertically aligned, right side";
-                        FindPoints(lastX - 50, lastY, currentX, currentY, points, false);
+                        qDebug() << "     --Vertically aligned, right side";
+                        FindPoints(lastX - 50, lastY, currentX, currentY, points, RLTB);
                     }
                 }
             }
@@ -866,7 +899,7 @@ void City::loadUnits(QString filename)
        {
           QString line = in.readLine();
           QStringList unitInfo = line.split(",");
-          qDebug()<<"Unit Name: "<<unitInfo[0];
+//          qDebug()<<"Unit Name: "<<unitInfo[0];
           int cost = unitInfo[1].toInt();
           int strength = unitInfo[2].toInt();
           int rangeStrength = unitInfo[3].toInt();
@@ -885,15 +918,15 @@ void City::loadUnits(QString filename)
           tempUnit->SetRangeStrength(rangeStrength);
           tempUnit->setUnlocked(unlocked);
           tempUnit->SetTechIndex(techIndex);
-          qDebug()<<"TYPE: "<<type;
+//          qDebug()<<"TYPE: "<<type;
           tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
-          qDebug()<<initialUnitList.at(0)->GetName();
+//          qDebug()<<initialUnitList.at(0)->GetName();
 
        }
        inputFile.close();
-       qDebug()<<initialUnitList.at(1)->GetName();
-       qDebug()<<initialUnitList.at(10)->GetName();
+//       qDebug()<<initialUnitList.at(1)->GetName();
+//       qDebug()<<initialUnitList.at(10)->GetName();
     }else
     {
         QMessageBox* mBox = new QMessageBox();

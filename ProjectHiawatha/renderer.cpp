@@ -495,12 +495,12 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 
     view->removeItem(cityGrowthBars.at(index));
 
-    qDebug() << "----Food needed to grow:" << city->GetFoodNeededToGrow() << "Surplus:" << city->GetFoodSurplus();
+//    qDebug() << "----Food needed to grow:" << city->GetFoodNeededToGrow() << "Surplus:" << city->GetFoodSurplus();
     int barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus()))));
 
     barSize = barSize <= 0 ? 1 : barSize;
 
-    qDebug() << "-----New growth bar length:" << barSize;
+//    qDebug() << "-----New growth bar length:" << barSize;
     QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
                               city->GetCityTile()->GetCityLabelPoint().y() + 19,
                               barSize, 2);
@@ -514,9 +514,9 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
     qDebug() << "--Updating Production bar for" << city->GetName();
     int index = city->GetCityProductionBarIndex();
     view->removeItem(cityProductionBars.at(index));
-    qDebug() << "---Current Production:" << city->getProductionName();
-    qDebug() << "----Generating new Bar. Accumulated:" << city->getAccumulatedProduction() << "Production cost" << city->getCurrentProductionCost();
-    qDebug() << "-----No Production:" << (city->getProductionName() == "No Current Production");
+//    qDebug() << "---Current Production:" << city->getProductionName();
+//    qDebug() << "----Generating new Bar. Accumulated:" << city->getAccumulatedProduction() << "Production cost" << city->getCurrentProductionCost();
+//    qDebug() << "-----No Production:" << (city->getProductionName() == "No Current Production");
 
     int barSize = ceil(65 * (static_cast<double>(city->getAccumulatedProduction()) / (city->getCurrentProductionCost() + 1)));
 
@@ -529,7 +529,7 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
         barSize = barSize <= 0 ? 1 : barSize;
     }
 
-    qDebug() << "------New Bar length:" << barSize;
+//    qDebug() << "------New Bar length:" << barSize;
     QRect *prod = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
                                   city->GetCityTile()->GetCityLabelPoint().y() + 12,
                                   barSize, 2);
