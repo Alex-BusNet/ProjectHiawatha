@@ -425,7 +425,11 @@ void GameManager::StartTurn()
 
         int scienceYield = civList.at(0)->getCivYield()->GetScienceYield();
         civList.at(0)->setAccumulatedScience(scienceYield);
+
+        /// THIS IS SO WE CAN TEST THINGS FOR MULTIPLE TURNS WITHOUT CONSTANTLY
+        /// HAVING TO STOP FOR TECH PROGRESS
         int accumulatedScience = 0;//civList.at(0)->getAccumulatedScience();
+
         int techCost = civList.at(0)->getCurrentTech()->getCost();
         if(accumulatedScience >= techCost)
         {

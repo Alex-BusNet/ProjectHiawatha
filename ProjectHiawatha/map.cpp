@@ -395,7 +395,7 @@ void Map::GetTileQueue(City *city)
         {
             if((tile->GetControllingCiv() != NO_NATION) ||
                     ((tile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
-                     (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)))
+                     (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)) || (tile->GetTileType() == ICE))
             {
 //                qDebug() << "---------SurroundingTiles at" << tile->GetTileIDString() << "is already owned";
                 surroundingTiles.removeAt(surroundCount);
@@ -408,10 +408,10 @@ void Map::GetTileQueue(City *city)
                     {
                         city->tileQueue.push_back(tile);
                     }
-                    else
-                    {
+//                    else
+//                    {
 //                        qDebug() << "--------------------Tile already added";
-                    }
+//                    }
                 }
                 else
                 {

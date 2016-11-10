@@ -305,7 +305,7 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 {
     int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
 
-//    qDebug() << "   upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
+    qDebug() << "       upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
     qDebug() << "   --SortOrder:" << sortOrder;
     QVector<QPoint> tempPt;
 
@@ -599,6 +599,7 @@ void City::GarrisonMilitary(Unit *military)
 
 void City::AddControlledTile(Tile *tile)
 {
+    tile->SetControllingCiv(controllingCiv);
     this->cityControlledTiles.push_back(tile);
 }
 
