@@ -428,7 +428,7 @@ void GameManager::StartTurn()
 
         /// THIS IS SO WE CAN TEST THINGS FOR MULTIPLE TURNS WITHOUT CONSTANTLY
         /// HAVING TO STOP FOR TECH PROGRESS
-        int accumulatedScience = 0;//civList.at(0)->getAccumulatedScience();
+        int accumulatedScience = civList.at(0)->getAccumulatedScience();
 
         int techCost = civList.at(0)->getCurrentTech()->getCost();
         if(accumulatedScience >= techCost)
@@ -476,39 +476,25 @@ void GameManager::StartTurn()
                     civList.at(0)->GetCityList().at(i)->setProducedUnit(civList.at(0)->GetCityList().at(i)->getInitialUnitList().at(civList.at(0)->GetCityList().at(i)->getProductionIndex()));
                     Unit* unit = civList.at(0)->GetCityList().at(i)->getProducedUnit();
                     unit->SetOwner(civList.at(0)->getCiv());
-
-                    qDebug()<<"STRENGTH: "<<unit->GetStrength();
-                    int mapSize = map->GetMapSizeX();
-                    int cityPosition = ((civList.at(0)->GetCityList().at(i)->GetCityTile()->GetTileID().column)/2) + ((civList.at(0)->GetCityList().at(i)->GetCityTile()->GetTileID().row) * mapSize);
-                    if(map->GetTileAt(cityPosition+1)->ContainsUnit || !(map->GetTileAt(cityPosition+1)->Walkable))
+                    for(int i = 0; i<map->GetBoardSize();i++)
                     {
-                        if(map->GetTileAt(cityPosition-1)->ContainsUnit|| !(map->GetTileAt(cityPosition-1)->Walkable))
+                        if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable))
                         {
-                            if(map->GetTileAt(cityPosition-map->GetMapSizeX())|| !(map->GetTileAt(cityPosition-map->GetMapSizeX())->Walkable))
-                            {
 
-                            }
-                            else
-                            {
-                                unit->SetPositionIndex(cityPosition-map->GetMapSizeX());
-                                map->GetTileAt(cityPosition-map->GetMapSizeX())->ContainsUnit = true;
-                            }
-                        }
-                        else
+                        }else
                         {
-                            unit->SetPositionIndex(cityPosition-1);
-                            map->GetTileAt(cityPosition-1)->ContainsUnit = true;
+                            if(civList.at(0)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
+                            {
+                                unit->SetPositionIndex(i);
+                                map->GetTileAt(i)->ContainsUnit = true;
+                                break;
+                            }
+
                         }
-                    }
-                    else
-                    {
-                        unit->SetPositionIndex(cityPosition+1);
-                        map->GetTileAt(cityPosition+1)->ContainsUnit = true;
                     }
 
 
                     civList.at(0)->AddUnit(unit);
-                    qDebug()<<"HOUSTON WE HAVE PROBLEMO";
                     renderer->AddUnit(unit,map,gameView);
                 }
             }
