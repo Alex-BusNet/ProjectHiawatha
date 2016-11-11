@@ -154,7 +154,8 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
             resourcePixmap.last()->setZValue(3);
         }
-
+\
+        //// Add filter to only render tileWorkedIcon on player controlled tiles.
         if(map->GetTileAt(i)->GetControllingCiv() != NO_NATION)
         {
             if(map->GetTileAt(i)->IsWorked)
@@ -218,11 +219,9 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
         map->GetTileAt(index)->SetTilePen(outlinePen);
 
 //        scene->removeItem(tiles.at(lastIndex));
-//        tiles.remove(lastIndex);
 //        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
 //        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
-        tileCircles.remove(index);
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
     }
@@ -233,12 +232,10 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
         map->GetTileAt(lastIndex)->Selected = false;
 
 //        scene->removeItem(tiles.at(lastIndex));
-//        tiles.remove(lastIndex);
 //        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
 //        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
         view->removeItem(tileCircles.at(lastIndex));
-        tileCircles.remove(index);
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
 
@@ -251,12 +248,10 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
         map->GetTileAt(lastIndex)->Selected = false;
 
 //        scene->removeItem(tiles.at(lastIndex));
-//        tiles.remove(lastIndex);
 //        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
 //        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
         view->removeItem(tileCircles.at(lastIndex));
-        tileCircles.remove(index);
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
     }
@@ -396,6 +391,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
 
     cityBarOutlines.push_back(view->addRect(outline, QPen(QColor(Qt::black)), QBrush(QColor(Qt::transparent))));
     cityBarOutlines.last()->setZValue(7);
+    cityBarOutlines.last()->pen().setWidthF(0.1f);
 
     city->SetCityHealthBarIndex(cityHealthBars.size());
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
@@ -413,6 +409,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
 
     cityBarOutlines.push_back(view->addRect(outline, QPen(QColor(Qt::black)), QBrush(QColor(Qt::transparent))));
     cityBarOutlines.last()->setZValue(7);
+    cityBarOutlines.last()->pen().setWidthF(0.1f);
 
     city->SetCityGrowthBarIndex(cityGrowthBars.size());
     cityGrowthBars.push_back(view->addRect(growth, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::cyan))));
@@ -429,13 +426,31 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
 
     cityBarOutlines.push_back(view->addRect(outline, QPen(QColor(Qt::black)), QBrush(QColor(Qt::transparent))));
     cityBarOutlines.last()->setZValue(7);
+    cityBarOutlines.last()->pen().setWidthF(0.1f);
 
     city->SetCityProductionBarIndex(cityProductionBars.size());
     cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
     cityProductionBars.last()->setZValue(6);
 
-    qDebug() << "   Done" << cityProductionBars.size() << &view;
     //---------------------------------------------------------------------------------
+    outline = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 23,
+                        city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                        9, 9);
+    cityBarOutlines.push_back(view->addRect(outline, QPen(QColor(Qt::black)), QBrush(cc->GetCivColor(city->GetControllingCiv()))));
+    cityBarOutlines.last()->setZValue(7);
+    cityBarOutlines.last()->pen().setWidthF(0.1f);
+
+    QLabel *population = new QLabel();
+    population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
+                            city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                            9, 9);
+//    population->setAlignment(Qt::AlignRight);
+    population->setStyleSheet(QString("QLabel { color: white; background-color: transparent; border: 1px black; }"));
+    population->setText(QString(" %1 ").arg(city->GetCitizenCount()));
+
+    cityPopulationLabels.push_back(view->addWidget(population));
+    cityPopulationLabels.last()->setZValue(6);
+    //--------------------------------------------------------------------------------
 }
 
 void Renderer::DrawGuiImages(QGraphicsScene *scene)
@@ -507,6 +522,22 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 
     cityGrowthBars.replace(index, view->addRect(growth, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::cyan))));
     cityGrowthBars.at(index)->setZValue(6);
+
+    view->removeItem(cityPopulationLabels.at(index));
+
+    QLabel *population = new QLabel();
+    population->setText(QString("%1").arg(city->GetCitizenCount()));
+    population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
+                            city->GetCityTile()->GetCityLabelPoint().y() + 12,
+                            9, 9);
+    population->setAlignment(Qt::AlignRight);
+    population->setStyleSheet(QString("QLabel { color: white; "
+                                      "background-color: transparent; "
+                                      "text-align: right; font-size: 8px; "
+                                      "margin-right: 1px; }"));
+
+    cityPopulationLabels.insert(index, view->addWidget(population));
+    cityPopulationLabels.at(index)->setZValue(7);
 }
 
 void Renderer::UpdateCityProductionBar(City *city, GameView *view)
