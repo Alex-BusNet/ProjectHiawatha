@@ -2,8 +2,8 @@
 
 
 /*
-  Determine if more cities are needed (Thinking it will calculate this based on happiness)
-        (If happiness >2, then city? but only if available location?)
+  Determine if more cities are needed
+        but only if available location
         Probably founds cities in a sort of outward spiral from capital
             stops when it has one within x spaces of another civ?
 
@@ -15,8 +15,6 @@
         - probably set a static order
         - then give, say, defensive structures priority if under invasion, etc
 
-Probably called 1x per turn, and calls the operational AI, then tactical AI, from within it.
-        possible tactical is called by operational?
 */
 
 #include "ai_strategic.h"
@@ -37,24 +35,24 @@ qDebug()<<"Midgoal "<<midGoal;
     AI_Operational(midGoal, civ, player, map, scene);
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
-    //Pass it whether or not civ is preparing for / at war
-    //Pass it number of cities currently founded
+    //Pass it whether or not civ is preparing for / at war (midgoal)
+    //Pass it number of cities currently founded (can be got from civ)
 }
 
 
 int AI_Strategic::midTermGoal(Civilization *civ){
     int goal;
-    if(civ->GetCityList().length()<10/*&&civ->getHappiness()>2*/){
+    if(civ->GetCityList().length()<10){
         goal=1;//Settle more cities
         //Tweak for settlers currently active
-        //Happiness of 2 is arbitrary negative impact of new city
     }
     else if(civ->GetCityList().length()>4){
         //needs logic to compare tech, gold, and prod yields with player
+        //May be made obscolete by goal 3 logic
         goal=2;//Preparing for War
     }
     else if(0){
-        //Needs logic comparing relative military stregth with player or turn-based goal
+        //Needs to be a flag set once player has provoked the AI (Probably set by threatscan)
         goal=3;//At War
     }
     else{
@@ -72,8 +70,8 @@ int AI_Strategic::midTermGoal(Civilization *civ){
 //4)Building up its resources (working, but no longer settling)(usually also happening during expanding borders)
 
 //Should spend the early game expanding borders/resources
-//Determine if more cities are needed (Thinking it will calculate this based on happiness)
-      //(If happiness >2(factor settlers already around too), then city? but only if available location?)(capital only?)
+//Determine if more cities are needed
+      //(factor settlers already around, then city? but only if available location?)(city 0 only?)
 //at some point it will decide its ready to prepare for war
     //given a minimum city number, say, 4,
     //and an estimate that it has higher production and tech level than player (by enough)
@@ -89,8 +87,11 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ){
 
         //if(NULL==cityproduction){/Determine if city is currently building something
             if(1==midGoal){//Settle more cities
-                if((civ->GetCityAt(i))->IsCityCaptial()){//Only capital builds settlers - logistical parameter
-                    civ->GetCityAt(i)->setProductionName("Settler");
+                if(0==i){//Only first city builds settlers - logistical parameter
+
+
+                    //civ->GetCityAt(i)->setProductionName("Settler");
+                    //This only sets the name, not the production. Need to determine the proper production function
                     qDebug()<<"     Settler";
                     //Set city to build settler
 

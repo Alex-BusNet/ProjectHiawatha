@@ -71,7 +71,9 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
     for(int i = 0; i<player->GetUnitList().length(); i++){
 
         if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
-            //Expansion tiles don't seem to register as being owned by the civ here.
+
+            //a tile queue already holds all of a civ's adjacent tiles
+            //So a scan of those tiles would also be good, for tier 2 targets
 
             qDebug()<<"Invasion";
             QVector<Unit*> tempVec = civ->getHighThreats();
@@ -79,6 +81,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
             civ->setHighThreats(tempVec);
         }
         else{
+
         }
     }
     //Units within territory are added to highThreats
@@ -111,7 +114,7 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City 
 }
 //************Theater of War***************
 //Prioritizes the nearest city (by accessibility?) of the player civ
-//If at war, sends immediately to priority targets
+//If at war, sends x units immediately to priority targets
         //1 city at a time
 
 //Apropriate location??????
