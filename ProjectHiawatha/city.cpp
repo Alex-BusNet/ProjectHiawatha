@@ -238,9 +238,9 @@ Update_t City::UpdateProgress()
 
         //// THIS CALCULATION NEEDS TO CHANGE
         // Calculate the number of turns until a new citizen is born
-        this->foodNeededToGrow = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
+        this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
         this->foodSurplus = this->cityTotalYield->GetFoodYield() - this->citizens;
-        this->turnsToNewCitizen = this->foodNeededToGrow / this->foodSurplus;
+        this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
 
         // If the city has more tiles than there are citizens then put a citizen to work.
         if(this->citizens < this->GetControlledTiles().size())
@@ -747,9 +747,9 @@ void City::DefineCityBorders(bool redefine)
     if(!redefine)
     {
         this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
-        this->foodNeededToGrow = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
-        this->foodSurplus = this->cityTotalYield->GetFoodYield() / this->citizens;
-        this->turnsToNewCitizen = this->foodNeededToGrow / this->foodSurplus;
+        this->foodSurplus = this->cityTotalYield->GetFoodYield() - (2 * this->citizens);
+        this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
+        this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
     }
 
     qDebug() << "       Done";
@@ -797,7 +797,7 @@ int City::GetCitizenCount()
 
 int City::GetFoodNeededToGrow()
 {
-    return this->foodNeededToGrow;
+    return this->growthCost;
 }
 
 int City::GetTurnsToNewCitizen()

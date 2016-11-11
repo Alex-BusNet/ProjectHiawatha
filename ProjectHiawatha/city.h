@@ -130,7 +130,8 @@ private:
     int cityProductionBarIndex;
     int cityGrowthBarIndex;
     int turnsToBorderGrowth;
-    int foodNeededToGrow;\
+
+    int growthCost;
     int foodSurplus;
     int citizens;
     int turnsToNewCitizen;
