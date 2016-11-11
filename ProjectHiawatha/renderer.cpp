@@ -46,8 +46,6 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
 
         tileCircles.push_back(view->addEllipse(map->GetTileAt(i)->GetTileRect(), outlinePen));
         tileCircles.last()->setZValue(2);
-        // Create new vector that stores the oddly-shaped border polygon for each civ (this may be one vector per civ)
-        // Set pen of vector to proper civ color (may require adjustment of if/else condition above
 
         tilePixmap.push_back(view->addPixmap((*(map->GetTilePixmap(i)))));
         tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
@@ -193,7 +191,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
             {
                 if(!attackSelection)
                 {
-                    view->removeItem(tileCircles.at(lastIndex));
+                    view->removeItem(tileCircles.at(index));
                     outlinePen.setColor(Qt::yellow);
                     lastIndex = index;
                 }
@@ -212,6 +210,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
         }
         else
         {
+            view->removeItem(tileCircles.at(lastIndex));
             SetOutlinePen(NO_NATION);
             map->GetTileAt(index)->Selected = false;
         }

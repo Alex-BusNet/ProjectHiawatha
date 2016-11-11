@@ -428,7 +428,7 @@ void GameManager::StartTurn()
 
         /// THIS IS SO WE CAN TEST THINGS FOR MULTIPLE TURNS WITHOUT CONSTANTLY
         /// HAVING TO STOP FOR TECH PROGRESS
-        int accumulatedScience = civList.at(0)->getAccumulatedScience();
+        int accumulatedScience = 0;// civList.at(0)->getAccumulatedScience();
 
         int techCost = civList.at(0)->getCurrentTech()->getCost();
         if(accumulatedScience >= techCost)
@@ -780,6 +780,7 @@ void GameManager::InitButtons()
 
     endTurn = new QPushButton("End Turn");
     connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
+    endTurn->setShortcut(QKeySequence(Qt::Key_Return));
 
     buildFarm = new QPushButton("Build Farm");
     connect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));

@@ -251,11 +251,11 @@ Update_t City::UpdateProgress()
                 if(tile->GetTileType() != MOUNTAIN && !tile->IsWorked)
                 {
                     tile->IsWorked = true;
-                    this->UpdateCityYield();
                     update.updateCitizens = true;
                     break;
                 }
             }
+            this->UpdateCityYield();
         }
     }
     else
