@@ -112,6 +112,9 @@ QVector<Unit *> Civilization::GetUnitList()
 
 Update_t Civilization::UpdateProgress()
 {
+    static int turn = 0;
+    turn++;
+
     this->totalGold += this->getCivYield()->GetGoldYield();
     this->totalScience += this->getCivYield()->GetScienceYield();
     this->totalCulture += this->getCivYield()->GetCultureYield();
@@ -143,6 +146,21 @@ Update_t Civilization::UpdateProgress()
             redraw.productionFinished = true;
         }
     }
+
+    /*cost = (n * b*(1 + g*m)/100)^(1 + g / d)
+     * n = number of units
+     * b = base cost of units
+     * m = mulitplier (1)
+     * d = divisor (1)
+     * g = game progress factor
+     *      g = currentTurn / endTurn
+    */
+    double gpf =  turn / 500.0;
+
+    int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
+    qDebug() << "   --Maintenance cost:" << pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
+
+    this->totalGold -= maintenance;
 
     return redraw;
 }
@@ -190,17 +208,17 @@ void Civilization::loadTechs(QString filename)
        {
           QString line = in.readLine();
           QStringList techInfo = line.split(",");
-          qDebug()<<"Tech Name: "<<techInfo[0];
+//          qDebug()<<"Tech Name: "<<techInfo[0];
           int x = techInfo[1].toInt();
           int y = techInfo[2].toInt();
-          qDebug()<<"Tech Cost: "<<x;
+//          qDebug()<<"Tech Cost: "<<x;
 
           Technology* tech = new Technology(techInfo[0],x,y);
           techList.push_back(tech);
-          qDebug()<<techList.at(0)->getName();
+//          qDebug()<<techList.at(0)->getName();
        }
        inputFile.close();
-       qDebug()<<techList.at(1)->getName();
+//       qDebug()<<techList.at(1)->getName();
     }else
     {
         QMessageBox* mBox = new QMessageBox();
@@ -266,15 +284,15 @@ void Civilization::loadCities(QString filename)
        {
           QString line = in.readLine();
           QStringList cityInfo = line.split(",");
-          qDebug()<<"City Name: "<<cityInfo[0];
+//          qDebug()<<"City Name: "<<cityInfo[0];
 
           initialCityList.push_back(cityInfo[0]);
-          qDebug()<<initialCityList.at(0);
+//          qDebug()<<initialCityList.at(0);
 
        }
        inputFile.close();
-       qDebug()<<initialCityList.at(1);
-       qDebug()<<initialCityList.at(10);
+//       qDebug()<<initialCityList.at(1);
+//       qDebug()<<initialCityList.at(10);
     }else
     {
         QMessageBox* mBox = new QMessageBox();

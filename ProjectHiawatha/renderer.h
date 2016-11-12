@@ -36,6 +36,7 @@ public:
     void SetTileWorkedIcon(Tile* tile, GameView *view);
     void UpdateCityGrowthBar(City* city, GameView *view);
     void UpdateCityProductionBar(City* city, GameView *view);
+    void UpdateCityHealthBar(City* city, GameView *view);
 
     void AddCityLabel(City* city, GameView *view);
     void AddCity(City* city, GameView *view);

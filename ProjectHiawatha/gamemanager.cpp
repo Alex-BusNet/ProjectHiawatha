@@ -93,7 +93,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Initializing Civs";
     ////The 1 is for testing purposes;
     /// Change to numAI when done.
-    InitCivs(player, 1);
+    InitCivs(player, numAI);
 
     qDebug() << "   CivList size: " << civList.size();
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
@@ -168,7 +168,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
-
     Civilization* civ = new Civilization(player, false);
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
@@ -230,50 +229,42 @@ newCivRand:
             case America:
                 civ = new Civilization(America, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
-                //ai = new AI_Strategic();
                 selNat.push_back(America);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
-                //ai = new AI_Strategic();
                 selNat.push_back(Germany);
                 break;
             case India:
                 civ = new Civilization(India, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
-                //ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             case China:
                 civ = new Civilization(China, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
-               // ai = new AI_Strategic();
                 selNat.push_back(China);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
-                //ai = new AI_Strategic();
                 selNat.push_back(Mongolia);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
-                //ai = new AI_Strategic();
                 selNat.push_back(Aztec);
                 break;
             case France:
                 civ = new Civilization(France, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
-               // ai = new AI_Strategic();
                 selNat.push_back(France);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
-               // ai = new AI_Strategic();
                 selNat.push_back(India);
                 break;
             }
@@ -391,8 +382,6 @@ void GameManager::StartTurn()
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
             }
-
-//            renderer->UpdateCityGrowthBar(city, gameView);
         }
     }
 
@@ -438,6 +427,7 @@ void GameManager::StartTurn()
 
         year += yearPerTurn;
     }
+
     qDebug()<<"Here";
     qDebug()<<"Tech: "<<civList.at(currentTurn)->getCurrentTech()->getCost();
         int localIndex = 0;
@@ -471,18 +461,44 @@ qDebug()<<"Here2";
                         qDebug()<<"UNLOCKING: "<<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
                         civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
                     }
+
+
+    int scienceYield = civList.at(currentTurn)->getCivYield()->GetScienceYield();
+    civList.at(currentTurn)->setAccumulatedScience(scienceYield);
+
+    int accumulatedScience = civList.at(currentTurn)->getAccumulatedScience();
+
+    int techCost = civList.at(currentTurn)->getCurrentTech()->getCost();
+    if(accumulatedScience >= techCost)
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("Tech has finished");
+        mBox->exec();
+        qDebug()<<"Tech finished";
+        civList.at(currentTurn)->setTechIndex();
+        int techIndex = civList.at(currentTurn)->getTechIndex();
+        for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++){
+
+            for(int j = 0; j<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().size();j++){
+                if(civList.at(currentTurn)->GetCityList().at(0)->getInitialUnitList().at(j)->GetTechIndex() == (techIndex-1)){
+                    qDebug()<<"UNLOCKING: "<<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
+                    civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
+
                 }
             }
-
-            civList.at(currentTurn)->setNextTech(civList.at(currentTurn)->GetTechList().at(techIndex+1));
-            civList.at(currentTurn)->setCurrentTech(civList.at(currentTurn)->GetTechList().at(techIndex));
-            civList.at(currentTurn)->resetAccumulatedScience();
         }
-        int accumulatedProduction;
-        int productionCost;
-        for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
-        {
+
+        civList.at(currentTurn)->setNextTech(civList.at(currentTurn)->GetTechList().at(techIndex+1));
+        civList.at(currentTurn)->setCurrentTech(civList.at(currentTurn)->GetTechList().at(techIndex));
+        civList.at(currentTurn)->resetAccumulatedScience();
+    }
+
+    int accumulatedProduction;
+    int productionCost;
+    for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
+    {
 //            civList.at(currentTurn)->GetCityList().at(i)->setAccumulatedProduction(civList.at(currentTurn)->GetCityList().at(i)->getCityYield()->GetProductionYield());
+
             productionCost = civList.at(currentTurn)->GetCityList().at(i)->getCurrentProductionCost();
 
 
@@ -491,9 +507,16 @@ qDebug()<<"Here2";
             qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
             qDebug()<<"PRODUCTION COST: "<<productionCost;
 
-            if(update.productionFinished /*accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0*/)
-            {
+        accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
+        productionCost = civList.at(currentTurn)->GetCityList().at(i)->getCurrentProductionCost();
+        qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
+        qDebug()<<"PRODUCTION COST: "<<productionCost;
+
+
+        if(update.productionFinished /*accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0*/)
+        {
 //                civList.at(currentTurn)->GetCityList().at(i)->resetAccumulatedProduction();
+
                 civList.at(currentTurn)->GetCityList().at(i)->setProductionFinished(true);
                 if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
                 {
@@ -508,14 +531,25 @@ qDebug()<<"Here2";
 
                     qDebug()<<"if statement";
 
-                    qDebug()<<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex());
-                    civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
-                    Unit* unit = civList.at(currentTurn)->GetCityList().at(i)->getProducedUnit();
-                    unit->SetOwner(civList.at(currentTurn)->getCiv());
+            civList.at(currentTurn)->GetCityList().at(i)->setProductionFinished(true);
+            QMessageBox* mBox = new QMessageBox();
+            mBox->setText("Production has finished");
+            mBox->exec();
+//            qDebug()<<"Production finished";
+            if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
+            {
+                civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
+                Unit* unit = civList.at(currentTurn)->GetCityList().at(i)->getProducedUnit();
+                unit->SetOwner(civList.at(currentTurn)->getCiv());
 
-                    qDebug()<<"For loop";
-                    for(int i = 0; i<map->GetBoardSize();i++)
+
+                for(int i = 0; i<map->GetBoardSize();i++)
+                {
+                    if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable)){ continue; }
+
+                    if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
                     {
+
                         if(unit->isNaval())
                         {
                             if(map->GetTileAt(i)->ContainsUnit  || !(map->GetTileTypeAt(i) == WATER))
@@ -549,21 +583,25 @@ qDebug()<<"Here2";
                             }
                         }
 
+
+                        unit->SetPositionIndex(i);
+                        map->GetTileAt(i)->ContainsUnit = true;
+                        qDebug()<<"         Unit built";
+                        break;
+
                     }
-
-
-                    civList.at(currentTurn)->AddUnit(unit);
-                    renderer->AddUnit(unit,map,gameView);
                 }
-            }
-            else
-            {
-                renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
-            }
 
-            renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
+                civList.at(currentTurn)->AddUnit(unit);
+                renderer->AddUnit(unit,map,gameView);
+            }
+        }
+        else
+        {
+            renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         }
 
+<<<<<<< HEAD
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && productionFinishedFlag)
         {
             QString str2;
@@ -597,7 +635,19 @@ qDebug()<<"Here2";
 //        foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
 //        sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
 //        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
+=======
+        renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
+    }
+>>>>>>> origin/master
 
+    if(currentTurn == 0)
+    {
+        goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
+        prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
+        foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
+        sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
+        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
+    }
 
     qDebug() << "  Starting turn for civ" << currentTurn;
 }
@@ -630,15 +680,6 @@ void GameManager::EndTurn()
             uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, gameView->GetScene(), currentTurn);
             unitMoved = true;
         }
-
-        ////This is for testing the attack calculations;
-//        if(currentTurn == 0 && civList.at(currentTurn)->GetUnitAt(i)->GetUnitType() == WARRIOR)
-//        {
-//            if(civList.at(1)->GetUnitAt(1)->GetUnitType() == WARRIOR)
-//            {
-//                uc->Attack(civList.at(currentTurn)->GetUnitAt(i), civList.at(1)->GetUnitAt(1), false);
-//            }
-//        }
 
         if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
         {
@@ -794,17 +835,9 @@ void GameManager::UpdateTileData()
             renderer->UpdateScene(map, gameView, TileData{targetUnit->GetTileColumn(), targetUnit->GetTileRow(), false, false}, false);
         }
     }
-//    else if(unitTile->HasCity)
-//    {
-//        if(unitTile->GetControllingCiv() == civList.at(currentTurn)->getCiv())
-//            this->citySelected = true;
-//        else
-//            qDebug() << "Player does not control this city";
-//    }
 
     if(processedData.relocateOrderGiven && !findUnit)
     {
-//        unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
         unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
 
         qDebug() <<"    Finding path";
@@ -1129,8 +1162,11 @@ void GameManager::showTechTree()
 
 void GameManager::foundNewCity()
 {
-    // Need to call AddCity(City* city, Map *map, GameView *view) and
-    // AddCityLabel(QString name, Civilization *civ, GameView *view)
+    // Need to call:
+    //      AddCity(City* city, Map *map, GameView *view)
+    //      AddCityLabel(QString name, Civilization *civ, GameView *view)
+    //      loadUnits(QString list)
+    //      loadTechs(QString list)
     // from the renderer after creating the new city object
 }
 

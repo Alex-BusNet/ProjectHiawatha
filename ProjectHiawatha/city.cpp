@@ -28,7 +28,7 @@ QVector<Unit *> City::getInitialUnitList()
 
 void City::SortControlledTiles()
 {
-    qDebug() << "   ---Sorting CityControlledTiles; Sorting focus:" << this->cityFocus;
+//    qDebug() << "   ---Sorting CityControlledTiles; Sorting focus:" << this->cityFocus;
 
     for(int i = 0; i < cityControlledTiles.size(); i++)
     {
@@ -82,29 +82,29 @@ void City::SortControlledTiles()
         }
     }
 
-    foreach(Tile* tile, cityControlledTiles)
-    {
-        if(this->cityFocus == GOLD_FOCUS)
-        {
-            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
-        }
-        else if(this->cityFocus == PRODUCTION_FOCUS)
-        {
-            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetProductionYield();
-        }
-        else if(this->cityFocus == SCIENCE_FOCUS)
-        {
-            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetScienceYield();
-        }
-        else if(this->cityFocus == FOOD_FOCUS)
-        {
-            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetFoodYield();
-        }
-        else if(this->cityFocus == CULTURE_FOCUS)
-        {
-            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetCultureYield();
-        }
-    }
+//    foreach(Tile* tile, cityControlledTiles)
+//    {
+//        if(this->cityFocus == GOLD_FOCUS)
+//        {
+//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
+//        }
+//        else if(this->cityFocus == PRODUCTION_FOCUS)
+//        {
+//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetProductionYield();
+//        }
+//        else if(this->cityFocus == SCIENCE_FOCUS)
+//        {
+//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetScienceYield();
+//        }
+//        else if(this->cityFocus == FOOD_FOCUS)
+//        {
+//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetFoodYield();
+//        }
+//        else if(this->cityFocus == CULTURE_FOCUS)
+//        {
+//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetCultureYield();
+//        }
+//    }
 }
 
 void City::SortTileQueue()
@@ -115,7 +115,7 @@ void City::SortTileQueue()
     //  -Resources on tile
     //  -Tile type
 
-    qDebug() << "   ---Sorting TileQueue; Sorting focus:" << this->cityFocus;
+//    qDebug() << "   ---Sorting TileQueue; Sorting focus:" << this->cityFocus;
 
     for(int i = 0; i < tileQueue.size(); i++)
     {
@@ -169,29 +169,29 @@ void City::SortTileQueue()
         }
     }
 
-    foreach(Tile* tile, tileQueue)
-    {
-        if(this->cityFocus == GOLD_FOCUS)
-        {
-            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
-        }
-        else if(this->cityFocus == PRODUCTION_FOCUS)
-        {
-            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetProductionYield();
-        }
-        else if(this->cityFocus == SCIENCE_FOCUS)
-        {
-            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetScienceYield();
-        }
-        else if(this->cityFocus == FOOD_FOCUS)
-        {
-            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetFoodYield();
-        }
-        else if(this->cityFocus == CULTURE_FOCUS)
-        {
-            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetCultureYield();
-        }
-    }
+//    foreach(Tile* tile, tileQueue)
+//    {
+//        if(this->cityFocus == GOLD_FOCUS)
+//        {
+//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
+//        }
+//        else if(this->cityFocus == PRODUCTION_FOCUS)
+//        {
+//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetProductionYield();
+//        }
+//        else if(this->cityFocus == SCIENCE_FOCUS)
+//        {
+//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetScienceYield();
+//        }
+//        else if(this->cityFocus == FOOD_FOCUS)
+//        {
+//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetFoodYield();
+//        }
+//        else if(this->cityFocus == CULTURE_FOCUS)
+//        {
+//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetCultureYield();
+//        }
+//    }
 
     //Store all eligible tiles in a heap.
 }
@@ -309,8 +309,8 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 {
     int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
 
-    qDebug() << "       upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
-    qDebug() << "   --SortOrder:" << sortOrder;
+//    qDebug() << "       upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
+//    qDebug() << "   --SortOrder:" << sortOrder;
     QVector<QPoint> tempPt;
 
     //Find any point that falls between the x and y bounds passed to the funtion.
@@ -553,7 +553,7 @@ void City::UpdateCityYield()
 
     foreach(Tile *tile, cityControlledTiles)
     {
-        qDebug() << "   Tile at:" << tile->GetTileIDString() << "isWorked:" << tile->IsWorked;
+//        qDebug() << "   Tile at:" << tile->GetTileIDString() << "isWorked:" << tile->IsWorked;
 
         if(tile->IsWorked)
         {
@@ -581,6 +581,16 @@ void City::SetCityProductionBarIndex(int index)
 void City::SetCityGrowthBarIndex(int index)
 {
     this->cityGrowthBarIndex = index;
+}
+
+void City::SetCityHealth(int health)
+{
+    this->cityHealth = health;
+}
+
+void City::SetCityMaxHealth(int health)
+{
+    this->maxHealth = health;
 }
 
 void City::GarrisonWorker(Unit *worker)
@@ -648,7 +658,7 @@ void City::DefineCityBorders(bool redefine)
 
     //This uses the Jarvis March / Gift-wrapping method for finding the convex hull
     // that encompasses all points in the set
-    qDebug() << "     Finding convex hull";
+//    qDebug() << "     Finding convex hull";
 
     do
     {
@@ -688,7 +698,7 @@ void City::DefineCityBorders(bool redefine)
             dstX = currentX - lastX;
             dstY = currentY - lastY;
 
-            qDebug() << "   currentX:" << currentX << "lastX:" << lastX  << "dstX:" << dstX << "currentY:" << currentY << "lastY:" << lastY << "dstY:" << dstY;
+//            qDebug() << "   currentX:" << currentX << "lastX:" << lastX  << "dstX:" << dstX << "currentY:" << currentY << "lastY:" << lastY << "dstY:" << dstY;
 
             if(((abs(dstX) >= 88) || (abs(dstY) >= 50)))
             {
@@ -727,12 +737,12 @@ void City::DefineCityBorders(bool redefine)
                 {
                     if(lastY > currentY)
                     {
-                        qDebug() << "     --Vertically aligned, left side";
+//                        qDebug() << "     --Vertically aligned, left side";
                         FindPoints(lastX - 50, currentY, currentX, lastY, points, LRBT);
                     }
                     else if(lastY < currentY)
                     {
-                        qDebug() << "     --Vertically aligned, right side";
+//                        qDebug() << "     --Vertically aligned, right side";
                         FindPoints(lastX - 50, lastY, currentX, currentY, points, RLTB);
                     }
                 }
@@ -756,7 +766,7 @@ void City::DefineCityBorders(bool redefine)
         this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
     }
 
-    qDebug() << "       Done";
+//    qDebug() << "       Done";
 }
 
 void City::SetCityBordersIndex(int index)
@@ -985,4 +995,14 @@ int City::GetCityGrowthBarIndex()
 int City::GetCityProductionBarIndex()
 {
     return this->cityProductionBarIndex;
+}
+
+int City::GetCityHealth()
+{
+    return this->cityHealth;
+}
+
+int City::GetMaxHealth()
+{
+    return this->maxHealth;
 }
