@@ -180,9 +180,6 @@ void CityScreen::updateWidget()
 }
 
 
-
-
-
 void CityScreen::on_listWidget_itemSelectionChanged()
 {
     QString str = "+";

@@ -20,6 +20,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
+//    clv = new CityListView(this);
+    clv = new QListWidget(this);
 
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
@@ -104,7 +106,17 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
             renderer->AddCityHealthBars(civList.at(i)->GetCityAt(j), gameView);
-
+            if(i == 0)
+            {
+                if(j == 0)
+                {
+                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName().append(" (").append(QChar(0x2605)).append(")"));
+                }
+                else
+                {
+                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
+                }
+            }
             foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
@@ -303,7 +315,7 @@ void GameManager::paintEvent(QPaintEvent *event)
     QRect playerInfoRect(0, 0, this->width(), 20);
     paint.fillRect(playerInfoRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
-    paint.drawText(playerInfoRect, Qt::AlignRight, QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
+    paint.drawText(playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
 }
 
 void GameManager::mouseReleaseEvent(QMouseEvent *e)
@@ -708,13 +720,13 @@ void GameManager::UpdateTileData()
             renderer->UpdateScene(map, gameView, TileData{targetUnit->GetTileColumn(), targetUnit->GetTileRow(), false, false}, false);
         }
     }
-    else if(unitTile->HasCity)
-    {
-        if(unitTile->GetControllingCiv() == civList.at(currentTurn)->getCiv())
-            this->citySelected = true;
-        else
-            qDebug() << "Player does not control this city";
-    }
+//    else if(unitTile->HasCity)
+//    {
+//        if(unitTile->GetControllingCiv() == civList.at(currentTurn)->getCiv())
+//            this->citySelected = true;
+//        else
+//            qDebug() << "Player does not control this city";
+//    }
 
     if(processedData.relocateOrderGiven && !findUnit)
     {
@@ -824,11 +836,13 @@ void GameManager::InitButtons()
 
     cultureFocus = new QPushButton("Culture Focus");
     connect(cultureFocus, SIGNAL(clicked(bool)), this, SLOT(SetCultureFocus()));
+
+    connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem(QListWidgetItem*)));
 }
 
 void GameManager::InitLayouts()
 {
-    vLayout->setMargin(0);
+    vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(800);
@@ -847,7 +861,7 @@ void GameManager::InitLayouts()
     gameLayout->addWidget(techTree);
 
     playerControlButtons->addWidget(exitGame);
-    playerControlButtons->addSpacing(700);
+    playerControlButtons->addWidget(clv);
     playerControlButtons->addWidget(goldFocus);
     playerControlButtons->addWidget(productionFocus);
     playerControlButtons->addWidget(scienceFocus);
@@ -945,7 +959,7 @@ void GameManager::zoomOut()
     gameView->zoomOut();
 }
 
-void GameManager::showCity()
+void GameManager::showCity(City* city)
 {
     if(!cityScreenVisible)
     {
@@ -959,7 +973,7 @@ void GameManager::showCity()
         cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-        cityScreen->getCityInfo(civList.at(0)->GetCityAt(0));
+        cityScreen->getCityInfo(city);
         cityScreen->updateList();
         cityScreen->updateWidget();
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
@@ -987,12 +1001,6 @@ void GameManager::updateTiles()
         this->UpdateTileData();
     }
 
-    if(this->citySelected  && !cityScreenVisible)
-    {
-        this->citySelected = false;
-        this->showCity();
-    }
-
     TurnController();
 
     if(this->redrawTile)
@@ -1001,14 +1009,7 @@ void GameManager::updateTiles()
         renderer->UpdateScene(map, gameView, processedData, false);
     }
 
-
     this->update();
-
-    if(cityScreen->isHidden())
-    {
-        gameView->setDragMode(QGraphicsView::ScrollHandDrag);
-        cityScreenVisible = false;
-    }
 
     //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING WASN'T TAKING UP A LOT OF TIME
     end = std::chrono::steady_clock::now();
@@ -1119,6 +1120,15 @@ void GameManager::SetCultureFocus()
 {
     this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::CULTURE_FOCUS);
     this->focusChanged = true;
+}
+
+void GameManager::parseItem(QListWidgetItem *item)
+{
+    qDebug() << "--------" << item->text() << "selected";
+    this->showCity(civList[0]->GetCityAt(clv->currentRow()));
+    gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+    cityScreenVisible = false;
+    renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
 }
 
 

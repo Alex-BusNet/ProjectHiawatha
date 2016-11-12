@@ -17,6 +17,7 @@
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include "citylistview.h"
 #include "tiledata.h"
 #include <chrono>
 
@@ -30,6 +31,7 @@ private:
     Renderer *renderer;
     Map *map;
     UnitController *uc;
+    QListWidget *clv;
     QTimer *updateTimer;
 
     AI_Controller *ac;
@@ -138,7 +140,7 @@ public slots:
 
     void zoomIn();
     void zoomOut();
-    void showCity();
+    void showCity(City* city);
     void updateTiles();
     void moveUnitTo();
     void nextTurn();
@@ -155,6 +157,8 @@ public slots:
     void SetScienceFocus();
     void SetFoodFocus();
     void SetCultureFocus();
+
+    void parseItem(QListWidgetItem *item);
 };
 
 #endif // GAMEWINDOW_H
