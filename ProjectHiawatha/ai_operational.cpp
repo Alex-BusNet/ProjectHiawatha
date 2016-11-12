@@ -65,26 +65,16 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *map)
 {
     qDebug()<<"Threatscan";
-    civ->clearThreats();
     //Clear threats each time, else they remain after the unit dies
 
     for(int i = 0; i<player->GetUnitList().length(); i++){
-
-        if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
-
-            //a tile queue already holds all of a civ's adjacent tiles
-            //So a scan of those tiles would also be good, for tier 2 targets
-
-            qDebug()<<"Invasion";
-            QVector<Unit*> tempVec = civ->getHighThreats();
-            tempVec.push_back(player->GetUnitAt(i));
-            civ->setHighThreats(tempVec);
+        if(0){
+        //Invasion logic moved to strategic AI
         }
         else{
 
         }
     }
-    //Units within territory are added to highThreats
 
 
     //Using the Map::GetNeighbors(Tile *node) algorithm

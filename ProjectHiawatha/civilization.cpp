@@ -38,6 +38,7 @@ Civilization::Civilization(Nation name, bool isAI)
     if(isAI)
     {
         this->isAIPlayer = true;
+        this->provoked=false;
     }
 }
 
@@ -320,6 +321,16 @@ QVector<Unit *> Civilization::getMidThreats()
 QVector<Unit *> Civilization::getHighThreats()
 {
     return this->highThreats;
+}
+
+void Civilization::setProvoked(bool provoked)
+{
+    this->provoked=provoked;
+}
+
+bool Civilization::getProvoked()
+{
+    return provoked;
 }
 
 void Civilization::AddCity(City *city)

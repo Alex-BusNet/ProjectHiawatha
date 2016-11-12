@@ -18,6 +18,8 @@ public:
 private:
     int midTermGoal(Civilization *civ);
     void cityProduction(int midGoal, Civilization *civ, Map *map);
+    void invasionCheck(Civilization *civ, Civilization *player, Map *map);
+
 };
 
 #endif // AI_STRATEGIC_H

@@ -81,6 +81,8 @@ public:
     QVector<Unit *> getLowThreats();
     QVector<Unit *> getMidThreats();
     QVector<Unit *> getHighThreats();
+    void setProvoked(bool provoked);
+    bool getProvoked();
 
 private:
     Nation name;
@@ -115,6 +117,7 @@ private:
 
     //AI stuff
     bool isAIPlayer;
+    bool provoked;
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;

@@ -28,10 +28,14 @@ AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map, Ga
 {
 qDebug()<<"     Strategic AI Called";
 
+    civ->clearThreats();
+    invasionCheck(civ,player,map);
+
+
     int midGoal = midTermGoal(civ);
     //Some logic based on the different goal options
     cityProduction(midGoal, civ, map);
-qDebug()<<"Midgoal "<<midGoal;
+    qDebug()<<"Midgoal "<<midGoal;
     AI_Operational(midGoal, civ, player, map, scene);
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
@@ -49,9 +53,10 @@ int AI_Strategic::midTermGoal(Civilization *civ){
     else if(civ->GetCityList().length()>4){
         //needs logic to compare tech, gold, and prod yields with player
         //May be made obscolete by goal 3 logic
+        qDebug()<<"********Broken Goal Logic here";
         goal=2;//Preparing for War
     }
-    else if(0){
+    else if(civ->getProvoked()){
         //Needs to be a flag set once player has provoked the AI (Probably set by threatscan)
         goal=3;//At War
     }
@@ -111,30 +116,58 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     //Set city to build settler
 
                 }
-                else{
+                else if(civ->getProvoked()){
                     civ->GetCityAt(0)->setCurrentProductionCost(425);
                     civ->GetCityAt(0)->setIsUnit(true);
                     civ->GetCityAt(0)->setProductionName("Modern Armor");
                     civ->GetCityAt(0)->setProductionIndex(31);
                     qDebug()<<"     Modern Armor";
-
-
-                    //Should have Cities+1 workers
-                    //logic for garrisoned and road workers
-                        //If worker is needed, should be built in the city that doesn't have a garrisoned worker
+                }
+                else if(!civ->GetCityAt(i)->getHasWorker()){
+                    civ->GetCityAt(0)->setCurrentProductionCost(70);
+                    civ->GetCityAt(0)->setIsUnit(true);
+                    civ->GetCityAt(0)->setProductionName("Worker");
+                    civ->GetCityAt(0)->setProductionIndex(6);
+                    qDebug()<<"     Worker";
+                }
+                else{
+                    //logic for road workers
                         //roadworker gets built in capitol early on
-                    //Then build buildings
-                    //Minimum military strength(defensive)
                 }
             }
             else if(2==midGoal||3==midGoal){
+                civ->GetCityAt(0)->setCurrentProductionCost(425);
+                civ->GetCityAt(0)->setIsUnit(true);
+                civ->GetCityAt(0)->setProductionName("Stealth Bomber");
+                civ->GetCityAt(0)->setProductionIndex(32);
+                qDebug()<<"     Stealth Bomber";
                 //Build military units
             }
             else{
-                //Build workers, as needed, then buildings
-                //Minimum military strength(defensive)
+                //buildings and Minimum military strength(defensive)
             }
         //}
+    }
+}
+
+void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *map)
+{
+    for(int i = 0; i<player->GetUnitList().length(); i++){
+
+        if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
+
+            //a tile queue already holds all of a civ's adjacent tiles
+            //So a scan of those tiles would also be good, for tier 2 targets
+
+            qDebug()<<"Invasion";
+            civ->setProvoked(true);
+            QVector<Unit*> tempVec = civ->getHighThreats();
+            tempVec.push_back(player->GetUnitAt(i));
+            civ->setHighThreats(tempVec);
+        }
+        else{
+
+        }
     }
 }
 //*************City production Decision Tree***********
