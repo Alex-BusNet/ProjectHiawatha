@@ -17,7 +17,6 @@
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include "citylistview.h"
 #include "tiledata.h"
 #include <chrono>
 
