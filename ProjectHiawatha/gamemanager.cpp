@@ -440,22 +440,28 @@ void GameManager::StartTurn()
     }
     qDebug()<<"Here";
     qDebug()<<"Tech: "<<civList.at(currentTurn)->getCurrentTech()->getCost();
-
+        int localIndex = 0;
+        bool productionFinishedFlag = false;
+        QString str[20];
         int scienceYield = civList.at(currentTurn)->getCivYield()->GetScienceYield();
         civList.at(currentTurn)->setAccumulatedScience(scienceYield);
 
         /// THIS IS SO WE CAN TEST THINGS FOR MULTIPLE TURNS WITHOUT CONSTANTLY
         /// HAVING TO STOP FOR TECH PROGRESS
-        int accumulatedScience = 0;// civList.at(currentTurn)->getAccumulatedScience();
+        int accumulatedScience = civList.at(currentTurn)->getAccumulatedScience();
 
         int techCost = civList.at(currentTurn)->getCurrentTech()->getCost();
 qDebug()<<"Here2";
         if(accumulatedScience >= techCost)
         {
-            QMessageBox* mBox = new QMessageBox();
-            mBox->setText("Tech has finished");
-            mBox->exec();
-            qDebug()<<"Tech finished";
+            if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
+            {
+                QMessageBox* mBox = new QMessageBox();
+                mBox->setText("Tech has finished");
+                mBox->exec();
+                qDebug()<<"Tech finished";
+            }
+
             civList.at(currentTurn)->setTechIndex();
             int techIndex = civList.at(currentTurn)->getTechIndex();
             for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++){
@@ -477,8 +483,11 @@ qDebug()<<"Here2";
         for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
         {
 //            civList.at(currentTurn)->GetCityList().at(i)->setAccumulatedProduction(civList.at(currentTurn)->GetCityList().at(i)->getCityYield()->GetProductionYield());
-            accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
             productionCost = civList.at(currentTurn)->GetCityList().at(i)->getCurrentProductionCost();
+
+
+            accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
+
             qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
             qDebug()<<"PRODUCTION COST: "<<productionCost;
 
@@ -486,10 +495,14 @@ qDebug()<<"Here2";
             {
 //                civList.at(currentTurn)->GetCityList().at(i)->resetAccumulatedProduction();
                 civList.at(currentTurn)->GetCityList().at(i)->setProductionFinished(true);
-                QMessageBox* mBox = new QMessageBox();
-                mBox->setText("Production has finished");
-                mBox->exec();
-                qDebug()<<"Production finished";
+                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
+                {
+                    productionFinishedFlag = true;
+                    str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
+                    localIndex++;
+
+                }
+
                 if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
                 {
 
@@ -503,20 +516,39 @@ qDebug()<<"Here2";
                     qDebug()<<"For loop";
                     for(int i = 0; i<map->GetBoardSize();i++)
                     {
-                        if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable))
+                        if(unit->isNaval())
                         {
+                            if(map->GetTileAt(i)->ContainsUnit  || !(map->GetTileTypeAt(i) == WATER))
+                            {
 
+                            }else
+                            {
+                                if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
+                                {
+                                    unit->SetPositionIndex(i);
+                                    map->GetTileAt(i)->ContainsUnit = true;
+                                    qDebug()<<"         Unit built";
+                                    break;
+                                }
+
+                            }
                         }else
                         {
-                            if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
+                            if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable) || (map->GetTileTypeAt(i) == WATER))
                             {
-                                unit->SetPositionIndex(i);
-                                map->GetTileAt(i)->ContainsUnit = true;
-                                qDebug()<<"         Unit built";
-                                break;
-                            }
 
+                            }else
+                            {
+                                if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
+                                {
+                                    unit->SetPositionIndex(i);
+                                    map->GetTileAt(i)->ContainsUnit = true;
+                                    qDebug()<<"         Unit built";
+                                    break;
+                                }
+                            }
                         }
+
                     }
 
 
@@ -530,6 +562,34 @@ qDebug()<<"Here2";
             }
 
             renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
+        }
+
+        if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && productionFinishedFlag)
+        {
+            QString str2;
+            int numOfCities = 1;
+            for(int j = 0;j<20;j++)
+            {
+
+                if(str[j].isEmpty())
+                {
+
+                }else{
+                    QString str3 = str[j];
+                    if(numOfCities > 1){
+                        str3+= ", ";
+                    }
+                    str2 += str3;
+                    numOfCities++;
+                }
+
+            }
+            QString prodString = "Production has finished in: ";
+            QString finalString = prodString+str2;
+            QMessageBox* mBox = new QMessageBox();
+            mBox->setText(finalString);
+            mBox->exec();
+            qDebug()<<"Production finished";
         }
 
 //        goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));

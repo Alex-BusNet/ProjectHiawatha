@@ -13,7 +13,6 @@ class Unit
 {
 public:
     Unit();
-    //Unit(Nation owner = India, bool isNonCombat = true, bool isSettler = false, int movementPoints = 2, int strength = 1, int range = 3, int rangeStrength = 2, int health = 100, UnitType type = WORKER);
     Unit(Nation owner = India, UnitType type = WORKER);
     Unit(int index);
     ~Unit();
@@ -73,7 +72,7 @@ public:
     bool isPathEmpty();
     bool isNonCombat();
     bool isSettler();
-
+    bool isNaval();
     bool RequiresOrders;
     bool Updated;
     bool HasNoMovementLeft;
@@ -94,7 +93,7 @@ private:
     int pixmapIndex, dataMapIndex, unitListIndex, targetTileIndex, healthBarIndex;
     bool NonCombat;
     bool Settler;
-
+    bool naval;
     int movementPoints;
     int strength;
     int range;

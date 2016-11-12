@@ -264,8 +264,10 @@ Update_t City::UpdateProgress()
     }
 
     qDebug() << "       " << this->name << " turns to new citizen" << turnsToNewCitizen;
-
-    this->accumulatedProduction += this->cityTotalYield->GetProductionYield();
+    if(this->currentProductionCost > 0)
+    {
+        this->accumulatedProduction += this->cityTotalYield->GetProductionYield();
+    }
 
     if(this->accumulatedProduction >= this->currentProductionCost && (this->currentProductionName != "No Current Production"))
     {
