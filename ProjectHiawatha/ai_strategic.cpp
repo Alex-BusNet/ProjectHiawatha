@@ -30,7 +30,7 @@ qDebug()<<"     Strategic AI Called";
 
     int midGoal = midTermGoal(civ);
     //Some logic based on the different goal options
-    cityProduction(midGoal, civ);
+    cityProduction(midGoal, civ, map);
 qDebug()<<"Midgoal "<<midGoal;
     AI_Operational(midGoal, civ, player, map, scene);
     //****************Operational AI called**************
@@ -81,23 +81,43 @@ int AI_Strategic::midTermGoal(Civilization *civ){
 
 
 
-void AI_Strategic::cityProduction(int midGoal, Civilization *civ){
+void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
     qDebug()<<"City Production";
+
+    bool activeSettler = false;
+    for(int i = 0;i< civ->GetUnitList().length();i++){
+        if("Settler"==civ->GetUnitAt(i)->GetName()){
+            activeSettler=true;
+        }
+    }//Checks if there is already a settler around
+
+
     for(int i =0;i < civ->GetCityList().length(); i++){
 
         //if(NULL==cityproduction){/Determine if city is currently building something
             if(1==midGoal){//Settle more cities
-                if(0==i){//Only first city builds settlers - logistical parameter
+                if(0==i&&!activeSettler){//Only first city builds settlers - logistical parameter
+                    //Logic to only build 1 settler at a time
 
+                    civ->GetCityAt(0)->setCurrentProductionCost(100);
+                    civ->GetCityAt(0)->setIsUnit(true);
+                    civ->GetCityAt(0)->setProductionName("Settler");
+                    civ->GetCityAt(0)->setProductionIndex(3);
 
-                    //civ->GetCityAt(i)->setProductionName("Settler");
-                    //This only sets the name, not the production. Need to determine the proper production function
+//                    qDebug()<<"ACCUMULATED PRODUCTION: "<<civ->GetCityList().at(i)->getAccumulatedProduction();
+//                    qDebug()<<"PRODUCTION COST: "<<civ->GetCityList().at(i)->getCurrentProductionCost();
+
                     qDebug()<<"     Settler";
                     //Set city to build settler
 
-                    //Not currently producing units?
                 }
                 else{
+                    civ->GetCityAt(0)->setCurrentProductionCost(425);
+                    civ->GetCityAt(0)->setIsUnit(true);
+                    civ->GetCityAt(0)->setProductionName("Modern Armor");
+                    civ->GetCityAt(0)->setProductionIndex(31);
+                    qDebug()<<"     Modern Armor";
+
 
                     //Should have Cities+1 workers
                     //logic for garrisoned and road workers

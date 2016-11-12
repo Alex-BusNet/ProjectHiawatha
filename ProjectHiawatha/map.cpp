@@ -552,6 +552,7 @@ newrand:
 
             unit->SetUnitListIndex(1);
             civs.at(i)->AddUnit(unit);
+            civs.at(i)->UpdateCivYield();
 
             qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
             qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString();
