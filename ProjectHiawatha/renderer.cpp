@@ -101,7 +101,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             case BANANAS:
                 resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/bananas.png"))));
                 break;
-            case GOLD:
+            case GOLD_RESOURCE:
                 resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/gold.png"))));
                 break;
             case GEMS:
@@ -443,7 +443,6 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                             city->GetCityTile()->GetCityLabelPoint().y() + 12,
                             9, 9);
-//    population->setAlignment(Qt::AlignRight);
     population->setStyleSheet(QString("QLabel { color: white; background-color: transparent; border: 1px black; }"));
     population->setText(QString(" %1 ").arg(city->GetCitizenCount()));
 
@@ -529,6 +528,7 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                             city->GetCityTile()->GetCityLabelPoint().y() + 12,
                             9, 9);
+
     population->setAlignment(Qt::AlignRight);
     population->setStyleSheet(QString("QLabel { color: white; "
                                       "background-color: transparent; "
@@ -566,6 +566,22 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
 
     cityProductionBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
     cityProductionBars.at(index)->setZValue(6);
+}
+
+void Renderer::UpdateCityHealthBar(City *city, GameView *view)
+{
+    qDebug() <<"--Updating Health bar for" << city->GetName();
+    int index = city->GetCityHealthBarIndex();
+    view->removeItem(cityHealthBars.at(index));
+
+    int barSize = ceil(65 * (static_cast<double>(city->GetCityHealth()) / city->GetMaxHealth()));
+
+    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 14,
+                              barSize, 5);
+
+    cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
+    cityHealthBars.last()->setZValue(6);
 }
 
 void Renderer::AddCityLabel(City* city, GameView *view)

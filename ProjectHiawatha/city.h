@@ -34,6 +34,8 @@ public:
     void SetCityHealthBarIndex(int index);
     void SetCityProductionBarIndex(int index);
     void SetCityGrowthBarIndex(int index);
+    void SetCityHealth(int health);
+    void SetCityMaxHealth(int health);
 
     void GarrisonWorker(Unit *worker);
     void GarrisonMilitary(Unit *military);
@@ -58,6 +60,8 @@ public:
     int GetCityBordersIndex();
     int GetCityGrowthBarIndex();
     int GetCityProductionBarIndex();
+    int GetCityHealth();
+    int GetMaxHealth();
     bool IsCityCaptial();
 
     void setCapitolConnection(bool flag);
@@ -129,16 +133,18 @@ private:
     int cityBordersIndex;
     int cityProductionBarIndex;
     int cityGrowthBarIndex;
-    int turnsToBorderGrowth;
 
     int growthCost;
     int foodSurplus;
     int citizens;
+    int turnsToBorderGrowth;
     int turnsToNewCitizen;
 
     int currentProductionCost;
     int accumulatedProduction;
     int productionIndex;
+
+    int cityHealth, maxHealth;
 
     int orientation(QPoint p, QPoint q, QPoint r);
 

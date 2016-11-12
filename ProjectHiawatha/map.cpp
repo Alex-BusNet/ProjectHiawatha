@@ -448,7 +448,7 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     City *city;
     Unit *unit;
     srand(time(0));
-    int index;
+    int index, lastIndex;
 
     for(int i = 0; i < civs.size(); i++)
     {
@@ -459,10 +459,12 @@ newrand:
         {
             goto newrand;
         }
+//        else if(board.at(index)->GetTileID().column)
 
         if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
         {
 //            qDebug() << "   Adding Capital";
+            lastIndex = index;
             city = new City();
             QList<Tile*> initialTiles = GetNeighbors(board.at(index));
 
@@ -489,13 +491,13 @@ newrand:
             city->UpdateCityYield();
             city->SetCityIndex(0);
             city->SetName(civs.at(i)->GetInitialCityList().at(civs.at(i)->getCityIndex()));
-            civs.at(i)->AddCity(city);
             city->SetCitizenCount(1);
             city->DefineCityBorders(false);
             this->GetTileQueue(city);
             city->SortTileQueue();
             city->SortControlledTiles();
             city->GetControlledTiles().first()->IsWorked = true;
+            civs.at(i)->AddCity(city);
 
             board.at(index)->SetYield(5,5,5,5,5);
             board.at(index)->HasCity = true;
@@ -510,7 +512,7 @@ newrand:
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
-                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
+//                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
@@ -536,7 +538,7 @@ newrand:
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
-                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
+//                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
@@ -652,10 +654,10 @@ void Map::GenerateResources()
     for(int i = 0; i < board.size(); i++)
     {
         resource = d(gen);
-        qDebug() << "--Board Tile Type:" << board.at(i)->GetTileTypeString();
+//        qDebug() << "--Board Tile Type:" << board.at(i)->GetTileTypeString();
         if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST))
         {
-            qDebug() << "   Resource:" << resource;
+//            qDebug() << "   Resource:" << resource;
             /// Need to set this so they also update the tile yields.
             switch(resource)
             {
@@ -713,8 +715,8 @@ void Map::GenerateResources()
                 board.at(i)->SetResource(NO_STRATEGIC, BANANAS);
                 board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
-            case GOLD:
-                board.at(i)->SetResource(NO_STRATEGIC, GOLD);
+            case GOLD_RESOURCE:
+                board.at(i)->SetResource(NO_STRATEGIC, GOLD_RESOURCE);
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case GEMS:
