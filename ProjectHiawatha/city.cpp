@@ -273,6 +273,7 @@ Update_t City::UpdateProgress()
     {
         this->accumulatedProduction = 0;
         this->currentProductionName = "No Current Production";
+        this->currentProductionCost = 0;
         update.productionFinished = true;
     }
 
