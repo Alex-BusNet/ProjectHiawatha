@@ -90,37 +90,22 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
         if(!unit->isPathEmpty())
         {
             qDebug() << "       Tiles in path:" << unit->GetPath().size();
-//            foreach(Tile* tile, unit->GetPath())
-//            {
-//                qDebug() << "       " << tile->GetTileIDString();
-//            }
         }
 
-//        qDebug() << "   Updating Position";
         //update the unit's position
         unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
         unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
 
-//        qDebug() << "   Setting new tile data";
         // Set the data for the unit's new tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
 
-//        qDebug() << "   Removing Point";
         // Remove the point from path
         if(!unit->isPathEmpty())
         {
             unit->UpdatePath();
-
-            //// FOR DEBUGGING PURPOSES
-//            qDebug() << "       Tiles left in path:" << unit->GetPath().size();
-//            foreach(Tile* tile, unit->GetPath())
-//            {
-//                qDebug() << "       " << tile->GetTileIDString();
-//            }
         }
 
-//        qDebug() << "   Redrawing Tile";
         // Alert the renderer to redraw the map.
         scene->redrawTile = true;
     }

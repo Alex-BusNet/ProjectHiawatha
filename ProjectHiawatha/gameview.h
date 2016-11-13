@@ -34,7 +34,6 @@ public:
 
     virtual void wheelEvent(QWheelEvent *e);
 
-    void SetGameMap(Map *map);
     void SceneProcess(QPainter *paint);
 
 

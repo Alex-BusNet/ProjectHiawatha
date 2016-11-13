@@ -6,7 +6,6 @@
 #include <QThread>
 #include <ctime>
 #include <algorithm>
-#include <QFuture>
 #include <QtConcurrent/QtConcurrent>
 #include "unittype.h"
 #include "datatypes.h"
@@ -74,31 +73,29 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Done.\nInitializing Map.";
     map = new Map(mapSizeX, mapSizeY);
-    map->InitHexMap();
+    mapInit = QtConcurrent::run(this->map, Map::InitHexMap);
+//    mapInit.waitForFinished();
+//    map->InitHexMap();
 
     qDebug() << "Done.\nSetting up Scene.";
-
     this->InitLayouts();
-
-//    qDebug() << "Done.\nAdding buttons to screen.";
-
-//    exitGame->setGeometry(this->width() - 200, this->height() + 190, 180, 60);
-//    renderPlusOne->setGeometry(gameView->width() - 200, this->height() + 125, 180, 60);
-//    renderMinusOne->setGeometry(gameView->width()- 200, this->height() + 60, 180, 60);
-
-//    proxy.push_back(gameView->addWidget(exitGame));
-//    proxy.push_back(gameView->addWidget(renderPlusOne));
-//    proxy.push_back(gameView->addWidget(renderMinusOne));
-
-    qDebug() << "Done.\nDrawing map.";
-    renderer->DrawHexScene(map, gameView);
 
     qDebug() << "Initializing Civs";
     ////The 1 is for testing purposes;
     /// Change to numAI when done.
-    InitCivs(player, numAI);
+//    InitCivs(player, numAI);
+    civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
+    civInit.waitForFinished();
 
     qDebug() << "   CivList size: " << civList.size();
+
+    qDebug() << "Done.\nDrawing map.";
+//    gameView->moveToThread(renderThread);
+//    renderThread = QtConcurrent::run(this->renderer, Renderer::DrawHexScene, map, gameView);
+//    renderThread.waitForFinished();
+
+    renderer->DrawHexScene(map, gameView);
+
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
     for(int i = 0; i < civList.size(); i++)
     {
@@ -131,22 +128,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     InitYieldDisplay();
 
-//    renderer->DrawGuiImages(game);
-
-//    for(int i = 0; i < proxy.size(); i++)
-//    {
-//        proxy.at(i)->setZValue(7);
-//    }
-
-//    for(int i = 0; i < guiRects.size(); i++)
-//    {
-//        guiRects.at(i)->setZValue(6);
-//    }
-
     renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
-
-    gameView->SetGameMap(map);
 
     for(int i = 0; i < 3; i++)
     {
@@ -299,6 +282,12 @@ newCivRand:
             goto newCivRand;
         }
 
+    }
+
+    if(!mapInit.isFinished())
+    {
+        qDebug() << "--Waiting for map";
+        mapInit.waitForFinished();
     }
 
     qDebug() << "   Spawning Civs";
@@ -606,6 +595,12 @@ void GameManager::EndTurn()
 
         if(!civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders && !civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty())
         {
+            if(currentTurn == 0)
+            {
+                qDebug() << "   Clearing Unit Needs Orders icon";
+                renderer->SetUnitNeedsOrders(map->GetTileAt(civList.at(0)->GetUnitAt(i)->GetTileIndex()), false);
+            }
+
             qDebug() << "  Updating unit positions";
             uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, gameView->GetScene(), currentTurn);
             unitMoved = true;
@@ -620,6 +615,20 @@ void GameManager::EndTurn()
         else
         {
             renderer->UpdateUnits(map, gameView, civList.at(currentTurn)->GetUnitAt(i), unitMoved);
+
+            if(currentTurn == 0)
+            {
+                if(civList.at(0)->GetUnitAt(i)->isPathEmpty())
+                    civList.at(0)->GetUnitAt(i)->RequiresOrders = true;
+
+                if(civList.at(0)->GetUnitAt(i)->RequiresOrders)
+                {
+                    qDebug() << "   Setting Unit Needs Orders icon";
+                    renderer->SetUnitNeedsOrders(map->GetTileAt(civList.at(0)->GetUnitAt(i)->GetTileIndex()), true);
+                }
+            }
+
+            unitMoved = false;
         }
     }
 
@@ -924,6 +933,7 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(moveUnit);
 
     gameLayout->addLayout(unitControlButtons);
+//    gameLayout->addWidget(LoadProgress);
     gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);

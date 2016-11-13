@@ -97,11 +97,6 @@ void GameView::wheelEvent(QWheelEvent *e)
     e->accept();
 }
 
-void GameView::SetGameMap(Map *map)
-{
-    this->map = map;
-}
-
 void GameView::SceneProcess(QPainter *paint)
 {
 //    if(game->isTileSelected)

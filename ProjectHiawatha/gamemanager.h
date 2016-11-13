@@ -11,6 +11,7 @@
 #include "unitcontroller.h"
 #include "ai_controller.h"
 #include "techtree.h"
+#include <QFuture>
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsSceneWheelEvent>
@@ -60,6 +61,8 @@ private:
     QPushButton *attackUnit;
     QPushButton *attackCity;
     QPushButton *rangeAttack;
+
+    QFuture<void> civInit, mapInit, renderThread;
 
     //=============
     //Dev Buttons

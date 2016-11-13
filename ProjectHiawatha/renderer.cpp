@@ -152,7 +152,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
             resourcePixmap.last()->setZValue(3);
         }
-\
+
         //// Add filter to only render tileWorkedIcon on player controlled tiles.
         if(map->GetTileAt(i)->GetControllingCiv() != NO_NATION)
         {
@@ -176,6 +176,12 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
 
+        QLabel *orders = new QLabel("!");
+        orders->setStyleSheet("QLabel { color: red; background-color: transparent; font-size: 14px; font-style: bold; }");
+        orders->setGeometry(map->GetTileAt(i)->GetItemTexturePoint().x() + 30, map->GetTileAt(i)->GetItemTexturePoint().y(), 14, 14);
+        ordersIcon.push_back(view->addWidget(orders));
+        ordersIcon.last()->setOpacity(0);
+        ordersIcon.last()->setZValue(8);
 
     }
 }
@@ -183,7 +189,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
 void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackSelection)
 {
     int index = (data.column / 2) + (mapSizeX * data.row);
-    static int lastIndex;
+    static int lastIndex = 0;
 
     if(map->GetTileAt(index)->ContainsUnit)
     {
@@ -219,10 +225,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
 
         map->GetTileAt(index)->SetTilePen(outlinePen);
 
-//        scene->removeItem(tiles.at(lastIndex));
-//        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-//        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
-
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
     }
@@ -232,25 +234,15 @@ void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackS
         map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
         map->GetTileAt(lastIndex)->Selected = false;
 
-//        scene->removeItem(tiles.at(lastIndex));
-//        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-//        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
-
         view->removeItem(tileCircles.at(lastIndex));
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
-
-        map->GetTileAt(index)->GetGoverningCity();
     }
     else
     {
         SetOutlinePen(NO_NATION);
         map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
         map->GetTileAt(lastIndex)->Selected = false;
-
-//        scene->removeItem(tiles.at(lastIndex));
-//        tiles.insert(lastIndex, scene->addPolygon(map->GetTileAt(index)->GetTilePolygon()));
-//        tiles.at(lastIndex)->setPen(map->GetTileAt(lastIndex)->GetTilePen());
 
         view->removeItem(tileCircles.at(lastIndex));
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
@@ -377,6 +369,8 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     unit->SetHealthBarIndex(unitHealthBars.size());
     unitHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
     unitHealthBars.last()->setZValue(6);
+
+    this->SetUnitNeedsOrders(map->GetTileAt(unit->GetTileIndex()), true);
 }
 
 void Renderer::AddCityHealthBars(City *city, GameView *view)
@@ -503,10 +497,12 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
     tileWorked.at(index)->setZValue(3);
 }
 
-void Renderer::SetUnitNeedsOrders(Tile *tile, GameView *view)
+void Renderer::SetUnitNeedsOrders(Tile *tile, bool movedTo)
 {
-    // a '!' means unit needs orders.
-
+    if(movedTo)
+        ordersIcon.at((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row))->setOpacity(100);
+    else
+        ordersIcon.at((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row))->setOpacity(0);
 }
 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
