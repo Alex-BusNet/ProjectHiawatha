@@ -58,6 +58,8 @@ private:
     QPushButton *buildRoad;
     QPushButton *foundCity;
     QPushButton *attackUnit;
+    QPushButton *attackCity;
+    QPushButton *rangeAttack;
 
     //=============
     //Dev Buttons
@@ -156,6 +158,8 @@ public slots:
     void SetScienceFocus();
     void SetFoodFocus();
     void SetCultureFocus();
+    void AttackCity();
+    void RangeAttack();
 
     void parseItem(QListWidgetItem *item);
 };
