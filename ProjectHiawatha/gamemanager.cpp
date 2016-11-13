@@ -45,6 +45,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     findUnit = false;
     attackNearby = false;
     focusChanged = false;
+    fortify = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -587,6 +588,7 @@ void GameManager::EndTurn()
         moveUnit->setEnabled(false);
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
+        fortifyUnit->setEnabled(false);
     }
 
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
@@ -614,6 +616,11 @@ void GameManager::EndTurn()
         }
         else
         {
+            if((civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 100) && civList.at(currentTurn)->GetUnitAt(i)->isFortified)
+            {
+                uc->HealUnit(civList.at(currentTurn)->GetUnitAt(i));
+            }
+
             renderer->UpdateUnits(map, gameView, civList.at(currentTurn)->GetUnitAt(i), unitMoved);
 
             if(currentTurn == 0)
@@ -709,6 +716,7 @@ void GameManager::UpdateTileData()
                             attackUnit->setEnabled(false);
                             attackCity->setEnabled(false);
                             rangeAttack->setEnabled(false);
+                            fortifyUnit->setEnabled(false);
                         }
                     }
                     else if (unitToMove->GetUnitType() == WORKER)
@@ -722,6 +730,7 @@ void GameManager::UpdateTileData()
                         attackUnit->setEnabled(false);
                         attackCity->setEnabled(false);
                         rangeAttack->setEnabled(false);
+                        fortifyUnit->setEnabled(false);
                     }
                 }
                 else //Combat Unit button controls
@@ -734,6 +743,7 @@ void GameManager::UpdateTileData()
                     buildPlantation->setEnabled(false);
                     buildTradePost->setEnabled(false);
                     buildRoad->setEnabled(false);
+                    fortifyUnit->setEnabled(false);
 
                     QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
 
@@ -752,6 +762,7 @@ void GameManager::UpdateTileData()
                                     buildTradePost->setEnabled(false);
                                     buildRoad->setEnabled(false);
                                     attackUnit->setEnabled(true);
+                                    fortifyUnit->setEnabled(true);
                                 }
                             }
 
@@ -798,6 +809,8 @@ void GameManager::UpdateTileData()
     {
         unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
 
+        if(unitToMove->isFortified)
+            unitToMove->isFortified = false;
         qDebug() <<"    Finding path";
         uc->FindPath(unitTile, targetTile, map, gameView->GetScene(), unitToMove);
 
@@ -815,9 +828,12 @@ void GameManager::UpdateTileData()
         moveUnit->setEnabled(false);
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
+        fortifyUnit->setEnabled(false);
 
         qDebug() << "   Done";
     }
+
+
 
     if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
     {
@@ -828,6 +844,7 @@ void GameManager::UpdateTileData()
         buildTradePost->setEnabled(false);
         buildRoad->setEnabled(false);
         moveUnit->setEnabled(false);
+        fortifyUnit->setEnabled(false);
 
         redrawTile = true;
     }
@@ -838,17 +855,6 @@ void GameManager::InitButtons()
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
-
-//    renderPlusOne = new QPushButton("Zoom in");
-//    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(zoomIn()));
-//    renderPlusOne->setShortcut(QKeySequence(Qt::Key_Up));
-
-//    renderMinusOne = new QPushButton("Zoom out");
-//    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
-//    renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
-
-//    showDummyCityScreen = new QPushButton("Show Dummy City");
-//    connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
@@ -913,6 +919,11 @@ void GameManager::InitButtons()
     rangeAttack = new QPushButton("Range Attack");
     connect(rangeAttack, SIGNAL(clicked(bool)), this, SLOT(RangeAttack()));
     rangeAttack->setEnabled(false);
+
+    fortifyUnit = new QPushButton("Fortify");
+    connect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
+    fortifyUnit->setEnabled(false);
+
 }
 
 void GameManager::InitLayouts()
@@ -924,6 +935,7 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
+    unitControlButtons->addWidget(fortifyUnit);
     unitControlButtons->addWidget(foundCity);
     unitControlButtons->addWidget(buildFarm);
     unitControlButtons->addWidget(buildMine);
@@ -933,7 +945,6 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(moveUnit);
 
     gameLayout->addLayout(unitControlButtons);
-//    gameLayout->addWidget(LoadProgress);
     gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
@@ -1071,6 +1082,13 @@ void GameManager::updateTiles()
 
     TurnController();
 
+    if(fortify && unitToMove != NULL && !unitToMove->isFortified)
+    {
+        qDebug() << "Fortifying" << unitToMove->GetName();
+        fortify = false;
+        unitToMove->isFortified = true;
+    }
+
     if(this->redrawTile)
     {
         this->redrawTile = false;
@@ -1201,6 +1219,13 @@ void GameManager::AttackCity()
 void GameManager::RangeAttack()
 {
 
+}
+
+void GameManager::Fortify()
+{
+    qDebug() << "Fortifying unit";
+    this->fortify = true;
+    fortifyUnit->setEnabled(false);
 }
 
 void GameManager::parseItem(QListWidgetItem *item)

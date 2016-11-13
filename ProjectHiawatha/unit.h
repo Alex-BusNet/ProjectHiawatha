@@ -39,6 +39,7 @@ public:
     void SetTechIndex(int index);
     void SetUnitImage(QImage *image);
     void Use();
+    void DealDamage(int damage);
 
     void UpdatePath();
 

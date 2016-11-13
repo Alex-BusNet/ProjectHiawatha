@@ -318,7 +318,7 @@ void Unit::SetRangeStrength(int rangeStr)
 
 void Unit::SetHealth(int health)
 {
-    this->health -= health;
+    this->health = health;
 }
 
 void Unit::SetMaxHealth(int maxHealth)
@@ -519,6 +519,11 @@ void Unit::SetUnitTargetTileIndex(int tileIndex)
 void Unit::Use()
 {
     this->uses--;
+}
+
+void Unit::DealDamage(int damage)
+{
+    this->health -= damage;
 }
 
 void Unit::UpdatePath()

@@ -61,6 +61,7 @@ private:
     QPushButton *attackUnit;
     QPushButton *attackCity;
     QPushButton *rangeAttack;
+    QPushButton *fortifyUnit;
 
     QFuture<void> civInit, mapInit, renderThread;
 
@@ -109,13 +110,13 @@ private:
     QString currentProductionName;
     bool cityScreenVisible;
     bool techTreeVisible;
-    bool relocateUnit;
+    bool relocateUnit, fortify;
     bool updateUnitPos;
     bool turnEnded, turnStarted;
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
     bool findUnit;
-    bool attackNearby;
+    bool attackNearby, attackRange;
     bool focusChanged;
 
     Nation playerCiv;
@@ -164,6 +165,7 @@ public slots:
     void SetCultureFocus();
     void AttackCity();
     void RangeAttack();
+    void Fortify();
 
     void parseItem(QListWidgetItem *item);
 };

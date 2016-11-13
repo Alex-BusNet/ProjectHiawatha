@@ -33,10 +33,9 @@ void MainWindow::on_newMap_clicked()
     {
         delete options;
     }
-    //game = new GameManager(0, fullscreen);
+
     options = new GameOptions(0,fullscreen);
     options->show();
-//    game->show();
 }
 
 

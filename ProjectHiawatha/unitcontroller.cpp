@@ -134,7 +134,7 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     if(target->isFortified)
         fortifyBonus = 0.4f;
     else
-        fortifyBonus = 0.4f;
+        fortifyBonus = 1.0f;
 
     qDebug() << "   forifyBonus:" << fortifyBonus;
 
@@ -145,11 +145,6 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 
     qDebug() << "   melee:" << melee;
 
-//    srand(QTime::currentTime().msec());
-
-//    AtkBonus = (static_cast<double>(rand())/ RAND_MAX) * 100.0;
-//    qDebug() << "   AtkBonus:" << AtkBonus;
-
     //Need to adjust this for range units attacking.
     qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     qDebug() << "       Damage Sustained by Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
@@ -157,14 +152,12 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
-    qDebug() << "   DamageDealt before adjust:" << damageDealt;
-
     float damageReceived = (damageDealt - damageSustained) * (fortifyBonus / AtkBonus) * melee;
 
-    qDebug() << "           Damage Dealt:" << damageDealt << "Damage Recieved:" << damageReceived;
+    qDebug() << "           Damage taken by target:" << damageDealt - damageSustained << "Damage Recieved by attacker:" << damageReceived;
 
-    target->SetHealth(damageDealt);
-    attacker->SetHealth(damageReceived);
+    target->DealDamage(damageDealt - damageSustained);
+    attacker->DealDamage(damageReceived);
 }
 
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
@@ -211,6 +204,15 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
     }
 
     return new Unit(NO_NATION, WORKER);
+}
+
+void UnitController::HealUnit(Unit *unit)
+{
+    qDebug() << "Healing unit";
+    if((unit->GetHealth() + 5) > 100)
+        unit->SetHealth(100);
+    else
+        unit->SetHealth(unit->GetHealth() + 5);
 }
 
 int UnitController::GetDistance(Tile *a, Tile *b)
