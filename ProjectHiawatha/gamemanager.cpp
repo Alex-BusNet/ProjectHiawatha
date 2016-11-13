@@ -477,12 +477,12 @@ void GameManager::StartTurn()
     for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
     {
 //      civList.at(currentTurn)->GetCityList().at(i)->setAccumulatedProduction(civList.at(currentTurn)->GetCityList().at(i)->getCityYield()->GetProductionYield());
-        accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
         productionCost = civList.at(currentTurn)->GetCityList().at(i)->getCurrentProductionCost();
+        accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
         qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
         qDebug()<<"PRODUCTION COST: "<<productionCost;
 
-        if(update.productionFinished /*accumulatedProduction >= productionCost && gameTurn != 1 && productionCost != 0*/)
+        if(update.productionFinished)
         {
             civList.at(currentTurn)->GetCityList().at(i)->setProductionFinished(true);
             if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
@@ -493,7 +493,7 @@ void GameManager::StartTurn()
 
             }
 
-                /// THIS IS REDUNDANT FROM THE PREVIOUS IF STATEMENT
+
                 if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
                 {
                     civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
@@ -502,8 +502,6 @@ void GameManager::StartTurn()
 
                     for(int i = 0; i<map->GetBoardSize();i++)
                     {
-                        if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable)){ continue; }
-
 
                             if(unit->isNaval())
                             {
