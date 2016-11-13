@@ -88,8 +88,10 @@ private:
     QLabel *sciLabel, *sciText;
     QLabel *foodLabel, *foodText;
     QLabel *culLabel, *culText;
+    QLabel *techLabel, *techText;
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
+    QRect *playerInfoRect;
 
     Unit* unitToMove, *targetUnit;
 
@@ -117,7 +119,6 @@ private:
 
     void InitCivs(Nation player, int numAI);
     void paintEvent(QPaintEvent *event);
-    void mouseReleaseEvent(QMouseEvent *e);
 
     void TurnController();
     void StartTurn();

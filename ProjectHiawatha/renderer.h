@@ -34,6 +34,7 @@ public:
     void LoadCities(QVector<City*> cities, GameView *view);
 
     void SetTileWorkedIcon(Tile* tile, GameView *view);
+    void SetUnitNeedsOrders(Tile *tile, GameView *view);
     void UpdateCityGrowthBar(City* city, GameView *view);
     void UpdateCityProductionBar(City* city, GameView *view);
     void UpdateCityHealthBar(City* city, GameView *view);
@@ -62,6 +63,7 @@ private:
     QVector<QGraphicsEllipseItem*> tileCircles;
 
     QVector<QGraphicsPixmapItem*> tileWorked;
+    QVector<QGraphicsPixmapItem*> ordersIcon;
 
     QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> cityPixmap;

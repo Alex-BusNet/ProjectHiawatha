@@ -33,6 +33,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     cityScreen = new CityScreen(this);
     techTree = new TechTree(this);
 
+    techLabel = new QLabel(" NO RESEARCH ");
+    techText = new QLabel(" 00/000 ");
+
     cityScreenVisible = false;
     techTreeVisible = false;
     relocateUnit = false;
@@ -158,6 +161,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
 
+    playerInfoRect = new QRect(0, 0, this->width(), 20);
     this->setLayout(vLayout);
     this->show();
 
@@ -172,6 +176,7 @@ void GameManager::InitCivs(Nation player, int numAI)
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
+    techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
     QString str = "../ProjectHiawatha/Assets/CityLists/";
     QString str2;
     switch (player)
@@ -213,7 +218,6 @@ void GameManager::InitCivs(Nation player, int numAI)
 
     selNat.push_back(player);
 
-    AI_Strategic* ai;
     qDebug() << "   Player:" << player;
     for(int i = 0; i < numAI; i++)
     {
@@ -280,11 +284,11 @@ newCivRand:
                 civ->setCurrentTech(civ->GetTechList().at(0));
                 civ->setNextTech(civ->GetTechList().at(1));
                 civList.push_back(civ);
-                ac->AddAIToList(ai);
             }
             // Otherwise, delete it and try again.
             else
             {
+                qDebug() << "--Civ" << civ->getCiv() << "exists. Looking for new Civ";
                 delete civ;
                 goto newCivRand;
             }
@@ -306,15 +310,10 @@ void GameManager::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 
     QPainter paint(this);
-    QRect playerInfoRect(0, 0, this->width(), 20);
-    paint.fillRect(playerInfoRect, QBrush(Qt::black));
-    paint.setPen(Qt::white);
-    paint.drawText(playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
-}
 
-void GameManager::mouseReleaseEvent(QMouseEvent *e)
-{
-    qDebug() << "Widget mouse release event";
+    paint.fillRect(*playerInfoRect, QBrush(Qt::black));
+    paint.setPen(Qt::white);
+    paint.drawText(*playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
 }
 
 void GameManager::TurnController()
@@ -430,14 +429,11 @@ void GameManager::StartTurn()
     }
 
     int localIndex = 0;
-    bool productionFinishedFlag = false;
     QString str[20];
 
     int scienceYield = civList.at(currentTurn)->getCivYield()->GetScienceYield();
     civList.at(currentTurn)->setAccumulatedScience(scienceYield);
 
-    /// THIS IS SO WE CAN TEST THINGS FOR MULTIPLE TURNS WITHOUT CONSTANTLY
-    /// HAVING TO STOP FOR TECH PROGRESS
     int accumulatedScience = civList.at(currentTurn)->getAccumulatedScience();
 
     int techCost = civList.at(currentTurn)->getCurrentTech()->getCost();
@@ -470,6 +466,11 @@ void GameManager::StartTurn()
         civList.at(currentTurn)->setNextTech(civList.at(currentTurn)->GetTechList().at(techIndex+1));
         civList.at(currentTurn)->setCurrentTech(civList.at(currentTurn)->GetTechList().at(techIndex));
         civList.at(currentTurn)->resetAccumulatedScience();
+
+        if(currentTurn == 0)
+        {
+            techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+        }
     }
 
     int accumulatedProduction;
@@ -487,63 +488,53 @@ void GameManager::StartTurn()
             civList.at(currentTurn)->GetCityList().at(i)->setProductionFinished(true);
             if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
             {
-                productionFinishedFlag = true;
                 str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
                 localIndex++;
 
             }
 
+            if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
+            {
+                civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
+                Unit* unit = civList.at(currentTurn)->GetCityList().at(i)->getProducedUnit();
+                unit->SetOwner(civList.at(currentTurn)->getCiv());
 
-                if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
+                for(int i = 0; i<map->GetBoardSize();i++)
                 {
-                    civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
-                    Unit* unit = civList.at(currentTurn)->GetCityList().at(i)->getProducedUnit();
-                    unit->SetOwner(civList.at(currentTurn)->getCiv());
-
-                    for(int i = 0; i<map->GetBoardSize();i++)
+                    if(unit->isNaval())
                     {
-
-                            if(unit->isNaval())
+                        if(map->GetTileAt(i)->ContainsUnit  || !(map->GetTileTypeAt(i) == WATER)) { continue; }
+                        else
+                        {
+                            if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
                             {
-                                if(map->GetTileAt(i)->ContainsUnit  || !(map->GetTileTypeAt(i) == WATER)) { continue; }
-                                else
-                                {
-                                    if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
-                                    {
-                                        unit->SetPositionIndex(i);
-                                        map->GetTileAt(i)->ContainsUnit = true;
-                                        qDebug()<<"         Unit built";
-                                        break;
-                                    }
-
-                                }
-                            }
-                            else
-                            {
-                                if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable) || (map->GetTileTypeAt(i) == WATER)) { continue; }
-                                else
-                                {
-                                    if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
-                                    {
-                                        unit->SetPositionIndex(i);
-                                        map->GetTileAt(i)->ContainsUnit = true;
-                                        qDebug()<<"         Unit built";
-                                        break;
-                                    }
-                                }
+                                unit->SetPositionIndex(i);
+                                map->GetTileAt(i)->ContainsUnit = true;
+                                qDebug()<<"         Unit built";
+                                break;
                             }
 
-
+                        }
                     }
-
-                    civList.at(currentTurn)->AddUnit(unit);
-                    renderer->AddUnit(unit,map,gameView);
+                    else
+                    {
+                        if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable) || (map->GetTileTypeAt(i) == WATER)) { continue; }
+                        else
+                        {
+                            if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
+                            {
+                                unit->SetPositionIndex(i);
+                                map->GetTileAt(i)->ContainsUnit = true;
+                                qDebug()<<"         Unit built";
+                                break;
+                            }
+                        }
+                    }
                 }
 
-//            else
-//            {
-//                renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
-//            }
+                civList.at(currentTurn)->AddUnit(unit);
+                renderer->AddUnit(unit,map,gameView);
+            }
 
             if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
             {
@@ -582,6 +573,7 @@ void GameManager::StartTurn()
             foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
             sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
             culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
+            techText->setText(QString(" %1 / %2").arg(accumulatedScience).arg(techCost));
         }
 
         qDebug() << "  Starting turn for civ" << currentTurn;
@@ -838,16 +830,16 @@ void GameManager::InitButtons()
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
 
-    renderPlusOne = new QPushButton("Zoom in");
-    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(zoomIn()));
-    renderPlusOne->setShortcut(QKeySequence(Qt::Key_Up));
+//    renderPlusOne = new QPushButton("Zoom in");
+//    connect(renderPlusOne, SIGNAL(clicked(bool)), this, SLOT(zoomIn()));
+//    renderPlusOne->setShortcut(QKeySequence(Qt::Key_Up));
 
-    renderMinusOne = new QPushButton("Zoom out");
-    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
-    renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
+//    renderMinusOne = new QPushButton("Zoom out");
+//    connect(renderMinusOne, SIGNAL(clicked(bool)), this, SLOT(zoomOut()));
+//    renderMinusOne->setShortcut(QKeySequence(Qt::Key_Down));
 
-    showDummyCityScreen = new QPushButton("Show Dummy City");
-    connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
+//    showDummyCityScreen = new QPushButton("Show Dummy City");
+//    connect(showDummyCityScreen, SIGNAL(clicked(bool)), this, SLOT(showCity()));
 
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
@@ -938,6 +930,8 @@ void GameManager::InitLayouts()
 
     playerControlButtons->addWidget(exitGame);
     playerControlButtons->addWidget(clv);
+    playerControlButtons->addWidget(techLabel);
+    playerControlButtons->addWidget(techText);
     playerControlButtons->addWidget(goldFocus);
     playerControlButtons->addWidget(productionFocus);
     playerControlButtons->addWidget(scienceFocus);
@@ -948,12 +942,6 @@ void GameManager::InitLayouts()
     gameLayout->addLayout(playerControlButtons);
 
     vLayout->addLayout(gameLayout);
-
-    hLayout->addWidget(renderPlusOne);
-    hLayout->addWidget(renderMinusOne);
-    hLayout->addWidget(showDummyCityScreen);
-
-    vLayout->addLayout(hLayout);
 }
 
 void GameManager::InitYieldDisplay()
@@ -970,17 +958,11 @@ void GameManager::InitYieldDisplay()
     sciText->setStyleSheet("QLabel { color: white; }");
     culText->setStyleSheet("QLabel { color: white; }");
 
-    goldText->setAlignment(Qt::AlignLeft);
-    prodText->setAlignment(Qt::AlignLeft);
-    foodText->setAlignment(Qt::AlignLeft);
-    sciText->setAlignment(Qt::AlignLeft);
-    culText->setAlignment(Qt::AlignLeft);
-
-    goldText->setAlignment(Qt::AlignVCenter);
-    prodText->setAlignment(Qt::AlignVCenter);
-    foodText->setAlignment(Qt::AlignVCenter);
-    sciText->setAlignment(Qt::AlignVCenter);
-    culText->setAlignment(Qt::AlignVCenter);
+    goldText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    prodText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    foodText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    sciText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    culText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     goldPix = new QPixmap("../ProjectHiawatha/Assets/Icons/gold.png");
     prodPix = new QPixmap("../ProjectHiawatha/Assets/Icons/production.png");
@@ -1087,7 +1069,7 @@ void GameManager::updateTiles()
 
     this->update();
 
-    //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING WASN'T TAKING UP A LOT OF TIME
+    //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING ISN'T TAKING UP A LOT OF TIME
     end = std::chrono::steady_clock::now();
     if(countTime == true)
     {

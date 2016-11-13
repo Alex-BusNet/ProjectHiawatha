@@ -501,6 +501,12 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
     tileWorked.at(index)->setZValue(3);
 }
 
+void Renderer::SetUnitNeedsOrders(Tile *tile, GameView *view)
+{
+    // a '!' means unit needs orders.
+
+}
+
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 {
     qDebug() << "--Updating Growth bar for" << city->GetName();
