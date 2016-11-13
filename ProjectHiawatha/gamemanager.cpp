@@ -493,13 +493,6 @@ void GameManager::StartTurn()
 
             }
 
-            if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
-            {
-                civList.at(currentTurn)->GetCityList().at(i)->setProductionFinished(true);
-                QMessageBox* mBox = new QMessageBox();
-                mBox->setText("Production has finished");
-                mBox->exec();
-
                 /// THIS IS REDUNDANT FROM THE PREVIOUS IF STATEMENT
                 if(civList.at(currentTurn)->GetCityList().at(i)->getIsUnit())
                 {
@@ -511,8 +504,7 @@ void GameManager::StartTurn()
                     {
                         if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable)){ continue; }
 
-                        if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
-                        {
+
                             if(unit->isNaval())
                             {
                                 if(map->GetTileAt(i)->ContainsUnit  || !(map->GetTileTypeAt(i) == WATER)) { continue; }
@@ -543,25 +535,19 @@ void GameManager::StartTurn()
                                 }
                             }
 
-                            /// What is this block for?
-                            unit->SetPositionIndex(i);
-                            map->GetTileAt(i)->ContainsUnit = true;
-                            qDebug()<<"         Unit built";
-                            break;
 
-                        }
                     }
 
                     civList.at(currentTurn)->AddUnit(unit);
                     renderer->AddUnit(unit,map,gameView);
                 }
-            }
+
 //            else
 //            {
 //                renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
 //            }
 
-            if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished /*productionFinishedFlag*/)
+            if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
             {
                 QString str2;
                 int numOfCities = 1;
