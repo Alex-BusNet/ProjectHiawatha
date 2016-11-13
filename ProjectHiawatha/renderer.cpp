@@ -175,6 +175,8 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             tileWorked.last()->setOpacity(0);
             tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
+
+
     }
 }
 
@@ -428,7 +430,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityBarOutlines.last()->pen().setWidthF(0.1f);
 
     city->SetCityProductionBarIndex(cityProductionBars.size());
-    cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
+    cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::transparent)), QBrush(QColor(255, 113, 0, 255))));
     cityProductionBars.last()->setZValue(6);
 
     //---------------------------------------------------------------------------------
@@ -570,7 +572,7 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
                                   city->GetCityTile()->GetCityLabelPoint().y() + 12,
                                   barSize, 2);
 
-    cityProductionBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::darkRed))));
+    cityProductionBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(255, 113, 0, 255))));
     cityProductionBars.at(index)->setZValue(6);
 }
 
