@@ -235,10 +235,8 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
 {
     unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
-//    qDebug() << "   Unit health:" << unit->GetHealth() << "Unit Max health:" << unit->GetMaxHealth() << " healthBar value:" << unitHealthBars.at(unit->GetHealthBarIndex())->rect().width() << "Health Ratio:" << (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth());
     if((unit->GetHealth() / unit->GetMaxHealth()) != 1 || unitMoved)
     {
-//        qDebug() << "Updating HealthBars" << unit->GetName() << unit->GetTileIndex();
         view->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
 
         unitHealthBars.replace(unit->GetHealthBarIndex(), view->addRect(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
@@ -346,7 +344,6 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
                               map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1,
                               35, 5);
 
-//    unitHealthRects.push_back(health);
     unit->SetHealthBarIndex(unitHealthBars.size());
     unitHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
     unitHealthBars.last()->setZValue(6);

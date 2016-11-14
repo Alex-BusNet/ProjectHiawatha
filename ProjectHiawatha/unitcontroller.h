@@ -15,7 +15,7 @@ public:
     UnitController();
 
     void FindPath(Tile *startTile, Tile* endTile, Map *map, GameScene *scene, Unit *unit);
-    void MoveUnit(Unit *unit, Map *map, GameScene *scene, int civListIndex);
+    void MoveUnit(Unit *unit, Map *map, int civListIndex);
 
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
     void RangeAttack(Unit* attacker, Unit* target);

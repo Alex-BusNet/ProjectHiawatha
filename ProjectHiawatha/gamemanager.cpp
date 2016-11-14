@@ -556,10 +556,12 @@ void GameManager::StartTurn()
 
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
         {
-            if(!unit->RequiresOrders && !unit->isPathEmpty())
+            if(!unit->RequiresOrders && unit->isPathEmpty())
             {
                 unit->RequiresOrders = true;
-                renderer->SetUnitNeedsOrders(unit->GetTileIndex(), true);
+
+                if(currentTurn == 0)
+                    renderer->SetUnitNeedsOrders(unit->GetTileIndex(), true);
             }
         }
 
@@ -606,6 +608,7 @@ void GameManager::EndTurn()
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
     {
         qDebug() << "           is unit path empty:" << civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty();
+        qDebug() << "           Unit needs orders:" << civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders;
 
         if(!civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders && !civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty())
         {
@@ -616,8 +619,11 @@ void GameManager::EndTurn()
             }
 
             qDebug() << "  Updating unit positions";
-            uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, gameView->GetScene(), currentTurn);
-            tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, currentTurn);
+
+            if(currentTurn == 0)
+                tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+
             unitMoved = true;
         }
 
@@ -1137,7 +1143,9 @@ void GameManager::updateTiles()
         qDebug() << "Fortifying" << unitToMove->GetName();
         fortify = false;
         unitToMove->isFortified = true;
+        unitToMove->RequiresOrders = false;
         renderer->SetFortifyIcon(unitToMove->GetTileIndex(), false);
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
     }
 
     if(this->redrawTile && !selectedTileQueue->isEmpty())

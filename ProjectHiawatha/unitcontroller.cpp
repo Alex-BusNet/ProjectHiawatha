@@ -74,7 +74,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
     scene->unitMoveOrdered = false;
 }
 
-void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civListIndex)
+void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 {
     if(!unit->isPathEmpty())
     {
@@ -104,9 +104,6 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
         {
             unit->UpdatePath();
         }
-
-        // Alert the renderer to redraw the map.
-        scene->redrawTile = true;
     }
 }
 
