@@ -145,6 +145,12 @@ Update_t Civilization::UpdateProgress()
             qDebug() << "---------Production Finished";
             redraw.productionFinished = true;
         }
+
+        if(cityProgress.cityHealed)
+        {
+            qDebug() << "---------City Healed";
+            redraw.cityHealed = true;
+        }
     }
 
     /*cost = (n * b*(1 + g*m)/100)^(1 + g / d)

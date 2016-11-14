@@ -13,6 +13,10 @@ City::City()
     this->productionUnit = false;
     this->currentProductionName = "No Current Production";
     this->cityFocus = GOLD_FOCUS;
+    this->controllingCiv = NO_NATION;
+    this->cityStrength = 2;
+    this->cityHealth = 200;
+    this->maxHealth = 200;
 }
 
 
@@ -236,6 +240,8 @@ Update_t City::UpdateProgress()
         //Increment the number of citizens in the city
         this->citizens++;
 
+        this->cityStrength = this->citizens * 2;
+
         //// THIS CALCULATION NEEDS TO CHANGE
         // Calculate the number of turns until a new citizen is born
         this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
@@ -275,6 +281,17 @@ Update_t City::UpdateProgress()
         this->currentProductionName = "No Current Production";
         this->currentProductionCost = 0;
         update.productionFinished = true;
+    }
+
+    if(this->cityHealth < this->maxHealth)
+    {
+        qDebug() << "------Healing City";
+        this->cityHealth += this->maxHealth * 0.15f;
+
+        if(this->cityHealth > this->maxHealth)
+            this->cityHealth = this->maxHealth;
+
+        update.cityHealed = true;
     }
 
     return update;
@@ -584,7 +601,7 @@ void City::SetCityGrowthBarIndex(int index)
     this->cityGrowthBarIndex = index;
 }
 
-void City::SetCityHealth(int health)
+void City::SetCityHealth(float health)
 {
     this->cityHealth = health;
 }
@@ -592,6 +609,11 @@ void City::SetCityHealth(int health)
 void City::SetCityMaxHealth(int health)
 {
     this->maxHealth = health;
+}
+
+void City::SetCityStrength(int strength)
+{
+    this->cityStrength = strength;
 }
 
 void City::GarrisonWorker(Unit *worker)
@@ -1000,10 +1022,15 @@ int City::GetCityProductionBarIndex()
 
 int City::GetCityHealth()
 {
-    return this->cityHealth;
+    return ceil(this->cityHealth);
 }
 
 int City::GetMaxHealth()
 {
     return this->maxHealth;
+}
+
+int City::GetCityStrength()
+{
+    return this->cityStrength;
 }

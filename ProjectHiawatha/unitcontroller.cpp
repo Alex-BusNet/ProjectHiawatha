@@ -160,7 +160,21 @@ void UnitController::RangeAttack(Unit *attacker, Unit *target)
 
 void UnitController::AttackCity(Unit *attacker, City *city)
 {
+    qDebug() << "targetCity belongs to:" << NationName(city->GetControllingCiv());
+    float AtkBonus = 1.2f, melee;
 
+    if(attacker->isMelee)
+        melee = 1.0f;
+    else
+        melee = 0.0f;
+
+    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
+    float damageSustained = ((city->GetCityHealth() / city->GetCityStrength()) * melee);
+
+    qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
+
+    city->SetCityHealth(city->GetCityHealth() - damageDealt);
+    attacker->DealDamage(damageSustained);
 }
 
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
@@ -207,6 +221,22 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
     }
 
     return new Unit(NO_NATION, WORKER);
+}
+
+City *UnitController::FindCityAtTile(Tile *tile, Map* map, QVector<City *> cityList)
+{
+    int tIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+    int cIndex;
+    foreach(City* city, cityList)
+    {
+        cIndex = (city->GetCityTile()->GetTileID().column / 2) + (map->GetMapSizeX() * city->GetCityTile()->GetTileID().row);
+        if(cIndex == tIndex)
+        {
+            return city;
+        }
+    }
+
+    return new City();
 }
 
 void UnitController::HealUnit(Unit *unit)

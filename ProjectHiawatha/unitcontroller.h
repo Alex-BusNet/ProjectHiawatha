@@ -27,6 +27,7 @@ public:
     void HealUnit(Unit* unit);
 
     Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
+    City *FindCityAtTile(Tile *tile, Map *map, QVector<City*> cityList);
 
 private:
     int GetDistance(Tile* a, Tile *b);
