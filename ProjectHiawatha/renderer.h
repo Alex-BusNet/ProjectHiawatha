@@ -13,6 +13,7 @@
 #include <QPolygon>
 #include <QGraphicsProxyWidget>
 #include <QProgressBar>
+#include <QQueue>
 
 class Renderer
 {
@@ -21,7 +22,7 @@ public:
 
     Renderer(int mapSizeX);
 
-    void UpdateScene(Map *map, GameView *view, TileData data, bool attackSelection);
+    void UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data);
     void UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved);
     void UpdateCityBorders(City* city, GameView *view, Nation owner);
 
@@ -34,7 +35,8 @@ public:
     void LoadCities(QVector<City*> cities, GameView *view);
 
     void SetTileWorkedIcon(Tile* tile, GameView *view);
-    void SetUnitNeedsOrders(Tile *tile, bool movedTo);
+    void SetUnitNeedsOrders(int tile, bool needsOrders);
+    void SetFortifyIcon(int tile, bool unfortify);
     void UpdateCityGrowthBar(City* city, GameView *view);
     void UpdateCityProductionBar(City* city, GameView *view);
     void UpdateCityHealthBar(City* city, GameView *view);
@@ -64,6 +66,7 @@ private:
 
     QVector<QGraphicsPixmapItem*> tileWorked;
     QVector<QGraphicsProxyWidget*> ordersIcon;
+    QVector<QGraphicsPixmapItem*> fortifiedIcon;
 
     QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPixmapItem*> cityPixmap;

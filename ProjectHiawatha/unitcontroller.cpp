@@ -78,7 +78,6 @@ void UnitController::MoveUnit(Unit *unit, Map *map, GameScene *scene, int civLis
 {
     if(!unit->isPathEmpty())
     {
-//        qDebug() << "   Clearing Tile Data";
         // Clear the data from the current tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(-1);
@@ -121,13 +120,9 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     qDebug() << "   FromWater:" << attackFromWater;
 
     if(attackFromWater == true)
-    {
         waterPenalty = 0.8f;
-    }
     else
-    {
         waterPenalty = 1.0f; // No penalty
-    }
 
     qDebug() << "   waterPenalty:" << waterPenalty;
 
@@ -152,12 +147,23 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
-    float damageReceived = (damageDealt - damageSustained) * (fortifyBonus / AtkBonus) * melee;
+    float damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * melee;
 
-    qDebug() << "           Damage taken by target:" << damageDealt - damageSustained << "Damage Recieved by attacker:" << damageReceived;
+    qDebug() << "           Damage taken by target:" << damageDealt << "Damage Recieved by attacker:" << damageReceived;
 
-    target->DealDamage(damageDealt - damageSustained);
+    target->DealDamage(damageDealt);
     attacker->DealDamage(damageReceived);
+    attacker->RequiresOrders = false;
+}
+
+void UnitController::RangeAttack(Unit *attacker, Unit *target)
+{
+
+}
+
+void UnitController::AttackCity(Unit *attacker, City *city)
+{
+
 }
 
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
@@ -209,10 +215,10 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
 void UnitController::HealUnit(Unit *unit)
 {
     qDebug() << "Healing unit";
-    if((unit->GetHealth() + 5) > 100)
+    if((unit->GetHealth() + 10) > 100)
         unit->SetHealth(100);
     else
-        unit->SetHealth(unit->GetHealth() + 5);
+        unit->SetHealth(unit->GetHealth() + 10);
 }
 
 int UnitController::GetDistance(Tile *a, Tile *b)

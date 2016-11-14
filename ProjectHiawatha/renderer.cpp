@@ -183,70 +183,51 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         ordersIcon.last()->setOpacity(0);
         ordersIcon.last()->setZValue(8);
 
+        QPixmap *fortified = new QPixmap("../ProjectHiawatha/Assets/Icons/fortified.png");
+        fortifiedIcon.push_back(view->addPixmap(*fortified));
+        fortifiedIcon.last()->setScale(0.3f);
+        fortifiedIcon.last()->setZValue(-1);
+        fortifiedIcon.last()->setPos(map->GetTileAt(i)->GetItemTexturePoint().x(), map->GetTileAt(i)->GetItemTexturePoint().y());
     }
 }
 
-void Renderer::UpdateScene(Map *map, GameView *view, TileData data, bool attackSelection)
+void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
 {
-    int index = (data.column / 2) + (mapSizeX * data.row);
-    static int lastIndex = 0;
+    if(data->isEmpty())
+        return;
 
-    if(map->GetTileAt(index)->ContainsUnit)
+    int index, size = data->size();
+    SelectData selDat;
+    for(int i = 0; i < size; i++)
     {
-        if((map->GetTileAt(index)->Selected) || attackSelection)
+        selDat = data->dequeue();
+        index = selDat.index;
+        qDebug() << "       selDat index:" << index;
+
+        if(selDat.player && !selDat.target)
         {
-            if(lastIndex != index)
-            {
-                if(!attackSelection)
-                {
-                    view->removeItem(tileCircles.at(index));
-                    outlinePen.setColor(Qt::yellow);
-                    lastIndex = index;
-                }
-                else
-                {
-                    outlinePen.setColor(Qt::red);
-                }
-            }
-            else
-            {
-                qDebug() << "Deselecting tile";
-                view->removeItem(tileCircles.at(lastIndex));
-                SetOutlinePen(NO_NATION);
-                map->GetTileAt(index)->Selected = false;
-            }
+            view->removeItem(tileCircles.at(index));
+            outlinePen.setColor(Qt::yellow);
+            map->GetTileAt(index)->Selected = true;
         }
-        else
+        else if(!selDat.player && selDat.target)
         {
-            view->removeItem(tileCircles.at(lastIndex));
+            qDebug() << "Deselecting tile";
+            view->removeItem(tileCircles.at(index));
+            outlinePen.setColor(Qt::red);
+            map->GetTileAt(index)->Selected = false;
+        }
+        else if(!selDat.player && !selDat.target)
+        {
+            view->removeItem(tileCircles.at(index));
             SetOutlinePen(NO_NATION);
             map->GetTileAt(index)->Selected = false;
         }
 
-        map->GetTileAt(index)->SetTilePen(outlinePen);
+        outlinePen.setWidth(1);
 
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
-        tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
-    }
-    else if(map->GetTileAt(index)->HasCity)
-    {
-        SetOutlinePen(NO_NATION);
-        map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
-        map->GetTileAt(lastIndex)->Selected = false;
-
-        view->removeItem(tileCircles.at(lastIndex));
-        tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
-        tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
-    }
-    else
-    {
-        SetOutlinePen(NO_NATION);
-        map->GetTileAt(lastIndex)->SetTilePen(outlinePen);
-        map->GetTileAt(lastIndex)->Selected = false;
-
-        view->removeItem(tileCircles.at(lastIndex));
-        tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
-        tileCircles.at(index)->setPen(map->GetTileAt(index)->GetTilePen());
+        tileCircles.at(index)->setPen(outlinePen);
     }
 }
 
@@ -370,7 +351,7 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     unitHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
     unitHealthBars.last()->setZValue(6);
 
-    this->SetUnitNeedsOrders(map->GetTileAt(unit->GetTileIndex()), true);
+    this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
 }
 
 void Renderer::AddCityHealthBars(City *city, GameView *view)
@@ -497,12 +478,20 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
     tileWorked.at(index)->setZValue(3);
 }
 
-void Renderer::SetUnitNeedsOrders(Tile *tile, bool movedTo)
+void Renderer::SetUnitNeedsOrders(int tile, bool needsOrders)
 {
-    if(movedTo)
-        ordersIcon.at((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row))->setOpacity(100);
+    if(needsOrders)
+        ordersIcon.at(tile)->setOpacity(100);
     else
-        ordersIcon.at((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row))->setOpacity(0);
+        ordersIcon.at(tile)->setOpacity(0);
+}
+
+void Renderer::SetFortifyIcon(int tile, bool unfortify)
+{
+    if(!unfortify)
+        fortifiedIcon.at(tile)->setZValue(8);
+    else
+        fortifiedIcon.at(tile)->setZValue(-1);
 }
 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)

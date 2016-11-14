@@ -18,6 +18,7 @@
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QQueue>
 #include "tiledata.h"
 #include <chrono>
 
@@ -100,6 +101,8 @@ private:
     Unit* unitToMove, *targetUnit;
 
     QString *YieldDisplay;
+
+    QQueue<SelectData> *selectedTileQueue, *tileModifiedQueue;
 
     Tile *unitTile, *targetTile;
 

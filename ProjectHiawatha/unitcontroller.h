@@ -5,6 +5,7 @@
 #include <QList>
 #include "tile.h"
 #include "unit.h"
+#include "city.h";
 #include "civilization.h"
 #include "gamescene.h"
 
@@ -15,11 +16,17 @@ public:
 
     void FindPath(Tile *startTile, Tile* endTile, Map *map, GameScene *scene, Unit *unit);
     void MoveUnit(Unit *unit, Map *map, GameScene *scene, int civListIndex);
+
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
+    void RangeAttack(Unit* attacker, Unit* target);
+    void AttackCity(Unit* attacker, City* city);
+
     void FoundCity(Unit* unit, Tile* CurrentTile, Civilization* currentCiv);
     void BuildImprovement(Unit* unit, Tile* currentTile, Civilization* currentCiv, TileImprovement improvement);
-    Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
+
     void HealUnit(Unit* unit);
+
+    Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
 
 private:
     int GetDistance(Tile* a, Tile *b);

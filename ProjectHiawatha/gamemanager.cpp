@@ -19,7 +19,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
-//    clv = new CityListView(this);
     clv = new QListWidget(this);
 
     vLayout = new QVBoxLayout();
@@ -31,6 +30,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     cityScreen = new CityScreen(this);
     techTree = new TechTree(this);
+
+    selectedTileQueue = new QQueue<SelectData>();
+    tileModifiedQueue = new QQueue<SelectData>();
 
     techLabel = new QLabel(" NO RESEARCH ");
     techText = new QLabel(" 00/000 ");
@@ -467,7 +469,6 @@ void GameManager::StartTurn()
     int productionCost;
     for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
     {
-//      civList.at(currentTurn)->GetCityList().at(i)->setAccumulatedProduction(civList.at(currentTurn)->GetCityList().at(i)->getCityYield()->GetProductionYield());
         productionCost = civList.at(currentTurn)->GetCityList().at(i)->getCurrentProductionCost();
         accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
         qDebug()<<"ACCUMULATED PRODUCTION: "<<accumulatedProduction;
@@ -553,6 +554,15 @@ void GameManager::StartTurn()
             }
         }
 
+        foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
+        {
+            if(!unit->RequiresOrders && !unit->isPathEmpty())
+            {
+                unit->RequiresOrders = true;
+                renderer->SetUnitNeedsOrders(unit->GetTileIndex(), true);
+            }
+        }
+
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
 
@@ -579,13 +589,15 @@ void GameManager::EndTurn()
 
     if(currentTurn == 0)
     {
-        attackUnit->setEnabled(false);
+        moveUnit->setEnabled(false);
+
         buildFarm->setEnabled(false);
         buildMine->setEnabled(false);
         buildPlantation->setEnabled(false);
         buildTradePost->setEnabled(false);
         buildRoad->setEnabled(false);
-        moveUnit->setEnabled(false);
+
+        attackUnit->setEnabled(false);
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
         fortifyUnit->setEnabled(false);
@@ -600,11 +612,12 @@ void GameManager::EndTurn()
             if(currentTurn == 0)
             {
                 qDebug() << "   Clearing Unit Needs Orders icon";
-                renderer->SetUnitNeedsOrders(map->GetTileAt(civList.at(0)->GetUnitAt(i)->GetTileIndex()), false);
+                renderer->SetUnitNeedsOrders(civList.at(0)->GetUnitAt(i)->GetTileIndex(), false);
             }
 
             qDebug() << "  Updating unit positions";
             uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map, gameView->GetScene(), currentTurn);
+            tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             unitMoved = true;
         }
 
@@ -631,7 +644,7 @@ void GameManager::EndTurn()
                 if(civList.at(0)->GetUnitAt(i)->RequiresOrders)
                 {
                     qDebug() << "   Setting Unit Needs Orders icon";
-                    renderer->SetUnitNeedsOrders(map->GetTileAt(civList.at(0)->GetUnitAt(i)->GetTileIndex()), true);
+                    renderer->SetUnitNeedsOrders(civList.at(0)->GetUnitAt(i)->GetTileIndex(), true);
                 }
             }
 
@@ -641,7 +654,8 @@ void GameManager::EndTurn()
 
     if(currentTurn == 0)
     {
-        renderer->UpdateScene(map, gameView, processedData, false);
+        if(!tileModifiedQueue->isEmpty())
+            renderer->UpdateScene(map, gameView, tileModifiedQueue);
     }
 
     if(currentTurn == civList.size() - 1)
@@ -668,6 +682,8 @@ void GameManager::UpdateTileData()
         if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected)
         {
             map->GetTileFromCoord(unitTile->GetTileID().column, unitTile->GetTileID().row)->Selected = false;
+            selectedTileQueue->enqueue(SelectData{(unitTile->GetTileID().column / 2) + (map->GetMapSizeX() * unitTile->GetTileID().row), false, false});
+            this->redrawTile = true;
         }
 
         if(map->GetTileFromCoord(processedData.column, processedData.row)->ContainsUnit)
@@ -693,6 +709,11 @@ void GameManager::UpdateTileData()
         {
             unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
+            qDebug() << "   Queueing tile for render";
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
+            tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            qDebug() << "   done";
+
             if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
             {
                 map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
@@ -708,11 +729,13 @@ void GameManager::UpdateTileData()
                         if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
                         {
                             foundCity->setEnabled(true);
+
                             buildFarm->setEnabled(false);
                             buildMine->setEnabled(false);
                             buildPlantation->setEnabled(false);
                             buildTradePost->setEnabled(false);
                             buildRoad->setEnabled(false);
+
                             attackUnit->setEnabled(false);
                             attackCity->setEnabled(false);
                             rangeAttack->setEnabled(false);
@@ -722,11 +745,14 @@ void GameManager::UpdateTileData()
                     else if (unitToMove->GetUnitType() == WORKER)
                     {
                         qDebug() << "       unit is worker";
+                        foundCity->setEnabled(false);
+
                         buildFarm->setEnabled(true);
                         buildMine->setEnabled(true);
                         buildPlantation->setEnabled(true);
                         buildTradePost->setEnabled(true);
                         buildRoad->setEnabled(true);
+
                         attackUnit->setEnabled(false);
                         attackCity->setEnabled(false);
                         rangeAttack->setEnabled(false);
@@ -738,12 +764,15 @@ void GameManager::UpdateTileData()
                     qDebug() << "    unit is combat type";
 
                     foundCity->setEnabled(false);
+
                     buildFarm->setEnabled(false);
                     buildMine->setEnabled(false);
                     buildPlantation->setEnabled(false);
                     buildTradePost->setEnabled(false);
                     buildRoad->setEnabled(false);
-                    fortifyUnit->setEnabled(false);
+
+//                    if(unitToMove->GetHealth() < unitToMove->GetMaxHealth())
+                        fortifyUnit->setEnabled(true);
 
                     QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
 
@@ -752,6 +781,11 @@ void GameManager::UpdateTileData()
                         qDebug() << "   CivListIndex:" << tile->GetCivListIndex();
                         if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
                         {
+                            int tileIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+
+                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+
                             if(tile->ContainsUnit)
                             {
                                 if(!attackUnit->isEnabled())
@@ -761,8 +795,8 @@ void GameManager::UpdateTileData()
                                     buildPlantation->setEnabled(false);
                                     buildTradePost->setEnabled(false);
                                     buildRoad->setEnabled(false);
+
                                     attackUnit->setEnabled(true);
-                                    fortifyUnit->setEnabled(true);
                                 }
                             }
 
@@ -777,10 +811,6 @@ void GameManager::UpdateTileData()
                             {
                                 attackCity->setEnabled(false);
                             }
-
-                            TileData enemy{tile->GetTileID().column, tile->GetTileID().row, false, false};
-                            qDebug() << "--Enemy at" << enemy.column << "," << enemy.row;
-                            renderer->UpdateScene(map, gameView, enemy, true);
                         }
                     }
                 }
@@ -788,20 +818,34 @@ void GameManager::UpdateTileData()
             else
             {
                 qDebug() << "Player does not own that unit";
+                selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             }
         }
         else
         {
             attackNearby = false;
+
+            if(unitToMove->isFortified)
+            {
+                unitToMove->isFortified = false;
+                renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+            }
+
             targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetUnitList());
+
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+
+            selectedTileQueue->enqueue(SelectData{targetUnit->GetTileIndex(), false, false});
+
             attackUnit->setEnabled(false);
             uc->Attack(unitToMove, targetUnit, false);
 
             renderer->UpdateUnits(map, gameView, unitToMove, false);
             renderer->UpdateUnits(map, gameView, targetUnit, false);
 
-            renderer->UpdateScene(map, gameView, TileData{unitToMove->GetTileColumn(), unitToMove->GetTileRow(), false, false}, false);
-            renderer->UpdateScene(map, gameView, TileData{targetUnit->GetTileColumn(), targetUnit->GetTileRow(), false, false}, false);
+            renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+
+            this->redrawTile = true;
         }
     }
 
@@ -810,22 +854,29 @@ void GameManager::UpdateTileData()
         unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
 
         if(unitToMove->isFortified)
+        {
             unitToMove->isFortified = false;
+            renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+        }
+
         qDebug() <<"    Finding path";
         uc->FindPath(unitTile, targetTile, map, gameView->GetScene(), unitToMove);
 
         relocateUnit = false;
         processedData.relocateOrderGiven = false;
         map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         this->redrawTile = true;
 
-        attackUnit->setEnabled(false);
+        foundCity->setEnabled(false);
+
         buildFarm->setEnabled(false);
         buildMine->setEnabled(false);
         buildPlantation->setEnabled(false);
         buildTradePost->setEnabled(false);
         buildRoad->setEnabled(false);
-        moveUnit->setEnabled(false);
+
+        attackUnit->setEnabled(false);
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
         fortifyUnit->setEnabled(false);
@@ -833,10 +884,9 @@ void GameManager::UpdateTileData()
         qDebug() << "   Done";
     }
 
-
-
     if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
     {
+        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         attackUnit->setEnabled(false);
         buildFarm->setEnabled(false);
         buildMine->setEnabled(false);
@@ -1087,12 +1137,14 @@ void GameManager::updateTiles()
         qDebug() << "Fortifying" << unitToMove->GetName();
         fortify = false;
         unitToMove->isFortified = true;
+        renderer->SetFortifyIcon(unitToMove->GetTileIndex(), false);
     }
 
-    if(this->redrawTile)
+    if(this->redrawTile && !selectedTileQueue->isEmpty())
     {
+        qDebug() << "------Redrawing";
         this->redrawTile = false;
-        renderer->UpdateScene(map, gameView, processedData, false);
+        renderer->UpdateScene(map, gameView, selectedTileQueue);
     }
 
     this->update();
