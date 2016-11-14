@@ -33,9 +33,10 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
     threatScan(civ, player, map);
 
+    cityLocation(civ, map);
 
     if(1==midGoal){
-        cityLocation(civ, map);
+        qDebug()<<"AI_Ops Midgoal 1";
     }
     else if(2==midGoal){
         theaterPrep(civ, player, troopLocations);
@@ -67,14 +68,40 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
     qDebug()<<"Threatscan";
     //Clear threats each time, else they remain after the unit dies
 
-    for(int i = 0; i<player->GetUnitList().length(); i++){
-        if(0){
-        //Invasion logic moved to strategic AI
-        }
-        else{
+//    for(int i = 0; i<player->GetUnitList().length(); i++){
+//        for(int j = 0; j<civ->GetCityList().length();j++){
 
-        }
-    }
+//            for(int x = -2; x <= 2; x++)
+//            {
+//                for(int y = -1; y <= 1; y++)
+//                {
+//                    if(((x == -1 || x == 1) && y == 0) || (x == -2 && y != 0) || (x == 2 && y != 0) || (x == 0))
+//                    {
+//                        continue;
+//                    }
+
+//                    int checkX = node->GetTileID().column + x;
+//                    int checkY = node->GetTileID().row + y;
+
+//                    if(checkX >= 0 && checkX < (mapSizeX * 2) && checkY >= 0 && checkY < mapSizeY)
+//                    {
+//                        neighbors.push_back(board.at((checkX / 2) + (mapSizeX * checkY)));
+//                    }
+//                }
+//            }
+
+
+            //if(civ->GetCityAt(0)->tileQueue.at(j)->GetTileID().column==player->GetUnitAt(i)->GetTileColumn()&&map->GetNeighbors(civ->GetCityAt(0)->tileQueue.at(j)->GetTileID().row)==player->GetUnitAt(i)->GetTileRow()){
+            //if(map->GetNeighbors(civ->GetCityAt(0)->tileQueue.at(j)))
+            qDebug()<<"Enemy in adjacent tile";
+            //Invasion logic moved to strategic AI
+//            }
+//            else{
+
+//            }
+//        }
+
+//    }
 
 
     //Using the Map::GetNeighbors(Tile *node) algorithm
@@ -115,6 +142,9 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City 
 
 
 void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVector<Tile *> troopLocations){
+
+    //Might be partially obsolete because of provocation mechanic
+
     //Scans for player's nearest city
         //Locates open tiles within civ's borders that are near the enemy city
             //Maybe does the rotational scan out from the located city?
@@ -132,7 +162,9 @@ void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVecto
 void AI_Operational::cityLocation(Civilization *civ, Map *map){
     qDebug()<<"City Locations";
     for(int i=0; i<(15-civ->GetCityList().length());i++){
-        cityLocations.push_back(map->GetTileAt(255));
+
+
+        //cityLocations.push_back(map->GetTileAt(255));
         //Settler Test
 
 
