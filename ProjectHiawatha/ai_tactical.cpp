@@ -31,8 +31,9 @@ AI_Tactical::AI_Tactical()
 AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
 {
     qDebug()<<"             Tactical AI called";
-    midThreatProcessing(civ, player);
-    lowThreatProcessing(civ, player);
+    highThreatProcessing(civ, player, map, scene);
+    midThreatProcessing(civ, player, map, scene);
+    lowThreatProcessing(civ, player, map, scene);
 
     if(3==midGoal){
         AtWar(civ, cityTarget);
@@ -44,7 +45,6 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, M
     settlercontrol(civ, map, scene, CityToBeFounded);
     workercontrol(civ, map, scene);
 
-    highThreatProcessing(civ, player, map, scene);
     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 }
 
@@ -127,21 +127,42 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
     }
 
     for(int i = 0; i<unitlist.length();i++){
-        if(!threatVec.isEmpty()){
+        if(!threatVec.isEmpty()&&civ->getProvoked()){
                 qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
-        //Find Troop location
+        //Find AI Troop location
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+                qDebug()<<"test";
                 //Logic should be for all combat units
-            //Will need additional logic for other unit types (ranged, etc)
+                //Will need additional logic for other unit types (ranged, etc)
+                //if(civ->GetUnitAt(i)->isMelee){
 
-                qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                    //Melee flag not bing set
 
-                UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
-                //finds and attacks the target - But it ignores range
-                //Nedd to have it move into range, then attack
-                //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+                    QList<Tile*> inRange = map->GetNeighbors(unitlocation);
+                    qDebug()<<"test1.5";
+                    for(int j=0; j<inRange.length();j++){
+                        qDebug()<<"Test2";
+                        if(inRange.at(j)->GetTileIndex()==threatVec.at(0)->GetTileIndex()){
+                            qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
+                            UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                        }
+                        else{
+                            qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                            UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+                            //Seems to get hung up here - need to send to a neighbor tile?
+                        qDebug()<<"sent";
+                        }
+                    }
+
+//                }
+//                else{
+//                    qDebug()<<"ranged";
+//                }
+            }
+            else {
+                qDebug()<<"worker/settler";
             }
 
         }
@@ -186,7 +207,42 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
             //remove enemy from vector if killed
 
 
-void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player){
+void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
+
+    qDebug()<<"             Mid Threat Processing Start";
+
+    //Get list of units and make a controller
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+    QVector<Unit*> threatVec;
+    for(int i=0;i<civ->getMidThreats().length();i++){
+        threatVec.push_back(civ->getMidThreats().at(i));
+    }
+
+    for(int i = 0; i<unitlist.length();i++){
+        if(!threatVec.isEmpty()&&civ->getProvoked()){
+                qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
+        //Find Troop location
+            Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+
+            if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+                //Logic should be for all combat units
+            //Will need additional logic for other unit types (ranged, etc)
+
+                qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+
+                UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                //finds and attacks the target - But it ignores range
+                //Need to have it move into range, then attack
+                //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+            }
+
+        }
+
+    }
+
+
+
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack this or next turn
@@ -205,7 +261,39 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player){
         //each appropriate unit will target the closest remaining mid threat (unless more than 3 turns away)
             //remove enemy from vector if killed
 
-void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player){
+void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
+
+    qDebug()<<"             Low Threat Processing Start";
+
+    //Get list of units and make a controller
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+    QVector<Unit*> threatVec;
+    for(int i=0;i<civ->getLowThreats().length();i++){
+        threatVec.push_back(civ->getLowThreats().at(i));
+    }
+
+    for(int i = 0; i<unitlist.length();i++){
+        if(!threatVec.isEmpty()&&civ->getProvoked()){
+                qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
+        //Find Troop location
+            Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+
+            if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+                //Logic should be for all combat units
+            //Will need additional logic for other unit types (ranged, etc)
+
+                qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+
+                UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                //finds and attacks the target - But it ignores range
+                //Nedd to have it move into range, then attack
+                //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+            }
+
+        }
+
+    }
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack this turn

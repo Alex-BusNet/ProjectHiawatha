@@ -86,16 +86,6 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
                     civ->setMidThreats(tempVec);
                     qDebug()<<"Unit: "<<unit->GetTileIndex();
                  }
-
-//                 for(int k = 0; k<player->GetUnitList().length(); k++){
-//                     if(map->GetTileAt(player->GetUnitAt(k)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
-
-//                         QVector<Unit*> tempVec = civ->getHighThreats();
-//                         tempVec.push_back(player->GetUnitAt(i));
-//                         civ->setHighThreats(tempVec);
-//                     }
-//                 }
-
             }
             qDebug()<<"Enemy in adjacent tile check";
 
@@ -164,7 +154,7 @@ void AI_Operational::cityLocation(Civilization *civ, Map *map){
     for(int i=0; i<(15-civ->GetCityList().length());i++){
 
 
-        //cityLocations.push_back(map->GetTileAt(255));
+        cityLocations.push_back(map->GetTileAt(255));
         //Settler Test
 
 
