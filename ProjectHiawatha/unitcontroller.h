@@ -5,7 +5,7 @@
 #include <QList>
 #include "tile.h"
 #include "unit.h"
-#include "city.h";
+#include "city.h"
 #include "civilization.h"
 #include "gamescene.h"
 

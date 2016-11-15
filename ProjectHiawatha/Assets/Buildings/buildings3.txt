@@ -8,3 +8,4 @@ Theatre, Increases a city's happiness, 200, 0, happiness, 4, 3, false
 Colosseum, Increases happiness, 100, 0, happiness, 3, 1, false
 Courthouse, Reduce unhappiness, 120, 0, happiness, 5, 4, false
 Lighthouse, Increases food output, 70, 0, food, 5, 1, true
+Factory, Increases production, 365, 

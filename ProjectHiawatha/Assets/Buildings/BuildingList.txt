@@ -1,0 +1,22 @@
+Walls, Adds to a city's defense, 75, 5, 4, 0, 1, 0
+Library, Increases a city's science output, 100, 2, 12, 2, 0, 2
+Observatory, Increases a city's science production, 220, 2, 55, 3, 0, 6
+Barracks, Increases a city's defense, 125, 5, 6, 2, 1, 0
+Bank, Increases a city's gold production, 300, 0, 20, 0, 0, 6
+Granary, Adds food to a city, 50, 3, 2, 1, 1, 0
+Theatre, Adds culture to a city, 200, 4, 4, 3, 0, 6
+Colosseum, Adds culture to a city, 100, 4, 3, 1, 0, 3
+Courthouse, Increases culture in a city, 120, 4, 5, 4, 0, 3
+Lighthouse, Increase amount of food in a city, 70, 3, 5, 1, 1, 0
+Factory, Greatly increases production, 365, 1, 12, 3, 0, 9
+Hospital, Helps a city grow, 365, 3, 7, 2, 0, 9
+Temple, Increases cultutre in a city, 110, 4, 4, 3, 0, 3
+Aqueduct, Helps a city's population to grow, 115, 3, 5, 1, 0, 4
+Hydro Plant, Increases production, 425, 1, 6, 4, 0, 13
+Castle, Increases a city's defense, 175, 5, 6, 0, 0, 5
+Forge, Increases production, 130, 1, 5, 1, 0, 4
+Nuclear Plant, Significantly increases production, 500, 1, 25, 3, 0, 13
+Harbor, Increases production, 500, 1, 25, 3, 0, 13
+Market, Increases a city's gold output, 150, 0, 10, 0, 0, 4
+Monastery, Increases cultutre, 130, 4, 3, 0, 0, 4
+University, Increases science output, 180, 2, 30, 2, 0, 5

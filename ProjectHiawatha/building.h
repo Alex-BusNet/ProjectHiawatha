@@ -9,26 +9,28 @@ class Building
 {
 public:
     Building();
-    Building(QString Name, QString buildDescription, int cost, int current, QString bonusKind, int bonusValue, int maintanenceCost, bool unlockedBuild);
+    Building(QString Name, QString buildDescription, int cost, int bonusKind, int bonusValue, int maintanenceCost, int unlockedBuild, int techIndex);
     ~Building();
     QString getName() const;
     QString getDescription();
     int getProductionCost();
     int getCurrentProduction();
-    QString getbonusType();
+    int getbonusType();
     int getBonusValue();
     int getBuildingMaintenanceCost();
-    bool isUnlocked();
-
+    int isUnlocked();
+    int getTechIndex();
+    void setUnlocked(int unlock);
 private:
     QString name;
     QString description;
     int productionCost;
     int currentProduction;
-    QString bonusType;
+    int bonusType;// 0 = gold, 1 = production, 2 = science, 3 = food, 4 = culture, 5 = defense
     int bonus;
     int buildingMaintenanceCost;
-    bool unlocked;
+    int unlocked;
+    int techIndex;
 
 
 };

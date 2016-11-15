@@ -49,24 +49,18 @@ void CityScreen::loadBuildings(QString filename)
        {
           QString line = in.readLine();
           QStringList buildingInfo = line.split(",");
-          qDebug()<<"BUilding Name: "<<buildingInfo[0];
-          int x = buildingInfo[2].toInt();
-          int y = buildingInfo[3].toInt();
-          int z = buildingInfo[5].toInt();
-          int temp = buildingInfo[6].toInt();
-          qDebug()<<"Production Cost: "<<x;
-          bool flag;
-          QString str = buildingInfo[7];
-          if(str.contains("true", Qt::CaseInsensitive))
-          {
-              flag = true;
-          }else
-          {
-              flag = false;
-          }
-          Building* building = new Building(buildingInfo[0],buildingInfo[1],x,y,buildingInfo[4],z,temp,flag);
+          qDebug()<<"Building Name: "<<buildingInfo[0];
+          QString name = buildingInfo[0];
+          QString description = buildingInfo[1];
+          int cost = buildingInfo[2].toInt();
+          int bonusType = buildingInfo[3].toInt();
+          int bonusValue = buildingInfo[4].toInt();
+          int maintainanceCost = buildingInfo[5].toInt();
+          int unlocked = buildingInfo[6].toInt();
+          int techIndex = buildingInfo[7].toInt();
+
+          Building* building = new Building(name, description, cost, bonusType, bonusValue, maintainanceCost, unlocked, techIndex);
           buildings.push_back(building);
-          qDebug()<<buildings.at(0)->isUnlocked();
        }
        inputFile.close();
        qDebug()<<buildings.at(1)->getName();
@@ -129,12 +123,12 @@ void CityScreen::loadUnits(QString filename)
     }
 }
 
-void CityScreen::updateList()
+void CityScreen::updateList(int currentBuildingCount)
 {
     for(int i = 0;i<initialUnitList.size();i++)
     {
         ui->listWidget_2->addItem(initialUnitList.at(i)->GetName());
-        if(currentCity->getInitialUnitList().at(i)->isUnlocked() ==0)
+        if(currentCity->getInitialUnitList().at(i)->isUnlocked() == 0)
         {
                ui->listWidget_2->item(i)->setHidden(true);
         }
@@ -143,12 +137,21 @@ void CityScreen::updateList()
     for(int j = 0;j<buildings.size();j++)
     {
         ui->listWidget->addItem(buildings.at(j)->getName());
-        if(buildings.at(j)->isUnlocked()==false)
+        if(currentCity->getInitialBuildingList().at(j)->isUnlocked() == 0)
         {
                ui->listWidget->item(j)->setHidden(true);
         }
 
     }
+
+    if(currentBuildingCount > 0)
+    {
+        for(int k = 0;k<currentCity->getCurrentBuildingList().size();k++)
+        {
+            ui->listWidget_3->addItem(currentCity->getCurrentBuildingList().at(k)->getName());
+        }
+    }
+
     update();
 }
 
@@ -163,18 +166,15 @@ void CityScreen::updateWidget()
 {
     ui->current_production_name->setText(currentCity->getProductionName());
     ui->progressBar->setValue(currentCity->getAccumulatedProduction());
-    if(currentCity->getProductionFinished())
+    for(int i = 0;i<buildings.size();i++)
     {
-        if(currentCity->getIsUnit()){
-            currentCity->setProducedUnit(initialUnitList.at(currentCity->getProductionIndex()));
-
-        }else{
-            ui->listWidget_3->addItem(ui->listWidget->item(currentCity->getProductionIndex())->text());
-           delete ui->listWidget->takeItem(currentCity->getProductionIndex());
-            qDebug()<<"ELSE IS RUNNING";
-        }
-
-        currentCity->setProductionFinished(false);
+       for(int j = 0; j<currentCity->getCurrentBuildingList().size();j++)
+       {
+           if(buildings.at(i)->getName() == currentCity->getCurrentBuildingList().at(j)->getName())
+           {
+                ui->listWidget->item(i)->setHidden(true);
+           }
+       }
     }
 
 }
@@ -185,8 +185,33 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     QString str = "+";
     QString str2;
     str2 = str2.number(buildings.at(ui->listWidget->currentRow())->getBonusValue());
-    QString str3 = buildings.at(ui->listWidget->currentRow())->getbonusType();
-    str2.append(str3);
+    QString bonusType;
+    switch(buildings.at(ui->listWidget->currentRow())->getbonusType())
+    {
+    case 0:
+        bonusType = " Gold";
+        break;
+    case 1:
+        bonusType = " Production";
+        break;
+    case 2:
+        bonusType = " Science";
+        break;
+    case 3:
+        bonusType = " Food";
+        break;
+    case 4:
+        bonusType = " Culture";
+        break;
+    case 5:
+        bonusType = " Defense";
+        break;
+    default:
+        bonusType = " Gold";
+
+    }
+
+    str2.append(bonusType);
     str.append(str2);
     ui->Bonus->setText(str);
     ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());

@@ -8,6 +8,7 @@
 #include <QPolygon>
 #include <queue>
 #include "nation.h"
+#include "building.h"
 #include "tile.h"
 #include "yield.h"
 #include "datatypes.h"
@@ -89,12 +90,17 @@ public:
     QString getProductionName();
     bool getHasWorker();
     void    loadUnits(QString filename);
+    void loadBuildings(QString filename);
+    void addBuilding(Building* building);
     ~City();
     QVector<Unit*> getInitialUnitList();
+    QVector<Building*> getInitialBuildingList();
+    QVector<Building*> getCurrentBuildingList();
     void SortControlledTiles();
     void SortTileQueue();
     QVector<Tile*> tileQueue;
-
+    int getNumberofBuildings();
+    void IncrementNumberofBuildings();
     Update_t UpdateProgress();
 
     void SetCityFocus(Focus focus);
@@ -106,6 +112,8 @@ private:
     QVector<Unit*> StationedWorkers;
     QVector<Unit*> StationedMilitary;
     QVector<Unit*> initialUnitList;
+    QVector<Building*> initialBuildingList;
+    QVector<Building*> producedBuildings;
     Unit*   producedUnit;
     QString name;
     QString currentProductionName;
@@ -143,7 +151,7 @@ private:
     int currentProductionCost;
     int accumulatedProduction;
     int productionIndex;
-
+    int numberofBuildings;
     int cityHealth, maxHealth;
 
     int orientation(QPoint p, QPoint q, QPoint r);

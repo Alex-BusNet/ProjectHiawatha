@@ -5,16 +5,16 @@ Building::Building()
 
 }
 
-Building::Building(QString Name, QString buildDescription, int cost, int current, QString bonusKind, int bonusValue, int maintanenceCost, bool unlockedBuild)
+Building::Building(QString Name, QString buildDescription, int cost, int bonusKind, int bonusValue, int maintanenceCost, int unlockedBuild, int techIndex)
 {
-    name = Name;
-    description = buildDescription;
-    productionCost = cost;
-    currentProduction = current;
-    bonusType = bonusKind;
-    bonus = bonusValue;
-    buildingMaintenanceCost = maintanenceCost;
-    unlocked = unlockedBuild;
+    this->name = Name;
+    this->description = buildDescription;
+    this->productionCost = cost;
+    this->techIndex = techIndex;
+    this->bonusType = bonusKind;
+    this->bonus = bonusValue;
+    this->buildingMaintenanceCost = maintanenceCost;
+    this->unlocked = unlockedBuild;
 
 }
 
@@ -46,7 +46,7 @@ int Building::getCurrentProduction()
 
 }
 
-QString Building::getbonusType()
+int Building::getbonusType()
 {
     return bonusType;
 }
@@ -61,8 +61,18 @@ int Building::getBuildingMaintenanceCost()
     return buildingMaintenanceCost;
 }
 
-bool Building::isUnlocked()
+int Building::isUnlocked()
 {
     return unlocked;
+}
+
+int Building::getTechIndex()
+{
+    return this->techIndex;
+}
+
+void Building::setUnlocked(int unlock)
+{
+    this->unlocked = unlock;
 }
 

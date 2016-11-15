@@ -24,13 +24,13 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
     gameLayout = new QHBoxLayout();
-    unitControlButtons = new QVBoxLayout();
     playerControlButtons = new QVBoxLayout();
     Yieldinfo = new QHBoxLayout();
 
     cityScreen = new CityScreen(this);
     techTree = new TechTree(this);
 
+    unitControlButtons = new QVBoxLayout();
     selectedTileQueue = new QQueue<SelectData>();
     tileModifiedQueue = new QQueue<SelectData>();
 
@@ -345,6 +345,7 @@ void GameManager::StartTurn()
     for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
     {
         civList.at(currentTurn)->GetCityList().at(i)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+        civList.at(currentTurn)->GetCityList().at(i)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
     }
 
     if(update.updateBorders)
@@ -451,6 +452,15 @@ void GameManager::StartTurn()
                 {
                     qDebug() << "UNLOCKING: " << civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
+                }  
+            }
+
+            for(int k = 0; k<civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().size();k++)
+            {
+                if(civList.at(currentTurn)->GetCityList().at(0)->getInitialBuildingList().at(k)->getTechIndex() == (techIndex - 1))
+                {
+                    qDebug() << "UNLOCKING: " << civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->getName();
+                    civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->setUnlocked(1);
                 }
             }
         }
@@ -525,6 +535,38 @@ void GameManager::StartTurn()
 
                 civList.at(currentTurn)->AddUnit(unit);
                 renderer->AddUnit(unit,map,gameView);
+            }else
+            {
+                int science = 0;
+                int gold = 0;
+                int production = 0;
+                int culture = 0;
+                int food = 0;
+                civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberofBuildings();
+                int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
+                Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
+                int bonusType = building->getbonusType();
+                if(bonusType == 2)
+                {
+                     science = building->getBonusValue();
+
+                }else if(bonusType == 0)
+                {
+                   gold = building->getBonusValue();
+
+                }else if(bonusType == 3)
+                {
+                     food = building->getBonusValue();
+                }else if(bonusType == 1)
+                {
+                     production = building->getBonusValue();
+                }else if(bonusType == 4)
+                {
+                     culture = building->getBonusValue();
+                }
+                civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
+
+                civList.at(currentTurn)->GetCityList().at(i)->addBuilding(building);
             }
 
             if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
@@ -1106,11 +1148,14 @@ void GameManager::showCity(City* city)
         cityScreen = new CityScreen(this);
         //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
         cityScreen->setAutoFillBackground(true);
-        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/buildings3.txt");
+        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
-        cityScreen->updateList();
+        qDebug()<<"CRASH HERE ";
+        cityScreen->updateList(city->getNumberofBuildings());
+        qDebug()<<"CRASH HEREEEE ";
         cityScreen->updateWidget();
+        qDebug()<<"CRASH HEREEEEEEEEEE ";
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
         cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);

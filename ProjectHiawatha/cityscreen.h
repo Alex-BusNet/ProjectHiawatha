@@ -24,7 +24,7 @@ public:
     void    paintEvent(QPaintEvent*e);
     void    loadBuildings(QString filename);
     void    loadUnits(QString filename);
-    void    updateList();
+    void    updateList(int currentBuildingCount);
     void    getCityInfo(City* city);
     void    updateWidget();
 private slots:

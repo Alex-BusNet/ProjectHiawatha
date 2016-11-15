@@ -12,6 +12,7 @@ City::City()
     this->productionFinished = false;
     this->productionUnit = false;
     this->currentProductionName = "No Current Production";
+    this->numberofBuildings = 0;
     this->cityFocus = GOLD_FOCUS;
 }
 
@@ -24,6 +25,16 @@ City::~City()
 QVector<Unit *> City::getInitialUnitList()
 {
     return this->initialUnitList;
+}
+
+QVector<Building *> City::getInitialBuildingList()
+{
+    return this->initialBuildingList;
+}
+
+QVector<Building *> City::getCurrentBuildingList()
+{
+    return this->producedBuildings;
 }
 
 void City::SortControlledTiles()
@@ -194,6 +205,16 @@ void City::SortTileQueue()
 //    }
 
     //Store all eligible tiles in a heap.
+}
+
+int City::getNumberofBuildings()
+{
+    return this->numberofBuildings;
+}
+
+void City::IncrementNumberofBuildings()
+{
+    this->numberofBuildings++;
 }
 
 Update_t City::UpdateProgress()
@@ -951,6 +972,47 @@ void City::loadUnits(QString filename)
         qDebug()<<"File Not Found";
 
     }
+}
+
+void City::loadBuildings(QString filename)
+{
+    QFile inputFile(filename);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          QStringList buildingInfo = line.split(",");
+          qDebug()<<"Building Name: "<<buildingInfo[0];
+          QString name = buildingInfo[0];
+          QString description = buildingInfo[1];
+          int cost = buildingInfo[2].toInt();
+          int bonusType = buildingInfo[3].toInt();
+          int bonusValue = buildingInfo[4].toInt();
+          int maintainanceCost = buildingInfo[5].toInt();
+          int unlocked = buildingInfo[6].toInt();
+          int techIndex = buildingInfo[7].toInt();
+
+          Building* building = new Building(name, description, cost, bonusType, bonusValue, maintainanceCost, unlocked, techIndex);
+          initialBuildingList.push_back(building);
+       }
+       inputFile.close();
+       qDebug()<<initialBuildingList.at(1)->getName();
+       qDebug()<<initialBuildingList.size();
+    }else
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("File Not Found");
+        mBox->exec();
+        qDebug()<<"File Not Found";
+
+    }
+}
+
+void City::addBuilding(Building *building)
+{
+    this->producedBuildings.push_back(building);
 }
 
 Yield* City::getCityYield()
