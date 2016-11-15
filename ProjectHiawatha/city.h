@@ -157,14 +157,13 @@ private:
     int currentProductionCost;
     int accumulatedProduction;
     int productionIndex;
-<<<<<<< HEAD
+
     int numberofBuildings;
     int cityHealth, maxHealth;
-=======
 
     float cityHealth, maxHealth;
     int cityStrength, baseStrength, buildingStrength;
->>>>>>> origin/master
+
 
     int orientation(QPoint p, QPoint q, QPoint r);
 
