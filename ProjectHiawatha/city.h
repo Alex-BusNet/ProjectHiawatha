@@ -105,8 +105,8 @@ public:
     void SortControlledTiles();
     void SortTileQueue();
     QVector<Tile*> tileQueue;
-    int getNumberofBuildings();
-    void IncrementNumberofBuildings();
+    int getNumberOfBuildings();
+    void IncrementNumberOfBuildings();
     Update_t UpdateProgress();
 
     void SetCityFocus(Focus focus);
@@ -159,7 +159,6 @@ private:
     int productionIndex;
 
     int numberofBuildings;
-    int cityHealth, maxHealth;
 
     float cityHealth, maxHealth;
     int cityStrength, baseStrength, buildingStrength;

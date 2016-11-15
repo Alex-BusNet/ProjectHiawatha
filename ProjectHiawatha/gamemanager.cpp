@@ -25,12 +25,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     hLayout = new QHBoxLayout();
     gameLayout = new QHBoxLayout();
     playerControlButtons = new QVBoxLayout();
+    unitControlButtons = new QVBoxLayout();
     Yieldinfo = new QHBoxLayout();
 
     cityScreen = new CityScreen(this);
     techTree = new TechTree(this);
 
-    unitControlButtons = new QVBoxLayout();
     selectedTileQueue = new QQueue<SelectData>();
     tileModifiedQueue = new QQueue<SelectData>();
 
@@ -549,7 +549,7 @@ void GameManager::StartTurn()
                 int production = 0;
                 int culture = 0;
                 int food = 0;
-                civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberofBuildings();
+                civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
                 int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
                 Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
                 int bonusType = building->getbonusType();
@@ -1188,7 +1188,7 @@ void GameManager::showCity(City* city)
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
         qDebug()<<"CRASH HERE ";
-        cityScreen->updateList(city->getNumberofBuildings());
+        cityScreen->updateList(city->getNumberOfBuildings());
         qDebug()<<"CRASH HEREEEE ";
         cityScreen->updateWidget();
         qDebug()<<"CRASH HEREEEEEEEEEE ";

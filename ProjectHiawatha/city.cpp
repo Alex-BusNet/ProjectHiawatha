@@ -213,12 +213,12 @@ void City::SortTileQueue()
     //Store all eligible tiles in a heap.
 }
 
-int City::getNumberofBuildings()
+int City::getNumberOfBuildings()
 {
     return this->numberofBuildings;
 }
 
-void City::IncrementNumberofBuildings()
+void City::IncrementNumberOfBuildings()
 {
     this->numberofBuildings++;
 }
@@ -302,6 +302,9 @@ Update_t City::UpdateProgress()
         this->currentProductionName = "No Current Production";
         this->currentProductionCost = 0;
         update.productionFinished = true;
+
+        if(!this->productionUnit)
+            this->UpdateCityYield();
     }
 
     if(this->cityHealth < this->maxHealth)
