@@ -147,7 +147,11 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                             qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
                             canHit=true;
                             UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
-                            UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                            while(!unitlist.at(i)->isPathEmpty()){
+                                unitlist.at(i)->UpdatePath();
+                            }
+
+                            //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
                             qDebug()<<unitlist.at(i)->GetTargetTileIndex();
                         }
                         else{
@@ -157,8 +161,12 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                     if(!canHit){
                         qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
-                        UnitControl->FindPath(unitlocation,targetNeighbor.at(0),map,unitlist.at(i));
-
+                        int k=0;
+                        while(unitlist.at(i)->isPathEmpty()){
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            k++;
+                            if(k>5){break;}
+                        }//Find path accounts for impassable terrain around the target unit
                     }
 
 //                }
