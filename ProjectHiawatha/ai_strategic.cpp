@@ -131,6 +131,11 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     qDebug()<<"     Worker";
                 }
                 else{
+                    civ->GetCityAt(i)->setCurrentProductionCost(75);
+                    civ->GetCityAt(i)->setIsUnit(false);
+                    civ->GetCityAt(i)->setProductionName("Walls");
+                    civ->GetCityAt(i)->setProductionIndex(0);
+                    qDebug()<<"walls";
                     //logic for road workers
                         //roadworker gets built in capitol early on
                 }

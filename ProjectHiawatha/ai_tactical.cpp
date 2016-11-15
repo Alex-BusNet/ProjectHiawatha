@@ -147,6 +147,8 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                             qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
                             canHit=true;
                             UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                            UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                            qDebug()<<unitlist.at(i)->GetTargetTileIndex();
                         }
                         else{
 
