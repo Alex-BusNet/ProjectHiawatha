@@ -464,7 +464,7 @@ void Renderer::LoadCities(QVector<City*> cities, GameView *view)
 
 void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
 {
-    int index = (tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row);
+    int index = tile->GetTileIndex();
 
     view->removeItem(tileWorked.at(index));
 

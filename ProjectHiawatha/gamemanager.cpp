@@ -802,7 +802,7 @@ void GameManager::UpdateTileData()
                         qDebug() << "   CivListIndex:" << tile->GetCivListIndex();
                         if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
                         {
-                            int tileIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+                            int tileIndex = tile->GetTileIndex();
 
                             selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
                             tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
@@ -876,6 +876,7 @@ void GameManager::UpdateTileData()
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         selectedTileQueue->enqueue(SelectData{(targetCity->GetCityTile()->GetTileID().column / 2) + (map->GetMapSizeX() * targetCity->GetCityTile()->GetTileID().row), false, false});
         attackCity->setEnabled(false);
+        attackEnemyCity = false;
 
         if(targetCity->GetControllingCiv() != NO_NATION)
         {

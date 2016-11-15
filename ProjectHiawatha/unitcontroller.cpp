@@ -161,7 +161,7 @@ void UnitController::RangeAttack(Unit *attacker, Unit *target)
 void UnitController::AttackCity(Unit *attacker, City *city)
 {
     qDebug() << "targetCity belongs to:" << NationName(city->GetControllingCiv());
-    float AtkBonus = 1.2f, melee;
+    float AtkBonus = 0.8f, melee;
 
     if(attacker->isMelee)
         melee = 1.0f;

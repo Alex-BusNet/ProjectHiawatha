@@ -63,6 +63,8 @@ public:
     void SetMoveCost(int cost);
     int GetMoveCost();
 
+    void SetTileIndex(int index);
+    int GetTileIndex();
     QString GetTileIDString();
     QString GetTileTypeString();
 
@@ -115,6 +117,7 @@ private:
     City *city;
     int moveCost;
     int occupyingCivListIndex;
+    int tileIndex;
 
     Strategic stratResource;
     Luxury luxResource;
