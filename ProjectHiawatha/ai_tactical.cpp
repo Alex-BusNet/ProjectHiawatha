@@ -136,24 +136,27 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                 qDebug()<<"test";
                 //Logic should be for all combat units
                 //Will need additional logic for other unit types (ranged, etc)
-                //if(civ->GetUnitAt(i)->isMelee){
 
-                    //Melee flag not bing set
+                //if(civ->GetUnitAt(i)->isMelee){
+                    //Melee flag not being set
 
                     QList<Tile*> inRange = map->GetNeighbors(unitlocation);
-                    qDebug()<<"test1.5";
+                    bool canHit = false;
                     for(int j=0; j<inRange.length();j++){
-                        qDebug()<<"Test2";
                         if(inRange.at(j)->GetTileIndex()==threatVec.at(0)->GetTileIndex()){
                             qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
+                            canHit=true;
                             UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
                         }
                         else{
-                            qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
-                            UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
-                            //Seems to get hung up here - need to send to a neighbor tile?
-                        qDebug()<<"sent";
+
                         }
+                    }
+                    if(!canHit){
+                        qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                        QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
+                        UnitControl->FindPath(unitlocation,targetNeighbor.at(0),map,scene,unitlist.at(i));
+
                     }
 
 //                }
@@ -316,7 +319,6 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
 
 
     for(int i = 0; i<unitlist.length();i++){
-qDebug()<<"if";
         //Find worker location
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
