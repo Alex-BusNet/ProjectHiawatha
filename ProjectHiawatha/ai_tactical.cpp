@@ -32,7 +32,7 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, M
 {
     qDebug()<<"             Tactical AI called";
     highThreatProcessing(civ, player, map, scene);
-    midThreatProcessing(civ, player, map, scene);
+   // midThreatProcessing(civ, player, map, scene);
     lowThreatProcessing(civ, player, map, scene);
 
     if(3==midGoal){
@@ -137,7 +137,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                 //Logic should be for all combat units
                 //Will need additional logic for other unit types (ranged, etc)
 
-                //if(civ->GetUnitAt(i)->isMelee){
+                if(civ->GetUnitAt(i)->isMelee){
                     //Melee flag not being set
 
                     QList<Tile*> inRange = map->GetNeighbors(unitlocation);
@@ -169,10 +169,10 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                         }//Find path accounts for impassable terrain around the target unit
                     }
 
-//                }
-//                else{
-//                    qDebug()<<"ranged";
-//                }
+                }
+                else{
+                    qDebug()<<"ranged";
+                }
             }
             else {
                 qDebug()<<"worker/settler";
@@ -181,20 +181,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
         }
 
     }
-
-//    for(int i = 0; i<player->GetUnitList().length(); i++){
-
-//        if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
-//            //compare with tiles owned by AI?
-//            qDebug()<<"Invasion";
-//            QVector<Tile*> tempVec = civ->getHighThreats();
-//            tempVec.push_back(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex()));
-//            civ->setHighThreats(tempVec);
-//        }
-//        else{
-//        }
-//    }
-
+}
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack in the next 3 turns
@@ -211,7 +198,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
         //check each unit see if it enough moves remaining to attack this turn
                 //If yes, attack
                 //Remove enemy from vector if killed
-}
+
     //Attacks all these targets, prioritizing units that are strong against
         //keeps going until destroyed or all military units out of moves
         //each unit will target the closest remaining high threat
@@ -224,6 +211,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
 
     qDebug()<<"             Mid Threat Processing Start";
 
+
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
@@ -235,27 +223,59 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
     for(int i = 0; i<unitlist.length();i++){
         if(!threatVec.isEmpty()&&civ->getProvoked()){
                 qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
-        //Find Troop location
+        //Find AI Troop location
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+                qDebug()<<"test";
                 //Logic should be for all combat units
-            //Will need additional logic for other unit types (ranged, etc)
+                //Will need additional logic for other unit types (ranged, etc)
 
-                qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                if(civ->GetUnitAt(i)->isMelee){
+                    //Melee flag not being set
 
-                UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
-                //finds and attacks the target - But it ignores range
-                //Need to have it move into range, then attack
-                //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+                    QList<Tile*> inRange = map->GetNeighbors(unitlocation);
+                    bool canHit = false;
+                    for(int j=0; j<inRange.length();j++){
+                        if(inRange.at(j)->GetTileIndex()==threatVec.at(0)->GetTileIndex()){
+                            qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
+                            canHit=true;
+                            UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                            while(!unitlist.at(i)->isPathEmpty()){
+                                unitlist.at(i)->UpdatePath();
+                            }
+
+                            //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                            qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                        }
+                        else{
+
+                        }
+                    }
+                    if(!canHit){
+                        qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                        QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
+                        int k=0;
+                        while(unitlist.at(i)->isPathEmpty()){
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            k++;
+                            if(k>5){break;}
+                        }//Find path accounts for impassable terrain around the target unit
+                    }
+
+                }
+                else{
+                    qDebug()<<"ranged";
+                }
+            }
+            else {
+                qDebug()<<"worker/settler";
             }
 
         }
 
     }
-
-
-
+}
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack this or next turn
@@ -268,7 +288,6 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
                 //Check if strong or neutral against enemy
                     //If yes, attack
                     //Remove enemy from vector if killed
-}
     //Attacks all these targets, but uses only units which are strong or neutral to them
         //keeps going until destroyed or all strong/neutral military units out of moves
         //each appropriate unit will target the closest remaining mid threat (unless more than 3 turns away)
@@ -277,6 +296,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
 void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
 
     qDebug()<<"             Low Threat Processing Start";
+
 
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
@@ -289,31 +309,66 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, M
     for(int i = 0; i<unitlist.length();i++){
         if(!threatVec.isEmpty()&&civ->getProvoked()){
                 qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
-        //Find Troop location
+        //Find AI Troop location
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
+                qDebug()<<"test";
                 //Logic should be for all combat units
-            //Will need additional logic for other unit types (ranged, etc)
+                //Will need additional logic for other unit types (ranged, etc)
 
-                qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                if(civ->GetUnitAt(i)->isMelee){
+                    //Melee flag not being set
 
-                UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
-                //finds and attacks the target - But it ignores range
-                //Nedd to have it move into range, then attack
-                //UnitControl->FindPath(unitlocation,map->GetTileAt(threatVec.at(0)->GetTileIndex()),map,scene,unitlist.at(i));
+                    QList<Tile*> inRange = map->GetNeighbors(unitlocation);
+                    bool canHit = false;
+                    for(int j=0; j<inRange.length();j++){
+                        if(inRange.at(j)->GetTileIndex()==threatVec.at(0)->GetTileIndex()){
+                            qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
+                            canHit=true;
+                            UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                            while(!unitlist.at(i)->isPathEmpty()){
+                                unitlist.at(i)->UpdatePath();
+                            }
+
+                            //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                            qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                        }
+                        else{
+
+                        }
+                    }
+                    if(!canHit){
+                        qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
+                        QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
+                        int k=0;
+                        while(unitlist.at(i)->isPathEmpty()){
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            k++;
+                            if(k>5){break;}
+                        }//Find path accounts for impassable terrain around the target unit
+                    }
+
+                }
+                else{
+                    qDebug()<<"ranged";
+                }
+            }
+            else {
+                qDebug()<<"worker/settler";
             }
 
         }
 
     }
+
+}
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
             //check each unit see if it has moves remaining to attack this turn
                 //Check if strong against enemy
                     //if yes, attack
                     //Remove enemy from vector if killed
-}
     //Attacks all these targets, but uses only units which are strong to them
         //keeps going until destroyed or all strong military units out of moves
             //each appropriate unit will target the closest remaining low threat (unless more than 2 turns away)
@@ -339,6 +394,7 @@ qDebug()<<"Settler selected";
 
         }
     }
+}
     //For each settler
         //Target Path to (i) city in list
         //if it is at the location with moves left, found city
@@ -346,8 +402,6 @@ qDebug()<<"Settler selected";
             //may need to remove from a number of active settlers calculation
         //if no cities left in list, use the search function that was originally used to find a new location
             //add site to vector
-
-}
     //*****************Settler Control**************
     //Sends a settler to the highest priority city site in the queue
         //need a way to identify that a settler is heading there already - queue pending_city?
@@ -426,6 +480,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
             //UnitControl->FindPath(unitlocation,tile3x3y,map,scene,unitlist.at(i));
         }
     }
+}
     //for each worker
         //if garrissoned and not already improving a tile
             //start to the right of city and circle out within the city's tiles
@@ -434,7 +489,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
             //if not already building a road
                 //target a city not currently connected to capitol (bool val for this??)
 
-}
+
     //****************Worker Control***************
     //Unassigned but garrisoned workers will be targeted to the tile closest to the city
         //starting to the top right and clockwise spiral out
