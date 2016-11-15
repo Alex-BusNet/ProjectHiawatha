@@ -155,7 +155,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                     if(!canHit){
                         qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
-                        UnitControl->FindPath(unitlocation,targetNeighbor.at(0),map,scene,unitlist.at(i));
+                        UnitControl->FindPath(unitlocation,targetNeighbor.at(0),map,unitlist.at(i));
 
                     }
 
@@ -324,7 +324,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
 
         if(civ->GetUnitList().at(i)->GetName()=="Settler"){
 qDebug()<<"Settler selected";
-            UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,scene,unitlist.at(i));
+            UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
 
 
         }
@@ -396,7 +396,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
                         }
                         else {
                             //Send the unused worker to city
-                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,scene,unitlist.at(i));
+                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i));
                         }
                     }
                     else if(false==roadWorkerExists){
