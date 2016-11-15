@@ -37,6 +37,8 @@ public:
     void SetCityHealth(float health);
     void SetCityMaxHealth(int health);
     void SetCityStrength(int strength);
+    void SetCityBuildingStrength(int strength);
+    void SetBaseCityStrength(int strength);
 
     void GarrisonWorker(Unit *worker);
     void GarrisonMilitary(Unit *military);
@@ -64,6 +66,8 @@ public:
     int GetCityHealth();
     int GetMaxHealth();
     int GetCityStrength();
+    int GetCityBuildingStrength();
+    int GetBaseStrength();
     bool IsCityCaptial();
 
     void setCapitolConnection(bool flag);
@@ -147,7 +151,7 @@ private:
     int productionIndex;
 
     float cityHealth, maxHealth;
-    int cityStrength;
+    int cityStrength, baseStrength, buildingStrength;
 
     int orientation(QPoint p, QPoint q, QPoint r);
 

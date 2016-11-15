@@ -14,9 +14,11 @@ City::City()
     this->currentProductionName = "No Current Production";
     this->cityFocus = GOLD_FOCUS;
     this->controllingCiv = NO_NATION;
-    this->cityStrength = 2;
     this->cityHealth = 200;
     this->maxHealth = 200;
+    this->baseStrength = 10;
+    this->cityStrength = this->baseStrength + this->citizens;
+    this->buildingStrength = 0;
 }
 
 
@@ -240,8 +242,6 @@ Update_t City::UpdateProgress()
         //Increment the number of citizens in the city
         this->citizens++;
 
-        this->cityStrength = this->citizens * 2;
-
         //// THIS CALCULATION NEEDS TO CHANGE
         // Calculate the number of turns until a new citizen is born
         this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
@@ -293,6 +293,13 @@ Update_t City::UpdateProgress()
 
         update.cityHealed = true;
     }
+
+    this->cityStrength = this->baseStrength + this->citizens + this->buildingStrength;
+
+    qDebug() << "       Total city Strength:" << this->cityStrength
+             << "Base Strength:" << this->baseStrength
+             << "citizens:" << this->citizens
+             << "Building Strength" << this->buildingStrength;
 
     return update;
 }
@@ -614,6 +621,16 @@ void City::SetCityMaxHealth(int health)
 void City::SetCityStrength(int strength)
 {
     this->cityStrength = strength;
+}
+
+void City::SetCityBuildingStrength(int strength)
+{
+    this->buildingStrength = strength;
+}
+
+void City::SetBaseCityStrength(int strength)
+{
+    this->baseStrength += strength;
 }
 
 void City::GarrisonWorker(Unit *worker)
@@ -1033,4 +1050,14 @@ int City::GetMaxHealth()
 int City::GetCityStrength()
 {
     return this->cityStrength;
+}
+
+int City::GetCityBuildingStrength()
+{
+    return this->buildingStrength;
+}
+
+int City::GetBaseStrength()
+{
+    return this->baseStrength;
 }

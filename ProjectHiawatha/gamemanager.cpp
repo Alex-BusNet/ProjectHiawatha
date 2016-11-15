@@ -450,7 +450,6 @@ void GameManager::StartTurn()
         int techIndex = civList.at(currentTurn)->getTechIndex();
         for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
         {
-
             for(int j = 0; j<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().size();j++)
             {
                 if(civList.at(currentTurn)->GetCityList().at(0)->getInitialUnitList().at(j)->GetTechIndex() == (techIndex-1))
@@ -459,6 +458,8 @@ void GameManager::StartTurn()
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
                 }
             }
+
+            civList.at(currentTurn)->GetCityAt(i)->SetBaseCityStrength(10);
         }
 
         civList.at(currentTurn)->setNextTech(civList.at(currentTurn)->GetTechList().at(techIndex+1));
@@ -730,10 +731,8 @@ void GameManager::UpdateTileData()
         {
             unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
-            qDebug() << "   Queueing tile for render";
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
             tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-            qDebug() << "   done";
 
             if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
             {
@@ -792,8 +791,7 @@ void GameManager::UpdateTileData()
                     buildTradePost->setEnabled(false);
                     buildRoad->setEnabled(false);
 
-//                    if(unitToMove->GetHealth() < unitToMove->GetMaxHealth())
-                        fortifyUnit->setEnabled(true);
+                    fortifyUnit->setEnabled(true);
 
                     QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
 

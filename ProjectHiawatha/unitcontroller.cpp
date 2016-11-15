@@ -168,8 +168,9 @@ void UnitController::AttackCity(Unit *attacker, City *city)
     else
         melee = 0.0f;
 
+    qDebug() << "--City strength:" << city->GetCityStrength();
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
-    float damageSustained = ((city->GetCityHealth() / city->GetCityStrength()) * melee);
+    float damageSustained = (city->GetCityStrength() * melee);
 
     qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
 
