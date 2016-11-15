@@ -99,6 +99,7 @@ private:
     QRect *playerInfoRect;
 
     Unit* unitToMove, *targetUnit;
+    City* targetCity;
 
     QString *YieldDisplay;
 
@@ -118,8 +119,8 @@ private:
     bool turnEnded, turnStarted;
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
-    bool findUnit;
-    bool attackNearby, attackRange;
+    bool findUnit, findCity;
+    bool attackNearby, attackRange, attackEnemyCity;
     bool focusChanged;
 
     Nation playerCiv;

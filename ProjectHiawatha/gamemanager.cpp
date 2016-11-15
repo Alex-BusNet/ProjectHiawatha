@@ -37,6 +37,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     techLabel = new QLabel(" NO RESEARCH ");
     techText = new QLabel(" 00/000 ");
 
+    unitToMove = NULL;
+    targetUnit = NULL;
+    targetCity = NULL;
+
     cityScreenVisible = false;
     techTreeVisible = false;
     relocateUnit = false;
@@ -48,6 +52,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     attackNearby = false;
     focusChanged = false;
     fortify = false;
+    attackEnemyCity = false;
+    findCity = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -445,7 +451,6 @@ void GameManager::StartTurn()
         int techIndex = civList.at(currentTurn)->getTechIndex();
         for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
         {
-
             for(int j = 0; j<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().size();j++)
             {
                 if(civList.at(currentTurn)->GetCityList().at(0)->getInitialUnitList().at(j)->GetTechIndex() == (techIndex-1))
@@ -463,6 +468,8 @@ void GameManager::StartTurn()
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->setUnlocked(1);
                 }
             }
+
+            civList.at(currentTurn)->GetCityAt(i)->SetBaseCityStrength(10);
         }
 
         civList.at(currentTurn)->setNextTech(civList.at(currentTurn)->GetTechList().at(techIndex+1));
@@ -607,6 +614,11 @@ void GameManager::StartTurn()
             }
         }
 
+        if(update.cityHealed)
+        {
+            renderer->UpdateCityHealthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
+        }
+
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
 
@@ -722,45 +734,47 @@ void GameManager::EndTurn()
 
 void GameManager::UpdateTileData()
 {
-    if(!processedData.relocateOrderGiven && !attackNearby)
+    if(!processedData.relocateOrderGiven && !attackNearby && !attackEnemyCity)
     {
-        qDebug() << "Relocation not ordered";
+        qDebug() << "Relocation not ordered" << processedData.column << processedData.row;
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
-        if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected)
+        if(unitTile->Selected)
         {
-            map->GetTileFromCoord(unitTile->GetTileID().column, unitTile->GetTileID().row)->Selected = false;
+            unitTile->Selected = false;
             selectedTileQueue->enqueue(SelectData{(unitTile->GetTileID().column / 2) + (map->GetMapSizeX() * unitTile->GetTileID().row), false, false});
             this->redrawTile = true;
         }
 
-        if(map->GetTileFromCoord(processedData.column, processedData.row)->ContainsUnit)
+        if(unitTile->ContainsUnit)
         {
             findUnit = true;
         }
     }
-    else if(attackNearby || processedData.relocateOrderGiven)
+    else if(attackNearby || processedData.relocateOrderGiven || attackEnemyCity)
     {
-        qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven;
+        qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven << "attackEnemyCity:" << attackEnemyCity;
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
-
-        if(map->GetTileFromCoord(processedData.column, processedData.row)->ContainsUnit)
+        qDebug() << "       ContainsUnit:" << targetTile->ContainsUnit << "HasCity:" << targetTile->HasCity;
+        if(targetTile->ContainsUnit && !attackEnemyCity)
         {
             findUnit = true;
         }
+        else if(targetTile->HasCity)
+        {
+            findCity = true;
+        }
     }
 
-    if(findUnit)
+    if(findUnit && !attackEnemyCity)
     {
         findUnit = false;
         if(!attackNearby)
         {
             unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
-            qDebug() << "   Queueing tile for render";
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
             tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-            qDebug() << "   done";
 
             if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
             {
@@ -819,8 +833,7 @@ void GameManager::UpdateTileData()
                     buildTradePost->setEnabled(false);
                     buildRoad->setEnabled(false);
 
-//                    if(unitToMove->GetHealth() < unitToMove->GetMaxHealth())
-                        fortifyUnit->setEnabled(true);
+                    fortifyUnit->setEnabled(true);
 
                     QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
 
@@ -829,7 +842,7 @@ void GameManager::UpdateTileData()
                         qDebug() << "   CivListIndex:" << tile->GetCivListIndex();
                         if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
                         {
-                            int tileIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+                            int tileIndex = tile->GetTileIndex();
 
                             selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
                             tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
@@ -896,6 +909,25 @@ void GameManager::UpdateTileData()
             this->redrawTile = true;
         }
     }
+    else if(findCity)
+    {
+        findCity = false;
+        targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetCityList());
+        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+        selectedTileQueue->enqueue(SelectData{(targetCity->GetCityTile()->GetTileID().column / 2) + (map->GetMapSizeX() * targetCity->GetCityTile()->GetTileID().row), false, false});
+        attackCity->setEnabled(false);
+        attackEnemyCity = false;
+
+        if(targetCity->GetControllingCiv() != NO_NATION)
+        {
+            uc->AttackCity(unitToMove, targetCity);
+
+            renderer->UpdateUnits(map, gameView, unitToMove, false);
+            renderer->UpdateCityHealthBar(targetCity, gameView);
+            renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+            this->redrawTile = true;
+        }
+    }
 
     if(processedData.relocateOrderGiven && !findUnit)
     {
@@ -934,7 +966,11 @@ void GameManager::UpdateTileData()
 
     if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
     {
-        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+        if(unitToMove != NULL)
+        {
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+        }
+
         attackUnit->setEnabled(false);
         buildFarm->setEnabled(false);
         buildMine->setEnabled(false);
@@ -1318,7 +1354,7 @@ void GameManager::SetCultureFocus()
 
 void GameManager::AttackCity()
 {
-
+    attackEnemyCity = true;
 }
 
 void GameManager::RangeAttack()

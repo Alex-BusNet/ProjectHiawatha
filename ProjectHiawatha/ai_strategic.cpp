@@ -14,7 +14,6 @@
   Determine if structures are needed (and which)
         - probably set a static order
         - then give, say, defensive structures priority if under invasion, etc
-
 */
 
 #include "ai_strategic.h"
@@ -57,7 +56,8 @@ int AI_Strategic::midTermGoal(Civilization *civ){
         goal=2;//Preparing for War
     }
     else if(civ->getProvoked()){
-        //Needs to be a flag set once player has provoked the AI (Probably set by threatscan)
+        //Needs to be a flag set once player has provoked the AI (set by InvasionCheck)
+        //might need moved ahead of goal 1
         goal=3;//At War
     }
     else{
@@ -104,10 +104,10 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                 if(0==i&&!activeSettler){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
 
-                    civ->GetCityAt(0)->setCurrentProductionCost(100);
-                    civ->GetCityAt(0)->setIsUnit(true);
-                    civ->GetCityAt(0)->setProductionName("Settler");
-                    civ->GetCityAt(0)->setProductionIndex(3);
+                    civ->GetCityAt(i)->setCurrentProductionCost(100);
+                    civ->GetCityAt(i)->setIsUnit(true);
+                    civ->GetCityAt(i)->setProductionName("Settler");
+                    civ->GetCityAt(i)->setProductionIndex(3);
 
 //                    qDebug()<<"ACCUMULATED PRODUCTION: "<<civ->GetCityList().at(i)->getAccumulatedProduction();
 //                    qDebug()<<"PRODUCTION COST: "<<civ->GetCityList().at(i)->getCurrentProductionCost();
@@ -117,17 +117,17 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
 
                 }
                 else if(civ->getProvoked()){
-                    civ->GetCityAt(0)->setCurrentProductionCost(425);
-                    civ->GetCityAt(0)->setIsUnit(true);
-                    civ->GetCityAt(0)->setProductionName("Modern Armor");
-                    civ->GetCityAt(0)->setProductionIndex(31);
+                    civ->GetCityAt(i)->setCurrentProductionCost(425);
+                    civ->GetCityAt(i)->setIsUnit(true);
+                    civ->GetCityAt(i)->setProductionName("Modern Armor");
+                    civ->GetCityAt(i)->setProductionIndex(31);
                     qDebug()<<"     Modern Armor";
                 }
                 else if(!civ->GetCityAt(i)->getHasWorker()){
-                    civ->GetCityAt(0)->setCurrentProductionCost(70);
-                    civ->GetCityAt(0)->setIsUnit(true);
-                    civ->GetCityAt(0)->setProductionName("Worker");
-                    civ->GetCityAt(0)->setProductionIndex(6);
+                    civ->GetCityAt(i)->setCurrentProductionCost(70);
+                    civ->GetCityAt(i)->setIsUnit(true);
+                    civ->GetCityAt(i)->setProductionName("Worker");
+                    civ->GetCityAt(i)->setProductionIndex(6);
                     qDebug()<<"     Worker";
                 }
                 else{
@@ -136,10 +136,10 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                 }
             }
             else if(2==midGoal||3==midGoal){
-                civ->GetCityAt(0)->setCurrentProductionCost(425);
-                civ->GetCityAt(0)->setIsUnit(true);
-                civ->GetCityAt(0)->setProductionName("Stealth Bomber");
-                civ->GetCityAt(0)->setProductionIndex(32);
+                civ->GetCityAt(i)->setCurrentProductionCost(425);
+                civ->GetCityAt(i)->setIsUnit(true);
+                civ->GetCityAt(i)->setProductionName("Stealth Bomber");
+                civ->GetCityAt(i)->setProductionIndex(32);
                 qDebug()<<"     Stealth Bomber";
                 //Build military units
             }
@@ -149,6 +149,35 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
         //}
     }
 }
+
+//*************City production Decision Tree***********
+//prioritizes military if it is ready for war, then expansion, then having a worker, then buildings
+//should cycle through each city, and then run this calculation only if nothing is being produced in that city
+
+//something like
+//while(city.hasnext){
+        //if(city.production==NULL){
+
+//if (cities+active_settlers+pending_settlers)<10)
+        //city(0) build settler (city(0) should be the capital)
+        //1 settler at a time
+//else if(roadworker==false)||(city.garissonedworker==0)
+        //build worker
+                //civ should have 1 worker per city and a roadbuilder
+                //worker will be garrisoned in the city and can work on any tile in the city's borders
+//else if(needs military units)
+                //calculations of relative military strength,
+                //what units are pending
+                //etc.
+                //should always have some sort of minimum strength
+                //builds a lot when preparing for/at war
+//else if(buildings needed)
+                //calculate what buildings are needed
+                //Priority: 1)Food, 2)Production 3)Science 4)Military 5)Gold
+                //hypothetically
+                //maybe prioritize happiness until it finishes its 15 cities
+
+
 
 void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *map)
 {
@@ -170,42 +199,3 @@ void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *m
         }
     }
 }
-//*************City production Decision Tree***********
-//prioritizes military if it is ready for war, then expansion, then having a worker, then buildings
-//should cycle through each city, and then run this calculation only if nothing is being produced in that city
-
-//something like
-//while(city.hasnext){
-        //if(city.production==NULL){
-
-//if (((cities+active_settlers+pending_settlers)<10)&&((happiness-(2*active_settlers))>2))
-        //city(1) build settler (city(1) should be the capital)
-        //pending_settlers++
-                //pending settlers tracks settlers being built, and has a -- when one is completed
-                //active_settlers is settlers currently seeking a city site, -- if killed or founds city
-                //2 happiness is arbitrary, should reflect the number of happiness a new city loses
-                //also needs to factor active_settlers into happiness calculation for cities about to be founded
-//else if(roadworker==false)||(city.garissonedworker==0)
-        //build worker
-                //civ should have 1 worker per city and a roadbuilder
-                //worker will be garrisoned in the city and can work on any tile in the city's borders
-//else if(needs military units)
-                //calculations of relative military strength,
-                //what units are pending
-                //etc.
-                //should always have some sort of minimum strength
-                //builds a lot when preparing for/at war
-//else if(buildings needed)
-                //calculate what buildings are needed
-                //Priority: 1)Food, 2)Production 3)Gold 4)Science 5)Military
-                //hypothetically
-                //maybe prioritize happiness until it finishes its 15 cities
-
-
-
-
-
-
-
-
-

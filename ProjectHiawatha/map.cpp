@@ -64,6 +64,7 @@ void Map::InitHexMap()
             tile = new Tile(posX, posY);
 
             tile->SetTileID(row, column, tile);
+            tile->SetTileIndex(board.size());
 
             board.push_back(tile);
 

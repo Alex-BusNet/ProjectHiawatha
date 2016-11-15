@@ -14,6 +14,12 @@ City::City()
     this->currentProductionName = "No Current Production";
     this->numberofBuildings = 0;
     this->cityFocus = GOLD_FOCUS;
+    this->controllingCiv = NO_NATION;
+    this->cityHealth = 200;
+    this->maxHealth = 200;
+    this->baseStrength = 10;
+    this->cityStrength = this->baseStrength + this->citizens;
+    this->buildingStrength = 0;
 }
 
 
@@ -297,6 +303,24 @@ Update_t City::UpdateProgress()
         this->currentProductionCost = 0;
         update.productionFinished = true;
     }
+
+    if(this->cityHealth < this->maxHealth)
+    {
+        qDebug() << "------Healing City";
+        this->cityHealth += this->maxHealth * 0.15f;
+
+        if(this->cityHealth > this->maxHealth)
+            this->cityHealth = this->maxHealth;
+
+        update.cityHealed = true;
+    }
+
+    this->cityStrength = this->baseStrength + this->citizens + this->buildingStrength;
+
+    qDebug() << "       Total city Strength:" << this->cityStrength
+             << "Base Strength:" << this->baseStrength
+             << "citizens:" << this->citizens
+             << "Building Strength" << this->buildingStrength;
 
     return update;
 }
@@ -605,7 +629,7 @@ void City::SetCityGrowthBarIndex(int index)
     this->cityGrowthBarIndex = index;
 }
 
-void City::SetCityHealth(int health)
+void City::SetCityHealth(float health)
 {
     this->cityHealth = health;
 }
@@ -613,6 +637,21 @@ void City::SetCityHealth(int health)
 void City::SetCityMaxHealth(int health)
 {
     this->maxHealth = health;
+}
+
+void City::SetCityStrength(int strength)
+{
+    this->cityStrength = strength;
+}
+
+void City::SetCityBuildingStrength(int strength)
+{
+    this->buildingStrength = strength;
+}
+
+void City::SetBaseCityStrength(int strength)
+{
+    this->baseStrength += strength;
 }
 
 void City::GarrisonWorker(Unit *worker)
@@ -1062,10 +1101,25 @@ int City::GetCityProductionBarIndex()
 
 int City::GetCityHealth()
 {
-    return this->cityHealth;
+    return ceil(this->cityHealth);
 }
 
 int City::GetMaxHealth()
 {
     return this->maxHealth;
+}
+
+int City::GetCityStrength()
+{
+    return this->cityStrength;
+}
+
+int City::GetCityBuildingStrength()
+{
+    return this->buildingStrength;
+}
+
+int City::GetBaseStrength()
+{
+    return this->baseStrength;
 }

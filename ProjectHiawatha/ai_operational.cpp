@@ -18,6 +18,8 @@ Control of overall unit placement
 */
 
 #include "ai_operational.h"
+#include "tile.h"
+#include "unitcontroller.h"
 #include <qdebug.h>
 
 AI_Operational::AI_Operational()
@@ -33,9 +35,10 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
     threatScan(civ, player, map);
 
+    cityLocation(civ, map);
 
     if(1==midGoal){
-        cityLocation(civ, map);
+        qDebug()<<"AI_Ops Midgoal 1";
     }
     else if(2==midGoal){
         theaterPrep(civ, player, troopLocations);
@@ -67,15 +70,34 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
     qDebug()<<"Threatscan";
     //Clear threats each time, else they remain after the unit dies
 
-    for(int i = 0; i<player->GetUnitList().length(); i++){
-        if(0){
-        //Invasion logic moved to strategic AI
-        }
-        else{
+    UnitController* unitCon = new UnitController();
+    Unit* unit;
+    //Check tiles near cities
+        for(int i = 0; i<civ->GetCityList().length();i++){
+             QVector<Tile*> borderingTiles=civ->GetCityAt(i)->tileQueue;
 
-        }
-    }
+             for(int j=0; j<borderingTiles.length();j++){
 
+                 if(0==borderingTiles.at(j)->GetCivListIndex()){
+                    qDebug()<<"Enemy Near";
+                    QVector<Unit*> tempVec = civ->getMidThreats();
+                    unit = unitCon->FindUnitAtTile(borderingTiles.at(j),map,player->GetUnitList());
+                    tempVec.push_back(unit);
+                    civ->setMidThreats(tempVec);
+                    qDebug()<<"Unit: "<<unit->GetTileIndex();
+                 }
+
+//                 for(int k = 0; k<player->GetUnitList().length(); k++){
+//                     if(map->GetTileAt(player->GetUnitAt(k)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
+
+//                         QVector<Unit*> tempVec = civ->getHighThreats();
+//                         tempVec.push_back(player->GetUnitAt(i));
+//                         civ->setHighThreats(tempVec);
+//                     }
+//                 }
+
+            }
+            qDebug()<<"Enemy in adjacent tile check";
 
     //Using the Map::GetNeighbors(Tile *node) algorithm
         //search radially out from controlled tiles
@@ -84,6 +106,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
         //if enemy found within 2 of units, add to highThreats
         //else if found within 3 of units, add to midThreats
         //else if within 5 add to lowThreats
+        }
 }
 
 //************Threat Vector*************
@@ -101,6 +124,10 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
 void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget){
     //scan outward for nearest player city
         //Sets it as city target
+
+    //Probably just easiest to use the findpath from AI capitol to each player city
+    //and return the closest from there
+
 }
 //************Theater of War***************
 //Prioritizes the nearest city (by accessibility?) of the player civ
@@ -115,6 +142,9 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City 
 
 
 void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVector<Tile *> troopLocations){
+
+    //Might be partially obsolete because of provocation mechanic
+
     //Scans for player's nearest city
         //Locates open tiles within civ's borders that are near the enemy city
             //Maybe does the rotational scan out from the located city?
@@ -132,7 +162,9 @@ void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVecto
 void AI_Operational::cityLocation(Civilization *civ, Map *map){
     qDebug()<<"City Locations";
     for(int i=0; i<(15-civ->GetCityList().length());i++){
-        cityLocations.push_back(map->GetTileAt(255));
+
+
+        //cityLocations.push_back(map->GetTileAt(255));
         //Settler Test
 
 

@@ -197,12 +197,19 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         return;
 
     int index, size = data->size();
+
     SelectData selDat;
     for(int i = 0; i < size; i++)
     {
         selDat = data->dequeue();
         index = selDat.index;
         qDebug() << "       selDat index:" << index;
+
+        if(index > map->GetBoardSize())
+        {
+            qDebug() << "index to large. Invalid Tile";
+            return;
+        }
 
         if(selDat.player && !selDat.target)
         {
@@ -457,7 +464,7 @@ void Renderer::LoadCities(QVector<City*> cities, GameView *view)
 
 void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
 {
-    int index = (tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row);
+    int index = tile->GetTileIndex();
 
     view->removeItem(tileWorked.at(index));
 
@@ -567,7 +574,7 @@ void Renderer::UpdateCityHealthBar(City *city, GameView *view)
     int barSize = ceil(65 * (static_cast<double>(city->GetCityHealth()) / city->GetMaxHealth()));
 
     QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
-                              city->GetCityTile()->GetCityLabelPoint().y() + 14,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 15,
                               barSize, 5);
 
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));

@@ -71,7 +71,7 @@ void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, GameSc
         if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR&&(!civ->GetUnitList().at(i)->HasNoMovementLeft)){
             //Will need additional logic for other unit types
 
-          //  UnitControl->FindPath(unitlocation,player->GetCityAt(0)->GetCityTile(),map,scene,unitlist.at(i));
+          // UnitControl->FindPath(unitlocation,player->GetCityAt(0)->GetCityTile(),map,scene,unitlist.at(i));
             //Charges enemy capitol
 
         }
@@ -228,12 +228,12 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
 
 
     for(int i = 0; i<unitlist.length();i++){
-
+qDebug()<<"if";
         //Find worker location
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
-        if(civ->GetUnitList().at(i)->GetUnitType()==SETTLER){
-
+        if(civ->GetUnitList().at(i)->GetName()=="Settler"){
+qDebug()<<"Settler selected";
             UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,scene,unitlist.at(i));
 
 

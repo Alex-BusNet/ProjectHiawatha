@@ -201,6 +201,16 @@ int Tile::GetMoveCost()
     return this->moveCost;
 }
 
+void Tile::SetTileIndex(int index)
+{
+    this->tileIndex = index;
+}
+
+int Tile::GetTileIndex()
+{
+    return this->tileIndex;
+}
+
 QString Tile::GetTileIDString()
 {
     return QString("%1, %2").arg(this->GetTileID().column).arg(this->GetTileID().row);

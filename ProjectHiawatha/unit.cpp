@@ -37,6 +37,7 @@ Unit::Unit(Nation owner, UnitType type)
     this->health = 100;
     this->maxHealth = this->health;
     this->unlocked = 0;
+    this->range = 1;
 }
 
 Unit::Unit(int index)
