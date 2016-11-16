@@ -1056,8 +1056,8 @@ void City::loadBuildings(QString filename)
           initialBuildingList.push_back(building);
        }
        inputFile.close();
-       qDebug()<<initialBuildingList.at(1)->getName();
-       qDebug()<<initialBuildingList.size();
+//       qDebug()<<initialBuildingList.at(1)->getName();
+//       qDebug()<<initialBuildingList.size();
     }else
     {
         QMessageBox* mBox = new QMessageBox();
