@@ -997,15 +997,15 @@ void City::loadUnits(QString filename)
           tempUnit->SetRangeStrength(rangeStrength);
           tempUnit->setUnlocked(unlocked);
           tempUnit->SetTechIndex(techIndex);
+          tempUnit->setUnitType(type);
 //          qDebug()<<"TYPE: "<<type;
           tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
-//          qDebug()<<initialUnitList.at(0)->GetName();
+
 
        }
        inputFile.close();
-//       qDebug()<<initialUnitList.at(1)->GetName();
-//       qDebug()<<initialUnitList.at(10)->GetName();
+
     }else
     {
         QMessageBox* mBox = new QMessageBox();

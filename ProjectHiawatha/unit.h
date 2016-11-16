@@ -16,7 +16,7 @@ public:
     Unit(Nation owner = India, UnitType type = WORKER);
     Unit(int index);
     ~Unit();
-
+    void setUnitType(UnitType type);
     void SetUnitIcon(UnitType type);
     void SetOwner(Nation owner);
     void SetName(QString str);

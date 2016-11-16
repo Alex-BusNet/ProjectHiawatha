@@ -592,13 +592,17 @@ void Renderer::AddCityLabel(City* city, GameView *view)
 void Renderer::AddCity(City *city, GameView *view)
 {
     QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944_alt.png");
+    qDebug()<<"NO PROBLEM?";
     cityPixmap.push_back(view->addPixmap(*cityImage));
+    qDebug()<<"NO PROBLEM??";
     cityPixmap.last()->setZValue(2);
+    qDebug()<<"NO PROBLEM???";
     cityPixmap.last()->setScale(1.0f);
+    qDebug()<<"NO PROBLEM?????";
     cityPixmap.last()->setPos(city->GetCityTile()->GetTexturePoint().x() + 22, city->GetCityTile()->GetTexturePoint().y() + 24);
 
 //    this->AddCityHealthBars(city, view->GetScene());
-    this->AddCityLabel(city, view);
+//    this->AddCityLabel(city, view);
 }
 
 void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)

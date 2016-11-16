@@ -65,6 +65,11 @@ Unit::~Unit()
 
 }
 
+void Unit::setUnitType(UnitType type)
+{
+   this->type = type;
+}
+
 void Unit::SetUnitIcon(UnitType type)
 {
     //// Most, if not all, of the unit specific data will need to be changed

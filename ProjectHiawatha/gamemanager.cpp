@@ -788,6 +788,8 @@ void GameManager::UpdateTileData()
                     if(unitToMove->GetUnitType() == SETTLER)
                     {
                         qDebug() << "       unit is settler";
+                        qDebug()<<"Tile Index: "<<unitToMove->GetTileIndex();
+                        qDebug()<<"HAS CITY: "<<map->GetTileAt(unitToMove->GetTileIndex())->HasCity;
                         if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
                         {
                             foundCity->setEnabled(true);
@@ -1187,11 +1189,8 @@ void GameManager::showCity(City* city)
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
-        qDebug()<<"CRASH HERE ";
         cityScreen->updateList(city->getNumberOfBuildings());
-        qDebug()<<"CRASH HEREEEE ";
         cityScreen->updateWidget();
-        qDebug()<<"CRASH HEREEEEEEEEEE ";
         civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
         gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
         cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);
@@ -1282,12 +1281,17 @@ void GameManager::showTechTree()
 
 void GameManager::foundNewCity()
 {
-    // Need to call:
-    //      AddCity(City* city, Map *map, GameView *view)
-    //      AddCityLabel(QString name, Civilization *civ, GameView *view)
-    //      loadUnits(QString list)
-    //      loadTechs(QString list)
-    // from the renderer after creating the new city object
+    int index = civList.at(currentTurn)->getCityIndex();
+    City* city = new City();
+    city->SetCityTile(map->GetTileAt(unitToMove->GetTileIndex()));
+    city->SetName(civList.at(currentTurn)->GetInitialCityList().at(index+1));
+    civList.at(currentTurn)->AddCity(city);
+    renderer->AddCity(city,gameView);
+    renderer->AddCityLabel(city,gameView);
+    renderer->LoadCities(civList.at(currentTurn)->GetCityList(), gameView);
+    civList.at(currentTurn)->GetCityList().at(index)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
+    civList.at(currentTurn)->GetCityList().at(index)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+
 }
 
 void GameManager::buildNewRoad()
