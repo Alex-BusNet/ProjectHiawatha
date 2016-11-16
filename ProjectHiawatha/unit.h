@@ -67,6 +67,7 @@ public:
 
     QString GetName();
     QList<Tile*> GetPath();
+    Tile* GetNextTileInPath();
 
     UnitType GetUnitType();
     int  isUnlocked();

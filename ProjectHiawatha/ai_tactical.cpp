@@ -147,6 +147,12 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                             qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
                             canHit=true;
                             UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                            while(!unitlist.at(i)->isPathEmpty()){
+                                unitlist.at(i)->UpdatePath();
+                            }
+
+                            //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                            qDebug()<<unitlist.at(i)->GetTargetTileIndex();
                         }
                         else{
 
@@ -155,8 +161,12 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                     if(!canHit){
                         qDebug()<<"Send to target at "<<(threatVec.at(0)->GetTileIndex());
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
-                        UnitControl->FindPath(unitlocation,targetNeighbor.at(0),map,scene,unitlist.at(i));
-
+                        int k=0;
+                        while(unitlist.at(i)->isPathEmpty()){
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            k++;
+                            if(k>5){break;}
+                        }//Find path accounts for impassable terrain around the target unit
                     }
 
 //                }
@@ -324,7 +334,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
 
         if(civ->GetUnitList().at(i)->GetName()=="Settler"){
 qDebug()<<"Settler selected";
-            UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,scene,unitlist.at(i));
+            UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
 
 
         }
@@ -396,7 +406,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
                         }
                         else {
                             //Send the unused worker to city
-                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,scene,unitlist.at(i));
+                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i));
                         }
                     }
                     else if(false==roadWorkerExists){

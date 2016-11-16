@@ -119,7 +119,7 @@ private:
     bool turnEnded, turnStarted;
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
-    bool findUnit, findCity;
+    bool findUnit, findCity, foundACity;
     bool attackNearby, attackRange, attackEnemyCity;
     bool focusChanged;
 

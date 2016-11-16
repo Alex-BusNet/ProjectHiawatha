@@ -10,7 +10,7 @@ UnitController::UnitController()
 
 }
 
-void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScene *scene, Unit *unit)
+void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, /*GameScene *scene,*/ Unit *unit)
 {
     if(startTile==endTile){
         qDebug()<<"Start = End";
@@ -71,11 +71,17 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, GameScen
         }
     }
 
-    scene->unitMoveOrdered = false;
+//    scene->unitMoveOrdered = false;
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 {
+    if(map->GetTileAt(unit->GetNextTileInPath()->GetTileIndex())->ContainsUnit)
+    {
+        qDebug() << "Next tile occupied; searching for new path";
+        FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, unit);
+    }
+
     if(!unit->isPathEmpty())
     {
         // Clear the data from the current tile
@@ -92,8 +98,8 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
         }
 
         //update the unit's position
-        unit->SetPositionIndex((unit->GetPath().first()->GetTileID().column / 2) + (map->GetMapSizeX() * unit->GetPath().at(0)->GetTileID().row));
-        unit->SetPosition(unit->GetPath().first()->GetTileID().column, unit->GetPath().first()->GetTileID().row);
+        unit->SetPositionIndex(unit->GetNextTileInPath()->GetTileIndex());
+        unit->SetPosition(unit->GetNextTileInPath()->GetTileID().column, unit->GetNextTileInPath()->GetTileID().row);
         map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
 
         // Set the data for the unit's new tile
@@ -170,7 +176,7 @@ void UnitController::AttackCity(Unit *attacker, City *city)
 
     qDebug() << "--City strength:" << city->GetCityStrength();
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * melee));
-    float damageSustained = (city->GetCityStrength() / static_cast<float>(damageDealt) ) * melee;
+    float damageSustained = (city->GetCityStrength()) * melee;
 
     qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
 
@@ -185,9 +191,10 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
        QVector <QString> tempCityList = currentCiv->GetInitialCityList();
        int index = currentCiv->getCityIndex();
        City* newCity = new City();
-       newCity->SetName(tempCityList.at(index));
-       newCity->SetCityIndex(currentCiv->GetCityList().size());
+
        currentCiv->AddCity(newCity);
+       CurrentTile->HasCity = true;
+
     }else{
         //QMESSAGEBOX SAYING CANT FOUND CITY HERE
         //OR MAYBE PLAY A SOUND
@@ -286,6 +293,12 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
         path[j] = temp;
         i++;
         j--;
+    }
+
+    if(path.last()->ContainsUnit)
+    {
+        qDebug() << "----Target tile contains unit; stopping one short";
+        path.removeLast();
     }
 
     //// This is for debugging purposes

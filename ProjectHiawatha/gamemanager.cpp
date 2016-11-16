@@ -114,7 +114,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
-            renderer->AddCityHealthBars(civList.at(i)->GetCityAt(j), gameView);
             if(i == 0)
             {
                 if(j == 0)
@@ -684,6 +683,9 @@ void GameManager::EndTurn()
         if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
         {
             qDebug() << "----Removing Unit";
+            renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
+            renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
+            map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
             renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView);
             civList.at(currentTurn)->RemoveUnit(i);
         }
@@ -776,7 +778,7 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
             tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
-            if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv())
+            if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && unitToMove->RequiresOrders)
             {
                 map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
                 moveUnit->setEnabled(true);
@@ -849,7 +851,14 @@ void GameManager::UpdateTileData()
                             selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
                             tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
 
-                            if(tile->ContainsUnit)
+                            if(tile->HasCity)
+                            {
+                                if(!attackCity->isEnabled())
+                                {
+                                    attackCity->setEnabled(true);
+                                }
+                            }
+                            else if(tile->ContainsUnit)
                             {
                                 if(!attackUnit->isEnabled())
                                 {
@@ -860,14 +869,6 @@ void GameManager::UpdateTileData()
                                     buildRoad->setEnabled(false);
 
                                     attackUnit->setEnabled(true);
-                                }
-                            }
-
-                            if(tile->HasCity)
-                            {
-                                if(!attackCity->isEnabled())
-                                {
-                                    attackCity->setEnabled(true);
                                 }
                             }
                             else if(attackCity->isEnabled())
@@ -942,7 +943,7 @@ void GameManager::UpdateTileData()
         }
 
         qDebug() <<"    Finding path";
-        uc->FindPath(unitTile, targetTile, map, gameView->GetScene(), unitToMove);
+        uc->FindPath(unitTile, targetTile, map, unitToMove);
 
         relocateUnit = false;
         processedData.relocateOrderGiven = false;
@@ -973,6 +974,7 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         }
 
+        attackCity->setEnabled(false);
         attackUnit->setEnabled(false);
         buildFarm->setEnabled(false);
         buildMine->setEnabled(false);
