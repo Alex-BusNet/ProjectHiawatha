@@ -597,8 +597,8 @@ void Renderer::AddCity(City *city, GameView *view)
     cityPixmap.last()->setScale(1.0f);
     cityPixmap.last()->setPos(city->GetCityTile()->GetTexturePoint().x() + 22, city->GetCityTile()->GetTexturePoint().y() + 24);
 
-//    this->AddCityHealthBars(city, view->GetScene());
     this->AddCityLabel(city, view);
+    this->AddCityHealthBars(city, view);
 }
 
 void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)

@@ -114,7 +114,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
-            renderer->AddCityHealthBars(civList.at(i)->GetCityAt(j), gameView);
             if(i == 0)
             {
                 if(j == 0)
@@ -686,6 +685,7 @@ void GameManager::EndTurn()
             qDebug() << "----Removing Unit";
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
+            map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
             renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView);
             civList.at(currentTurn)->RemoveUnit(i);
         }

@@ -67,9 +67,6 @@ Unit::~Unit()
 
 void Unit::SetUnitIcon(UnitType type)
 {
-    //// Most, if not all, of the unit specific data will need to be changed
-    ///   (Paul's job)
-    ///
     switch(type)
     {
     case WORKER:

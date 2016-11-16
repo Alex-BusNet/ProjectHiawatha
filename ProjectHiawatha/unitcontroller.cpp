@@ -191,9 +191,10 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
        QVector <QString> tempCityList = currentCiv->GetInitialCityList();
        int index = currentCiv->getCityIndex();
        City* newCity = new City();
-       newCity->SetName(tempCityList.at(index));
-       newCity->SetCityIndex(currentCiv->GetCityList().size());
+
        currentCiv->AddCity(newCity);
+       CurrentTile->HasCity = true;
+
     }else{
         //QMESSAGEBOX SAYING CANT FOUND CITY HERE
         //OR MAYBE PLAY A SOUND
@@ -292,6 +293,12 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
         path[j] = temp;
         i++;
         j--;
+    }
+
+    if(path.last()->ContainsUnit)
+    {
+        qDebug() << "----Target tile contains unit; stopping one short";
+        path.removeLast();
     }
 
     //// This is for debugging purposes
