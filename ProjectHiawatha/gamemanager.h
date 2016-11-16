@@ -109,6 +109,7 @@ private:
 
     int zoomScale;
     int currentTurn, gameTurn;
+    int foundCityIndex;
     float year, yearPerTurn;
 
     QString currentProductionName;
@@ -119,7 +120,7 @@ private:
     bool turnEnded, turnStarted;
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
-    bool findUnit, findCity, foundACity;
+    bool findUnit, findCity, foundACity, aiFoundCity;
     bool attackNearby, attackRange, attackEnemyCity;
     bool focusChanged;
 

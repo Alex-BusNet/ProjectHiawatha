@@ -568,6 +568,13 @@ void City::SetName(QString name)
 void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
+    int x = tile->GetCenter().x(), y = tile->GetCenter().y();
+    this->maximumExpansionBorder << QPoint(x - 132, y - 221)
+                                 << QPoint(x + 132, y - 221)
+                                 << QPoint(x + 264, y)
+                                 << QPoint(x + 132, y + 221)
+                                 << QPoint(x - 132, y + 221)
+                                 << QPoint(x - 264, y);
 }
 
 void City::SetControllingCiv(Nation owner)
@@ -1084,6 +1091,11 @@ QVector<Tile *> City::GetControlledTiles()
 QPolygon City::GetCityBorders()
 {
     return this->cityBorder;
+}
+
+QPolygon City::GetMaximumExpansionBorder()
+{
+    return this->maximumExpansionBorder;
 }
 
 int City::GetCityIndex()

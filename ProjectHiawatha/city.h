@@ -54,6 +54,7 @@ public:
     Nation GetControllingCiv();
     QVector<Tile*> GetControlledTiles();
     QPolygon GetCityBorders();
+    QPolygon GetMaximumExpansionBorder();
 
     Unit GetUnitAt(int index);
     Unit* GetGarrisonedWorker(int index);
@@ -171,7 +172,7 @@ private:
     int orientation(QPoint p, QPoint q, QPoint r);
 
     void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, SortOrder sortOrder);
-    QPolygon cityBorder;
+    QPolygon cityBorder, maximumExpansionBorder;
 
 };
 

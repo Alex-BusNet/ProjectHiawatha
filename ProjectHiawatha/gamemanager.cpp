@@ -55,6 +55,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     attackEnemyCity = false;
     findCity = false;
     foundACity = false;
+    aiFoundCity = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -341,7 +342,16 @@ void GameManager::TurnController()
         StartTurn();
         qDebug() << "running AI";
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map, gameView->GetScene());
-        future.waitForFinished();
+//        future.waitForFinished();
+        while(future.isRunning())
+        {
+            if(!civList.at(currentTurn)->getCityFounding().isEmpty())
+            {
+                foundCityIndex = civList.at(currentTurn)->getCityFounding().dequeue();
+                aiFoundCity = true;
+                updateTiles();
+            }
+        }
         qDebug() << "   AI Turn Finished";
         EndTurn();
     }
@@ -743,7 +753,7 @@ void GameManager::EndTurn()
 
 void GameManager::UpdateTileData()
 {
-    if(!processedData.relocateOrderGiven && !attackNearby && !attackEnemyCity)
+    if(!processedData.relocateOrderGiven && !attackNearby && !attackEnemyCity && !aiFoundCity)
     {
         qDebug() << "Relocation not ordered" << processedData.column << processedData.row;
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
@@ -760,7 +770,7 @@ void GameManager::UpdateTileData()
             findUnit = true;
         }
     }
-    else if(attackNearby || processedData.relocateOrderGiven || attackEnemyCity)
+    else if((attackNearby || processedData.relocateOrderGiven || attackEnemyCity) && !aiFoundCity)
     {
         qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven << "attackEnemyCity:" << attackEnemyCity;
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
@@ -775,7 +785,7 @@ void GameManager::UpdateTileData()
         }
     }
 
-    if(findUnit && !attackEnemyCity)
+    if(findUnit && !attackEnemyCity && !aiFoundCity)
     {
         findUnit = false;
         if(!attackNearby)
@@ -919,7 +929,7 @@ void GameManager::UpdateTileData()
             this->redrawTile = true;
         }
     }
-    else if(findCity)
+    else if(findCity && !aiFoundCity)
     {
         findCity = false;
         targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetCityList());
@@ -939,7 +949,7 @@ void GameManager::UpdateTileData()
         }
     }
 
-    if(processedData.relocateOrderGiven && !findUnit)
+    if(processedData.relocateOrderGiven && !findUnit && !aiFoundCity)
     {
         unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
 
@@ -974,17 +984,19 @@ void GameManager::UpdateTileData()
         qDebug() << "   Done";
     }
 
-    if(foundACity)
+    if(foundACity || aiFoundCity)
     {
-        this->foundACity = false;
-//        int index = civList.at(currentTurn)->getCityIndex();
-        City* city;
-//        city->SetCityTile(map->GetTileAt(unitToMove->GetTileIndex()));
-//        city->SetName(civList.at(currentTurn)->GetInitialCityList().at(index+1));
-//        city->SetControllingCiv(unitToMove->GetOwner());
-//        city->GetCityTile()->SetYield(5,5,5,5,5);
+        if(foundCity)
+            this->foundACity = false;
+        else if(aiFoundCity)
+            this->aiFoundCity = false;
 
-        city = map->CreateCity(unitToMove->GetTileIndex(), currentTurn, civList.at(currentTurn), false);
+        City* city;
+
+        if(currentTurn == 0)
+            foundCityIndex = unitToMove->GetTileIndex();
+
+        city = map->CreateCity(foundCityIndex, currentTurn, civList.at(currentTurn), false);
         city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
 
@@ -1002,17 +1014,20 @@ void GameManager::UpdateTileData()
 
         civList.at(currentTurn)->UpdateCivYield();
 
-        qDebug() << "----Removing Unit";
-        renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
-        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
-        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
-        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-        civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
-        renderer->RemoveUnit(unitToMove, gameView);
+        if(currentTurn == 0)
+        {
+            qDebug() << "----Removing Unit";
+            renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+            renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+            map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
+            renderer->RemoveUnit(unitToMove, gameView);
+        }
 
     }
 
-    if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
+    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && !aiFoundCity)
     {
         if(unitToMove != NULL)
         {
