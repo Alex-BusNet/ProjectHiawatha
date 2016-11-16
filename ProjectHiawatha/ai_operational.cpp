@@ -153,8 +153,14 @@ void AI_Operational::cityLocation(Civilization *civ, Map *map){
     qDebug()<<"City Locations";
     for(int i=0; i<(15-civ->GetCityList().length());i++){
 
-
-        cityLocations.push_back(map->GetTileAt(255));
+//        if(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+65)!=NULL){
+//            qDebug()<<"Adding location to queue"<<map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex())+150;
+//            cityLocations.push_back(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+65));
+//        }
+//        else{
+//            qDebug()<<"City invalid";
+            cityLocations.push_back(map->GetTileAt(255));
+//        }
         //Settler Test
 
 

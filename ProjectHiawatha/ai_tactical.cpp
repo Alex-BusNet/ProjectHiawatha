@@ -42,7 +42,7 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, M
         Prep(civ, player, map, scene, TroopPositions);
     }
 
-    //settlercontrol(civ, map, scene, CityToBeFounded);
+    settlercontrol(civ, map, scene, CityToBeFounded);
     workercontrol(civ, map, scene);
 
     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
@@ -389,8 +389,14 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
 
         if(civ->GetUnitList().at(i)->GetName()=="Settler"){
             qDebug()<<"Settler selected";
-            UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
-
+            if(map->GetTileAt(unitlist.at(i)->GetTileIndex())==CityToBeFounded.at(0)){
+                qDebug()<<"found city"<<unitlist.at(i)->GetName()<<unitlist.at(i)->GetTileIndex();
+               // UnitControl->FoundCity(unitlist.at(i),map->GetTileAt(unitlist.at(i)->GetTileIndex()),civ);
+            }
+            else {
+                qDebug()<<"Traveling Settler";
+                UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
+            }
 
         }
     }
