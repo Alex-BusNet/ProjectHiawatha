@@ -153,7 +153,7 @@ void AI_Operational::cityLocation(Civilization *civ, Map *map){
     qDebug()<<"City Locations";
     for(int i=0; i<(14-civ->GetCityList().length());i++){
 
-        if(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)!=NULL){
+        if(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)->Walkable&&map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)->GetTileType()!=WATER&&map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)->GetControllingCiv()==NO_NATION){
             qDebug()<<"Adding location to queue"<<civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15;
             cityLocations.push_back(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15));
         }

@@ -392,7 +392,8 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
             if(map->GetTileAt(unitlist.at(i)->GetTileIndex())==CityToBeFounded.at(0)){
                 qDebug()<<"found city"<<unitlist.at(i)->GetName()<<unitlist.at(i)->GetTileIndex();
 //                map->CreateCity(unitlist.at(i)->GetTileIndex(),civ->getCivIndex(),civ,false);
-                civ->setCityFounding(unitlist.at(i)->GetTileIndex());
+                civ->setCityFounding(unitlist.at(i));
+
                 break;
             }
             else {

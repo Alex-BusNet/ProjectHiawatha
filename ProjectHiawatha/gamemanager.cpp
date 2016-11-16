@@ -343,12 +343,18 @@ void GameManager::TurnController()
         qDebug() << "running AI";
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map, gameView->GetScene());
 //        future.waitForFinished();
+       // qDebug()<<"AI Fin";
         while(future.isRunning())
         {
             if(!civList.at(currentTurn)->getCityFounding().isEmpty())
             {
-                foundCityIndex = civList.at(currentTurn)->getCityFounding().dequeue();
-                qDebug() << "--AI founded city at" << foundCityIndex;
+                qDebug()<<civList.at(currentTurn)->getCityFounding().size();
+                qDebug()<<civList.at(currentTurn)->getCityFounding().front()->GetTileIndex();
+//                unitToMove = civList.at(currentTurn)->getCityFounding().dequeue();
+                unitToMove = civList.at(currentTurn)->getCityFounding().takeFirst();
+                civList.at(currentTurn)->getCityFounding().removeFirst();
+                qDebug()<<civList.at(currentTurn)->getCityFounding().isEmpty();
+                qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
                 aiFoundCity = true;
                 this->UpdateTileData();
             }
@@ -981,52 +987,55 @@ void GameManager::UpdateTileData()
     if(foundACity || aiFoundCity)
     {
         qDebug() << "found a city";
+
+        qDebug()<<foundACity<<aiFoundCity;
         if(foundCity)
             this->foundACity = false;
-        else if(aiFoundCity)
+        if(true==aiFoundCity)
             this->aiFoundCity = false;
-
+        qDebug()<<foundACity<<aiFoundCity;
         City* city;
 
-        if(currentTurn == 0)
+        //if(currentTurn == 0)
             foundCityIndex = unitToMove->GetTileIndex();
 
         city = map->CreateCity(foundCityIndex, currentTurn, civList.at(currentTurn), false);
-//        qDebug() << "Loading buildings";
+        qDebug() << "Loading buildings";
         city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-//        qDebug() << "Loading units";
+        qDebug() << "Loading units";
         city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-//        qDebug() << "Adding City";
+        qDebug() << "Adding City";
         civList.at(currentTurn)->AddCity(city);
-//        qDebug() << "Setting HasCity flag";
+        qDebug() << "Setting HasCity flag";
         map->GetTileAt(foundCityIndex)->HasCity = true;
 
-//        qDebug() << "Adding City to renderer";
+        qDebug() << "Adding City to renderer";
         renderer->AddCity(city, gameView);
 
-//        qDebug() << "Adding Drawing city borders";
+        qDebug() << "Adding Drawing city borders";
         renderer->DrawCityBorders(civList.at(currentTurn)->GetCityList(), gameView, civList.at(currentTurn)->getCiv());
 
-//        qDebug () << "Setting tile worked";
+        qDebug () << "Setting tile worked";
         foreach(Tile* tile, city->GetControlledTiles())
         {
             renderer->SetTileWorkedIcon(tile, gameView);
         }
 
-//        qDebug() << "updating yield";
+        qDebug() << "updating yield";
         civList.at(currentTurn)->UpdateCivYield();
 
         renderer->SetFortifyIcon(foundCityIndex, true);
         renderer->SetUnitNeedsOrders(foundCityIndex, false);
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
 
+        civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
+        renderer->RemoveUnit(unitToMove, gameView);
+
         if(currentTurn == 0)
         {
             clv->addItem(city->GetName());
             qDebug() << "----Removing Unit";
             selectedTileQueue->enqueue(SelectData{foundCityIndex, false, false});
-            civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
-            renderer->RemoveUnit(unitToMove, gameView);
         }
 
     }

@@ -367,12 +367,12 @@ int Civilization::getCivIndex()
     return civIndex;
 }
 
-void Civilization::setCityFounding(int index)
+void Civilization::setCityFounding(Unit* unit)
 {
-    this->cityFounding.enqueue(index);
+    this->cityFounding.enqueue(unit);
 }
 
-QQueue<int> Civilization::getCityFounding()
+QQueue<Unit *> Civilization::getCityFounding()
 {
     return cityFounding;
 }
