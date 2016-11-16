@@ -380,8 +380,6 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         }
     }
 
-    // sort the vector from smallest x-value to largest x-value if reverseSort is false,
-    // else sort the vector from largest x-value to smallest x-value
     for(int j = 0; j < tempPt.size(); j++)
     {
         for(int k = j + 1; k < tempPt.size(); k++)

@@ -75,6 +75,7 @@ void GameView::ConfigureGraphicsView()
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
+    this->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 }
 
 //GameView paintEvent only gets called when the scene is dragged.
