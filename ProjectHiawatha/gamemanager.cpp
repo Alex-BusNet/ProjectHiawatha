@@ -171,6 +171,7 @@ void GameManager::InitCivs(Nation player, int numAI)
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
+    civ->setCivIndex(0);
     techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
     QString str = "../ProjectHiawatha/Assets/CityLists/";
     QString str2;
@@ -278,6 +279,7 @@ newCivRand:
                 civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
                 civ->setCurrentTech(civ->GetTechList().at(0));
                 civ->setNextTech(civ->GetTechList().at(1));
+                civ->setCivIndex(i+1);
                 civList.push_back(civ);
             }
             // Otherwise, delete it and try again.

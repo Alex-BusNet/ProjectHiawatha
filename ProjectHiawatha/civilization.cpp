@@ -357,6 +357,26 @@ bool Civilization::getProvoked()
     return provoked;
 }
 
+void Civilization::setCivIndex(int index)
+{
+    this->civIndex=index;
+}
+
+int Civilization::getCivIndex()
+{
+    return civIndex;
+}
+
+void Civilization::setCityFounding(int index)
+{
+    this->cityFounding.enqueue(index);
+}
+
+QQueue<int> Civilization::getCityFounding()
+{
+    return cityFounding;
+}
+
 void Civilization::AddCity(City *city)
 {
     this->currentCityList.push_back(city);

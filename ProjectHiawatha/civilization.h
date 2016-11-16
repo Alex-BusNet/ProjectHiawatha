@@ -12,6 +12,7 @@
 #include <QVector>
 #include <civcolors.h>
 #include "datatypes.h"
+#include "qqueue.h"
 
 class City;
 class AI_Controller;
@@ -84,6 +85,11 @@ public:
     void setProvoked(bool provoked);
     bool getProvoked();
 
+    void setCivIndex(int index);
+    int getCivIndex();
+    void setCityFounding(int index);
+    QQueue<int> getCityFounding();
+
 private:
     Nation name;
     //Enum for leader?
@@ -121,6 +127,9 @@ private:
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;
+    QQueue<int> cityFounding;
+
+    int civIndex;
 };
 
 #endif // CIVILIZATION_H
