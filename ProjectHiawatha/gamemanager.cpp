@@ -54,6 +54,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     fortify = false;
     attackEnemyCity = false;
     findCity = false;
+    foundACity = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -129,6 +130,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
             }
+
+            civList.at(i)->GetCityAt(j)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+            civList.at(i)->GetCityAt(j)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         }
 
         civList.at(i)->UpdateCivYield();
@@ -347,11 +351,11 @@ void GameManager::StartTurn()
     Update_t update = civList.at(currentTurn)->UpdateProgress();
 
     //THIS MIGHT NEED TO BE MOVED EVENTUALLY
-    for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
-    {
-        civList.at(currentTurn)->GetCityList().at(i)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-        civList.at(currentTurn)->GetCityList().at(i)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-    }
+//    for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
+//    {
+//        civList.at(currentTurn)->GetCityList().at(i)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+//        civList.at(currentTurn)->GetCityList().at(i)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
+//    }
 
     if(update.updateBorders)
     {
@@ -505,6 +509,7 @@ void GameManager::StartTurn()
                 civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
                 Unit* unit = civList.at(currentTurn)->GetCityList().at(i)->getProducedUnit();
                 unit->SetOwner(civList.at(currentTurn)->getCiv());
+                unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
 
                 for(int i = 0; i<map->GetBoardSize();i++)
                 {
@@ -967,6 +972,44 @@ void GameManager::UpdateTileData()
         qDebug() << "   Done";
     }
 
+    if(foundACity)
+    {
+        this->foundACity = false;
+//        int index = civList.at(currentTurn)->getCityIndex();
+        City* city;
+//        city->SetCityTile(map->GetTileAt(unitToMove->GetTileIndex()));
+//        city->SetName(civList.at(currentTurn)->GetInitialCityList().at(index+1));
+//        city->SetControllingCiv(unitToMove->GetOwner());
+//        city->GetCityTile()->SetYield(5,5,5,5,5);
+
+        city = map->CreateCity(unitToMove->GetTileIndex(), currentTurn, civList.at(currentTurn), false);
+        city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
+        city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+
+        civList.at(currentTurn)->AddCity(city);
+        map->GetTileAt(unitToMove->GetTileIndex())->HasCity = true;
+
+        renderer->AddCity(city,gameView);
+        clv->addItem(city->GetName());
+        renderer->DrawCityBorders(civList.at(currentTurn)->GetCityList(), gameView, civList.at(currentTurn)->getCiv());
+
+        foreach(Tile* tile, city->GetControlledTiles())
+        {
+            renderer->SetTileWorkedIcon(tile, gameView);
+        }
+
+        civList.at(currentTurn)->UpdateCivYield();
+
+        qDebug() << "----Removing Unit";
+        renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+        civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
+        renderer->RemoveUnit(unitToMove, gameView);
+
+    }
+
     if(map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false)
     {
         if(unitToMove != NULL)
@@ -1213,7 +1256,8 @@ void GameManager::updateTiles()
 {
     processedData = gameView->GetScene()->ProcessTile(relocateUnit);
 
-    if(processedData.newData)
+    if(processedData.newData || foundACity)
+
     {
         this->UpdateTileData();
     }
@@ -1283,17 +1327,7 @@ void GameManager::showTechTree()
 
 void GameManager::foundNewCity()
 {
-    int index = civList.at(currentTurn)->getCityIndex();
-    City* city = new City();
-    city->SetCityTile(map->GetTileAt(unitToMove->GetTileIndex()));
-    city->SetName(civList.at(currentTurn)->GetInitialCityList().at(index+1));
-    civList.at(currentTurn)->AddCity(city);
-    renderer->AddCity(city,gameView);
-    renderer->AddCityLabel(city,gameView);
-    renderer->LoadCities(civList.at(currentTurn)->GetCityList(), gameView);
-    civList.at(currentTurn)->GetCityList().at(index)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-    civList.at(currentTurn)->GetCityList().at(index)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-
+    this->foundACity = true;
 }
 
 void GameManager::buildNewRoad()

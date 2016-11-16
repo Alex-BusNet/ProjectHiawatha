@@ -10,7 +10,7 @@ UnitController::UnitController()
 
 }
 
-void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, /*GameScene *scene,*/ Unit *unit)
+void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit)
 {
     if(startTile==endTile){
         qDebug()<<"Start = End";
@@ -71,7 +71,6 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, /*GameSc
         }
     }
 
-//    scene->unitMoveOrdered = false;
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)

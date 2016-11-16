@@ -69,12 +69,15 @@ public:
     int GetCityStrength();
     int GetCityBuildingStrength();
     int GetBaseStrength();
+
     bool IsCityCaptial();
-
-    void setCapitolConnection(bool flag);
     bool getCapitolConnection();
+    bool IsInitialized();
 
+    void InitializeCity();
+    void setCapitolConnection(bool flag);
     void SetCitizenCount(int count);
+
     int GetCitizenCount();
     int GetFoodNeededToGrow();
     int GetTurnsToNewCitizen();
@@ -137,6 +140,7 @@ private:
     bool hasCapitolConnection;
     bool productionFinished;
     bool productionUnit;
+    bool initialized;
 
     int productionYield;
     int scienceYield;

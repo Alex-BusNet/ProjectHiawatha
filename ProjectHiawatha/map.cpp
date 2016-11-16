@@ -431,6 +431,51 @@ void Map::GetTileQueue(City *city)
     qDebug() << "--Done";
 }
 
+City* Map::CreateCity(int cityTileIndex, int civListIndex, Civilization *founder, bool isCapital)
+{
+    City* city = new City();
+    QList<Tile*> initialTiles = GetNeighbors(board.at(cityTileIndex));
+
+    foreach(Tile* tile, initialTiles)
+    {
+        if(tile->GetControllingCiv() != NO_NATION)
+        {
+            return city;
+        }
+    }
+
+    if(isCapital)
+        city->SetCityAsCaptial();
+
+    city->SetCityTile(board.at(cityTileIndex));
+    city->SetControllingCiv(founder->getCiv());
+    city->GetCityTile()->SetYield(5,5,5,5,5);
+
+    foreach(Tile* tile, initialTiles)
+    {
+        tile->SetControllingCiv(founder->getCiv());
+        city->AddControlledTile(tile);
+    }
+
+    city->UpdateCityYield();
+    city->SetCityIndex(founder->GetCityList().size());
+    qDebug() << "   City list size:" << founder->GetCityList().size();
+    city->SetName(founder->GetNextCityName());
+    city->SetCitizenCount(1);
+    city->DefineCityBorders(false);
+    this->GetTileQueue(city);
+    city->SortTileQueue();
+    city->SortControlledTiles();
+    city->GetControlledTiles().first()->IsWorked = true;
+
+    board.at(cityTileIndex)->SetCivListIndex(civListIndex);
+    board.at(cityTileIndex)->HasCity = true;
+    board.at(cityTileIndex)->SetControllingCiv(founder->getCiv());
+    city->InitializeCity();
+
+    return city;
+}
+
 void Map::SpawnCivs(QVector<Civilization*> civs)
 {
     //=====================
@@ -466,43 +511,49 @@ newrand:
         {
 //            qDebug() << "   Adding Capital";
             lastIndex = index;
-            city = new City();
-            QList<Tile*> initialTiles = GetNeighbors(board.at(index));
+//            city = new City();
+//            QList<Tile*> initialTiles = GetNeighbors(board.at(index));
 
-            foreach(Tile* tile, initialTiles)
-            {
-                if(tile->GetControllingCiv() != NO_NATION)
-                {
-                    goto newrand;
-                }
-            }
+//            foreach(Tile* tile, initialTiles)
+//            {
+//                if(tile->GetControllingCiv() != NO_NATION)
+//                {
+//                    goto newrand;
+//                }
+//            }
 
-            city->SetCityAsCaptial();
-            city->SetCityTile(board.at(index));
-            board.at(index)->SetCivListIndex(i);
-            city->SetControllingCiv(civs.at(i)->getCiv());
-            city->GetCityTile()->SetYield(5,5,5,5,5);
+//            city->SetCityAsCaptial();
+//            city->SetCityTile(board.at(index));
+//            board.at(index)->SetCivListIndex(i);
+//            city->SetControllingCiv(civs.at(i)->getCiv());
+//            city->GetCityTile()->SetYield(5,5,5,5,5);
 
-            foreach(Tile* tile, initialTiles)
-            {
-                tile->SetControllingCiv(civs.at(i)->getCiv());
-                city->AddControlledTile(tile);
-            }
+//            foreach(Tile* tile, initialTiles)
+//            {
+//                tile->SetControllingCiv(civs.at(i)->getCiv());
+//                city->AddControlledTile(tile);
+//            }
 
-            city->UpdateCityYield();
-            city->SetCityIndex(0);
-            city->SetName(civs.at(i)->GetInitialCityList().at(civs.at(i)->getCityIndex()));
-            city->SetCitizenCount(1);
-            city->DefineCityBorders(false);
-            this->GetTileQueue(city);
-            city->SortTileQueue();
-            city->SortControlledTiles();
-            city->GetControlledTiles().first()->IsWorked = true;
+//            city->UpdateCityYield();
+//            city->SetCityIndex(0);
+//            city->SetName(civs.at(i)->GetInitialCityList().at(civs.at(i)->getCityIndex()));
+//            city->SetCitizenCount(1);
+//            city->DefineCityBorders(false);
+//            this->GetTileQueue(city);
+//            city->SortTileQueue();
+//            city->SortControlledTiles();
+//            city->GetControlledTiles().first()->IsWorked = true;
+//            civs.at(i)->AddCity(city);
+
+            city = this->CreateCity(index, i, civs.at(i), true);
+
+            if(!city->IsInitialized()){ goto newrand; }
+
             civs.at(i)->AddCity(city);
 
-            board.at(index)->SetYield(5,5,5,5,5);
-            board.at(index)->HasCity = true;
-            board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
+//            board.at(index)->SetYield(5,5,5,5,5);
+//            board.at(index)->HasCity = true;
+//            board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
 
 //            qDebug() << "   Adding starting Unit";
 

@@ -34,6 +34,9 @@ public:
 //    void run();
     void SpawnCivs(QVector<Civilization*> civs);
     void GetTileQueue(City *city);
+
+    City *CreateCity(int cityTileIndex, int civListIndex, Civilization *founder, bool isCapital);
+
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;

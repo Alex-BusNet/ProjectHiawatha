@@ -20,6 +20,7 @@ City::City()
     this->baseStrength = 10;
     this->cityStrength = this->baseStrength + this->citizens;
     this->buildingStrength = 0;
+    this->initialized = false;
 }
 
 
@@ -861,6 +862,16 @@ void City::setCapitolConnection(bool flag)
 bool City::getCapitolConnection()
 {
     return this->hasCapitolConnection;
+}
+
+bool City::IsInitialized()
+{
+    return this->initialized;
+}
+
+void City::InitializeCity()
+{
+    this->initialized = true;
 }
 
 void City::SetCitizenCount(int count)
