@@ -199,6 +199,33 @@ void GameManager::InitCivs(Nation player, int numAI)
     case France:
         str2 = "france.txt";
         break;
+    case Iroquois:
+        str2 = "iroquois.txt";
+        break;
+    case Greece:
+        str2 = "greece.txt";
+        break;
+    case Rome:
+        str2 = "rome.txt";
+        break;
+    case England:
+        str2 = "england.txt";
+        break;
+    case Arabia:
+        str2 = "arabia.txt";
+        break;
+    case Persia:
+        str2 = "persia.txt";
+        break;
+    case Russia:
+        str2 = "russia.txt";
+        break;
+    case Japan:
+        str2 = "japan.txt";
+        break;
+    case Egypt:
+        str2= "egypt.txt";
+        break;
     default:
         str2 = "india.txt";
         break;

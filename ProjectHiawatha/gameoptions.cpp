@@ -27,6 +27,16 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QListWidgetItem* item5 =new QListWidgetItem(tr("Mongolia"), ui->listWidget);
     QListWidgetItem* item6 =new QListWidgetItem(tr("Aztec Empire"), ui->listWidget);
     QListWidgetItem* item7 =new QListWidgetItem(tr("France"), ui->listWidget);
+    QListWidgetItem* item8 = new QListWidgetItem(tr("Iroquois"), ui->listWidget);
+    QListWidgetItem* item9 = new QListWidgetItem(tr("Greece"), ui->listWidget);
+    QListWidgetItem* item10 = new QListWidgetItem(tr("Roman Empire"), ui->listWidget);
+    QListWidgetItem* item11 = new QListWidgetItem(tr("Russia"), ui->listWidget);
+    QListWidgetItem* item12 = new QListWidgetItem(tr("England"), ui->listWidget);
+    QListWidgetItem* item13 = new QListWidgetItem(tr("Egypt"), ui->listWidget);
+    QListWidgetItem* item14 = new QListWidgetItem(tr("Japan"), ui->listWidget);
+    QListWidgetItem* item15 = new QListWidgetItem(tr("Persia"), ui->listWidget);
+    QListWidgetItem* item16 = new QListWidgetItem(tr("Arabia"), ui->listWidget);
+
 
     QIcon* icon1 = new QIcon();
     QIcon* icon2 = new QIcon();
@@ -35,6 +45,15 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QIcon* icon5 = new QIcon();
     QIcon* icon6 = new QIcon();
     QIcon* icon7 = new QIcon();
+    QIcon* icon8 = new QIcon();
+    QIcon* icon9 = new QIcon();
+    QIcon* icon10 = new QIcon();
+    QIcon* icon11 = new QIcon();
+    QIcon* icon12 = new QIcon();
+    QIcon* icon13 = new QIcon();
+    QIcon* icon14 = new QIcon();
+    QIcon* icon15 = new QIcon();
+    QIcon* icon16 = new QIcon();
 
     icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/CHINA.png");
     icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY2.png");
@@ -43,14 +62,15 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     icon5->addFile("../ProjectHiawatha/Assets/Leaders/Icons/MONGOLIA.jpg");
     icon6->addFile("../ProjectHiawatha/Assets/Leaders/Icons/AZTEC.png");
     icon7->addFile("../ProjectHiawatha/Assets/Leaders/Icons/FRANCE.png");
-
-//    icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_QIN.png");
-//    icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_BARBAROSSA.png");
-//    icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_GANDHI.png");
-//    icon4->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_T_ROOSEVELT.png");
-//    icon5->addFile("../ProjectHiawatha/Assets/Leaders/Icons/MONGOLIA.jpg");
-//    icon6->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_MONTEZUMA.png");
-//    icon7->addFile("../ProjectHiawatha/Assets/Leaders/Icons/Civ_LEADER_CATHERLINE_DE_MEDICI.png");
+    icon8->addFile("../ProjectHiawatha/Assets/Leaders/Icons/IROQUOIS.png");
+    icon9->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GREECE.png");
+    icon10->addFile("../ProjectHiawatha/Assets/Leaders/Icons/ROME.png");
+    icon11->addFile("../ProjectHiawatha/Assets/Leaders/Icons/RUSSIA.png");
+    icon12->addFile("../ProjectHiawatha/Assets/Leaders/Icons/ENGLAND.png");
+    icon13->addFile("../ProjectHiawatha/Assets/Leaders/Icons/EGYPT.png");
+    icon14->addFile("../ProjectHiawatha/Assets/Leaders/Icons/JAPAN.png");
+    icon15->addFile("../ProjectHiawatha/Assets/Leaders/Icons/PERSIA.png");
+    icon16->addFile("../ProjectHiawatha/Assets/Leaders/Icons/ARABIA.png");
 
     item1->setIcon(*icon1);
     item2->setIcon(*icon2);
@@ -59,6 +79,15 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     item5->setIcon(*icon5);
     item6->setIcon(*icon6);
     item7->setIcon(*icon7);
+    item8->setIcon(*icon8);
+    item9->setIcon(*icon9);
+    item10->setIcon(*icon10);
+    item11->setIcon(*icon11);
+    item12->setIcon(*icon12);
+    item13->setIcon(*icon13);
+    item14->setIcon(*icon14);
+    item15->setIcon(*icon15);
+    item16->setIcon(*icon16);
 
     ui->listWidget->addItem(item1);
     ui->listWidget->addItem(item2);
@@ -67,6 +96,15 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->listWidget->addItem(item5);
     ui->listWidget->addItem(item6);
     ui->listWidget->addItem(item7);
+    ui->listWidget->addItem(item8);
+    ui->listWidget->addItem(item9);
+    ui->listWidget->addItem(item10);
+    ui->listWidget->addItem(item11);
+    ui->listWidget->addItem(item12);
+    ui->listWidget->addItem(item13);
+    ui->listWidget->addItem(item14);
+    ui->listWidget->addItem(item15);
+    ui->listWidget->addItem(item16);
 
     ui->comboBox->addItem("Duel: 40x24 - 2 Players",0);
     ui->comboBox->addItem("Tiny: 56x36 - 4 Players",0);
@@ -95,31 +133,83 @@ void GameOptions::paintEvent(QPaintEvent *e)
     QPixmap pic5("../ProjectHiawatha/Assets/Leaders/khan.jpg");
     QPixmap pic6("../ProjectHiawatha/Assets/Leaders/montezuma.jpg");
     QPixmap pic7("../ProjectHiawatha/Assets/Leaders/napoleon.jpg");
+    QPixmap pic8("../ProjectHiawatha/Assets/Leaders/Hiawatha.jpg");
+    QPixmap pic9("../ProjectHiawatha/Assets/Leaders/Alexander.jpg");
+    QPixmap pic10("../ProjectHiawatha/Assets/Leaders/Julius_Caesar.jpg");
+    QPixmap pic11("../ProjectHiawatha/Assets/Leaders/stalin.jpg");
+    QPixmap pic12("../ProjectHiawatha/Assets/Leaders/Queen_Elizabeth.jpg");
+    QPixmap pic13("../ProjectHiawatha/Assets/Leaders/Ramseses.jpg");
+    QPixmap pic14("../ProjectHiawatha/Assets/Leaders/Oda_Nobunga.jpg");
+    QPixmap pic15("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
+    QPixmap pic16("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
     switch(ui->listWidget->currentRow())
     {
-        case 0:ui->label_3->setText("Mao Zedong");
-               ui->label->setPixmap(pic);
-               break;
-        case 1:ui->label_3->setText("Otto Von Bismarck");
-               ui->label->setPixmap(pic3);
-               break;
-        case 2:ui->label_3->setText("Gandhi");
-               ui->label->setPixmap(pic4);
-               break;
-        case 3:ui->label_3->setText("George Washington");
-               ui->label->setPixmap(pic2);
-               break;
-        case 4:ui->label_3->setText("Genghis Khan");
-               ui->label->setPixmap(pic5);
-               break;
-        case 5:ui->label_3->setText("Montezuma");
-               ui->label->setPixmap(pic6);
-               break;
-        case 6:ui->label_3->setText("Napoleon Bonaparte");
-               ui->label->setPixmap(pic7);
-               break;
-        default:ui->label_3->setText("Gandhi");
-                ui->label->setPixmap(pic4);
+    case 0:
+        ui->label_3->setText("Mao Zedong");
+        ui->label->setPixmap(pic);
+        break;
+    case 1:
+        ui->label_3->setText("Otto Von Bismarck");
+        ui->label->setPixmap(pic3);
+        break;
+    case 2:
+        ui->label_3->setText("Gandhi");
+        ui->label->setPixmap(pic4);
+        break;
+    case 3:
+        ui->label_3->setText("George Washington");
+        ui->label->setPixmap(pic2);
+        break;
+    case 4:
+        ui->label_3->setText("Genghis Khan");
+        ui->label->setPixmap(pic5);
+        break;
+    case 5:
+        ui->label_3->setText("Montezuma");
+        ui->label->setPixmap(pic6);
+        break;
+    case 6:
+        ui->label_3->setText("Napoleon Bonaparte");
+        ui->label->setPixmap(pic7);
+        break;
+    case 7:
+        ui->label_3->setText("Hiawatha");
+        ui->label->setPixmap(pic8);
+        break;
+    case 8:
+        ui->label_3->setText("Alexander");
+        ui->label->setPixmap(pic9);
+        break;
+    case 9:
+        ui->label_3->setText("Julius Caesar");
+        ui->label->setPixmap(pic10);
+        break;
+    case 10:
+        ui->label_3->setText("Josef Stalin");
+        ui->label->setPixmap(pic11);
+        break;
+    case 11:
+        ui->label_3->setText("Elizabeth");
+        ui->label->setPixmap(pic12);
+        break;
+    case 12:
+        ui->label_3->setText("Ramesses");
+        ui->label->setPixmap(pic13);
+        break;
+    case 13:
+        ui->label_3->setText("Oda Nobunaga");
+        ui->label->setPixmap(pic14);
+        break;
+    case 14:
+        ui->label_3->setText("Cyrus");
+        ui->label->setPixmap(pic15);
+        break;
+    case 15:
+        ui->label_3->setText("Harun al-Rashid");
+        ui->label->setPixmap(pic16);
+        break;
+    default:ui->label_3->setText("Gandhi");
+        ui->label->setPixmap(pic4);
 
     }
 
@@ -135,6 +225,33 @@ void GameOptions::on_pushButton_clicked()
     {
         selectedItem = ui->listWidget->currentItem();
     }
+    int index = ui->comboBox->currentIndex();
+    int numOfAI;
+    switch(index)
+    {
+    case 0:
+        numOfAI = 1;
+        break;
+    case 1:
+        numOfAI = 2;
+        break;
+    case 2:
+        numOfAI = 5;
+        break;
+    case 3:
+        numOfAI = 7;
+        break;
+    case 4:
+        numOfAI = 9;
+        break;
+    case 5:
+        numOfAI = 11;
+        break;
+    default:
+        numOfAI = 2;
+
+    }
+
     QString str = ui->comboBox->currentText();
     QString tempStr = str.remove(0,(str.indexOf(':',0)+1));
     QString tempStr2 = tempStr.remove((tempStr.indexOf('x',0)),20);
@@ -151,28 +268,62 @@ void GameOptions::on_pushButton_clicked()
     qDebug()<<"Map Size: "<<info.mapDimension1;
     switch(ui->listWidget->currentRow())
     {
-        case 0:player = China;
-               break;
-        case 1:player = Germany;
-               break;
-        case 2:player = India;
-               break;
-        case 3:player = America;
-               break;
-        case 4:player = Mongolia;
-               break;
-        case 5:player = Aztec;
-               break;
-        case 6:player = France;
-               break;
-        default:player = India;
+    case 0:
+        player = China;
+        break;
+    case 1:
+        player = Germany;
+        break;
+    case 2:
+        player = India;
+        break;
+    case 3:
+        player = America;
+        break;
+    case 4:
+        player = Mongolia;
+        break;
+    case 5:
+        player = Aztec;
+        break;
+    case 6:
+        player = France;
+        break;
+    case 7:
+        player = Iroquois;
+        break;
+    case 8:
+        player = Greece;
+        break;
+    case 9:
+        player = Rome;
+        break;
+    case 10:
+        player = Russia;
+        break;
+    case 11:
+        player = England;
+        break;
+    case 12:
+        player = Egypt;
+        break;
+    case 13:
+        player = Japan;
+        break;
+    case 14:
+        player = Persia;
+        break;
+    case 15:
+        player = Arabia;
+        break;
+    default:player = India;
 
     }
     QMediaPlayer *musicPlayer = new QMediaPlayer();
     musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
     musicPlayer->setVolume(50);
     musicPlayer->play();
-    game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2, player);
+    game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2, player, numOfAI);
     this->close();
 
 }
