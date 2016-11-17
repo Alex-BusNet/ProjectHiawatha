@@ -130,6 +130,9 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     pic15 = QPixmap("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
     pic16 = QPixmap("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
 
+    ui->label_3->setText("Gandhi");
+    ui->label->setPixmap(pic4);
+
     ui->label->setScaledContents(true);
     ui->pushButton->setFlat(true);
     //ui->label_2->setText("China");
