@@ -11,7 +11,7 @@ public:
     AI_Operational();
 
     //Used Constructor
-    AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene);
+    AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map);
 
 private:
     void threatScan(Civilization *civ, Civilization *player, Map *map);

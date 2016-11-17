@@ -12,7 +12,7 @@
 class AI_Strategic
 {
 public:
-    AI_Strategic(Civilization *civ, Civilization *player, Map *map, GameScene *scene);//Probably use default constructor
+    AI_Strategic(Civilization *civ, Civilization *player, Map *map);//Probably use default constructor
     //shouldn't need passed values
 
 private:

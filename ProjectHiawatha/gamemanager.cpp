@@ -413,31 +413,31 @@ void GameManager::TurnController()
     {
         StartTurn();
         qDebug() << "running AI";
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map, gameView->GetScene());
+        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
 //        future.waitForFinished();
-//        while(future.isRunning())
-//        {
-//            qDebug() << "------Manager reading queue";
-//            if(!civList.at(currentTurn)->getCityFounding()->isEmpty())
-//            {
-//                qDebug() << "Queue size:" << civList.at(currentTurn)->getCityFounding()->size();
-//                qDebug() << "CurrentTurn:" << currentTurn;
-//                unitToMove = civList.at(currentTurn)->getCityFounding()->dequeue();
-//                qDebug() << "Founding index:" << unitToMove->GetTileIndex();
+        while(future.isRunning())
+        {
+            qDebug() << "------Manager reading queue";
+            if(!civList.at(currentTurn)->isEmpty())
+            {
+                qDebug() << "Queue size:" << civList.at(currentTurn)->queueSize();
+                qDebug() << "CurrentTurn:" << currentTurn;
+                unitToMove = civList.at(currentTurn)->dequeue();
+                qDebug() << "Founding index:" << unitToMove->GetTileIndex();
 
-//                qDebug() << "Is list empty:" << civList.at(currentTurn)->getCityFounding()->isEmpty();
-//                qDebug() << "Unit type:" << unitToMove->GetName();
-//                qDebug() << "Owner:" << unitToMove->GetOwner();
+                qDebug() << "Is list empty:" << civList.at(currentTurn)->isEmpty();
+                qDebug() << "Unit type:" << unitToMove->GetName();
+                qDebug() << "Owner:" << unitToMove->GetOwner();
 
-//                if(unitToMove->GetUnitType() == SETTLER)
-//                {
-//                    qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
-//                    aiFoundCity = true;
-//                    this->UpdateTileData();
-//                    break;
-//                }
-//            }
-//        }
+                if(unitToMove->GetUnitType() == SETTLER)
+                {
+                    qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
+                    aiFoundCity = true;
+                    this->UpdateTileData();
+                    break;
+                }
+            }
+        }
         qDebug() << "Waiting for finish";
         future.waitForFinished();
         qDebug() << "   AI Turn Finished";

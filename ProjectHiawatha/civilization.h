@@ -89,7 +89,11 @@ public:
     void setCivIndex(int index);
     int getCivIndex();
     void setCityFounding(Unit *unit);
-    QQueue<Unit*> *getCityFounding();
+    QQueue<Unit *> getCityFounding();
+
+    Unit* dequeue();
+    bool isEmpty();
+    int queueSize();
 
 private:
     Nation name;
@@ -128,7 +132,7 @@ private:
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;
-    QQueue<Unit*> *cityFounding;
+    QQueue<Unit*> cityFounding;
 
     int civIndex;
 };

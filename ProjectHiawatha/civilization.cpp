@@ -369,12 +369,27 @@ int Civilization::getCivIndex()
 
 void Civilization::setCityFounding(Unit* unit)
 {
-    this->cityFounding->enqueue(unit);
+    this->cityFounding.enqueue(unit);
 }
 
-QQueue<Unit *> *Civilization::getCityFounding()
+QQueue<Unit *> Civilization::getCityFounding()
 {
     return cityFounding;
+}
+
+Unit *Civilization::dequeue()
+{
+    return this->cityFounding.dequeue();
+}
+
+bool Civilization::isEmpty()
+{
+    return this->cityFounding.isEmpty();
+}
+
+int Civilization::queueSize()
+{
+    return this->cityFounding.size();
 }
 
 void Civilization::AddCity(City *city)

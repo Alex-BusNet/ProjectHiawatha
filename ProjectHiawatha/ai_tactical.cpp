@@ -28,29 +28,29 @@ AI_Tactical::AI_Tactical()
 
 }
 
-AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
+AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
 {
     qDebug()<<"             Tactical AI called";
-    highThreatProcessing(civ, player, map, scene);
+    highThreatProcessing(civ, player, map);
    // midThreatProcessing(civ, player, map, scene);
-    lowThreatProcessing(civ, player, map, scene);
+    lowThreatProcessing(civ, player, map);
 
     if(3==midGoal){
         AtWar(civ, cityTarget);
     }
     else{
-        Prep(civ, player, map, scene, TroopPositions);
+        Prep(civ, player, map, TroopPositions);
     }
 
-    settlercontrol(civ, map, scene, CityToBeFounded);
-    workercontrol(civ, map, scene);
+    settlercontrol(civ, map, CityToBeFounded);
+    workercontrol(civ, map);
 
     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 }
 
 
 
-void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, GameScene *scene, QVector<Tile *> TroopPositions)
+void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> TroopPositions)
 {
     qDebug()<<"             Prep Control Start";
 
@@ -114,7 +114,7 @@ void AI_Tactical::AtWar(Civilization *civ, City *cityTarget)
 
 
 
-void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
+void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, Map *map){
 
     qDebug()<<"             High Threat Processing Start";
 
@@ -207,7 +207,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
             //remove enemy from vector if killed
 
 
-void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
+void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, Map *map){
 
     qDebug()<<"             Mid Threat Processing Start";
 
@@ -293,7 +293,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
         //each appropriate unit will target the closest remaining mid threat (unless more than 3 turns away)
             //remove enemy from vector if killed
 
-void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, Map *map, GameScene *scene){
+void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, Map *map){
 
     qDebug()<<"             Low Threat Processing Start";
 
@@ -375,13 +375,12 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, M
             //remove enemy from vector if killed
 
 
-void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, QVector<Tile *> CityToBeFounded){
+void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> CityToBeFounded){
 
     qDebug()<<"Settler Control";
 
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
-
 
     for(int i = 0; i<unitlist.length();i++){
         //Find worker location
@@ -394,7 +393,6 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
                 qDebug() << "------AI" << civ->getCivIndex() << "writing to foundCity queue";
 //                map->CreateCity(unitlist.at(i)->GetTileIndex(),civ->getCivIndex(),civ,false);
                 civ->setCityFounding(unitlist.at(i));
-
                 break;
             }
             else {
@@ -426,7 +424,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, GameScene *scene, 
 
 
 
-void AI_Tactical::workercontrol(Civilization *civ, Map *map, GameScene *scene){
+void AI_Tactical::workercontrol(Civilization *civ, Map *map){
     qDebug()<<"             Worker Control Start";
 
     //Get list of units and make a controller

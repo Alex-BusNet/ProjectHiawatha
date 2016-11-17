@@ -23,7 +23,7 @@
 #include "ai_controller.h"
 #include <QDebug>
 
-AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map, GameScene *scene)
+AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map)
 {
 qDebug()<<"     Strategic AI Called";
 
@@ -34,7 +34,7 @@ qDebug()<<"     Strategic AI Called";
     //Some logic based on the different goal options
     cityProduction(midGoal, civ, map);
     qDebug()<<"Midgoal "<<midGoal;
-    AI_Operational(midGoal, civ, player, map, scene);
+    AI_Operational(midGoal, civ, player, map);
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
     //Pass it whether or not civ is preparing for / at war (midgoal)

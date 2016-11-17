@@ -29,7 +29,7 @@ AI_Operational::AI_Operational()
 
 
 
-AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map, GameScene *scene)
+AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map)
 {
     qDebug()<<"         Operational AI Called";
 
@@ -53,7 +53,8 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
         theaterPrep(civ, player, troopLocations);
     }
 
-    AI_Tactical(midGoal, civ, player, map, scene, cityLocations, cityTarget, troopLocations);
+    AI_Tactical(midGoal, civ, player, map, cityLocations, cityTarget, troopLocations);
+
 }
 
 
