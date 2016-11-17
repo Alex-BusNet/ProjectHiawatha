@@ -35,8 +35,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
     threatScan(civ, player, map);
 
-//    if(!settlerActive)
-        cityLocation(civ, map);
+    cityLocation(civ, map);
 
     if(1==midGoal){
         qDebug()<<"AI_Ops Midgoal 1";
@@ -53,8 +52,8 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
         theaterPrep(civ, player, troopLocations);
     }
 
-    AI_Tactical(midGoal, civ, player, map, cityLocations, cityTarget, troopLocations);
-
+    aiTact = new AI_Tactical(midGoal, civ, player, map, cityLocations, cityTarget, troopLocations);
+    delete aiTact;
 }
 
 

@@ -23,7 +23,7 @@ private:
      City *cityTarget;
      QVector<Tile*> troopLocations;
 
-
+     AI_Tactical *aiTact;
 };
 
 #endif // AI_OPERATIONAL_H

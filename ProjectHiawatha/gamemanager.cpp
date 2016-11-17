@@ -248,7 +248,7 @@ void GameManager::InitCivs(Nation player, int numAI)
 newCivRand:
         // The number multiplied at the end indicates the
         // max number of civs in the game.
-        civNum = rand() % 7;
+        civNum = rand() % 13;
 
         if(civNum != player)
         {
@@ -639,7 +639,8 @@ void GameManager::StartTurn()
 
                 civList.at(currentTurn)->AddUnit(unit);
                 renderer->AddUnit(unit,map,gameView);
-            }else
+            }
+            else
             {
                 int science = 0;
                 int gold = 0;
@@ -1081,43 +1082,46 @@ void GameManager::UpdateTileData()
 
         foundCityIndex = unitToMove->GetTileIndex();
 
-        city = map->CreateCity(foundCityIndex, currentTurn, civList.at(currentTurn), false);
-        qDebug() << "Loading buildings";
+        city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
+        qDebug() << "--Loading buildings";
         city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-        qDebug() << "Loading units";
+        qDebug() << "--Loading units";
         city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-        qDebug() << "Adding City";
+        qDebug() << "--Adding City";
         civList.at(currentTurn)->AddCity(city);
-        qDebug() << "Setting HasCity flag";
+        qDebug() << "--Setting HasCity flag";
         map->GetTileAt(foundCityIndex)->HasCity = true;
 
-        qDebug() << "Adding City to renderer";
+        qDebug() << "--Adding City to renderer";
         renderer->AddCity(city, gameView);
 
-        qDebug() << "Adding Drawing city borders";
+        qDebug() << "--Adding Drawing city borders";
         renderer->DrawCityBorders(civList.at(currentTurn)->GetCityList(), gameView, civList.at(currentTurn)->getCiv());
 
-        qDebug () << "Setting tile worked";
+        qDebug () << "--Setting tile worked";
         foreach(Tile* tile, city->GetControlledTiles())
         {
             renderer->SetTileWorkedIcon(tile, gameView);
         }
 
-        qDebug() << "updating yield";
+        qDebug() << "--Updating yield";
         civList.at(currentTurn)->UpdateCivYield();
 
         renderer->SetFortifyIcon(foundCityIndex, true);
         renderer->SetUnitNeedsOrders(foundCityIndex, false);
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
-
-        civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
         renderer->RemoveUnit(unitToMove, gameView);
+        civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
 
         if(currentTurn == 0)
         {
             clv->addItem(city->GetName());
             qDebug() << "----Removing Unit";
             selectedTileQueue->enqueue(SelectData{foundCityIndex, false, false});
+        }
+        else
+        {
+            delete unitToMove;
         }
 
     }
@@ -1369,7 +1373,6 @@ void GameManager::updateTiles()
     processedData = gameView->GetScene()->ProcessTile(relocateUnit);
 
     if(processedData.newData || foundACity)
-
     {
         this->UpdateTileData();
     }

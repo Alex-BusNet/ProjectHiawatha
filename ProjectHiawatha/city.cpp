@@ -304,6 +304,7 @@ Update_t City::UpdateProgress()
         this->currentProductionCost = 0;
         update.productionFinished = true;
 
+        qDebug() << "----Production of" << this->getProductionName() << "finished";
         if(!this->productionUnit)
             this->UpdateCityYield();
     }

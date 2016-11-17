@@ -13,7 +13,7 @@ Map::Map()
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
     // not the number of tiles on screen.
-    mapSizeX = 128; //mapSizeX is doubled for map creation. i.e. a map size of 40 tiles will yield 80 columns.
+    mapSizeX = 64; //mapSizeX is doubled for map creation. i.e. a map size of 40 tiles will yield 80 columns.
     mapSizeY = 80;
 
     //Map Sizes according to Civ V:
@@ -29,6 +29,33 @@ Map::Map(int mapSizeX, int mapSizeY)
 {
     this->mapSizeX = mapSizeX;
     this->mapSizeY = mapSizeY;
+
+    switch(this->mapSizeX)
+    {
+    case 20:
+        this->oceanScaleFactor = 2;
+        break;
+    case 28:
+        this->oceanScaleFactor = 3;
+        break;
+    case 33:
+        this->oceanScaleFactor = 4;
+        break;
+    case 40:
+        this->oceanScaleFactor = 5;
+        break;
+    case 52:
+        this->oceanScaleFactor = 6;
+        break;
+    case 64:
+        this->oceanScaleFactor = 7;
+        break;
+    default:
+        this->oceanScaleFactor = 3;
+        break;
+    }
+
+    qDebug() << "Ocean scale factor:" << this->oceanScaleFactor;
 }
 
 void Map::InitHexMap()
@@ -431,7 +458,7 @@ void Map::GetTileQueue(City *city)
     qDebug() << "--Done";
 }
 
-City* Map::CreateCity(int cityTileIndex, int civListIndex, Civilization *founder, bool isCapital)
+City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
 {
     City* city = new City();
     QList<Tile*> initialTiles = GetNeighbors(board.at(cityTileIndex));
@@ -506,7 +533,7 @@ newrand:
         {
             lastIndex = index;
 
-            city = this->CreateCity(index, i, civs.at(i), true);
+            city = this->CreateCity(index, civs.at(i), true);
 
             if(!city->IsInitialized()){ goto newrand; }
 
@@ -602,21 +629,21 @@ void Map::GenerateBiomes()
     //Generate Ocean Borders
     for(int i = 0; i < board.size(); i++)
     {
-        if(board.at(i)->GetTileID().column <= 1)
+        if(board.at(i)->GetTileID().column <= (this->oceanScaleFactor - 1))
         {
             if(board.at(i)->GetTileBiome() != POLE)
             {
                 board.at(i)->SetTileBiome(OCEAN);
             }
         }
-        else if((board.at(i)->GetTileID().column > (mapSizeX) - 2) && (board.at(i)->GetTileID().column < (mapSizeX) + 2))
+        else if((board.at(i)->GetTileID().column > (mapSizeX) - this->oceanScaleFactor) && (board.at(i)->GetTileID().column < (mapSizeX) + this->oceanScaleFactor))
         {
             if(board.at(i)->GetTileBiome() != POLE)
             {
                 board.at(i)->SetTileBiome(OCEAN);
             }
         }
-        else if(board.at(i)->GetTileID().column >= (mapSizeX * 2) - 2)
+        else if(board.at(i)->GetTileID().column >= (mapSizeX * 2) - this->oceanScaleFactor)
         {
             if(board.at(i)->GetTileBiome() != POLE)
             {

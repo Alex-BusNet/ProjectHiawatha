@@ -34,7 +34,8 @@ qDebug()<<"     Strategic AI Called";
     //Some logic based on the different goal options
     cityProduction(midGoal, civ, map);
     qDebug()<<"Midgoal "<<midGoal;
-    AI_Operational(midGoal, civ, player, map);
+    aiOp = new AI_Operational(midGoal, civ, player, map);
+    delete aiOp;
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
     //Pass it whether or not civ is preparing for / at war (midgoal)

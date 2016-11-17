@@ -113,6 +113,23 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
     ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
 
+    pic = QPixmap("../ProjectHiawatha/Assets/Leaders/Mao.jpg");
+    pic2 = QPixmap("../ProjectHiawatha/Assets/Leaders/George_head.jpg");
+    pic3 = QPixmap("../ProjectHiawatha/Assets/Leaders/bismark.jpg");
+    pic4 = QPixmap("../ProjectHiawatha/Assets/Leaders/gandhi.jpg");
+    pic5 = QPixmap("../ProjectHiawatha/Assets/Leaders/khan.jpg");
+    pic6 = QPixmap("../ProjectHiawatha/Assets/Leaders/montezuma.jpg");
+    pic7 = QPixmap("../ProjectHiawatha/Assets/Leaders/napoleon.jpg");
+    pic8 = QPixmap("../ProjectHiawatha/Assets/Leaders/Hiawatha.jpg");
+    pic9 = QPixmap("../ProjectHiawatha/Assets/Leaders/Alexander.jpg");
+    pic10 = QPixmap("../ProjectHiawatha/Assets/Leaders/Julius_Caesar.jpg");
+    pic11 = QPixmap("../ProjectHiawatha/Assets/Leaders/stalin.jpg");
+    pic12 = QPixmap("../ProjectHiawatha/Assets/Leaders/Queen_Elizabeth.jpg");
+    pic13 = QPixmap("../ProjectHiawatha/Assets/Leaders/Ramseses.jpg");
+    pic14 = QPixmap("../ProjectHiawatha/Assets/Leaders/Oda_Nobunga.jpg");
+    pic15 = QPixmap("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
+    pic16 = QPixmap("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
+
     ui->label->setScaledContents(true);
     ui->pushButton->setFlat(true);
     //ui->label_2->setText("China");
@@ -126,92 +143,6 @@ GameOptions::~GameOptions()
 
 void GameOptions::paintEvent(QPaintEvent *e)
 {
-    QPixmap pic("../ProjectHiawatha/Assets/Leaders/Mao.jpg");
-    QPixmap pic2("../ProjectHiawatha/Assets/Leaders/George_head.jpg");
-    QPixmap pic3("../ProjectHiawatha/Assets/Leaders/bismark.jpg");
-    QPixmap pic4("../ProjectHiawatha/Assets/Leaders/gandhi.jpg");
-    QPixmap pic5("../ProjectHiawatha/Assets/Leaders/khan.jpg");
-    QPixmap pic6("../ProjectHiawatha/Assets/Leaders/montezuma.jpg");
-    QPixmap pic7("../ProjectHiawatha/Assets/Leaders/napoleon.jpg");
-    QPixmap pic8("../ProjectHiawatha/Assets/Leaders/Hiawatha.jpg");
-    QPixmap pic9("../ProjectHiawatha/Assets/Leaders/Alexander.jpg");
-    QPixmap pic10("../ProjectHiawatha/Assets/Leaders/Julius_Caesar.jpg");
-    QPixmap pic11("../ProjectHiawatha/Assets/Leaders/stalin.jpg");
-    QPixmap pic12("../ProjectHiawatha/Assets/Leaders/Queen_Elizabeth.jpg");
-    QPixmap pic13("../ProjectHiawatha/Assets/Leaders/Ramseses.jpg");
-    QPixmap pic14("../ProjectHiawatha/Assets/Leaders/Oda_Nobunga.jpg");
-    QPixmap pic15("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
-    QPixmap pic16("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
-    switch(ui->listWidget->currentRow())
-    {
-    case 0:
-        ui->label_3->setText("Mao Zedong");
-        ui->label->setPixmap(pic);
-        break;
-    case 1:
-        ui->label_3->setText("Otto Von Bismarck");
-        ui->label->setPixmap(pic3);
-        break;
-    case 2:
-        ui->label_3->setText("Gandhi");
-        ui->label->setPixmap(pic4);
-        break;
-    case 3:
-        ui->label_3->setText("George Washington");
-        ui->label->setPixmap(pic2);
-        break;
-    case 4:
-        ui->label_3->setText("Genghis Khan");
-        ui->label->setPixmap(pic5);
-        break;
-    case 5:
-        ui->label_3->setText("Montezuma");
-        ui->label->setPixmap(pic6);
-        break;
-    case 6:
-        ui->label_3->setText("Napoleon Bonaparte");
-        ui->label->setPixmap(pic7);
-        break;
-    case 7:
-        ui->label_3->setText("Hiawatha");
-        ui->label->setPixmap(pic8);
-        break;
-    case 8:
-        ui->label_3->setText("Alexander");
-        ui->label->setPixmap(pic9);
-        break;
-    case 9:
-        ui->label_3->setText("Julius Caesar");
-        ui->label->setPixmap(pic10);
-        break;
-    case 10:
-        ui->label_3->setText("Josef Stalin");
-        ui->label->setPixmap(pic11);
-        break;
-    case 11:
-        ui->label_3->setText("Elizabeth");
-        ui->label->setPixmap(pic12);
-        break;
-    case 12:
-        ui->label_3->setText("Ramesses");
-        ui->label->setPixmap(pic13);
-        break;
-    case 13:
-        ui->label_3->setText("Oda Nobunaga");
-        ui->label->setPixmap(pic14);
-        break;
-    case 14:
-        ui->label_3->setText("Cyrus");
-        ui->label->setPixmap(pic15);
-        break;
-    case 15:
-        ui->label_3->setText("Harun al-Rashid");
-        ui->label->setPixmap(pic16);
-        break;
-    default:ui->label_3->setText("Gandhi");
-        ui->label->setPixmap(pic4);
-
-    }
 
 }
 
@@ -328,9 +259,85 @@ void GameOptions::on_pushButton_clicked()
 
 }
 
+void GameOptions::updateLeader()
+{
+    switch(ui->listWidget->currentRow())
+    {
+    case 0:
+        ui->label_3->setText("Mao Zedong");
+        ui->label->setPixmap(pic);
+        break;
+    case 1:
+        ui->label_3->setText("Otto Von Bismarck");
+        ui->label->setPixmap(pic3);
+        break;
+    case 2:
+        ui->label_3->setText("Gandhi");
+        ui->label->setPixmap(pic4);
+        break;
+    case 3:
+        ui->label_3->setText("George Washington");
+        ui->label->setPixmap(pic2);
+        break;
+    case 4:
+        ui->label_3->setText("Genghis Khan");
+        ui->label->setPixmap(pic5);
+        break;
+    case 5:
+        ui->label_3->setText("Montezuma");
+        ui->label->setPixmap(pic6);
+        break;
+    case 6:
+        ui->label_3->setText("Napoleon Bonaparte");
+        ui->label->setPixmap(pic7);
+        break;
+    case 7:
+        ui->label_3->setText("Hiawatha");
+        ui->label->setPixmap(pic8);
+        break;
+    case 8:
+        ui->label_3->setText("Alexander");
+        ui->label->setPixmap(pic9);
+        break;
+    case 9:
+        ui->label_3->setText("Julius Caesar");
+        ui->label->setPixmap(pic10);
+        break;
+    case 10:
+        ui->label_3->setText("Josef Stalin");
+        ui->label->setPixmap(pic11);
+        break;
+    case 11:
+        ui->label_3->setText("Elizabeth");
+        ui->label->setPixmap(pic12);
+        break;
+    case 12:
+        ui->label_3->setText("Ramesses");
+        ui->label->setPixmap(pic13);
+        break;
+    case 13:
+        ui->label_3->setText("Oda Nobunaga");
+        ui->label->setPixmap(pic14);
+        break;
+    case 14:
+        ui->label_3->setText("Cyrus");
+        ui->label->setPixmap(pic15);
+        break;
+    case 15:
+        ui->label_3->setText("Harun al-Rashid");
+        ui->label->setPixmap(pic16);
+        break;
+    default:
+        ui->label_3->setText("Gandhi");
+        ui->label->setPixmap(pic4);
+        break;
+    }
+}
+
 
 void GameOptions::on_listWidget_itemSelectionChanged()
 {
     ui->pushButton->setFlat(false);
+    this->updateLeader();
     this->update();
 }

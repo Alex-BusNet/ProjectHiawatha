@@ -32,6 +32,8 @@ Renderer::Renderer(int mapSizeX)
 {
     this->mapSizeX = mapSizeX;
     cc = new CivColors();
+    outlinePen.setColor(cc->NO_NATION_PRIMARY);
+
 }
 
 void Renderer::DrawHexScene(Map *map, GameView *view)
@@ -337,6 +339,33 @@ void Renderer::SetOutlinePen(Nation owner)
     case France:
         outlinePen.setColor(cc->FRANCE_PRIMARY);
         break;
+    case Iroquois:
+        outlinePen.setColor(cc->IROQUOIS_PRIMARY);
+        break;
+    case Greece:
+        outlinePen.setColor(cc->GREECE_PRIMARY);
+        break;
+    case Rome:
+        outlinePen.setColor(cc->ROME_PRIMARY);
+        break;
+    case England:
+        outlinePen.setColor(cc->ENGLAND_PRIMARY);
+        break;
+    case Arabia:
+        outlinePen.setColor(cc->ARABIA_PRIMARY);
+        break;
+    case Persia:
+        outlinePen.setColor(cc->PERSIA_PRIMARY);
+        break;
+    case Russia:
+        outlinePen.setColor(cc->RUSSIA_PRIMARY);
+        break;
+    case Japan:
+        outlinePen.setColor(cc->JAPAN_PRIMARY);
+        break;
+    case Egypt:
+        outlinePen.setColor(cc->EGYPT_PRIMARY);
+        break;
     default:
         outlinePen.setColor(cc->NO_NATION_PRIMARY);
         break;
@@ -512,7 +541,6 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 
     barSize = barSize <= 0 ? 1 : barSize;
 
-//    qDebug() << "-----New growth bar length:" << barSize;
     QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
                               city->GetCityTile()->GetCityLabelPoint().y() + 20,
                               barSize, 2);
@@ -543,9 +571,6 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
     qDebug() << "--Updating Production bar for" << city->GetName();
     int index = city->GetCityProductionBarIndex();
     view->removeItem(cityProductionBars.at(index));
-//    qDebug() << "---Current Production:" << city->getProductionName();
-//    qDebug() << "----Generating new Bar. Accumulated:" << city->getAccumulatedProduction() << "Production cost" << city->getCurrentProductionCost();
-//    qDebug() << "-----No Production:" << (city->getProductionName() == "No Current Production");
 
     int barSize = ceil(65 * (static_cast<double>(city->getAccumulatedProduction()) / (city->getCurrentProductionCost() + 1)));
 

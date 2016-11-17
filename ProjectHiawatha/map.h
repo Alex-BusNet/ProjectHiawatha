@@ -35,7 +35,7 @@ public:
     void SpawnCivs(QVector<Civilization*> civs);
     void GetTileQueue(City *city);
 
-    City *CreateCity(int cityTileIndex, int civListIndex, Civilization *founder, bool isCapital);
+    City *CreateCity(int cityTileIndex, Civilization *founder, bool isCapital);
 
 private:
     QVector<Tile*> board;
@@ -45,6 +45,7 @@ private:
     //May be changed later
     int mapSizeX;
     int mapSizeY;
+    int oceanScaleFactor;
 
     void GenerateMap();
     void GenerateMapEdge();

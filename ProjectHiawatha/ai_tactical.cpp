@@ -386,6 +386,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
         //Find worker location
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
+        qDebug() << "unitType:" << unitlist.at(i)->GetName();
         if(civ->GetUnitList().at(i)->GetName()=="Settler"){
             qDebug()<<"Settler selected";
             if(map->GetTileAt(unitlist.at(i)->GetTileIndex())==CityToBeFounded.at(0)){
@@ -397,6 +398,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
             }
             else {
                 qDebug()<<"Traveling Settler";
+                qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
                 UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
             }
 

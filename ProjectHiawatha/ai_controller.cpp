@@ -20,6 +20,7 @@ void AI_Controller::turnStarted(Civilization *civ, Civilization *player, Map *ma
     //aiList.at(aiIndex);
    //qDebug() << "AI" << aiIndex << "of" << aiList.size() <<"turn";
 
-    AI_Strategic(civ, player, map);
+    aiStrat = new AI_Strategic(civ, player, map);
+    delete aiStrat;
     return;
 }
