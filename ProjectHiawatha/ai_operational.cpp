@@ -35,7 +35,8 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
     threatScan(civ, player, map);
 
-    cityLocation(civ, map);
+//    if(!settlerActive)
+        cityLocation(civ, map);
 
     if(1==midGoal){
         qDebug()<<"AI_Ops Midgoal 1";
@@ -151,15 +152,30 @@ void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVecto
 
 void AI_Operational::cityLocation(Civilization *civ, Map *map){
     qDebug()<<"City Locations";
-    for(int i=0; i<(14-civ->GetCityList().length());i++){
+    for(int i=0; i<(14-civ->GetCityList().length());i++)
+    {
+        int cityIndex = civ->GetCityAt(0)->GetCityTile()->GetTileIndex(), indexToSettle;
 
-        if(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)->Walkable&&map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)->GetTileType()!=WATER&&map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15)->GetControllingCiv()==NO_NATION){
-            qDebug()<<"Adding location to queue"<<civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15;
-            cityLocations.push_back(map->GetTileAt(civ->GetCityAt(0)->GetCityTile()->GetTileIndex()+15));
+        if(cityIndex + (15 * (i+1)) < map->GetBoardSize())
+        {
+            indexToSettle = cityIndex + (15 * (i+1));
         }
-        else{
+        else if(cityIndex - (15 * (1+1)) > 0)
+        {
+            indexToSettle = cityIndex - (15 * (i+1));
+        }
+        else
+        {
             qDebug()<<"City invalid";
-            cityLocations.push_back(map->GetTileAt(255));
+            indexToSettle = 255;
+        }
+
+        if(map->GetTileAt(indexToSettle)->Walkable
+                && map->GetTileAt(indexToSettle)->GetTileType()!=WATER
+                && map->GetTileAt(indexToSettle)->GetControllingCiv()==NO_NATION)
+        {
+            qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;
+            cityLocations.push_back(map->GetTileAt(indexToSettle));
         }
         //Settler Test
 

@@ -289,6 +289,51 @@ newCivRand:
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
                 selNat.push_back(France);
                 break;
+            case Iroquois:
+                civ = new Civilization(Iroquois, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/iroquois.txt");
+                selNat.push_back(Iroquois);
+                break;
+            case Greece:
+                civ = new Civilization(Greece, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/greece.txt");
+                selNat.push_back(Greece);
+                break;
+            case Rome:
+                civ = new Civilization(Rome, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/rome.txt");
+                selNat.push_back(Rome);
+                break;
+            case England:
+                civ = new Civilization(England, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/england.txt");
+                selNat.push_back(England);
+                break;
+            case Arabia:
+                civ = new Civilization(Arabia, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/arabia.txt");
+                selNat.push_back(Arabia);
+                break;
+            case Persia:
+                civ = new Civilization(Persia, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/persia.txt");
+                selNat.push_back(Persia);
+                break;
+            case Russia:
+                civ = new Civilization(Russia, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/russia.txt");
+                selNat.push_back(Russia);
+                break;
+            case Japan:
+                civ = new Civilization(Japan, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/japan.txt");
+                selNat.push_back(Japan);
+                break;
+            case Egypt:
+                civ = new Civilization(Egypt, true);
+                civ->loadCities("../ProjectHiawatha/Assets/CityLists/egypt.txt");
+                selNat.push_back(Egypt);
+                break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
@@ -370,22 +415,31 @@ void GameManager::TurnController()
         qDebug() << "running AI";
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map, gameView->GetScene());
 //        future.waitForFinished();
-       // qDebug()<<"AI Fin";
-        while(future.isRunning())
-        {
-            if(!civList.at(currentTurn)->getCityFounding().isEmpty())
-            {
-                qDebug()<<civList.at(currentTurn)->getCityFounding().size();
-                qDebug()<<civList.at(currentTurn)->getCityFounding().front()->GetTileIndex();
-//                unitToMove = civList.at(currentTurn)->getCityFounding().dequeue();
-                unitToMove = civList.at(currentTurn)->getCityFounding().takeFirst();
-                civList.at(currentTurn)->getCityFounding().removeFirst();
-                qDebug()<<civList.at(currentTurn)->getCityFounding().isEmpty();
-                qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
-                aiFoundCity = true;
-                this->UpdateTileData();
-            }
-        }
+//        while(future.isRunning())
+//        {
+//            qDebug() << "------Manager reading queue";
+//            if(!civList.at(currentTurn)->getCityFounding()->isEmpty())
+//            {
+//                qDebug() << "Queue size:" << civList.at(currentTurn)->getCityFounding()->size();
+//                qDebug() << "CurrentTurn:" << currentTurn;
+//                unitToMove = civList.at(currentTurn)->getCityFounding()->dequeue();
+//                qDebug() << "Founding index:" << unitToMove->GetTileIndex();
+
+//                qDebug() << "Is list empty:" << civList.at(currentTurn)->getCityFounding()->isEmpty();
+//                qDebug() << "Unit type:" << unitToMove->GetName();
+//                qDebug() << "Owner:" << unitToMove->GetOwner();
+
+//                if(unitToMove->GetUnitType() == SETTLER)
+//                {
+//                    qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
+//                    aiFoundCity = true;
+//                    this->UpdateTileData();
+//                    break;
+//                }
+//            }
+//        }
+        qDebug() << "Waiting for finish";
+        future.waitForFinished();
         qDebug() << "   AI Turn Finished";
         EndTurn();
     }
@@ -1016,15 +1070,16 @@ void GameManager::UpdateTileData()
         qDebug() << "found a city";
 
         qDebug()<<foundACity<<aiFoundCity;
+
         if(foundCity)
             this->foundACity = false;
-        if(true==aiFoundCity)
+        if(aiFoundCity)
             this->aiFoundCity = false;
+
         qDebug()<<foundACity<<aiFoundCity;
         City* city;
 
-        //if(currentTurn == 0)
-            foundCityIndex = unitToMove->GetTileIndex();
+        foundCityIndex = unitToMove->GetTileIndex();
 
         city = map->CreateCity(foundCityIndex, currentTurn, civList.at(currentTurn), false);
         qDebug() << "Loading buildings";

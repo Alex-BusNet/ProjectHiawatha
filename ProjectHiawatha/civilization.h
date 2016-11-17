@@ -33,6 +33,7 @@ public:
 
     void SetUnitList(QVector<Unit*> list);
     void SetCityList(QVector<City*> list);
+    void SetCityIndex(int index);
     void SetCivObj(Civilization *civ);
     void SetHappiness(int happiness);
 
@@ -88,7 +89,7 @@ public:
     void setCivIndex(int index);
     int getCivIndex();
     void setCityFounding(Unit *unit);
-    QQueue<Unit*> getCityFounding();
+    QQueue<Unit*> *getCityFounding();
 
 private:
     Nation name;
@@ -127,7 +128,7 @@ private:
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;
-    QQueue<Unit*> cityFounding;
+    QQueue<Unit*> *cityFounding;
 
     int civIndex;
 };

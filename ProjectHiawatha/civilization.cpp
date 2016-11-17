@@ -369,10 +369,10 @@ int Civilization::getCivIndex()
 
 void Civilization::setCityFounding(Unit* unit)
 {
-    this->cityFounding.enqueue(unit);
+    this->cityFounding->enqueue(unit);
 }
 
-QQueue<Unit *> Civilization::getCityFounding()
+QQueue<Unit *> *Civilization::getCityFounding()
 {
     return cityFounding;
 }
@@ -417,6 +417,11 @@ void Civilization::SetCityList(QVector<City *> list)
         this->currentCityList.replace(i, city);
         i++;
     }
+}
+
+void Civilization::SetCityIndex(int index)
+{
+    this->cityIndex = index;
 }
 
 void Civilization::SetCivObj(Civilization *civ)

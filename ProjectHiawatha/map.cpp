@@ -447,7 +447,7 @@ City* Map::CreateCity(int cityTileIndex, int civListIndex, Civilization *founder
     if(isCapital)
         city->SetCityAsCaptial();
 
-    city->SetCityTile(board.at(cityTileIndex));
+    city->SetCityTile(board.at(cityTileIndex));    
     city->SetControllingCiv(founder->getCiv());
     city->GetCityTile()->SetYield(5,5,5,5,5);
 
@@ -459,7 +459,6 @@ City* Map::CreateCity(int cityTileIndex, int civListIndex, Civilization *founder
 
     city->UpdateCityYield();
     city->SetCityIndex(founder->GetCityList().size());
-    qDebug() << "   City list size:" << founder->GetCityList().size();
     city->SetName(founder->GetNextCityName());
     city->SetCitizenCount(1);
     city->DefineCityBorders(false);
@@ -468,9 +467,6 @@ City* Map::CreateCity(int cityTileIndex, int civListIndex, Civilization *founder
     city->SortControlledTiles();
     city->GetControlledTiles().first()->IsWorked = true;
 
-    board.at(cityTileIndex)->SetCivListIndex(civListIndex);
-    board.at(cityTileIndex)->HasCity = true;
-    board.at(cityTileIndex)->SetControllingCiv(founder->getCiv());
     city->InitializeCity();
 
     return city;
@@ -505,20 +501,33 @@ newrand:
         {
             goto newrand;
         }
-//        else if(board.at(index)->GetTileID().column)
 
         if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
         {
-//            qDebug() << "   Adding Capital";
             lastIndex = index;
 
             city = this->CreateCity(index, i, civs.at(i), true);
 
             if(!city->IsInitialized()){ goto newrand; }
 
-            civs.at(i)->AddCity(city);
+            for(int j = 0; j < i; j++)
+            {
+                //since this function only runs when spawning civs for the first time,
+                // we can get away with only checking the city at index 0.
+                if(city->GetMaximumExpansionBorder().boundingRect().intersects(civs.at(j)->GetCityAt(0)->GetMaximumExpansionBorder().boundingRect()))
+                {
+                    qDebug() << "--Maximum expansion borders intersected, finding new location to spawn.";
+                    delete city;
+                    civs.at(i)->SetCityIndex(0);
+                    goto newrand;
+                }
+            }
 
-//            qDebug() << "   Adding starting Unit";
+            board.at(index)->SetCivListIndex(i);
+            board.at(index)->HasCity = true;
+            board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
+
+            civs.at(i)->AddCity(city);
 
             unit = new Unit(civs.at(i)->getCiv(), WORKER);
             unit->SetOwner(civs.at(i)->getCiv());
@@ -527,7 +536,6 @@ newrand:
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
-//                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
@@ -553,7 +561,6 @@ newrand:
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
-//                qDebug() << "           Tile type:" << tile->GetTileTypeString() << "  Contains Unit:" << tile->ContainsUnit << "  Has City:" << tile->HasCity;
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
