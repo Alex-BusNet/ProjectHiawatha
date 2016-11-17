@@ -29,21 +29,21 @@ public:
     {
         this->NO_NATION_PRIMARY.setRgb(255, 255, 255, 0);
         this->AMERICA_PRIMARY.setRgb(0, 0, 255, 255);
-        this->GERMANY_PRIMARY.setRgb(50, 50, 50, 255);
+        this->GERMANY_PRIMARY.setRgb(70, 70, 70, 255);
         this->INDIA_PRIMARY.setRgb(0, 213, 0, 255);
         this->CHINA_PRIMARY.setRgb(0, 200, 150, 255);
-        this->MONGOLIA_PRIMARY.setRgb(175, 38, 43, 255);
+        this->MONGOLIA_PRIMARY.setRgb(201, 38, 43, 255);
         this->AZTEC_PRIMARY.setRgb(175, 90, 0, 255);
-        this->FRANCE_PRIMARY.setRgb(0, 124, 175, 255);
-        this->IROQUOIS_PRIMARY.setRgb(0, 66, 105, 255);
-        this->GREECE_PRIMARY.setRgb(82, 124, 248, 255);
+        this->FRANCE_PRIMARY.setRgb(58, 132, 170, 255);
+        this->IROQUOIS_PRIMARY.setRgb(0, 66, 128, 255);
+        this->GREECE_PRIMARY.setRgb(0, 155, 255, 255);
         this->ROME_PRIMARY.setRgb(74, 0, 143, 255);
         this->ENGLAND_PRIMARY.setRgb(132, 0, 8, 255);
         this->ARABIA_PRIMARY.setRgb(0, 109, 0, 255);
         this->PERSIA_PRIMARY.setRgb(221, 39, 0, 255);
         this->RUSSIA_PRIMARY.setRgb(255, 167, 0, 255);
         this->JAPAN_PRIMARY.setRgb(245, 245, 245, 255);
-        this->EGYPT_PRIMARY.setRgb(0, 85, 140, 255);
+        this->EGYPT_PRIMARY.setRgb(248, 232, 128, 255);
     }
 
     QColor GetCivColor(Nation nation)
