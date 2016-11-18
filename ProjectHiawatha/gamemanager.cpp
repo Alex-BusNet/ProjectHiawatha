@@ -237,8 +237,8 @@ void GameManager::InitCivs(Nation player, int numAI)
 
     srand(time(0));
     int civNum;
-
-    std::vector<Nation> selNat;
+    bool found;
+    QVector<int> selNat;
 
     selNat.push_back(player);
 
@@ -248,46 +248,56 @@ void GameManager::InitCivs(Nation player, int numAI)
 newCivRand:
         // The number multiplied at the end indicates the
         // max number of civs in the game.
-        civNum = rand() % 13;
+        civNum = rand() % 16;
 
         if(civNum != player)
         {
+            foreach(int j, selNat)
+            {
+                if(j == civNum)
+                {
+                    qDebug() << "civ exists";
+                    found = true;
+                    break;
+                }
+            }
+
             switch (civNum)
             {
             case America:
                 civ = new Civilization(America, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
-                selNat.push_back(America);
+                selNat.push_back(civNum);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
-                selNat.push_back(Germany);
+                selNat.push_back(civNum);
                 break;
             case India:
                 civ = new Civilization(India, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
-                selNat.push_back(India);
+                selNat.push_back(civNum);
                 break;
             case China:
                 civ = new Civilization(China, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
-                selNat.push_back(China);
+                selNat.push_back(civNum);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
-                selNat.push_back(Mongolia);
+                selNat.push_back(civNum);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
-                selNat.push_back(Aztec);
+                selNat.push_back(civNum);
                 break;
             case France:
                 civ = new Civilization(France, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
-                selNat.push_back(France);
+                selNat.push_back(civNum);
                 break;
             case Iroquois:
                 civ = new Civilization(Iroquois, true);
@@ -297,56 +307,55 @@ newCivRand:
             case Greece:
                 civ = new Civilization(Greece, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/greece.txt");
-                selNat.push_back(Greece);
+                selNat.push_back(civNum);
                 break;
             case Rome:
                 civ = new Civilization(Rome, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/rome.txt");
-                selNat.push_back(Rome);
+                selNat.push_back(civNum);
                 break;
             case England:
                 civ = new Civilization(England, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/england.txt");
-                selNat.push_back(England);
+                selNat.push_back(civNum);
                 break;
             case Arabia:
                 civ = new Civilization(Arabia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/arabia.txt");
-                selNat.push_back(Arabia);
+                selNat.push_back(civNum);
                 break;
             case Persia:
                 civ = new Civilization(Persia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/persia.txt");
-                selNat.push_back(Persia);
+                selNat.push_back(civNum);
                 break;
             case Russia:
                 civ = new Civilization(Russia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/russia.txt");
-                selNat.push_back(Russia);
+                selNat.push_back(civNum);
                 break;
             case Japan:
                 civ = new Civilization(Japan, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/japan.txt");
-                selNat.push_back(Japan);
+                selNat.push_back(civNum);
                 break;
             case Egypt:
                 civ = new Civilization(Egypt, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/egypt.txt");
-                selNat.push_back(Egypt);
+                selNat.push_back(civNum);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
-                selNat.push_back(India);
+                selNat.push_back(civNum);
                 break;
             }
 
             // look to see if the selected civ has already been selected
-            auto found = std::find(std::begin(selNat), std::end(selNat), civNum);
 
             // If was not found, place in civList vector
-            if(found != std::end(selNat))
+            if(!found)
             {
                 qDebug() << "   Civ" << i << ": " << civ->getCiv();
                 civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
@@ -358,6 +367,7 @@ newCivRand:
             // Otherwise, delete it and try again.
             else
             {
+                found = false;
                 qDebug() << "--Civ" << civ->getCiv() << "exists. Looking for new Civ";
                 delete civ;
                 goto newCivRand;
