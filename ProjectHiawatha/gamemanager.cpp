@@ -86,15 +86,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     map = new Map(mapSizeX, mapSizeY);
     mapInit = QtConcurrent::run(this->map, Map::InitHexMap);
 //    mapInit.waitForFinished();
-//    map->InitHexMap();
 
     qDebug() << "Done.\nSetting up Scene.";
     this->InitLayouts();
 
     qDebug() << "Initializing Civs";
-    ////The 1 is for testing purposes;
-    /// Change to numAI when done.
-//    InitCivs(player, numAI);
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
     civInit.waitForFinished();
 
@@ -246,7 +242,7 @@ void GameManager::InitCivs(Nation player, int numAI)
     for(int i = 0; i < numAI; i++)
     {
 newCivRand:
-        // The number multiplied at the end indicates the
+        // The modulo number at the end indicates the
         // max number of civs in the game.
         civNum = rand() % 16;
 
