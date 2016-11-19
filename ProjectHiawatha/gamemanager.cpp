@@ -1125,6 +1125,8 @@ void GameManager::UpdateTileData()
         renderer->SetFortifyIcon(foundCityIndex, true);
         renderer->SetUnitNeedsOrders(foundCityIndex, false);
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
+        map->GetTileAt(foundCityIndex)->HasCity=true;
+        map->GetTileAt(foundCityIndex)->SetControllingCiv(civList.at(currentTurn)->getCiv());
         renderer->RemoveUnit(unitToMove, gameView);
         civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
 
