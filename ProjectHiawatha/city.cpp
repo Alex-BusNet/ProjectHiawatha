@@ -299,12 +299,13 @@ Update_t City::UpdateProgress()
 
     if(this->accumulatedProduction >= this->currentProductionCost && (this->currentProductionName != "No Current Production"))
     {
+        qDebug() << "----Production of" << this->getProductionName() << "finished";
         this->accumulatedProduction = 0;
         this->currentProductionName = "No Current Production";
         this->currentProductionCost = 0;
         update.productionFinished = true;
+        this->productionFinished = true;
 
-        qDebug() << "----Production of" << this->getProductionName() << "finished";
         if(!this->productionUnit)
             this->UpdateCityYield();
     }

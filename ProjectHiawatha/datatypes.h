@@ -1,7 +1,10 @@
 #ifndef DATATYPES_H
 #define DATATYPES_H
 
-typedef struct {bool updateBorders, updateCitizens, productionFinished, cityHealed;} Update_t;
+#include <QVector>
+
+
+typedef struct {bool updateBorders, updateCitizens, productionFinished, cityHealed; QVector<int> cityIndecies;} Update_t;
 
 typedef struct {int column; int row;} TileID;
 typedef struct {int column, row; bool newData, relocateOrderGiven;} TileData;
