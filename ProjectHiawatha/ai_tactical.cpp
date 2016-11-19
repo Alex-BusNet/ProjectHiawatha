@@ -394,12 +394,17 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
                 qDebug() << "------AI" << civ->getCivIndex() << "writing to foundCity queue";
 //                map->CreateCity(unitlist.at(i)->GetTileIndex(),civ->getCivIndex(),civ,false);
                 civ->setCityFounding(unitlist.at(i));
+                civ->cityFounded = true;
                 break;
             }
-            else {
-                qDebug()<<"Traveling Settler";
-                qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
-                UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
+            else
+            {
+                if(civ->GetUnitAt(i)->isPathEmpty())
+                {
+                    qDebug()<<"Traveling Settler";
+                    qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
+                    UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
+                }
             }
 
         }

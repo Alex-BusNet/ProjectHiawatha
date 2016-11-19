@@ -35,6 +35,8 @@ Civilization::Civilization(Nation name, bool isAI)
     this->totalCulture = 0;
     this->accumulatedScience = 0;
     this->techIndex = 0;
+    this->cityFounded = false;
+
     if(isAI)
     {
         this->isAIPlayer = true;
@@ -404,13 +406,14 @@ void Civilization::AddUnit(Unit *unit)
 
 void Civilization::RemoveCity(int cityIndex)
 {
-    delete this->currentCityList.at(cityIndex);
+//    delete this->currentCityList.at(cityIndex);
+
     this->currentCityList.removeAt(cityIndex);
 }
 
 void Civilization::RemoveUnit(int unitIndex)
 {
-    delete this->GetUnitAt(unitIndex);
+//    delete this->GetUnitAt(unitIndex);
     this->UnitList.removeAt(unitIndex);
 }
 

@@ -94,6 +94,7 @@ public:
     Unit* dequeue();
     bool isEmpty();
     int queueSize();
+    bool cityFounded;
 
 private:
     Nation name;
