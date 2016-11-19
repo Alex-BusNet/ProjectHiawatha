@@ -98,31 +98,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
 
 
     for(int i =0;i < civ->GetCityList().length(); i++){
-
-        //if(NULL==cityproduction){/Determine if city is currently building something
+            qDebug()<<civ->GetCityAt(i)->getProductionName();
+        if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
             if(1==midGoal){//Settle more cities
+                qDebug()<<"produce stuff";
                 if(0==i&&!activeSettler){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
-
                     ///For debugging purposes, Settler production has been set to 10. This will need to be reset to 100.
                     civ->GetCityAt(i)->setCurrentProductionCost(10);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Settler");
                     civ->GetCityAt(i)->setProductionIndex(3);
-
-//                    qDebug()<<"ACCUMULATED PRODUCTION: "<<civ->GetCityList().at(i)->getAccumulatedProduction();
-//                    qDebug()<<"PRODUCTION COST: "<<civ->GetCityList().at(i)->getCurrentProductionCost();
-
                     qDebug()<<"     Settler";
                     //Set city to build settler
 
-                }
-                else if(civ->getProvoked()){
-                    civ->GetCityAt(i)->setCurrentProductionCost(425);
-                    civ->GetCityAt(i)->setIsUnit(true);
-                    civ->GetCityAt(i)->setProductionName("Modern Armor");
-                    civ->GetCityAt(i)->setProductionIndex(31);
-                    qDebug()<<"     Modern Armor";
                 }
                 else if(!civ->GetCityAt(i)->getHasWorker()){
                     civ->GetCityAt(i)->setCurrentProductionCost(70);
@@ -131,14 +120,52 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     civ->GetCityAt(i)->setProductionIndex(6);
                     qDebug()<<"     Worker";
                 }
+                else if(civ->getProvoked()){
+                    civ->GetCityAt(i)->setCurrentProductionCost(425);
+                    civ->GetCityAt(i)->setIsUnit(true);
+                    civ->GetCityAt(i)->setProductionName("Modern Armor");
+                    civ->GetCityAt(i)->setProductionIndex(31);
+                    qDebug()<<"     Modern Armor";
+                }
+
                 else{
-                    civ->GetCityAt(i)->setCurrentProductionCost(75);
-                    civ->GetCityAt(i)->setIsUnit(false);
-                    civ->GetCityAt(i)->setProductionName("Walls");
-                    civ->GetCityAt(i)->setProductionIndex(0);
-                    qDebug()<<"walls";
-                    //logic for road workers
-                        //roadworker gets built in capitol early on
+                    qDebug()<<" Buildings";
+                    int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
+                    if(0==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(75);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Walls");
+                        civ->GetCityAt(i)->setProductionIndex(0);
+                        qDebug()<<"walls";
+                    }
+                    else if(1==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(50);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Granary");
+                        civ->GetCityAt(i)->setProductionIndex(5);
+                        qDebug()<<"Granary";
+                    }
+                    else if(2==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(70);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("LightHouse");
+                        civ->GetCityAt(i)->setProductionIndex(9);
+                        qDebug()<<"Lighthouse";
+                    }
+                    else if(3==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(125);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Barracks");
+                        civ->GetCityAt(i)->setProductionIndex(3);
+                        qDebug()<<"Barracks";
+                    }
+                    else if(4==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(100);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Library");
+                        civ->GetCityAt(i)->setProductionIndex(1);
+                        qDebug()<<"Library";
+                    }
                 }
             }
             else if(2==midGoal||3==midGoal){
@@ -150,10 +177,16 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                 //Build military units
             }
             else{
-                //buildings and Minimum military strength(defensive)
+               qDebug()<<"Production Logic Fail"; //buildings and Minimum military strength(defensive)
             }
-        //}
+        }
+        else{
+            qDebug()<<"City already producing";
+        }
     }
+
+    //logic for road workers
+        //roadworker gets built in capitol early on
 }
 
 //*************City production Decision Tree***********
