@@ -53,13 +53,14 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
     }
 
     aiTact = new AI_Tactical(midGoal, civ, player, map, cityLocations, cityTarget, troopLocations);
+
     if(civ->cityFounded)
     {
         qDebug() << "New city founded. Removing location from list.";
         civ->cityFounded = false;
         cityLocations.removeFirst();
     }
-    delete aiTact;
+
 }
 
 

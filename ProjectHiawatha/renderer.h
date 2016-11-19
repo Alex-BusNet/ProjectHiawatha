@@ -92,6 +92,12 @@ private:
     void AddUnitHealthBars(Unit *unit, Map *map, GameView *view);
     int mapSizeX;
 
+    QPixmap *ironPix, *horsePix, *uraniumPix, *aluminumPix, *coalPix, *oilPix;
+    QPixmap *wheatPix, *cattlePix, *deerPix, *fishPix, *whalePix, *bananaPix, *goldResourcePix;
+    QPixmap *gemsPix, *marblePix, *ivoryPix, *dyesPix, *spicesPix, *silkPix, *sugarPix, *cottonPix, *pearlsPix;
+    QPixmap *incencePix, *winePix, *silverPix, *fursPix, *sheepPix;
+    QPixmap *tileWorkedIcon, *tileUnworked, *fortified;
+
 };
 
 #endif // RENDERER_H

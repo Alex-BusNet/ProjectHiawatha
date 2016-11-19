@@ -34,6 +34,41 @@ Renderer::Renderer(int mapSizeX)
     cc = new CivColors();
     outlinePen.setColor(cc->NO_NATION_PRIMARY);
 
+    //Strategic Resource Images
+    ironPix = new QPixmap("../ProjectHiawatha/Assets/Resources/iron.png");
+    horsePix = new QPixmap("../ProjectHiawatha/Assets/Resources/horses.png");
+    uraniumPix = new QPixmap("../ProjectHiawatha/Assets/Resources/uranium.png");
+    aluminumPix = new QPixmap("../ProjectHiawatha/Assets/Resources/aluminum.png");
+    coalPix = new QPixmap("../ProjectHiawatha/Assets/Resources/coal.png");
+    oilPix = new QPixmap("../ProjectHiawatha/Assets/Resources/oil.png");
+
+    //Luxury Resource images
+    wheatPix = new QPixmap("../ProjectHiawatha/Assets/Resources/wheat.png");
+    cattlePix = new QPixmap("../ProjectHiawatha/Assets/Resources/cattle.png");
+    deerPix = new QPixmap("../ProjectHiawatha/Assets/Resources/deer.png");
+    fishPix = new QPixmap("../ProjectHiawatha/Assets/Resources/fish.png");
+    whalePix = new QPixmap("../ProjectHiawatha/Assets/Resources/whales.png");
+    bananaPix = new QPixmap("../ProjectHiawatha/Assets/Resources/bananas.png");
+    goldResourcePix = new QPixmap("../ProjectHiawatha/Assets/Resources/gold.png");
+    gemsPix = new QPixmap("../ProjectHiawatha/Assets/Resources/gems.png");
+    marblePix = new QPixmap("../ProjectHiawatha/Assets/Resources/marble.png");
+    ivoryPix = new QPixmap("../ProjectHiawatha/Assets/Resources/ivory.png");
+    dyesPix = new QPixmap("../ProjectHiawatha/Assets/Resources/dyes.png");
+    spicesPix = new QPixmap("../ProjectHiawatha/Assets/Resources/spices.png");
+    silkPix = new QPixmap("../ProjectHiawatha/Assets/Resources/silk.png");
+    sugarPix = new QPixmap("../ProjectHiawatha/Assets/Resources/sugar.png");
+    cottonPix = new QPixmap("../ProjectHiawatha/Assets/Resources/cotton.png");
+    pearlsPix = new QPixmap("../ProjectHiawatha/Assets/Resources/pearls.png");
+    incencePix = new QPixmap("../ProjectHiawatha/Assets/Resources/incense.png");
+    winePix = new QPixmap("../ProjectHiawatha/Assets/Resources/wine.png");
+    silverPix = new QPixmap("../ProjectHiawatha/Assets/Resources/silver.png");
+    fursPix = new QPixmap("../ProjectHiawatha/Assets/Resources/furs.png");
+    sheepPix = new QPixmap("../ProjectHiawatha/Assets/Resources/sheep.png");
+
+    //Tile Worked Icons
+    tileWorkedIcon = new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png");
+    tileUnworked = new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png");
+    fortified = new QPixmap("../ProjectHiawatha/Assets/Icons/fortified.png");
 }
 
 void Renderer::DrawHexScene(Map *map, GameView *view)
@@ -58,22 +93,22 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             switch(map->GetTileAt(i)->GetStratResource())
             {
             case IRON:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/iron.png"))));
+                resourcePixmap.push_back(view->addPixmap(*ironPix));
                 break;
             case HORSES:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/horses.png"))));
+                resourcePixmap.push_back(view->addPixmap(*horsePix));
                 break;
             case URANIUM:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/uranium.png"))));
+                resourcePixmap.push_back(view->addPixmap(*uraniumPix));
                 break;
             case ALUMINUM:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/aluminum.png"))));
+                resourcePixmap.push_back(view->addPixmap(*aluminumPix));
                 break;
             case COAL:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/coal.png"))));
+                resourcePixmap.push_back(view->addPixmap(*coalPix));
                 break;
             case OIL:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/oil.png"))));
+                resourcePixmap.push_back(view->addPixmap(*oilPix));
                 break;
             }
 
@@ -86,67 +121,67 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             switch(map->GetTileAt(i)->GetLuxResource())
             {
             case WHEAT:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/wheat.png"))));
+                resourcePixmap.push_back(view->addPixmap(*wheatPix));
                 break;
             case CATTLE:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/cattle.png"))));
+                resourcePixmap.push_back(view->addPixmap(*cattlePix));
                 break;
             case DEER:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/deer.png"))));
+                resourcePixmap.push_back(view->addPixmap(*deerPix));
                 break;
             case FISH:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/fish.png"))));
+                resourcePixmap.push_back(view->addPixmap(*fishPix));
                 break;
             case WHALES:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/whales.png"))));
+                resourcePixmap.push_back(view->addPixmap(*whalePix));
                 break;
             case BANANAS:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/bananas.png"))));
+                resourcePixmap.push_back(view->addPixmap(*bananaPix));
                 break;
             case GOLD_RESOURCE:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/gold.png"))));
+                resourcePixmap.push_back(view->addPixmap(*goldResourcePix));
                 break;
             case GEMS:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/gems.png"))));
+                resourcePixmap.push_back(view->addPixmap(*gemsPix));
                 break;
             case MARBLE:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/marble.png"))));
+                resourcePixmap.push_back(view->addPixmap(*marblePix));
                 break;
             case IVORY:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/ivory.png"))));
+                resourcePixmap.push_back(view->addPixmap(*ivoryPix));
                 break;
             case DYES:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/dyes.png"))));
+                resourcePixmap.push_back(view->addPixmap(*dyesPix));
                 break;
             case SPICES:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/spices.png"))));
+                resourcePixmap.push_back(view->addPixmap(*spicesPix));
                 break;
             case SILK:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/silk.png"))));
+                resourcePixmap.push_back(view->addPixmap(*silkPix));
                 break;
             case SUGAR:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/sugar.png"))));
+                resourcePixmap.push_back(view->addPixmap(*sugarPix));
                 break;
             case COTTON:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/cotton.png"))));
+                resourcePixmap.push_back(view->addPixmap(*cottonPix));
                 break;
             case PEARLS:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/pearls.png"))));
+                resourcePixmap.push_back(view->addPixmap(*pearlsPix));
                 break;
             case INCENSE:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/incense.png"))));
+                resourcePixmap.push_back(view->addPixmap(*incencePix));
                 break;
             case WINE:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/wine.png"))));
+                resourcePixmap.push_back(view->addPixmap(*winePix));
                 break;
             case SILVER:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/silver.png"))));
+                resourcePixmap.push_back(view->addPixmap(*silverPix));
                 break;
             case FURS:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/furs.png"))));
+                resourcePixmap.push_back(view->addPixmap(*fursPix));
                 break;
             case SHEEP:
-                resourcePixmap.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Resources/sheep.png"))));
+                resourcePixmap.push_back(view->addPixmap(*sheepPix));
                 break;
             }
 
@@ -160,11 +195,11 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         {
             if(map->GetTileAt(i)->IsWorked)
             {
-                tileWorked.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png"))));
+                tileWorked.push_back(view->addPixmap(*tileWorkedIcon));
             }
             else
             {
-                tileWorked.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png"))));
+                tileWorked.push_back(view->addPixmap(*tileUnworked));
             }
 
             tileWorked.last()->setScale(0.6f);
@@ -173,7 +208,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         }
         else
         {
-            tileWorked.push_back(view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png"))));
+            tileWorked.push_back(view->addPixmap(*tileUnworked));
             tileWorked.last()->setOpacity(0);
             tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
@@ -185,7 +220,6 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         ordersIcon.last()->setOpacity(0);
         ordersIcon.last()->setZValue(8);
 
-        QPixmap *fortified = new QPixmap("../ProjectHiawatha/Assets/Icons/fortified.png");
         fortifiedIcon.push_back(view->addPixmap(*fortified));
         fortifiedIcon.last()->setScale(0.3f);
         fortifiedIcon.last()->setZValue(-1);
@@ -501,11 +535,11 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
 
     if(tile->IsWorked)
     {
-        tileWorked.replace(index, view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png"))));
+        tileWorked.replace(index, view->addPixmap(*tileWorkedIcon));
     }
     else
     {
-        tileWorked.replace(index, view->addPixmap(*(new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png"))));
+        tileWorked.replace(index, view->addPixmap(*tileUnworked));
     }
 
     tileWorked.at(index)->setScale(0.6f);
