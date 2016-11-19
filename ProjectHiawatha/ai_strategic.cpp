@@ -90,15 +90,57 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
     qDebug()<<"City Production";
 
     bool activeSettler = false;
+    int combatUnits=0, meleeUnits=0, rangedUnits=0, siegeUnits=0, mountedUnits=0, antiMoutedUnits=0, attackShips=0, submarines=0, fighters=0, bombers=0, carriers=0;
     for(int i = 0;i< civ->GetUnitList().length();i++){
-        if("Settler"==civ->GetUnitAt(i)->GetName()){
+        QString unitname=civ->GetUnitAt(i)->GetName();
+        if("Settler"==unitname){
             activeSettler=true;
         }
-    }//Checks if there is already a settler around
+        else if("Warrior"==unitname||"Swordsman"==unitname||"Musketman"==unitname||"Rifleman"==unitname||"Infantry"==unitname||"Mechanized Infantry"==unitname){
+            meleeUnits++;
+            combatUnits++;
+        }
+        else if("Archer"==unitname||"Crossbowman"==unitname){
+            rangedUnits++;
+            combatUnits++;
+        }
+        else if("Catapult"==unitname||"Cannon"==unitname||"Artillery"==unitname){
+            siegeUnits++;
+            combatUnits++;
+        }
+        else if("Knight"==unitname||"Cavalry"==unitname||"Tank"==unitname||"Modern Armor"==unitname){
+            mountedUnits++;
+            combatUnits++;
+        }
+        else if("Spearman"==unitname||"Pikeman"==unitname||"Helicopter Gunship"==unitname){
+            antiMoutedUnits++;
+            combatUnits++;
+        }
+        else if("Galley"==unitname||"Caravel"==unitname||"Frigate"==unitname||"Ironclad"==unitname||"Destroyer"==unitname||"Battleship"==unitname){
+            attackShips++;
+            combatUnits++;
+        }
+        else if("Submarine"==unitname){
+            submarines++;
+            combatUnits++;
+        }
+        else if("Fighter"==unitname||"Jet Fighter"==unitname){
+            fighters++;
+            combatUnits++;
+        }
+        else if("Bomber"==unitname||"Stealth Bomber"==unitname){
+            bombers++;
+            combatUnits++;
+        }
+        else if("Carrier"==unitname){
+            carriers++;
+            combatUnits++;
+        }
+    }//Tallies various unit types
 
+    //No tally for scout or worker?
 
     for(int i =0;i < civ->GetCityList().length(); i++){
-            qDebug()<<civ->GetCityAt(i)->getProductionName();
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
             if(1==midGoal){//Settle more cities
                 qDebug()<<"produce stuff";
@@ -120,17 +162,576 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     civ->GetCityAt(i)->setProductionIndex(6);
                     qDebug()<<"     Worker";
                 }
-                else if(civ->getProvoked()){
-                    civ->GetCityAt(i)->setCurrentProductionCost(425);
-                    civ->GetCityAt(i)->setIsUnit(true);
-                    civ->GetCityAt(i)->setProductionName("Modern Armor");
-                    civ->GetCityAt(i)->setProductionIndex(31);
-                    qDebug()<<"     Modern Armor";
+                else if(civ->getProvoked()&&combatUnits<20){
+                    int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
+                    //Unit capabilities are based on what buildings exist (linear progression)
+                    qDebug()<<"Provoked Construction at tech level "<<numBuildings;
+                    if(4>=numBuildings){
+                        //Tech level 1 (Arch-warrior)
+                        if(meleeUnits<10){
+                            civ->GetCityAt(i)->setCurrentProductionCost(45);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Warrior");
+                            civ->GetCityAt(i)->setProductionIndex(5);
+                            qDebug()<<"Warrior";
+                        }
+                        else if(rangedUnits<8){
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Archer");
+                            civ->GetCityAt(i)->setProductionIndex(0);
+                            qDebug()<<"Archer";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Galley");
+                            civ->GetCityAt(i)->setProductionIndex(1);
+                            qDebug()<<"Galley";
+                        }
+                    }
+                    else if(7>=numBuildings){
+                        //Tech Level 2 (Spear)
+                        if(meleeUnits<8){
+                            civ->GetCityAt(i)->setCurrentProductionCost(45);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Warrior");
+                            civ->GetCityAt(i)->setProductionIndex(5);
+                            qDebug()<<"Warrior";
+                        }
+                        else if(rangedUnits<7){
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Archer");
+                            civ->GetCityAt(i)->setProductionIndex(0);
+                            qDebug()<<"Archer";
+                        }
+                        else if(antiMoutedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(60);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Spearman");
+                            civ->GetCityAt(i)->setProductionIndex(4);
+                            qDebug()<<"Spearman";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Galley");
+                            civ->GetCityAt(i)->setProductionIndex(1);
+                            qDebug()<<"Galley";
+                        }
+                    }
+                    else if(11>=numBuildings){
+                        //Tech 3 cata/sword
+                        //Tech 4 pike
+                        if(meleeUnits<7){
+                            civ->GetCityAt(i)->setCurrentProductionCost(80);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Swordsman");
+                            civ->GetCityAt(i)->setProductionIndex(8);
+                            qDebug()<<"Swordsman";
+                        }
+                        else if(rangedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Archer");
+                            civ->GetCityAt(i)->setProductionIndex(0);
+                            qDebug()<<"Archer";
+                        }
+                        else if(antiMoutedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(80);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Catapult");
+                            civ->GetCityAt(i)->setProductionIndex(7);
+                            qDebug()<<"Catapult";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Galley");
+                            civ->GetCityAt(i)->setProductionIndex(1);
+                            qDebug()<<"Galley";
+                        }
+                    }
+                    else if(12>=numBuildings){
+                        //Tech 5 cross/knight
+                        if(meleeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(80);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Swordsman");
+                            civ->GetCityAt(i)->setProductionIndex(8);
+                            qDebug()<<"Swordsman";
+                        }
+                        else if(rangedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(antiMoutedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(mountedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Knight");
+                            civ->GetCityAt(i)->setProductionIndex(10);
+                            qDebug()<<"Knight";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(80);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Catapult");
+                            civ->GetCityAt(i)->setProductionIndex(7);
+                            qDebug()<<"Catapult";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Galley");
+                            civ->GetCityAt(i)->setProductionIndex(1);
+                            qDebug()<<"Galley";
+                        }
+                    }
+                    else if(13>=numBuildings){
+                        //Tech 6 carav/musket
+                        if(meleeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(150);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Musketman");
+                            civ->GetCityAt(i)->setProductionIndex(16);
+                            qDebug()<<"Musketman";
+                        }
+                        else if(rangedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(antiMoutedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(mountedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Knight");
+                            civ->GetCityAt(i)->setProductionIndex(10);
+                            qDebug()<<"Knight";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(80);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Catapult");
+                            civ->GetCityAt(i)->setProductionIndex(7);
+                            qDebug()<<"Catapult";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(120);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Caravel");
+                            civ->GetCityAt(i)->setProductionIndex(13);
+                            qDebug()<<"Caravel";
+                        }
+                    }
+                    else if(14>=numBuildings){
+                        //tech 7 cann/frig
+                        if(meleeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(150);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Musketman");
+                            civ->GetCityAt(i)->setProductionIndex(16);
+                            qDebug()<<"Musketman";
+                        }
+                        else if(rangedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(antiMoutedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(mountedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Knight");
+                            civ->GetCityAt(i)->setProductionIndex(10);
+                            qDebug()<<"Knight";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Cannon");
+                            civ->GetCityAt(i)->setProductionIndex(12);
+                            qDebug()<<"Cannon";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Frigate");
+                            civ->GetCityAt(i)->setProductionIndex(15);
+                            qDebug()<<"Frigate";
+                        }
+                    }
+                    else if(15>=numBuildings){
+                        //tech 8 cav/rifl
+                        if(meleeUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(225);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Rifleman");
+                            civ->GetCityAt(i)->setProductionIndex(17);
+                            qDebug()<<"Rifleman";
+                        }
+                        else if(rangedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(antiMoutedUnits<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(mountedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(225);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Cavalry");
+                            civ->GetCityAt(i)->setProductionIndex(14);
+                            qDebug()<<"Cavalry";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Cannon");
+                            civ->GetCityAt(i)->setProductionIndex(12);
+                            qDebug()<<"Cannon";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Frigate");
+                            civ->GetCityAt(i)->setProductionIndex(15);
+                            qDebug()<<"Frigate";
+                        }
+                    }
+                    else if(16>=numBuildings){
+                        //tech 9 iron
+                        if(meleeUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(225);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Rifleman");
+                            civ->GetCityAt(i)->setProductionIndex(17);
+                            qDebug()<<"Rifleman";
+                        }
+                        else if(rangedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(antiMoutedUnits<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(mountedUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(225);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Cavalry");
+                            civ->GetCityAt(i)->setProductionIndex(14);
+                            qDebug()<<"Cavalry";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Cannon");
+                            civ->GetCityAt(i)->setProductionIndex(12);
+                            qDebug()<<"Cannon";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(275);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Ironclad");
+                            civ->GetCityAt(i)->setProductionIndex(24);
+                            qDebug()<<"Ironclad";
+                        }
+                    }
+                    else if(17>=numBuildings){
+                        //tech 10 art/dest/infan
+                        if(meleeUnits<6){
+                            civ->GetCityAt(i)->setCurrentProductionCost(320);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Infantry");
+                            civ->GetCityAt(i)->setProductionIndex(23);
+                            qDebug()<<"Infantry";
+                        }
+                        else if(rangedUnits<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(antiMoutedUnits<1){
+                            civ->GetCityAt(i)->setCurrentProductionCost(90);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Pikeman");
+                            civ->GetCityAt(i)->setProductionIndex(11);
+                            qDebug()<<"Pikeman";
+                        }
+                        else if(mountedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(225);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Cavalry");
+                            civ->GetCityAt(i)->setProductionIndex(14);
+                            qDebug()<<"Cavalry";
+                        }
+                        else if(siegeUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(330);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Artillery");
+                            civ->GetCityAt(i)->setProductionIndex(18);
+                            qDebug()<<"Artillery";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Destroyer");
+                            civ->GetCityAt(i)->setProductionIndex(22);
+                            qDebug()<<"Destroyer";
+                        }
+                    }
+                    else if(18>=numBuildings){
+                        //tech 11 battl/carr/fight/sub/tank
+                        if(meleeUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(320);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Infantry");
+                            civ->GetCityAt(i)->setProductionIndex(23);
+                            qDebug()<<"Infantry";
+                        }
+                        else if(rangedUnits<1){
+                            civ->GetCityAt(i)->setCurrentProductionCost(125);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Crossbowman");
+                            civ->GetCityAt(i)->setProductionIndex(9);
+                            qDebug()<<"Crossbowman";
+                        }
+                        else if(mountedUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(375);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Tank");
+                            civ->GetCityAt(i)->setProductionIndex(26);
+                            qDebug()<<"Tank";
+                        }
+                        else if(siegeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(330);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Artillery");
+                            civ->GetCityAt(i)->setProductionIndex(18);
+                            qDebug()<<"Artillery";
+                        }
+                        else if(fighters<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Fighter");
+                            civ->GetCityAt(i)->setProductionIndex(22);
+                            qDebug()<<"Fighter";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Battleship");
+                            civ->GetCityAt(i)->setProductionIndex(19);
+                            qDebug()<<"Battleship";
+                        }
+
+                        //Carrier and Sub not used right now
+                    }
+                    else if(19>=numBuildings){
+                        //tech 12 bomb/mech inf
+                        if(meleeUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Mechanized Infantry");
+                            civ->GetCityAt(i)->setProductionIndex(30);
+                            qDebug()<<"Mechanized Infantry";
+                        }
+                        else if(mountedUnits<5){
+                            civ->GetCityAt(i)->setCurrentProductionCost(375);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Tank");
+                            civ->GetCityAt(i)->setProductionIndex(26);
+                            qDebug()<<"Tank";
+                        }
+                        else if(siegeUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(330);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Artillery");
+                            civ->GetCityAt(i)->setProductionIndex(18);
+                            qDebug()<<"Artillery";
+                        }
+                        else if(fighters<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Fighter");
+                            civ->GetCityAt(i)->setProductionIndex(22);
+                            qDebug()<<"Fighter";
+                        }
+                        else if(bombers<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(375);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Bomber");
+                            civ->GetCityAt(i)->setProductionIndex(27);
+                            qDebug()<<"Bomber";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Battleship");
+                            civ->GetCityAt(i)->setProductionIndex(19);
+                            qDebug()<<"Battleship";
+                        }
+                    }
+                    else if(20>=numBuildings){
+                        //tech 13 heli/jetfig/modarmor
+                        if(meleeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Mechanized Infantry");
+                            civ->GetCityAt(i)->setProductionIndex(30);
+                            qDebug()<<"Mechanized Infantry";
+                        }
+                        else if(antiMoutedUnits<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Helicopter Gunship");
+                            civ->GetCityAt(i)->setProductionIndex(28);
+                            qDebug()<<"Helicopter Gunship";
+                        }
+                        else if(mountedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Modern Armor");
+                            civ->GetCityAt(i)->setProductionIndex(31);
+                            qDebug()<<"Modern Armor";
+                        }
+                        else if(siegeUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(330);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Artillery");
+                            civ->GetCityAt(i)->setProductionIndex(18);
+                            qDebug()<<"Artillery";
+                        }
+                        else if(fighters<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Jet Fighter");
+                            civ->GetCityAt(i)->setProductionIndex(29);
+                            qDebug()<<"Jet Fighter";
+                        }
+                        else if(bombers<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(375);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Bomber");
+                            civ->GetCityAt(i)->setProductionIndex(27);
+                            qDebug()<<"Bomber";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Battleship");
+                            civ->GetCityAt(i)->setProductionIndex(19);
+                            qDebug()<<"Battleship";
+                        }
+                    }
+                    else if(21>=numBuildings){
+                        //tech 14 stealthbomb
+                        if(meleeUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Mechanized Infantry");
+                            civ->GetCityAt(i)->setProductionIndex(30);
+                            qDebug()<<"Mechanized Infantry";
+                        }
+                        else if(antiMoutedUnits<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Helicopter Gunship");
+                            civ->GetCityAt(i)->setProductionIndex(28);
+                            qDebug()<<"Helicopter Gunship";
+                        }
+                        else if(mountedUnits<4){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Modern Armor");
+                            civ->GetCityAt(i)->setProductionIndex(31);
+                            qDebug()<<"Modern Armor";
+                        }
+                        else if(siegeUnits<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(330);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Artillery");
+                            civ->GetCityAt(i)->setProductionIndex(18);
+                            qDebug()<<"Artillery";
+                        }
+                        else if(fighters<3){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Jet Fighter");
+                            civ->GetCityAt(i)->setProductionIndex(29);
+                            qDebug()<<"Jet Fighter";
+                        }
+                        else if(bombers<2){
+                            civ->GetCityAt(i)->setCurrentProductionCost(425);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Stealth Bomber");
+                            civ->GetCityAt(i)->setProductionIndex(32);
+                            qDebug()<<"Stealth Bomber";
+                        }
+                        else{
+                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+                            civ->GetCityAt(i)->setIsUnit(true);
+                            civ->GetCityAt(i)->setProductionName("Battleship");
+                            civ->GetCityAt(i)->setProductionIndex(19);
+                            qDebug()<<"Battleship";
+                        }
+                    }
                 }
 
                 else{
                     qDebug()<<" Buildings";
                     int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
+                    //Buildings are a linear progression, which simulates tech progress
                     if(0==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(75);
                         civ->GetCityAt(i)->setIsUnit(false);
@@ -166,6 +767,125 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                         civ->GetCityAt(i)->setProductionIndex(1);
                         qDebug()<<"Library";
                     }
+                    else if(5==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(100);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Colosseum");
+                        civ->GetCityAt(i)->setProductionIndex(7);
+                        qDebug()<<"Colosseum";
+                    }
+                    else if(6==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(110);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Temple");
+                        civ->GetCityAt(i)->setProductionIndex(12);
+                        qDebug()<<"Temple";
+                    }
+                    else if(7==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(120);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Courthouse");
+                        civ->GetCityAt(i)->setProductionIndex(8);
+                        qDebug()<<"Courthouse";
+                    }
+                    else if(8==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(130);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Forge");
+                        civ->GetCityAt(i)->setProductionIndex(16);
+                        qDebug()<<"Forge";
+                    }
+                    else if(9==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(115);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Aqueduct");
+                        civ->GetCityAt(i)->setProductionIndex(13);
+                        qDebug()<<"Aqueduct";
+                    }
+                    else if(10==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(130);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Monastery");
+                        civ->GetCityAt(i)->setProductionIndex(20);
+                        qDebug()<<"Monastery";
+                    }
+                    else if(11==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(150);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Market");
+                        civ->GetCityAt(i)->setProductionIndex(19);
+                        qDebug()<<"Market";
+                    }
+                    else if(12==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(175);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Castle");
+                        civ->GetCityAt(i)->setProductionIndex(15);
+                        qDebug()<<"Castle";
+                    }
+                    else if(13==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(180);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("University");
+                        civ->GetCityAt(i)->setProductionIndex(21);
+                        qDebug()<<"University";
+                    }
+                    else if(14==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(220);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Observatory");
+                        civ->GetCityAt(i)->setProductionIndex(2);
+                        qDebug()<<"Observatory";
+                    }
+                    else if(15==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(200);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Theatre");
+                        civ->GetCityAt(i)->setProductionIndex(6);
+                        qDebug()<<"Theatre";
+                    }
+                    else if(16==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(300);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Bank");
+                        civ->GetCityAt(i)->setProductionIndex(4);
+                        qDebug()<<"Bank";
+                    }
+                    else if(17==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(365);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Factory");
+                        civ->GetCityAt(i)->setProductionIndex(10);
+                        qDebug()<<"Factory";
+                    }
+                    else if(18==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(365);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Hospital");
+                        civ->GetCityAt(i)->setProductionIndex(11);
+                        qDebug()<<"Hospital";
+                    }
+                    else if(19==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(500);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Harbor");
+                        civ->GetCityAt(i)->setProductionIndex(18);
+                        qDebug()<<"Harbor";
+                    }
+                    else if(20==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(425);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Hydro Plant");
+                        civ->GetCityAt(i)->setProductionIndex(14);
+                        qDebug()<<"Hydro Plant";
+                    }
+                    else if(21==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(500);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Nuclear Plant");
+                        civ->GetCityAt(i)->setProductionIndex(17);
+                        qDebug()<<"Nuclear Plant";
+                    }
                 }
             }
             else if(2==midGoal||3==midGoal){
@@ -181,7 +901,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
             }
         }
         else{
-            qDebug()<<"City already producing";
+            qDebug()<<"City already producing "<<civ->GetCityAt(i)->getProductionName();
         }
     }
 
