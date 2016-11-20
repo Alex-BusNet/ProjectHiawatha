@@ -438,7 +438,7 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-                    if(tempPt[j].y() < tempPt[k].y())
+                    if(tempPt[j].y() > tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
@@ -457,7 +457,7 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-                    if(tempPt[j].y() > tempPt[k].y())
+                    if(tempPt[j].y() < tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
@@ -476,7 +476,7 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
                 }
                 else if(tempPt[j].x() == tempPt[k].x())
                 {
-                    if(tempPt[j].y() > tempPt[k].y())
+                    if(tempPt[j].y() < tempPt[k].y())
                     {
                         QPoint temp = tempPt[j];
                         tempPt[j] = tempPt[k];
@@ -1076,7 +1076,7 @@ void City::loadBuildings(QString filename)
        {
           QString line = in.readLine();
           QStringList buildingInfo = line.split(",");
-          qDebug()<<"Building Name: "<<buildingInfo[0];
+//          qDebug()<<"Building Name: "<<buildingInfo[0];
           QString name = buildingInfo[0];
           QString description = buildingInfo[1];
           int cost = buildingInfo[2].toInt();

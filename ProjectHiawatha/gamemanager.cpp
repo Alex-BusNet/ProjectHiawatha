@@ -108,10 +108,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-        renderer->DrawCityBorders(civList.at(i)->GetCityList(), gameView, civList.at(i)->getCiv());
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
+            renderer->DrawCityBorders(civList.at(i)->GetCityAt(j), gameView, civList.at(i)->getCiv());
+
             if(i == 0)
             {
                 if(j == 0)
@@ -123,6 +124,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                     clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
                 }
             }
+
             foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
@@ -1111,7 +1113,7 @@ void GameManager::UpdateTileData()
         renderer->AddCity(city, gameView);
 
         qDebug() << "--Adding Drawing city borders";
-        renderer->DrawCityBorders(civList.at(currentTurn)->GetCityList(), gameView, civList.at(currentTurn)->getCiv());
+        renderer->DrawCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
 
         qDebug () << "--Setting tile worked";
         foreach(Tile* tile, city->GetControlledTiles())
@@ -1133,13 +1135,8 @@ void GameManager::UpdateTileData()
         if(currentTurn == 0)
         {
             clv->addItem(city->GetName());
-            qDebug() << "----Removing Unit";
             selectedTileQueue->enqueue(SelectData{foundCityIndex, false, false});
         }
-//        else
-//        {
-//            delete unitToMove;
-//        }
 
     }
 

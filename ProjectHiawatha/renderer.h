@@ -28,7 +28,7 @@ public:
 
     void DrawHexScene(Map *map, GameView *scene);
     void DrawGuiImages(QGraphicsScene *scene);
-    void DrawCityBorders(QVector<City *> cities, GameView *view, Nation owner);
+    void DrawCityBorders(City *city, GameView *view, Nation owner);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
     void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
 
