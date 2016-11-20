@@ -13,20 +13,28 @@ UnitController::UnitController()
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit)
 {
     qDebug() << " End tile has unit:" << endTile->ContainsUnit;
+
     if(startTile==endTile)
     {
         qDebug()<<"Start = End";
         return;
     }
+
+    if(endTile->ContainsUnit && !unit->isPathEmpty())
+    {
+        endTile = unit->GetPath().at(unit->GetPath().size() - 2);
+    }
+
     qDebug() << "UnitController finding path";
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
+    Tile *currentHex;
 
     openSet.push_back(startTile);
 
     while(openSet.count() > 0)
     {
-        Tile *currentHex = openSet[0];
+        currentHex = openSet[0];
 
         for(int i = 1; i < openSet.count(); i++)
         {
@@ -72,6 +80,11 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
             }
         }
     }
+
+    // This is for if the last tile is occupied and the algorithm ends
+    // without finding the last tile.
+    qDebug() << "----End tile not found; setting path to currentHex";
+    RetracePath(startTile, currentHex, map, unit);
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
@@ -79,6 +92,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
     if(map->GetTileAt(unit->GetNextTileInPath()->GetTileIndex())->ContainsUnit)
     {
         qDebug() << "Next tile occupied; searching for new path" << unit->GetTileIndex() << unit->GetTargetTileIndex();
+        unit->ClearPath();
         FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, unit);
     }
 
@@ -167,16 +181,26 @@ void UnitController::RangeAttack(Unit *attacker, Unit *target)
 void UnitController::AttackCity(Unit *attacker, City *city)
 {
     qDebug() << "targetCity belongs to:" << NationName(city->GetControllingCiv());
-    float AtkBonus = 0.8f, melee;
+    float AtkBonus, melee;
 
     if(attacker->isMelee)
+    {
+        AtkBonus = 0.8f;
         melee = 1.0f;
+    }
+    else if(attacker->isSiege)
+    {
+        AtkBonus = 4.0f;
+        melee = 0.0f;
+    }
     else
-        melee = 10.0f;
-
+    {
+        AtkBonus = 0.8f;
+        melee = 0.0f;
+    }
     qDebug() << "--City strength:" << city->GetCityStrength();
-    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * melee));
-    float damageSustained = (city->GetCityStrength()) * melee;
+    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
+    float damageSustained = (city->GetCityStrength() - damageDealt) * melee;
 
     qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
 
@@ -295,7 +319,7 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
         j--;
     }
 
-    if(path.last()->ContainsUnit)
+    if(end->ContainsUnit)
     {
         qDebug() << "----Target tile contains unit; stopping one short";
         path.removeLast();
@@ -312,6 +336,7 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
     //This sets the path the unit needs to take.
     qDebug() << "   Setting unit path";
     unit->SetPath(path);
+    unit->SetUnitTargetTileIndex(path.last()->GetTileIndex());
     qDebug() << "   Setting RequiresOrders to false";
     unit->RequiresOrders = false;
 }

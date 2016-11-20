@@ -42,6 +42,7 @@ public:
     void DealDamage(int damage);
 
     void UpdatePath();
+    void ClearPath();
 
     QImage* GetUnitIcon();
     Nation GetOwner();
@@ -82,7 +83,7 @@ public:
     bool isMelee;
     bool isRoadWorker;
     bool needsPath;
-
+    bool isSiege;
 
 private:
     QImage *unitIcon;
