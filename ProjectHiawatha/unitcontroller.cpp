@@ -12,11 +12,13 @@ UnitController::UnitController()
 
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit)
 {
-    if(startTile==endTile){
+    qDebug() << " End tile has unit:" << endTile->ContainsUnit;
+    if(startTile==endTile)
+    {
         qDebug()<<"Start = End";
         return;
     }
-//    qDebug() << "UnitController finding path";
+    qDebug() << "UnitController finding path";
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
 
@@ -70,14 +72,13 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
             }
         }
     }
-
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 {
     if(map->GetTileAt(unit->GetNextTileInPath()->GetTileIndex())->ContainsUnit)
     {
-        qDebug() << "Next tile occupied; searching for new path";
+        qDebug() << "Next tile occupied; searching for new path" << unit->GetTileIndex() << unit->GetTargetTileIndex();
         FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, unit);
     }
 

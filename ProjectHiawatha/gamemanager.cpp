@@ -608,12 +608,12 @@ void GameManager::StartTurn()
 
                 if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
                 {
-                    civList.at(currentTurn)->GetCityList().at(i)->setProducedUnit(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex()));
-                    Unit* unit = civList.at(currentTurn)->GetCityList().at(i)->getProducedUnit();
-                    qDebug()<<"Unit #"<<civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
-                    unit->SetName(civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex())->GetName());
+                    civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
+                    Unit* unit = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
+                    qDebug()<<"Unit #"<<civList.at(currentTurn)->GetCityAt(i)->getProductionIndex();
+                    unit->SetName(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetName());
 
-                    qDebug()<<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex())->GetCost();
+                    qDebug()<<civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetCost();
                     unit->SetOwner(civList.at(currentTurn)->getCiv());
                     unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
 

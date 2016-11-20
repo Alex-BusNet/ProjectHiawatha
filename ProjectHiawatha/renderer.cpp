@@ -569,9 +569,16 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     int index = city->GetCityGrowthBarIndex();
 
     view->removeItem(cityGrowthBars.at(index));
+    int barSize;
 
-//    qDebug() << "----Food needed to grow:" << city->GetFoodNeededToGrow() << "Surplus:" << city->GetFoodSurplus();
-    int barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus()))));
+    if(city->IsStagnant())
+    {
+        barSize = 1;
+    }
+    else
+    {
+        barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus()))));
+    }
 
     barSize = barSize <= 0 ? 1 : barSize;
 

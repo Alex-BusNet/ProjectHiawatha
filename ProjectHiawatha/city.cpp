@@ -21,6 +21,7 @@ City::City()
     this->cityStrength = this->baseStrength + this->citizens;
     this->buildingStrength = 0;
     this->initialized = false;
+    this->stagnant = false;
 }
 
 
@@ -259,36 +260,56 @@ Update_t City::UpdateProgress()
 
     qDebug() << "       " << this->name << " turns to growth:" << turnsToBorderGrowth;
 
-    if(turnsToNewCitizen == 0)
+    this->turnsToNewCitizen--;
+
+    if(turnsToNewCitizen == 0 && !this->stagnant)
     {
         //Increment the number of citizens in the city
+        qDebug() << "--Increment Citizens";
         this->citizens++;
 
         //// THIS CALCULATION NEEDS TO CHANGE
         // Calculate the number of turns until a new citizen is born
+        qDebug() << "--Calculate growth cost";
         this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
+        qDebug() << "--Calculate food surplus; food yield:" << this->cityTotalYield->GetFoodYield() << "citizens:" << this->citizens;
         this->foodSurplus = this->cityTotalYield->GetFoodYield() - (2 * this->citizens);
+        qDebug() << "--Calculate turns to new citizen; Surplus:" << this->foodSurplus;
+        if(this->foodSurplus < 0)
+        {
+            this->foodSurplus *= -1;
+        }
+        else if(this->foodSurplus == 0)
+        {
+            this->foodSurplus = 1;
+        }
+
         this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
+
+        if(this->turnsToNewCitizen < 0)
+        {
+            qDebug() << "----City is stagnant";
+            stagnant = true;
+        }
 
         // If the city has more tiles than there are citizens then put a citizen to work.
         if(this->citizens < this->GetControlledTiles().size())
         {
+            qDebug() << "---City has more tiles than citizens";
             foreach(Tile* tile, this->cityControlledTiles)
             {
                 // If the tile is not a mountain and is not already worked, then work that tile.
                 if(tile->GetTileType() != MOUNTAIN && !tile->IsWorked)
                 {
+                    qDebug() << "--Tile not mountain and not worked";
                     tile->IsWorked = true;
                     update.updateCitizens = true;
                     break;
                 }
             }
+            qDebug() << "updating city yield";
             this->UpdateCityYield();
         }
-    }
-    else
-    {
-        this->turnsToNewCitizen--;
     }
 
     qDebug() << "       " << this->name << " turns to new citizen" << turnsToNewCitizen;
@@ -622,6 +643,12 @@ void City::UpdateCityYield()
         }
     }
 
+    if(this->stagnant && (newFood > (oldFood * -1)))
+    {
+        qDebug() << "----City is no longer stagnant";
+        this->stagnant = false;
+    }
+
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
 }
 
@@ -874,6 +901,11 @@ bool City::getCapitolConnection()
 bool City::IsInitialized()
 {
     return this->initialized;
+}
+
+bool City::IsStagnant()
+{
+    return this->stagnant;
 }
 
 void City::InitializeCity()

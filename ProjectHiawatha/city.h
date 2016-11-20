@@ -74,7 +74,7 @@ public:
     bool IsCityCaptial();
     bool getCapitolConnection();
     bool IsInitialized();
-
+    bool IsStagnant();
     void InitializeCity();
     void setCapitolConnection(bool flag);
     void SetCitizenCount(int count);
@@ -142,6 +142,7 @@ private:
     bool productionFinished;
     bool productionUnit;
     bool initialized;
+    bool stagnant;
 
     int productionYield;
     int scienceYield;
