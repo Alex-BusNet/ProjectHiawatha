@@ -592,12 +592,19 @@ void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
-    this->maximumExpansionBorder << QPoint(x - 132, y - 221)
+    this->minimumSettleDistance << QPoint(x - 132, y - 221)
                                  << QPoint(x + 132, y - 221)
                                  << QPoint(x + 264, y)
                                  << QPoint(x + 132, y + 221)
                                  << QPoint(x - 132, y + 221)
                                  << QPoint(x - 264, y);
+
+    this->maximumExpansionBorder << QPoint(x - 176, y - 292)
+                                 << QPoint(x + 176, y - 292)
+                                 << QPoint(x + 352, y)
+                                 << QPoint(x + 176, y + 292)
+                                 << QPoint(x - 176, y + 292)
+                                 << QPoint(x - 352, y);
 }
 
 void City::SetControllingCiv(Nation owner)
@@ -910,6 +917,11 @@ bool City::IsStagnant()
 
 void City::InitializeCity()
 {
+    foreach(Tile* tile, this->cityControlledTiles)
+    {
+        tile->SetGoverningCity(this);
+    }
+
     this->initialized = true;
 }
 
@@ -1130,6 +1142,11 @@ QPolygon City::GetCityBorders()
 QPolygon City::GetMaximumExpansionBorder()
 {
     return this->maximumExpansionBorder;
+}
+
+QPolygon City::GetMinimumSettleDistance()
+{
+    return this->minimumSettleDistance;
 }
 
 int City::GetCityIndex()

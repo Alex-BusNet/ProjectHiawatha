@@ -16,6 +16,7 @@ public:
     Unit(Nation owner = India, UnitType type = WORKER);
     Unit(int index);
     ~Unit();
+
     void setUnitType(UnitType type);
     void SetUnitIcon(UnitType type);
     void SetOwner(Nation owner);
@@ -44,9 +45,6 @@ public:
     void UpdatePath();
     void ClearPath();
 
-    QImage* GetUnitIcon();
-    Nation GetOwner();
-
     int GetTileIndex();
     int GetTargetTileIndex();
     int GetTileColumn();
@@ -69,8 +67,10 @@ public:
     QString GetName();
     QList<Tile*> GetPath();
     Tile* GetNextTileInPath();
-
     UnitType GetUnitType();
+    QImage* GetUnitIcon();
+    Nation GetOwner();
+
     int  isUnlocked();
     bool isPathEmpty();
     bool isNonCombat();

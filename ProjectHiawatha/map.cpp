@@ -546,13 +546,40 @@ newrand:
                     qDebug() << "--Maximum expansion borders intersected, finding new location to spawn.";
                     delete city;
                     civs.at(i)->SetCityIndex(0);
+                    foreach(Tile* tile, city->GetControlledTiles())
+                    {
+                        tile->SetControllingCiv(NO_NATION);
+                    }
                     goto newrand;
+                }
+            }
+
+            for(int k = 0; k < board.size(); k++)
+            {
+                if(board.at(k)->GetTileType() == ICE || board.at(k)->GetTileBiome() == OCEAN)
+                {
+                    if(city->GetMinimumSettleDistance().boundingRect().intersects(board.at(k)->GetTilePolygon().boundingRect()))
+                    {
+                        qDebug() << "--Minimum settle distance intersects ice; finding new location to spawn.";
+                        delete city;
+                        civs.at(i)->SetCityIndex(0);
+                        foreach(Tile* tile, city->GetControlledTiles())
+                        {
+                            tile->SetControllingCiv(NO_NATION);
+                            if(tile->IsWorked)
+                            {
+                                tile->IsWorked = false;
+                            }
+                        }
+                        goto newrand;
+                    }
                 }
             }
 
             board.at(index)->SetCivListIndex(i);
             board.at(index)->HasCity = true;
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
+            board.at(index)->SetGoverningCity(city);
 
             civs.at(i)->AddCity(city);
 

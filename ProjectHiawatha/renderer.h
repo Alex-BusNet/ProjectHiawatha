@@ -70,6 +70,7 @@ private:
 
     QVector<QGraphicsPolygonItem*> cityBorders;
     QVector<QGraphicsPolygonItem*> cityExpansionBorders;
+    QVector<QGraphicsPolygonItem*> citySettleDistances;
 
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsProxyWidget*> cityLabels;

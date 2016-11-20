@@ -24,41 +24,80 @@ public:
     enum Focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
 
     //Accessor and Mutators
-    void UpdateCityYield(Yield yield);
-
     void SetCityAsCaptial();
     void SetName(QString name);
     void SetCityTile(Tile *tile);
     void SetControllingCiv(Nation owner);
     void SetCityIndex(int index);
+
     void UpdateCityYield();
+    void UpdateCityYield(Yield yield);
+
     void SetCityHealthBarIndex(int index);
     void SetCityProductionBarIndex(int index);
     void SetCityGrowthBarIndex(int index);
+
     void SetCityHealth(float health);
     void SetCityMaxHealth(int health);
+
     void SetCityStrength(int strength);
     void SetCityBuildingStrength(int strength);
     void SetBaseCityStrength(int strength);
 
     void GarrisonWorker(Unit *worker);
     void GarrisonMilitary(Unit *military);
-    void AddControlledTile(Tile* tile);
 
+    void AddControlledTile(Tile* tile);
     void DefineCityBorders(bool redefine);
-    void SetCityBordersIndex(int index);
+    void SetCityBordersIndex(int index); 
+    void setCapitolConnection(bool flag);
+    void SetCitizenCount(int count);
+
+    void setCurrentProductionCost(int cost);
+    void setAccumulatedProduction(int total);
+    void resetAccumulatedProduction();
+    void setProductionName(QString name);
+    void setProductionIndex(int index);
+    void setProductionFinished(bool isFinished);
+    void setIsUnit(bool isUnit);
+    void setProducedUnit(Unit* unit);
+
+    void loadUnits(QString filename);
+    void loadBuildings(QString filename);
+
+    void addBuilding(Building* building);
+    void IncrementNumberOfBuildings();
+
+    void SortControlledTiles();
+    void SortTileQueue();
+
+    void SetCityFocus(Focus focus);
+    void InitializeCity();
 
     QString GetName();
+    QString getProductionName();
+
     Tile* GetCityTile();
     Yield* getCityYield();
     Nation GetControllingCiv();
-    QVector<Tile*> GetControlledTiles();
+
     QPolygon GetCityBorders();
     QPolygon GetMaximumExpansionBorder();
+    QPolygon GetMinimumSettleDistance();
 
     Unit GetUnitAt(int index);
     Unit* GetGarrisonedWorker(int index);
     Unit* GetGarrisonedMilitary(int index);
+    Unit* getProducedUnit();
+
+    QVector<Tile*> GetControlledTiles();
+    QVector<Tile*> tileQueue;
+    QVector<Unit*> getInitialUnitList();
+    QVector<Building*> getInitialBuildingList();
+    QVector<Building*> getCurrentBuildingList();
+
+    Update_t UpdateProgress();
+    Focus GetCityFocus();
 
     int GetCityIndex();
     int GetCityHealthBarIndex();
@@ -70,54 +109,28 @@ public:
     int GetCityStrength();
     int GetCityBuildingStrength();
     int GetBaseStrength();
-
-    bool IsCityCaptial();
-    bool getCapitolConnection();
-    bool IsInitialized();
-    bool IsStagnant();
-    void InitializeCity();
-    void setCapitolConnection(bool flag);
-    void SetCitizenCount(int count);
-
     int GetCitizenCount();
     int GetFoodNeededToGrow();
     int GetTurnsToNewCitizen();
     int GetFoodSurplus();
     int getCurrentProductionCost();
-    void setCurrentProductionCost(int cost);
     int getAccumulatedProduction();
-    void setAccumulatedProduction(int total);
-    void resetAccumulatedProduction();
-    void setProductionName(QString name);
-    void setProductionIndex(int index);
-    void setProductionFinished(bool isFinished);
-    bool getProductionFinished();
-    void setIsUnit(bool isUnit);
-    bool getIsUnit();
     int getProductionIndex();
-    Unit* getProducedUnit();
-    void setProducedUnit(Unit* unit);
-    QString getProductionName();
-    bool getHasWorker();
-    void    loadUnits(QString filename);
-    void loadBuildings(QString filename);
-    void addBuilding(Building* building);
-    ~City();
-    QVector<Unit*> getInitialUnitList();
-    QVector<Building*> getInitialBuildingList();
-    QVector<Building*> getCurrentBuildingList();
-    void SortControlledTiles();
-    void SortTileQueue();
-    QVector<Tile*> tileQueue;
     int getNumberOfBuildings();
-    void IncrementNumberOfBuildings();
-    Update_t UpdateProgress();
 
-    void SetCityFocus(Focus focus);
-    Focus GetCityFocus();
+    bool IsCityCaptial();
+    bool getCapitolConnection();
+    bool IsInitialized();
+    bool IsStagnant();
+    bool getProductionFinished();
+    bool getIsUnit();
+    bool getHasWorker();
+
+    ~City();
 
 private:
     enum SortOrder {LRBT, LRTB, RLTB, RLBT};
+
     QVector<Tile*> cityControlledTiles;
     QVector<Unit*> StationedWorkers;
     QVector<Unit*> StationedMilitary;
@@ -165,15 +178,14 @@ private:
     int productionIndex;
 
     int numberofBuildings;
-
-    float cityHealth, maxHealth;
     int cityStrength, baseStrength, buildingStrength;
 
+    float cityHealth, maxHealth;
 
     int orientation(QPoint p, QPoint q, QPoint r);
 
     void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, SortOrder sortOrder);
-    QPolygon cityBorder, maximumExpansionBorder;
+    QPolygon cityBorder, maximumExpansionBorder, minimumSettleDistance;
 
 };
 

@@ -513,6 +513,8 @@ void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
     cityBorders.last()->setPen(outlinePen);
     cityExpansionBorders.push_back(view->addPolygon(city->GetMaximumExpansionBorder(), QPen(QColor(Qt::red))));
     cityExpansionBorders.last()->pen().setWidth(1);
+    citySettleDistances.push_back(view->addPolygon(city->GetMinimumSettleDistance(), QPen(QColor(Qt::yellow))));
+    citySettleDistances.last()->pen().setWidth(1);
 
     qDebug() << "cityBorders size:" << cityBorders.size();
 }
