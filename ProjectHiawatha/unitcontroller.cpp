@@ -225,19 +225,56 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
     }
 }
 
-void UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilization *currentCiv, TileImprovement improvement)
+bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilization *currentCiv, TileImprovement improvement)
 {
-    if(unit->isNonCombat() && !unit->isSettler())
+    int gold = 0;
+    int production = 0;
+    int culture = 0;
+    int science = 0;
+    int food = 0;
+    bool unitRemoved = false;
+    switch (improvement) {
+    case FARM:
+        food = 1;
+        break;
+    case ROAD:
+        break;
+    case PLANTATION:
+        food = 1;
+        gold = 2;
+        break;
+    case MINE:
+        production = 2;
+        break;
+    case TRADE_POST:
+        gold = 2;
+        break;
+    default:
+        break;
+    }
+
+
+
+    if((currentTile->GetTileImprovement()) == NONE)
     {
         currentTile->SetTileImprovement(improvement);
-
+        currentTile->SetYield(gold, production, science, food, culture);
         unit->Use();
+
+    }
+
+
+    qDebug()<<"UNIT USES: "<<unit->GetRemainingUses();
 
         if(unit->GetRemainingUses() <= 0)
         {
             currentCiv->RemoveUnit(unit->GetUnitListIndex());
+            unitRemoved = true;
+
         }
-    }
+
+        return unitRemoved;
+
 }
 
 Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitList)

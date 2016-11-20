@@ -22,7 +22,7 @@ public:
     void AttackCity(Unit* attacker, City* city);
 
     void FoundCity(Unit* unit, Tile* CurrentTile, Civilization* currentCiv);
-    void BuildImprovement(Unit* unit, Tile* currentTile, Civilization* currentCiv, TileImprovement improvement);
+    bool BuildImprovement(Unit* unit, Tile* currentTile, Civilization* currentCiv, TileImprovement improvement);
 
     void HealUnit(Unit* unit);
 

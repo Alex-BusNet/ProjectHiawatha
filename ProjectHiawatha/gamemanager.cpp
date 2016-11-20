@@ -927,12 +927,16 @@ void GameManager::UpdateTileData()
                     else if (unitToMove->GetUnitType() == WORKER)
                     {
                         qDebug() << "       unit is worker";
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->GetControllingCiv() == civList.at(currentTurn)->getCiv())
+                        {
+                            buildFarm->setEnabled(true);
+                            buildMine->setEnabled(true);
+                            buildPlantation->setEnabled(true);
+                            buildTradePost->setEnabled(true);
+                        }
                         foundCity->setEnabled(false);
 
-                        buildFarm->setEnabled(true);
-                        buildMine->setEnabled(true);
-                        buildPlantation->setEnabled(true);
-                        buildTradePost->setEnabled(true);
+
                         buildRoad->setEnabled(true);
 
                         attackUnit->setEnabled(false);
@@ -1461,27 +1465,46 @@ void GameManager::foundNewCity()
 
 void GameManager::buildNewRoad()
 {
-
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),ROAD))
+    {
+        renderer->RemoveUnit(unitToMove,gameView);
+    }
 }
 
 void GameManager::buildNewFarm()
 {
+    qDebug()<<"YIELD BEFORE: "<<map->GetTileAt(unitToMove->GetTileIndex())->GetYield()->GetFoodYield();
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),FARM))
+    {
+        renderer->RemoveUnit(unitToMove,gameView);
+    }
 
+    qDebug()<<"YIELD AFTER: "<<map->GetTileAt(unitToMove->GetTileIndex())->GetYield()->GetFoodYield();
 }
 
 void GameManager::buildNewPlantation()
 {
-
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),PLANTATION))
+    {
+        renderer->RemoveUnit(unitToMove,gameView);
+    }
 }
 
 void GameManager::buildNewTradePost()
 {
-
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),TRADE_POST))
+    {
+        renderer->RemoveUnit(unitToMove,gameView);
+    }
 }
 
 void GameManager::buildNewMine()
 {
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),MINE))
+    {
+        renderer->RemoveUnit(unitToMove,gameView);
 
+    }
 }
 
 void GameManager::attackMelee()
