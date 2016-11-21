@@ -276,6 +276,8 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
 
 void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
 {
+    qDebug() << "--Updating" << unit->GetName();
+
     unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
     if((unit->GetHealth() / unit->GetMaxHealth()) != 1 || unitMoved)

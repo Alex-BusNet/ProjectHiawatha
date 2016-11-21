@@ -472,7 +472,9 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     }
 
     if(isCapital)
-        city->SetCityAsCaptial();
+        city->SetCityAsCapital(true);
+    else
+        city->SetCityAsCapital(false);
 
     city->SetCityTile(board.at(cityTileIndex));    
     city->SetControllingCiv(founder->getCiv());
@@ -549,6 +551,10 @@ newrand:
                     foreach(Tile* tile, city->GetControlledTiles())
                     {
                         tile->SetControllingCiv(NO_NATION);
+                        if(tile->IsWorked)
+                        {
+                            tile->IsWorked = false;
+                        }
                     }
                     goto newrand;
                 }

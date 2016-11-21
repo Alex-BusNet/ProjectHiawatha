@@ -22,6 +22,7 @@ City::City()
     this->buildingStrength = 0;
     this->initialized = false;
     this->stagnant = false;
+    this->isCaptial = false;
 }
 
 
@@ -578,9 +579,9 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 }
 
 //Accessor and Mutators
-void City::SetCityAsCaptial()
+void City::SetCityAsCapital(bool capitalStatus)
 {
-    this->isCaptial = true;
+    this->isCaptial = capitalStatus;
 }
 
 void City::SetName(QString name)

@@ -95,6 +95,7 @@ public:
     bool isEmpty();
     int queueSize();
     bool cityFounded;
+    bool alive;
 
 private:
     Nation name;

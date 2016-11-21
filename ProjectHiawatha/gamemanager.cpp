@@ -56,6 +56,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     findCity = false;
     foundACity = false;
     aiFoundCity = false;
+    debugConquer = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -836,6 +837,7 @@ void GameManager::EndTurn()
             renderer->UpdateScene(map, gameView, tileModifiedQueue);
     }
 
+nextCivAlive:
     if(currentTurn == civList.size() - 1)
     {
         qDebug() << "Player's turn next";
@@ -847,6 +849,10 @@ void GameManager::EndTurn()
     {
         qDebug() << "AI turn next";
         currentTurn++;
+        if(!civList.at(currentTurn)->alive)
+        {
+            goto nextCivAlive;
+        }
     }
 }
 
@@ -1032,18 +1038,55 @@ void GameManager::UpdateTileData()
             this->redrawTile = true;
         }
     }
-    else if(findCity && !aiFoundCity)
+    else if(findCity && !aiFoundCity || debugConquer)
     {
         findCity = false;
+        debugConquer = false;
+
         targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetCityList());
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-        selectedTileQueue->enqueue(SelectData{(targetCity->GetCityTile()->GetTileID().column / 2) + (map->GetMapSizeX() * targetCity->GetCityTile()->GetTileID().row), false, false});
+        selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
         attackCity->setEnabled(false);
         attackEnemyCity = false;
 
         if(targetCity->GetControllingCiv() != NO_NATION)
         {
             uc->AttackCity(unitToMove, targetCity);
+
+            //City Conquering Logic
+            if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
+            {
+                qDebug() << "--------<<" << targetCity->GetName() << "Has Been Conquered! >>--------";
+
+                targetCity->SetControllingCiv(unitToMove->GetOwner());
+                targetCity->SetCityHealth(100);
+                targetCity->SetCitizenCount(targetCity->GetCitizenCount() / 2);
+
+                if(targetCity->GetCitizenCount() < 1)
+                {
+                    targetCity->SetCitizenCount(1);
+                }
+
+                if(targetCity->IsCityCaptial())
+                {
+                    targetCity->SetCityAsCapital(false);
+                }
+
+                targetCity->resetAccumulatedProduction();
+                targetCity->setCurrentProductionCost(0);
+                targetCity->setProductionName("No Current Production");
+                targetCity->setProductionIndex(0);
+
+                civList.at(targetTile->GetCivListIndex())->RemoveCity(targetCity->GetCityIndex());
+                targetCity->SetCityIndex(civList.at(currentTurn)->GetCityList().size());
+                civList.at(currentTurn)->AddCity(targetCity);
+
+                clv->addItem(targetCity->GetName());
+
+                renderer->UpdateCityBorders(targetCity, gameView, unitToMove->GetOwner());
+                renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+
+            }
 
             renderer->UpdateUnits(map, gameView, unitToMove, false);
             renderer->UpdateCityHealthBar(targetCity, gameView);
@@ -1268,6 +1311,9 @@ void GameManager::InitButtons()
     connect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
     fortifyUnit->setEnabled(false);
 
+    ConquerCity = new QPushButton("Conquer City Test");
+    connect(ConquerCity, SIGNAL(clicked(bool)), this, SLOT(ChangeCityOwner()));
+
 }
 
 void GameManager::InitLayouts()
@@ -1276,6 +1322,7 @@ void GameManager::InitLayouts()
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(800);
+    unitControlButtons->addWidget(ConquerCity);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1386,7 +1433,6 @@ void GameManager::showCity(City* city)
 {
     if(!cityScreenVisible)
     {
-
         if(cityScreen != NULL)
         {
             delete cityScreen;
@@ -1399,10 +1445,11 @@ void GameManager::showCity(City* city)
         cityScreen->getCityInfo(city);
         cityScreen->updateList(city->getNumberOfBuildings());
         cityScreen->updateWidget();
-        civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter();
-        gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
+
+        gameView->centerOn(city->GetCityTile()->GetCenter());
         cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);
         gameView->setDragMode(QGraphicsView::NoDrag);
+
         cityScreen->show();
         cityScreenVisible = true;
     }
@@ -1444,6 +1491,15 @@ void GameManager::updateTiles()
     }
 
     this->update();
+
+    if(this->currentTurn = 0 && !civList.at(currentTurn)->alive)
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("You Lose!");
+        mBox->exec();
+        //Defeat screen?
+        this->closeGame();
+    }
 
     //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING ISN'T TAKING UP A LOT OF TIME
     end = std::chrono::steady_clock::now();
@@ -1588,6 +1644,16 @@ void GameManager::Fortify()
     qDebug() << "Fortifying unit";
     this->fortify = true;
     fortifyUnit->setEnabled(false);
+}
+
+void GameManager::ChangeCityOwner()
+{
+    debugConquer = true;
+    civList.at(1)->GetCityAt(1)->SetCityHealth(5);
+    targetTile = civList.at(1)->GetCityAt(0)->GetCityTile();
+    unitToMove = civList.at(0)->GetUnitAt(1);
+    renderer->UpdateCityHealthBar(civList.at(1)->GetCityAt(0), gameView);
+    this->UpdateTileData();
 }
 
 void GameManager::parseItem(QListWidgetItem *item)

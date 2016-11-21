@@ -36,6 +36,7 @@ Civilization::Civilization(Nation name, bool isAI)
     this->accumulatedScience = 0;
     this->techIndex = 0;
     this->cityFounded = false;
+    this->alive = true;
 
     if(isAI)
     {
@@ -407,6 +408,21 @@ void Civilization::AddUnit(Unit *unit)
 void Civilization::RemoveCity(int cityIndex)
 {
     this->currentCityList.removeAt(cityIndex);
+    qDebug() << "---Updating city indecies";
+    for(int i = 0; i < currentCityList.size(); i++)
+    {
+        currentCityList.at(i)->SetCityIndex(i);
+
+        if(i == 0 && !currentCityList.at(i)->IsCityCaptial())
+        {
+            currentCityList.at(i)->SetCityAsCapital(true);
+        }
+    }
+
+    if(currentCityList.size() == 0)
+    {
+        this->alive = false;
+    }
 }
 
 void Civilization::RemoveUnit(int unitIndex)

@@ -24,7 +24,7 @@ public:
     enum Focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
 
     //Accessor and Mutators
-    void SetCityAsCaptial();
+    void SetCityAsCapital(bool capitalStatus);
     void SetName(QString name);
     void SetCityTile(Tile *tile);
     void SetControllingCiv(Nation owner);
