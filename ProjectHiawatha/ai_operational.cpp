@@ -35,7 +35,9 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
 
     threatScan(civ, player, map);
 
-    cityLocation(civ, map);
+    //if(civ->getCityFounding().length()==0&&civ->GetCityList().length()==1){
+        cityLocation(civ, map);
+    //}//Only runs city finder 1 time -> not viable - AI object is new each time?
 
     if(1==midGoal){
         qDebug()<<"AI_Ops Midgoal 1";
@@ -181,6 +183,7 @@ void AI_Operational::cityLocation(Civilization *civ, Map *map){
                 && map->GetTileAt(indexToSettle)->GetTileType()!=WATER
                 && map->GetTileAt(indexToSettle)->GetControllingCiv()==NO_NATION)
         {
+            qDebug()<<"immediate neighbors";
             bool goodTile=true;
             QList<Tile*> inRange = map->GetNeighbors(map->GetTileAt(indexToSettle));
             for(int j = 0; j<inRange.length();j++){
@@ -188,6 +191,53 @@ void AI_Operational::cityLocation(Civilization *civ, Map *map){
                     goodTile=false;
                 }
             }
+            qDebug()<<goodTile<<"\ny, x+6";
+            int posX = map->GetTileAt(indexToSettle)->GetTileID().column;
+//                    qDebug()<<"test";
+            int posY = map->GetTileAt(indexToSettle)->GetTileID().row;
+            inRange = map->GetNeighbors(map->GetTileFromCoord(posX+6,posY));
+            for(int j = 0; j<inRange.length();j++){
+//                qDebug()<<"test"<<j;
+                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                    goodTile=false;
+                }
+            }//swap column and row
+            qDebug()<<goodTile<<"\ny, x-6";
+            inRange = map->GetNeighbors(map->GetTileFromCoord(posX-6,posY));
+            for(int j = 0; j<inRange.length();j++){
+                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                    goodTile=false;
+                }
+            }
+            qDebug()<<goodTile<<"\ny+3, x+3";
+            inRange = map->GetNeighbors(map->GetTileFromCoord(posX+3,posY+3));
+            for(int j = 0; j<inRange.length();j++){
+                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                    goodTile=false;
+                }
+            }
+            qDebug()<<goodTile<<"\ny-3, x+3";
+            inRange = map->GetNeighbors(map->GetTileFromCoord(posX+3,posY-3));
+            for(int j = 0; j<inRange.length();j++){
+                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                    goodTile=false;
+                }
+            }
+            qDebug()<<goodTile<<"\ny+3, x-3";
+            inRange = map->GetNeighbors(map->GetTileFromCoord(posX-3,posY+3));
+            for(int j = 0; j<inRange.length();j++){
+                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                    goodTile=false;
+                }
+            }
+            qDebug()<<goodTile<<"\ny-3, x-3";
+            inRange = map->GetNeighbors(map->GetTileFromCoord(posX-3,posY-3));
+            for(int j = 0; j<inRange.length();j++){
+                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                    goodTile=false;
+                }
+            }
+            qDebug()<<goodTile<<"\nextended getneighbors complete";
             if(goodTile){
                 qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;
                 cityLocations.push_back(map->GetTileAt(indexToSettle));

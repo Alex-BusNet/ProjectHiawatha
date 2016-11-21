@@ -1492,7 +1492,7 @@ void GameManager::updateTiles()
 
     this->update();
 
-    if(this->currentTurn = 0 && !civList.at(currentTurn)->alive)
+    if(this->currentTurn == 0 && !civList.at(currentTurn)->alive)
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("You Lose!");

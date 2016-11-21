@@ -409,6 +409,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
                     qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
                     UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
                 }
+                qDebug()<<"Path not empty";
             }
 
         }

@@ -144,7 +144,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
             if(1==midGoal){//Settle more cities
                 qDebug()<<"produce stuff";
-                if(0==i&&!activeSettler){//Only first city builds settlers - logistical parameter
+                if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length())){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
                     ///For debugging purposes, Settler production has been set to 10. This will need to be reset to 100.
                     civ->GetCityAt(i)->setCurrentProductionCost(10);
@@ -153,9 +153,8 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     civ->GetCityAt(i)->setProductionIndex(3);
                     qDebug()<<"     Settler";
                     //Set city to build settler
-
                 }
-                else if(!civ->GetCityAt(i)->getHasWorker()){
+                else if((!civ->GetCityAt(i)->getHasWorker())&&(1<civ->GetCityList().length())){
                     civ->GetCityAt(i)->setCurrentProductionCost(70);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Worker");
