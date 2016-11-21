@@ -1104,6 +1104,35 @@ void GameManager::UpdateTileData()
         foundCityIndex = unitToMove->GetTileIndex();
 
         city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
+
+        bool valid = true;
+        for(int i = 0; i < civList.size(); i++)
+        {
+            foreach(City* existingCity, civList.at(i)->GetCityList())
+            {
+                if(existingCity->MSDIntersects(city->GetMinimumSettleDistance()))
+                {
+                    qDebug() << "--------<< You cannot settle this close to another city. >>--------";
+                    delete city;
+                    civList.at(currentTurn)->SetCityIndex(civList.at(currentTurn)->getCityIndex() - 1);
+                    foreach(Tile* tile, city->GetControlledTiles())
+                    {
+                        tile->SetControllingCiv(NO_NATION);
+                    }
+                    unitToMove->RequiresOrders = true;
+                    civList.at(currentTurn)->cityFounded= false;
+                    valid = false;
+                    break;
+                }
+            }
+
+            if(!valid)
+                break;
+        }
+
+        if(!valid)
+            return;
+
         qDebug() << "--Loading buildings";
         city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         qDebug() << "--Loading units";

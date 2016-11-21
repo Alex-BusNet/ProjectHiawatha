@@ -394,6 +394,10 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
                 qDebug() << "------AI" << civ->getCivIndex() << "writing to foundCity queue";
 //                map->CreateCity(unitlist.at(i)->GetTileIndex(),civ->getCivIndex(),civ,false);
                 civ->setCityFounding(unitlist.at(i));
+
+                //This will get set regardless if a city is actually settled or not.
+                // If the city is not founded, the AI <<SHOULD>> try to move the settler
+                // to the next valid location until a city is actually settled.
                 civ->cityFounded = true;
                 break;
             }

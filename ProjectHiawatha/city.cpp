@@ -1030,6 +1030,171 @@ bool City::getHasWorker()
     return this->hasWorker;
 }
 
+bool City::MSDIntersects(QPolygon targetMSD)
+{
+    qDebug() << "-----MSDINTERSECTS-----";
+    QList<QPoint> t_MSD;
+    QList<QPoint> c_MSD;
+
+    foreach(QPoint pt, targetMSD)
+    {
+//        qDebug() << "-pt:" << pt;
+        t_MSD.push_back(pt);
+    }
+
+    foreach(QPoint pt, this->minimumSettleDistance)
+    {
+        c_MSD.push_back(pt);
+    }
+
+    int x, lastX, y, lastY, c_dstX, c_dstY, t_dstX, t_dstY, c_index = 0;
+    float c_slope, t_slope;
+    bool lrtbValid = false, rltbValid = false, rlbtValid = false, lrbtValid = false;
+
+    foreach(QPoint pt, t_MSD)
+    {
+        lastX = c_MSD.at(c_MSD.size() - 1).x();
+        lastY = c_MSD.at(c_MSD.size() - 1).y();
+        x = c_MSD.at(c_index).x();
+        y = c_MSD.at(c_index).y();
+
+        //Compare the current point in t_MSD to every point in c_MSD
+        for(int i = 0; i < c_MSD.size(); i++)
+        {
+//            qDebug() << "   lastX:" << lastX << "lastY:" << lastY;
+//            qDebug() << "       x:" << x << "    y:" << y;
+
+            c_dstY = y - lastY;
+            c_dstX = x - lastX;
+            c_slope = static_cast<float>(c_dstY) / c_dstX;
+
+            t_dstY = pt.y() - lastY;
+            t_dstX = pt.x() - lastX;
+            t_slope = static_cast<float>(t_dstY) / t_dstX;
+
+//            qDebug() << "c_slope:" << c_slope << "t_slope:" << t_slope;
+
+            if(c_slope == t_slope)
+                return false;
+
+            if(x > lastX && y < lastY)
+            {
+                //Moving left to right bottom to top
+                qDebug() << "--LRBT" << pt << lastX << lastY;
+
+                t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
+                float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
+
+                t_slope = fabs(t_slope);
+                currentSlope = fabs(currentSlope);
+                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
+
+                if(t_slope > currentSlope)
+                {
+                    qDebug() << "Invalid";
+                    lrbtValid = true;
+                }
+
+            }
+            else if(x > lastX && y > lastY)
+            {
+                //Moving left to right, top to bottom
+                qDebug() << "--LRTB" << pt << lastX << lastY;
+
+                t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
+                float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
+
+                t_slope = fabs(t_slope);
+                currentSlope = fabs(currentSlope);
+                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
+
+                if(t_slope < currentSlope)
+                {
+                    qDebug() << "Invalid";
+                    lrtbValid = true;
+                }
+
+            }
+            else if(x < lastX && y > lastY)
+            {
+                //Moving right to left, top to bottom
+                qDebug() << "--RLTB" << pt << lastX << lastY;
+
+                t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
+                float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
+
+                t_slope = fabs(t_slope);
+                currentSlope = fabs(currentSlope);
+                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
+
+                if(t_slope > currentSlope)
+                {
+                    qDebug() << "Invalid";
+                    rltbValid = true;
+                }
+
+            }
+            else if(x < lastX && y < lastY)
+            {
+                //Moving right to left, bottom to top
+                qDebug() << "--RLBT" << pt << lastX << lastY;
+
+                t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
+                float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
+
+                t_slope = fabs(t_slope);
+                currentSlope = fabs(currentSlope);
+                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
+
+                if(t_slope < currentSlope)
+                {
+                    qDebug() << "Invalid";
+                    rlbtValid = true;
+                }
+
+            }
+            else if(c_dstY == 0)
+            {
+                if(x > lastX)
+                {
+                    //Moving along the top
+                }
+                else if(x < lastX)
+                {
+                    //Moving along the bottom
+                }
+            }
+
+            if(lrtbValid && lrbtValid && rltbValid && rlbtValid)
+            {
+                qDebug() << "---Intersection";
+                lrtbValid = false;
+                lrbtValid = false;
+                rltbValid = false;
+                rlbtValid = false;
+
+                //MSDs intersect
+                return true;
+            }
+
+            lastX = x;
+            lastY = y;
+            c_index++;
+
+            if(c_index == c_MSD.size())
+                c_index = 0;
+
+            x = c_MSD.at(c_index).x();
+            y = c_MSD.at(c_index).y();
+        }
+
+        c_index = 0;
+    }
+
+    //MSDs do not intersect
+    return false;
+}
+
 void City::loadUnits(QString filename)
 {
     QFile inputFile(filename);

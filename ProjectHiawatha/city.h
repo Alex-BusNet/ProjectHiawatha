@@ -125,6 +125,7 @@ public:
     bool getProductionFinished();
     bool getIsUnit();
     bool getHasWorker();
+    bool MSDIntersects(QPolygon targetMSD);
 
     ~City();
 
