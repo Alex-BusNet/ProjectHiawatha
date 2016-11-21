@@ -592,12 +592,12 @@ void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
-    this->minimumSettleDistance << QPoint(x - 132, y - 221)
-                                 << QPoint(x + 132, y - 221)
-                                 << QPoint(x + 264, y)
-                                 << QPoint(x + 132, y + 221)
-                                 << QPoint(x - 132, y + 221)
-                                 << QPoint(x - 264, y);
+    this->minimumSettleDistance << QPoint(x - 88, y - 147)
+                                 << QPoint(x + 88, y - 147)
+                                 << QPoint(x + 176, y)
+                                 << QPoint(x + 88, y + 147)
+                                 << QPoint(x - 88, y + 147)
+                                 << QPoint(x - 176, y);
 
     this->maximumExpansionBorder << QPoint(x - 176, y - 292)
                                  << QPoint(x + 176, y - 292)
@@ -1164,6 +1164,8 @@ bool City::MSDIntersects(QPolygon targetMSD)
                     //Moving along the bottom
                 }
             }
+
+            qDebug() << lrtbValid << lrbtValid << rltbValid << rlbtValid;
 
             if(lrtbValid && lrbtValid && rltbValid && rlbtValid)
             {
