@@ -1167,7 +1167,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
             qDebug() << lrtbValid << lrbtValid << rltbValid << rlbtValid;
 
-            if(lrtbValid && lrbtValid && rltbValid && rlbtValid)
+            if((rltbValid && lrbtValid) || (lrtbValid && rlbtValid))
             {
                 qDebug() << "---Intersection";
                 lrtbValid = false;
