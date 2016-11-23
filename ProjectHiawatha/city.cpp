@@ -1180,6 +1180,11 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 return true;
             }
 
+            lrtbValid = false;
+            lrbtValid = false;
+            rltbValid = false;
+            rlbtValid = false;
+
             lastX = x;
             lastY = y;
             c_index++;
