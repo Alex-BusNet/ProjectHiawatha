@@ -19,8 +19,9 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->setupUi(this);
     QPixmap pic("../ProjectHiawatha/Assets/Buildings/walls.png");
     ui->picture->setPixmap(pic);
-    ui->city_name->setText("Walls");
-    ui->Bonus->setText("+5000 Defense");
+    ui->picture->setScaledContents(true);
+    ui->city_name->setText(" ");
+    ui->Bonus->setText("No Building Selected");
     ui->tabWidget->setTabText(0, "Buildings");
     ui->tabWidget->setTabText(1, "Units");
     ui->tabWidget->setTabText(2, "Completed Buildings");
@@ -182,6 +183,12 @@ void CityScreen::updateWidget()
 
 void CityScreen::on_listWidget_itemSelectionChanged()
 {
+    QString tempString = "../ProjectHiawatha/Assets/Buildings/";
+    QString extension = ".png";
+    QString name = buildings.at(ui->listWidget->currentRow())->getName();
+    tempString += name;
+    tempString += extension;
+    QPixmap pic(tempString);
     QString str = "+";
     QString str2;
     str2 = str2.number(buildings.at(ui->listWidget->currentRow())->getBonusValue());
@@ -215,6 +222,7 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     str.append(str2);
     ui->Bonus->setText(str);
     ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
+    ui->picture->setPixmap(pic);
     update();
 }
 
@@ -227,6 +235,7 @@ void CityScreen::on_pushButton_clicked()
 
 void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
+
     ui->current_production_name->setText(item->text());
     currentCity->setProductionName(item->text());
     ui->progressBar->setMaximum(buildings.at(ui->listWidget->currentRow())->getProductionCost());
@@ -240,7 +249,14 @@ void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 void CityScreen::on_listWidget_2_itemSelectionChanged()
 {
+    QString tempString = "../ProjectHiawatha/Assets/Units/";
+    QString extension = ".png";
+    QString name = initialUnitList.at(ui->listWidget_2->currentRow())->GetName();
+    tempString += name;
+    tempString += extension;
+    QPixmap pic(tempString);
     ui->description->setText(initialUnitList.at(ui->listWidget_2->currentRow())->GetName());
+    ui->picture->setPixmap(pic);
 
 }
 

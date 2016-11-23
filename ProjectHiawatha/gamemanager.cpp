@@ -680,9 +680,19 @@ void GameManager::StartTurn()
                 if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
                 {
                     civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
-                    Unit* unit = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
+                    Unit* unit = new Unit(0);
+                    Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
+                    unit->setUnitType(unitData->GetUnitType());
+                    unit->SetName(unitData->GetName());
+                    unit->SetCost(unitData->GetCost());
+                    unit->SetMovementPoints(unitData->GetMovementPoints());
+                    unit->SetStrength(unitData->GetStrength());
+                    unit->SetRange(unitData->GetRange());
+                    unit->SetRangeStrength(unitData->GetRangeStrength());
+                    unit->SetUnitIcon(unitData->GetUnitType());
+                    //unit->setUnlocked(unitData->get);
                     qDebug()<<"Unit #"<<civList.at(currentTurn)->GetCityAt(i)->getProductionIndex();
-                    unit->SetName(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetName());
+                    //unit->SetName(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetName());
 
                     qDebug()<<civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetCost();
                     unit->SetOwner(civList.at(currentTurn)->getCiv());
@@ -1643,6 +1653,7 @@ void GameManager::buildNewRoad()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),ROAD))
     {
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
     }
 }
@@ -1652,6 +1663,7 @@ void GameManager::buildNewFarm()
     qDebug()<<"YIELD BEFORE: "<<map->GetTileAt(unitToMove->GetTileIndex())->GetYield()->GetFoodYield();
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),FARM))
     {
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
     }
 
@@ -1662,6 +1674,7 @@ void GameManager::buildNewPlantation()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),PLANTATION))
     {
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
     }
 }
@@ -1670,6 +1683,7 @@ void GameManager::buildNewTradePost()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),TRADE_POST))
     {
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
     }
 }
@@ -1678,6 +1692,7 @@ void GameManager::buildNewMine()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),MINE))
     {
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
 
     }
