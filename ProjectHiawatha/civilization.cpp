@@ -37,6 +37,7 @@ Civilization::Civilization(Nation name, bool isAI)
     this->techIndex = 0;
     this->cityFounded = false;
     this->alive = true;
+    this->capitalsControlled = 1;
 
     if(isAI)
     {
@@ -253,9 +254,24 @@ void Civilization::resetAccumulatedScience()
     this->accumulatedScience = 0;
 }
 
+void Civilization::SetCaptialsControlled(int cc)
+{
+    this->capitalsControlled = cc;
+}
+
+void Civilization::IncrementCapitalsControlled()
+{
+    this->capitalsControlled++;
+}
+
 int Civilization::getTechIndex()
 {
     return this->techIndex;
+}
+
+int Civilization::GetCapitalsControlled()
+{
+    return this->capitalsControlled;
 }
 
 void Civilization::setTechIndex()
@@ -415,7 +431,7 @@ void Civilization::RemoveCity(int cityIndex)
 
         if(i == 0 && !currentCityList.at(i)->IsCityCaptial())
         {
-            currentCityList.at(i)->SetCityAsCapital(true);
+            currentCityList.at(i)->SetCityAsCapital(true, false);
         }
     }
 
@@ -464,6 +480,16 @@ void Civilization::SetCivObj(Civilization *civ)
 void Civilization::SetHappiness(int happiness)
 {
     this->happiness=happiness;
+}
+
+void Civilization::SetLeaderName(QString name)
+{
+    this->LeaderName = name;
+}
+
+QString Civilization::GetLeaderName()
+{
+    return this->LeaderName;
 }
 
 City* Civilization::GetCityAt(int index)

@@ -471,10 +471,12 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
         }
     }
 
+    //We are assuming here that CreateCity is only called
+    // When a city is founded not when ownership is changed.
     if(isCapital)
-        city->SetCityAsCapital(true);
+        city->SetCityAsCapital(true, true);
     else
-        city->SetCityAsCapital(false);
+        city->SetCityAsCapital(false, false);
 
     city->SetCityTile(board.at(cityTileIndex));    
     city->SetControllingCiv(founder->getCiv());

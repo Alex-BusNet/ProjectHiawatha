@@ -37,6 +37,9 @@ public:
     void SetCivObj(Civilization *civ);
     void SetHappiness(int happiness);
 
+    void SetLeaderName(QString name);
+    QString GetLeaderName();
+
     City *GetCityAt(int index);
     Unit* GetUnitAt(int index);
     Nation getCiv();
@@ -58,7 +61,6 @@ public:
     QVector<QString> GetInitialCityList();
     QString GetNextCityName();
 
-    int getCityIndex();
     //AI stuff
     void StartAITurn(int aiIndex, bool isPlayer);
     bool isCivAI();
@@ -66,23 +68,34 @@ public:
 //    void startTurn(int aiIndex);
     void loadTechs(QString filename);
     void setAccumulatedScience(int science);
-    int getAccumulatedScience(void);
     void resetAccumulatedScience();
+    void SetCaptialsControlled(int cc);
+    void IncrementCapitalsControlled();
+
+    int getCityIndex();
+    int getAccumulatedScience(void);
     int getTechIndex();
-    void setTechIndex();
+    int GetCapitalsControlled();
+
+
     Technology* getCurrentTech();
     Technology *getNextTech();
+
     void setCurrentTech(Technology* tech);
+    void setTechIndex();
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
+
     //AI Funcs
     void setLowThreats(QVector<Unit *> lowThreats);
     void setMidThreats(QVector<Unit *> midThreats);
     void setHighThreats(QVector<Unit *> highThreats);
     void clearThreats();
+
     QVector<Unit *> getLowThreats();
     QVector<Unit *> getMidThreats();
     QVector<Unit *> getHighThreats();
+
     void setProvoked(bool provoked);
     bool getProvoked();
 
@@ -110,6 +123,7 @@ private:
 
     QVector<QString> initialCityList;
 
+    QString LeaderName;
 
 
     int cityIndex;
@@ -127,6 +141,7 @@ private:
     int techIndex;
     int totalScience, totalGold, totalCulture;
     int accumulatedScience;
+    int capitalsControlled;
 
     //AI stuff
     bool isAIPlayer;

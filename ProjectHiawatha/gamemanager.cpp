@@ -17,6 +17,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 {
     qDebug() << "Game Window c'tor called";
 
+
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
     clv = new QListWidget(this);
@@ -36,6 +37,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     techLabel = new QLabel(" NO RESEARCH ");
     techText = new QLabel(" 00/000 ");
+    endGameProgress = new QLabel("Capitals Controlled:");
+    endGameText = new QString(" 0/0 ");
 
     unitToMove = NULL;
     targetUnit = NULL;
@@ -64,6 +67,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     if(!fullscreen)
     {
         this->setFixedSize(1400, 700);
+        this->setWindowTitle("Project Hiawatha");
     }
     else
     {
@@ -94,6 +98,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     qDebug() << "Initializing Civs";
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
     civInit.waitForFinished();
+    this->playersAliveCount = civList.size();
 
     qDebug() << "   CivList size: " << civList.size();
 
@@ -133,10 +138,23 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
             civList.at(i)->GetCityAt(j)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
             civList.at(i)->GetCityAt(j)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
+
+        }
+
+        if(i == 0)
+        {
+            endGameText = new QString("Capitals Controlled:");
+            endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
+        }
+        else
+        {
+            endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
         }
 
         civList.at(i)->UpdateCivYield();
     }
+
+    endGameProgress->setText(*endGameText);
 
     InitYieldDisplay();
 
@@ -179,54 +197,71 @@ void GameManager::InitCivs(Nation player, int numAI)
     {
     case America:
         str2 = "america.txt";
+        civ->SetLeaderName(QString("Washington"));
         break;
     case Germany:
         str2 = "germany.txt";
+        civ->SetLeaderName(QString("Bismark"));
         break;
     case India:
         str2 = "india.txt";
+        civ->SetLeaderName(QString("Gandhi"));
         break;
     case China:
         str2 = "china.txt";
+        civ->SetLeaderName(QString("Zedong"));
         break;
     case Mongolia:
         str2 = "mongolia.txt";
+        civ->SetLeaderName(QString("Genghis Khan"));
         break;
     case Aztec:
         str2 = "aztec.txt";
+        civ->SetLeaderName(QString("Montezuma"));
         break;
     case France:
         str2 = "france.txt";
+        civ->SetLeaderName(QString("Napoleon"));
         break;
     case Iroquois:
         str2 = "iroquois.txt";
+        civ->SetLeaderName(QString("Hiawatha"));
         break;
     case Greece:
         str2 = "greece.txt";
+        civ->SetLeaderName(QString("Alexander"));
         break;
     case Rome:
         str2 = "rome.txt";
+        civ->SetLeaderName(QString("Ceasar"));
         break;
     case England:
         str2 = "england.txt";
+        civ->SetLeaderName(QString("Elizabeth"));
         break;
     case Arabia:
         str2 = "arabia.txt";
+        civ->SetLeaderName(QString("al-Rashid"));
         break;
     case Persia:
         str2 = "persia.txt";
+        civ->SetLeaderName(QString("Cyrus"));
         break;
     case Russia:
         str2 = "russia.txt";
+        civ->SetLeaderName(QString("Stalin"));
         break;
     case Japan:
         str2 = "japan.txt";
+        civ->SetLeaderName(QString("Nobunga"));
         break;
     case Egypt:
         str2= "egypt.txt";
+        civ->SetLeaderName(QString("Ramesses"));
         break;
     default:
         str2 = "india.txt";
+        civ->SetLeaderName(QString("Gandhi"));
         break;
     }
     str = str + str2;
@@ -266,87 +301,104 @@ newCivRand:
             case America:
                 civ = new Civilization(America, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
+                civ->SetLeaderName(QString("Washington"));
                 selNat.push_back(civNum);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
+                civ->SetLeaderName(QString("Bismark"));
                 selNat.push_back(civNum);
                 break;
             case India:
                 civ = new Civilization(India, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
+                civ->SetLeaderName(QString("Gandhi"));
                 selNat.push_back(civNum);
                 break;
             case China:
                 civ = new Civilization(China, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
+                civ->SetLeaderName(QString("Zedong"));
                 selNat.push_back(civNum);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
+                civ->SetLeaderName(QString("Genghis Khan"));
                 selNat.push_back(civNum);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
+                civ->SetLeaderName(QString("Montezuma"));
                 selNat.push_back(civNum);
                 break;
             case France:
                 civ = new Civilization(France, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
+                civ->SetLeaderName(QString("Napoleon"));
                 selNat.push_back(civNum);
                 break;
             case Iroquois:
                 civ = new Civilization(Iroquois, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/iroquois.txt");
+                civ->SetLeaderName(QString("Hiawatha"));
                 selNat.push_back(Iroquois);
                 break;
             case Greece:
                 civ = new Civilization(Greece, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/greece.txt");
+                civ->SetLeaderName(QString("Alexander"));
                 selNat.push_back(civNum);
                 break;
             case Rome:
                 civ = new Civilization(Rome, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/rome.txt");
+                civ->SetLeaderName(QString("Ceasar"));
                 selNat.push_back(civNum);
                 break;
             case England:
                 civ = new Civilization(England, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/england.txt");
+                civ->SetLeaderName(QString("Elizabeth"));
                 selNat.push_back(civNum);
                 break;
             case Arabia:
                 civ = new Civilization(Arabia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/arabia.txt");
+                civ->SetLeaderName(QString("al-Rashid"));
                 selNat.push_back(civNum);
                 break;
             case Persia:
                 civ = new Civilization(Persia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/persia.txt");
+                civ->SetLeaderName(QString("Cyrus"));
                 selNat.push_back(civNum);
                 break;
             case Russia:
                 civ = new Civilization(Russia, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/russia.txt");
+                civ->SetLeaderName(QString("Stalin"));
                 selNat.push_back(civNum);
                 break;
             case Japan:
                 civ = new Civilization(Japan, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/japan.txt");
+                civ->SetLeaderName(QString("Nobunga"));
                 selNat.push_back(civNum);
                 break;
             case Egypt:
                 civ = new Civilization(Egypt, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/egypt.txt");
+                civ->SetLeaderName(QString("Ramesses"));
                 selNat.push_back(civNum);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true);
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
+                civ->SetLeaderName(QString("Gandhi"));
                 selNat.push_back(civNum);
                 break;
             }
@@ -457,6 +509,22 @@ void GameManager::TurnController()
 
 void GameManager::StartTurn()
 {
+    for(int i = 0; i < civList.size(); i++)
+    {
+        if(i == 0)
+        {
+            endGameText = new QString("Capitals Controlled:");
+            endGameText->append(QString("\nYou      %1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+        }
+        else
+        {
+            if(civList.at(i)->alive)
+                endGameText->append(QString("\n%1     %2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+        }
+    }
+
+    endGameProgress->setText(*endGameText);
+
     Update_t update = civList.at(currentTurn)->UpdateProgress();
 
     if(update.updateBorders)
@@ -1069,7 +1137,15 @@ void GameManager::UpdateTileData()
 
                 if(targetCity->IsCityCaptial())
                 {
-                    targetCity->SetCityAsCapital(false);
+                    if(targetCity->IsOriginalCapital())
+                    {
+                        civList.at(currentTurn)->IncrementCapitalsControlled();
+                        civList.at(currentTurn)->SetCaptialsControlled(civList.at(currentTurn)->GetCapitalsControlled() + 1);
+                        civList.at(targetTile->GetCivListIndex())->SetCaptialsControlled(0);
+
+                        targetCity->SetCityAsCapital(false, true);
+                    }
+                    targetCity->SetCityAsCapital(false, false);
                 }
 
                 targetCity->resetAccumulatedProduction();
@@ -1084,8 +1160,11 @@ void GameManager::UpdateTileData()
                 clv->addItem(targetCity->GetName());
 
                 renderer->UpdateCityBorders(targetCity, gameView, unitToMove->GetOwner());
-                renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
 
+                if(civList.at(targetTile->GetCivListIndex())->GetCityList().size() == 0)
+                {
+                    playersAliveCount--;
+                }
             }
 
             renderer->UpdateUnits(map, gameView, unitToMove, false);
@@ -1321,7 +1400,9 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-    unitControlButtons->addSpacing(800);
+    unitControlButtons->addSpacing(500);
+    unitControlButtons->addWidget(endGameProgress);
+    unitControlButtons->addSpacing(200);
     unitControlButtons->addWidget(ConquerCity);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
@@ -1495,9 +1576,21 @@ void GameManager::updateTiles()
     if(this->currentTurn == 0 && !civList.at(currentTurn)->alive)
     {
         QMessageBox* mBox = new QMessageBox();
+        mBox->setWindowFlags(Qt::FramelessWindowHint);
+        mBox->setFixedSize(200, 500);
         mBox->setText("You Lose!");
         mBox->exec();
         //Defeat screen?
+        this->closeGame();
+    }
+    else if(this->currentTurn == 0 && this->playersAliveCount == 1)
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setWindowFlags(Qt::FramelessWindowHint);
+        mBox->setFixedSize(200, 500);
+        mBox->setText("You Win!");
+        mBox->exec();
+        this->playersAliveCount = 0;
         this->closeGame();
     }
 

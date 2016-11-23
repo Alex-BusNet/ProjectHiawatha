@@ -29,10 +29,6 @@ public:
     Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
     City *FindCityAtTile(Tile *tile, Map *map, QVector<City*> cityList);
 
-private:
-    int GetDistance(Tile* a, Tile *b);
-    void RetracePath(Tile *start, Tile *end, Map *map, Unit *unit);
-
     QString NationName(Nation nation)
     {
         switch(nation)
@@ -51,10 +47,33 @@ private:
             return QString("Aztec");
         case France:
             return QString("France");
+        case Iroquois:
+            return QString("Iroquois");
+        case Greece:
+            return QString("Greece");
+        case Rome:
+            return QString("Rome");
+        case England:
+            return QString("England");
+        case Arabia:
+            return QString("Arabia");
+        case Persia:
+            return QString("Persia");
+        case Russia:
+            return QString("Russia");
+        case Japan:
+            return QString("Japan");
+        case Egypt:
+            return QString("Egypt");
         default:
             return QString("No Nation");
         }
     }
+
+private:
+    int GetDistance(Tile* a, Tile *b);
+    void RetracePath(Tile *start, Tile *end, Map *map, Unit *unit);
+
 };
 
 #endif // UNITCONTROLLER_H

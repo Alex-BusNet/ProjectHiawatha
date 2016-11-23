@@ -33,6 +33,7 @@ private:
     Map *map;
     UnitController *uc;
     QListWidget *clv;
+
     QTimer *updateTimer;
 
     AI_Controller *ac;
@@ -95,6 +96,8 @@ private:
     QLabel *foodLabel, *foodText;
     QLabel *culLabel, *culText;
     QLabel *techLabel, *techText;
+    QLabel *endGameProgress;
+    QString *endGameText;
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
     QRect *playerInfoRect;
@@ -111,6 +114,7 @@ private:
     int zoomScale;
     int currentTurn, gameTurn;
     int foundCityIndex;
+    int playersAliveCount;
     float year, yearPerTurn;
 
     QString currentProductionName;

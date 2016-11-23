@@ -24,7 +24,7 @@ public:
     enum Focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
 
     //Accessor and Mutators
-    void SetCityAsCapital(bool capitalStatus);
+    void SetCityAsCapital(bool capitalStatus, bool originalCapital);
     void SetName(QString name);
     void SetCityTile(Tile *tile);
     void SetControllingCiv(Nation owner);
@@ -119,6 +119,7 @@ public:
     int getNumberOfBuildings();
 
     bool IsCityCaptial();
+    bool IsOriginalCapital();
     bool getCapitolConnection();
     bool IsInitialized();
     bool IsStagnant();
@@ -149,7 +150,7 @@ private:
 
     Yield* cityTotalYield;
 
-    bool isCaptial;
+    bool isCaptial, isOriginalCapital;
     bool hasWorker;
     bool hasGarrison;
     bool hasCapitolConnection;

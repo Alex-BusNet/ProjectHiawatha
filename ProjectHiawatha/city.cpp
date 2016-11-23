@@ -18,11 +18,13 @@ City::City()
     this->cityHealth = 200;
     this->maxHealth = 200;
     this->baseStrength = 10;
+    this->citizens = 0;
     this->cityStrength = this->baseStrength + this->citizens;
     this->buildingStrength = 0;
     this->initialized = false;
     this->stagnant = false;
     this->isCaptial = false;
+    this->isOriginalCapital = false;
 }
 
 
@@ -579,9 +581,10 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 }
 
 //Accessor and Mutators
-void City::SetCityAsCapital(bool capitalStatus)
+void City::SetCityAsCapital(bool capitalStatus, bool originalCapital)
 {
     this->isCaptial = capitalStatus;
+    this->isOriginalCapital = originalCapital;
 }
 
 void City::SetName(QString name)
@@ -894,6 +897,11 @@ Tile *City::GetCityTile()
 bool City::IsCityCaptial()
 {
     return this->isCaptial;
+}
+
+bool City::IsOriginalCapital()
+{
+    return this->isOriginalCapital;
 }
 
 void City::setCapitolConnection(bool flag)
