@@ -185,58 +185,14 @@ void AI_Operational::cityLocation(Civilization *civ, Map *map){
         {
             qDebug()<<"immediate neighbors";
             bool goodTile=true;
-            QList<Tile*> inRange = map->GetNeighbors(map->GetTileAt(indexToSettle));
+            QList<Tile*> inRange = map->GetNeighborsRange(map->GetTileAt(indexToSettle), 3);
+
             for(int j = 0; j<inRange.length();j++){
                 if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
                     goodTile=false;
                 }
             }
-            qDebug()<<goodTile<<"\ny, x+6";
-            int posX = map->GetTileAt(indexToSettle)->GetTileID().column;
-//                    qDebug()<<"test";
-            int posY = map->GetTileAt(indexToSettle)->GetTileID().row;
-            inRange = map->GetNeighbors(map->GetTileFromCoord(posX+6,posY));
-            for(int j = 0; j<inRange.length();j++){
-//                qDebug()<<"test"<<j;
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }//swap column and row
-            qDebug()<<goodTile<<"\ny, x-6";
-            inRange = map->GetNeighbors(map->GetTileFromCoord(posX-6,posY));
-            for(int j = 0; j<inRange.length();j++){
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }
-            qDebug()<<goodTile<<"\ny+3, x+3";
-            inRange = map->GetNeighbors(map->GetTileFromCoord(posX+3,posY+3));
-            for(int j = 0; j<inRange.length();j++){
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }
-            qDebug()<<goodTile<<"\ny-3, x+3";
-            inRange = map->GetNeighbors(map->GetTileFromCoord(posX+3,posY-3));
-            for(int j = 0; j<inRange.length();j++){
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }
-            qDebug()<<goodTile<<"\ny+3, x-3";
-            inRange = map->GetNeighbors(map->GetTileFromCoord(posX-3,posY+3));
-            for(int j = 0; j<inRange.length();j++){
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }
-            qDebug()<<goodTile<<"\ny-3, x-3";
-            inRange = map->GetNeighbors(map->GetTileFromCoord(posX-3,posY-3));
-            for(int j = 0; j<inRange.length();j++){
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }
+
             qDebug()<<goodTile<<"\nextended getneighbors complete";
             if(goodTile){
                 qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;

@@ -29,6 +29,7 @@ public:
     int GetMapSizeX();
 
     QList<Tile*> GetNeighbors(Tile *node);
+    QList<Tile*> GetNeighborsRange(Tile *node, int range);
     bool listContains(QList<Tile*> list, Tile *tile);
     bool setContains(QSet<Tile*> set, Tile *tile);
 //    void run();

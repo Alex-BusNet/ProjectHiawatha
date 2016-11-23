@@ -195,6 +195,81 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
     return neighbors;
 }
 
+QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
+{
+    QList<Tile*> neighbors;
+
+    int xMin = (-2) * range;
+    int xMax = 2 * range;
+    int yMin = (-1) * range;
+    int yMax = 1 * range;
+    Tile* boardTile;
+
+    for(; xMin <= xMax; xMin++)
+    {
+        for(; yMin <= yMax; yMin++)
+        {
+            if((((xMin % 2 == -1) || (xMin % 2 == 1)) && (abs(yMin) != yMax)) || ((xMin % 2 == 0) && (abs(yMin) == yMax)))
+            {
+                continue;
+            }
+
+            int checkX = node->GetTileID().column + xMin;
+            int checkY = node->GetTileID().row + yMin;
+
+            if(checkX % 2 == 1 && checkY % 2 == 0)
+                checkX--;
+
+            if(checkX >= 0 && checkX < (mapSizeX * 2) && checkY >= 0 && checkY < mapSizeY)
+            {
+                int boardIndex = (checkX / 2) + (mapSizeX * checkY);
+
+                    if(checkX < node->GetTileID().column)
+                    {
+                        if(abs(yMin) != yMax)
+                        {
+                            if(node->GetTileID().column- (range + (range - (abs(yMin) % range))) > (checkX + 1))
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if(node->GetTileID().column - (range + (abs(yMin) % range)) > checkX)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    else if(checkX > node->GetTileID().column)
+                    {
+                        if(abs(yMin) != yMax)
+                        {
+                            if(node->GetTileID().column + (range + (range - (abs(yMin) % range))) < checkX)
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if(node->GetTileID().column + (range + (abs(yMin) % range)) < checkX)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+                boardTile = board.at(boardIndex);
+                neighbors.push_back(boardTile);
+            }
+        }
+
+        yMin = (-1) * range;
+    }
+
+    return neighbors;
+}
+
 bool Map::listContains(QList<Tile *> list, Tile *tile)
 {
     foreach(Tile* h, list)
