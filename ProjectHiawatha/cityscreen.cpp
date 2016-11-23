@@ -160,7 +160,6 @@ void CityScreen::getCityInfo(City *city)
 {
     currentCity = city;
     ui->city_name->setText(currentCity->GetName());
-    productionYield = currentCity->getCityYield()->GetProductionYield();
 }
 
 void CityScreen::updateWidget()
@@ -228,8 +227,6 @@ void CityScreen::on_listWidget_itemSelectionChanged()
 
 void CityScreen::on_pushButton_clicked()
 {
-    str = (ui->current_production_name->text());
-    qDebug()<<"STR: "<<str;
     this->hide();
 }
 

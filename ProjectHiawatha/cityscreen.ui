@@ -88,7 +88,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Current Proudction</string>
+    <string>Current Production</string>
    </property>
   </widget>
   <widget class="QLabel" name="current_production_name">
