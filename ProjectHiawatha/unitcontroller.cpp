@@ -268,7 +268,17 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
 
         if(unit->GetRemainingUses() <= 0)
         {
-            currentCiv->RemoveUnit(unit->GetUnitListIndex());
+            int unitIndex = unit->GetUnitListIndex();
+            int unitIndexCopy = unitIndex;
+            if(currentCiv->GetUnitList().size() > unitIndex)
+            {
+                for(unitIndexCopy; unitIndexCopy < currentCiv->GetUnitList().size();unitIndexCopy++)
+                {
+                    int oldIndex = currentCiv->GetUnitList().at(unitIndexCopy)->GetUnitListIndex();
+                    currentCiv->GetUnitList().at(unitIndexCopy)->SetUnitListIndex(oldIndex-1);
+                }
+            }
+            currentCiv->RemoveUnit(unitIndex);
             unitRemoved = true;
 
         }
