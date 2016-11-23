@@ -1140,7 +1140,6 @@ void GameManager::UpdateTileData()
                     if(targetCity->IsOriginalCapital())
                     {
                         civList.at(currentTurn)->IncrementCapitalsControlled();
-                        civList.at(currentTurn)->SetCaptialsControlled(civList.at(currentTurn)->GetCapitalsControlled() + 1);
                         civList.at(targetTile->GetCivListIndex())->SetCaptialsControlled(0);
 
                         targetCity->SetCityAsCapital(false, true);
@@ -1402,7 +1401,6 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(500);
     unitControlButtons->addWidget(endGameProgress);
-    unitControlButtons->addSpacing(200);
     unitControlButtons->addWidget(ConquerCity);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
