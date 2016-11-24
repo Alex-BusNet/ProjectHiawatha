@@ -20,6 +20,8 @@ private:
     void cityProduction(int midGoal, Civilization *civ, Map *map);
     void invasionCheck(Civilization *civ, Civilization *player, Map *map);
     AI_Operational *aiOp;
+    void cityLocation(Civilization *civ, Map *map);
+    QVector<Tile*> cityLocations;
 };
 
 #endif // AI_STRATEGIC_H

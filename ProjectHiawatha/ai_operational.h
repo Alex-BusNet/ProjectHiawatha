@@ -11,15 +11,13 @@ public:
     AI_Operational();
 
     //Used Constructor
-    AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map);
+    AI_Operational(int midGoal, QVector<Tile *> CityToBeFounded, Civilization *civ, Civilization *player, Map *map);
 
 private:
     void threatScan(Civilization *civ, Civilization *player, Map *map);
     void theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget);
     void theaterPrep(Civilization *civ, Civilization *player, QVector<Tile*> troopLocations);
-    void cityLocation(Civilization *civ, Map *map);
 
-     QVector<Tile*> cityLocations;
      City *cityTarget;
      QVector<Tile*> troopLocations;
 

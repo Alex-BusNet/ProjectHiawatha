@@ -390,11 +390,8 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
         if(civ->GetUnitList().at(i)->GetName()=="Settler"){
             qDebug()<<"Settler selected";
             if(map->GetTileAt(unitlist.at(i)->GetTileIndex())==CityToBeFounded.at(0)){
-//                qDebug()<<"found city"<<unitlist.at(i)->GetName()<<unitlist.at(i)->GetTileIndex();
                 qDebug() << "------AI" << civ->getCivIndex() << "writing to foundCity queue";
-//                map->CreateCity(unitlist.at(i)->GetTileIndex(),civ->getCivIndex(),civ,false);
                 civ->setCityFounding(unitlist.at(i));
-
                 //This will get set regardless if a city is actually settled or not.
                 // If the city is not founded, the AI <<SHOULD>> try to move the settler
                 // to the next valid location until a city is actually settled.
@@ -403,6 +400,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
             }
             else
             {
+                qDebug()<<"going to"<<civ->GetUnitAt(i)->GetTargetTileIndex();
                 if(civ->GetUnitAt(i)->isPathEmpty())
                 {
                     qDebug()<<"Traveling Settler";
@@ -442,12 +440,6 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
-
-    //Test target tile location
-//    Tile *tile3x3y = map->GetTileFromCoord(3,3);
-//    scene->column=3;
-//    scene->row=3;
-    //Manual settings like this cause rubber-banding
 
     //Make sure a roadworker exists
     bool roadWorkerExists=false;
@@ -495,9 +487,6 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
                     //Should actually be built in the correct city, so just immediately garisson if not roadworker
                 //or make them a roadworker if needed roadWorkerExists==false
             }
-
-            //Test targetting
-            //UnitControl->FindPath(unitlocation,tile3x3y,map,scene,unitlist.at(i));
         }
     }
 }

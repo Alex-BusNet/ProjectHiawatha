@@ -29,15 +29,11 @@ AI_Operational::AI_Operational()
 
 
 
-AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *player, Map *map)
+AI_Operational::AI_Operational(int midGoal, QVector<Tile *> CityToBeFounded, Civilization *civ, Civilization *player, Map *map)
 {
     qDebug()<<"         Operational AI Called";
 
     threatScan(civ, player, map);
-
-    //if(civ->getCityFounding().length()==0&&civ->GetCityList().length()==1){
-        cityLocation(civ, map);
-    //}//Only runs city finder 1 time -> not viable - AI object is new each time?
 
     if(1==midGoal){
         qDebug()<<"AI_Ops Midgoal 1";
@@ -54,15 +50,7 @@ AI_Operational::AI_Operational(int midGoal, Civilization *civ, Civilization *pla
         theaterPrep(civ, player, troopLocations);
     }
 
-    aiTact = new AI_Tactical(midGoal, civ, player, map, cityLocations, cityTarget, troopLocations);
-
-    if(civ->cityFounded)
-    {
-        qDebug() << "New city founded. Removing location from list.";
-        civ->cityFounded = false;
-        cityLocations.removeFirst();
-    }
-
+    aiTact = new AI_Tactical(midGoal, civ, player, map, CityToBeFounded, cityTarget, troopLocations);
 }
 
 
@@ -159,57 +147,3 @@ void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVecto
         //careful not to be too obvious - Fog of War buffer zone?
 
 
-void AI_Operational::cityLocation(Civilization *civ, Map *map){
-    qDebug()<<"City Locations";
-    for(int i=0; i<(14-civ->GetCityList().length());i++)
-    {
-        int cityIndex = civ->GetCityAt(0)->GetCityTile()->GetTileIndex(), indexToSettle;
-
-        if(cityIndex + (15 * (i+1)) < map->GetBoardSize())
-        {
-            indexToSettle = cityIndex + (15 * (i+1));
-        }
-        else if(cityIndex - (15 * (1+1)) > 0)
-        {
-            indexToSettle = cityIndex - (15 * (i+1));
-        }
-        else
-        {
-            qDebug()<<"City invalid";
-            indexToSettle = 255;
-        }
-
-        if(map->GetTileAt(indexToSettle)->Walkable
-                && map->GetTileAt(indexToSettle)->GetTileType()!=WATER
-                && map->GetTileAt(indexToSettle)->GetControllingCiv()==NO_NATION)
-        {
-            qDebug()<<"immediate neighbors";
-            bool goodTile=true;
-            QList<Tile*> inRange = map->GetNeighborsRange(map->GetTileAt(indexToSettle), 3);
-
-            for(int j = 0; j<inRange.length();j++){
-                if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
-                    goodTile=false;
-                }
-            }
-
-            qDebug()<<goodTile<<"\nextended getneighbors complete";
-            if(goodTile){
-                qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;
-                cityLocations.push_back(map->GetTileAt(indexToSettle));
-            }
-            else{
-                qDebug()<<map->GetTileAt(indexToSettle)->GetTileIndex()<<" is bad tile";
-            }
-        }
-        //Settler Test
-
-
-        //Locates appropriate number of city sites - logic?
-            //Plans for 10 cities, but finds an extra 5 sites to account for sites being taken
-    }
-}
-//***********City Founding***************
-//initially prioritize up to 15 locations for city founding sites, starting with nearby and working out
-//re-evaluate and remove locations that become another civ's territory
-    //Update vector pointer with results

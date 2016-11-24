@@ -27,6 +27,11 @@ AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map)
 {
 qDebug()<<"     Strategic AI Called";
 
+    //if(civ->getCityFounding().length()==0&&civ->GetCityList().length()==1){
+        cityLocation(civ, map);
+    //}//Only runs city finder 1 time -> not viable - AI object is new each time?
+
+
     civ->clearThreats();
     invasionCheck(civ,player,map);
 
@@ -34,12 +39,20 @@ qDebug()<<"     Strategic AI Called";
     //Some logic based on the different goal options
     cityProduction(midGoal, civ, map);
     qDebug()<<"Midgoal "<<midGoal;
-    aiOp = new AI_Operational(midGoal, civ, player, map);
+    aiOp = new AI_Operational(midGoal, cityLocations, civ, player, map);
 
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
     //Pass it whether or not civ is preparing for / at war (midgoal)
     //Pass it number of cities currently founded (can be got from civ)
+
+    if(civ->cityFounded)
+    {
+        qDebug() << "New city founded. Removing location from list.";
+        civ->cityFounded = false;
+        cityLocations.removeFirst();
+    }
+
 }
 
 
@@ -144,7 +157,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
             if(1==midGoal){//Settle more cities
                 qDebug()<<"produce stuff";
-                if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length())){//Only first city builds settlers - logistical parameter
+                if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
                     ///For debugging purposes, Settler production has been set to 10. This will need to be reset to 100.
                     civ->GetCityAt(i)->setCurrentProductionCost(10);
@@ -956,4 +969,57 @@ void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *m
 
         }
     }
+}
+
+void AI_Strategic::cityLocation(Civilization *civ, Map *map){
+        qDebug()<<"City Locations";
+        for(int i=0; i<(14-civ->GetCityList().length());i++)
+        {
+            int cityIndex = civ->GetCityAt(0)->GetCityTile()->GetTileIndex(), indexToSettle;
+
+            if(cityIndex + (15 * (i+1)) < map->GetBoardSize())
+            {
+                indexToSettle = cityIndex + (15 * (i+1));
+            }
+            else if(cityIndex - (15 * (1+1)) > 0)
+            {
+                indexToSettle = cityIndex - (15 * (i+1));
+            }
+            else
+            {
+                qDebug()<<"City invalid";
+                indexToSettle = 255;
+            }
+
+            if(map->GetTileAt(indexToSettle)->Walkable
+                    && map->GetTileAt(indexToSettle)->GetTileType()!=WATER
+                    && map->GetTileAt(indexToSettle)->GetControllingCiv()==NO_NATION)
+            {
+                bool goodTile=true;
+                QList<Tile*> inRange = map->GetNeighborsRange(map->GetTileAt(indexToSettle), 3);
+
+                for(int j = 0; j<inRange.length();j++){
+                    if(NO_NATION!=inRange.at(j)->GetControllingCiv()){
+                        goodTile=false;
+                    }
+                }
+                if(goodTile){
+                    qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;
+                    cityLocations.push_back(map->GetTileAt(indexToSettle));
+                }
+                else{
+                    qDebug()<<map->GetTileAt(indexToSettle)->GetTileIndex()<<" is bad tile";
+                }
+            }
+            //Settler Test
+
+
+            //Locates appropriate number of city sites - logic?
+                //Plans for 10 cities, but finds an extra 5 sites to account for sites being taken
+        }
+    //***********City Founding***************
+    //initially prioritize up to 15 locations for city founding sites, starting with nearby and working out
+    //re-evaluate and remove locations that become another civ's territory
+        //Update vector pointer with results
+
 }
