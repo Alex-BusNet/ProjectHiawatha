@@ -524,6 +524,7 @@ void GameManager::StartTurn()
     }
 
     endGameProgress->setText(*endGameText);
+    endGameProgress->setAlignment(Qt::AlignRight);
 
     Update_t update = civList.at(currentTurn)->UpdateProgress();
 
@@ -804,6 +805,12 @@ void GameManager::StartTurn()
 
                 if(currentTurn == 0)
                     renderer->SetUnitNeedsOrders(unit->GetTileIndex(), true);
+                else
+                    renderer->SetUnitNeedsOrders(unit->GetTileIndex(), false);
+            }
+            else if(currentTurn != 0)
+            {
+                renderer->SetUnitNeedsOrders(unit->GetTileIndex(), false);
             }
         }
 
@@ -935,7 +942,7 @@ nextCivAlive:
 
 void GameManager::UpdateTileData()
 {
-    if(!processedData.relocateOrderGiven && !attackNearby && !attackEnemyCity && !aiFoundCity)
+    if(!processedData.relocateOrderGiven && !attackNearby && !attackEnemyCity && !aiFoundCity && !attackRange)
     {
         qDebug() << "Relocation not ordered" << processedData.column << processedData.row;
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
@@ -952,9 +959,9 @@ void GameManager::UpdateTileData()
             findUnit = true;
         }
     }
-    else if((attackNearby || processedData.relocateOrderGiven || attackEnemyCity) && !aiFoundCity)
+    else if((attackNearby || processedData.relocateOrderGiven || attackEnemyCity || attackRange) && !aiFoundCity)
     {
-        qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven << "attackEnemyCity:" << attackEnemyCity;
+        qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven << "attackEnemyCity:" << attackEnemyCity << "attackRange" << attackRange;
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
         qDebug() << "       ContainsUnit:" << targetTile->ContainsUnit << "HasCity:" << targetTile->HasCity;
         if(targetTile->ContainsUnit && !attackEnemyCity)
@@ -970,7 +977,7 @@ void GameManager::UpdateTileData()
     if(findUnit && !attackEnemyCity && !aiFoundCity)
     {
         findUnit = false;
-        if(!attackNearby)
+        if(!attackNearby && !attackRange)
         {
             unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
@@ -1042,7 +1049,7 @@ void GameManager::UpdateTileData()
 
                     fortifyUnit->setEnabled(true);
 
-                    QList<Tile*> tiles = map->GetNeighbors(map->GetTileAt(unitToMove->GetTileIndex()));
+                    QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
 
                     foreach(Tile *tile, tiles)
                     {
@@ -1063,20 +1070,34 @@ void GameManager::UpdateTileData()
                             }
                             else if(tile->ContainsUnit)
                             {
-                                if(!attackUnit->isEnabled())
+                                if(!attackUnit->isEnabled() && unitToMove->isMelee)
                                 {
                                     buildFarm->setEnabled(false);
                                     buildMine->setEnabled(false);
                                     buildPlantation->setEnabled(false);
                                     buildTradePost->setEnabled(false);
                                     buildRoad->setEnabled(false);
-
+                                    rangeAttack->setEnabled(false);
                                     attackUnit->setEnabled(true);
+                                }
+                                else if(!rangeAttack->isEnabled())
+                                {
+                                    buildFarm->setEnabled(false);
+                                    buildMine->setEnabled(false);
+                                    buildPlantation->setEnabled(false);
+                                    buildTradePost->setEnabled(false);
+                                    buildRoad->setEnabled(false);
+                                    attackUnit->setEnabled(false);
+                                    rangeAttack->setEnabled(true);
                                 }
                             }
                             else if(attackCity->isEnabled())
                             {
                                 attackCity->setEnabled(false);
+                            }
+                            else if(rangeAttack->isEnabled())
+                            {
+                                rangeAttack->setEnabled(false);
                             }
                         }
                     }
@@ -1091,6 +1112,7 @@ void GameManager::UpdateTileData()
         else
         {
             attackNearby = false;
+            attackRange = false;
 
             if(unitToMove->isFortified)
             {
@@ -1105,7 +1127,11 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{targetUnit->GetTileIndex(), false, false});
 
             attackUnit->setEnabled(false);
-            uc->Attack(unitToMove, targetUnit, false);
+            rangeAttack->setEnabled(false);
+            if(map->GetTileAt(unitToMove->GetTileIndex())->GetTileType() == WATER)
+                uc->Attack(unitToMove, targetUnit, true);
+            else
+                uc->Attack(unitToMove, targetUnit, false);
 
             renderer->UpdateUnits(map, gameView, unitToMove, false);
             renderer->UpdateUnits(map, gameView, targetUnit, false);
@@ -1741,7 +1767,7 @@ void GameManager::AttackCity()
 
 void GameManager::RangeAttack()
 {
-
+    attackRange = true;
 }
 
 void GameManager::Fortify()

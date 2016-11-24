@@ -251,6 +251,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         {
             view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::yellow);
+            outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = true;
         }
         else if(!selDat.player && selDat.target)
@@ -258,16 +259,16 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
             qDebug() << "Deselecting tile";
             view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::red);
+            outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = false;
         }
         else if(!selDat.player && !selDat.target)
         {
             view->removeItem(tileCircles.at(index));
             SetOutlinePen(NO_NATION);
+            outlinePen.setWidth(1);
             map->GetTileAt(index)->Selected = false;
         }
-
-        outlinePen.setWidth(1);
 
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(outlinePen);

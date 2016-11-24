@@ -91,9 +91,18 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 {
     if(map->GetTileAt(unit->GetNextTileInPath()->GetTileIndex())->ContainsUnit)
     {
-        qDebug() << "Next tile occupied; searching for new path" << unit->GetTileIndex() << unit->GetTargetTileIndex();
+        qDebug() << "Next tile occupied;";
         unit->ClearPath();
-        FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, unit);
+        if(civListIndex == 0)
+        {
+            qDebug() << " Requesting New orders";
+//            unit->RequiresOrders = true;
+        }
+        else
+        {
+            qDebug() << "Finding new Path";
+            FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, unit);
+        }
     }
 
     if(!unit->isPathEmpty())
@@ -130,7 +139,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 {
     float waterPenalty = 0.0f, fortifyBonus = 0.0f;
-    float AtkBonus = 1.5f, melee;
+    float AtkBonus = 1.5f, a_melee, t_melee;
 
     qDebug() << "--Attacking";
     qDebug() << "   Attacker belongs to:" << NationName(attacker->GetOwner()) << "Target belongs to:" << NationName(target->GetOwner());
@@ -150,12 +159,17 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 
     qDebug() << "   forifyBonus:" << fortifyBonus;
 
-    if(target->isMelee)
-        melee = 1.0f;
+    if(attacker->isMelee)
+        a_melee = 1.0f;
     else
-        melee = 0.0f;
+        a_melee = 0.0f;
 
-    qDebug() << "   melee:" << melee;
+    if(target->isMelee && attacker->isMelee)
+        t_melee = 1.0f;
+    else
+        t_melee = 0.0f;
+
+    qDebug() << "   a_melee:" << a_melee << "t_melee:" << t_melee;
 
     //Need to adjust this for range units attacking.
     qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
@@ -164,7 +178,7 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
-    float damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * melee;
+    float damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * a_melee * t_melee;
 
     qDebug() << "           Damage taken by target:" << damageDealt << "Damage Recieved by attacker:" << damageReceived;
 
