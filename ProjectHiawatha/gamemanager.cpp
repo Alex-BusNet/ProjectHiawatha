@@ -1166,37 +1166,9 @@ void GameManager::UpdateTileData()
             {
                 qDebug() << "--------<<" << targetCity->GetName() << "Has Been Conquered! >>--------";
 
-                targetCity->SetControllingCiv(unitToMove->GetOwner());
-                targetCity->SetCityHealth(100);
-                targetCity->SetCitizenCount(targetCity->GetCitizenCount() / 2);
+                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetTile->GetCivListIndex()));
 
-                if(targetCity->GetCitizenCount() < 1)
-                {
-                    targetCity->SetCitizenCount(1);
-                }
 
-                if(targetCity->IsCityCaptial())
-                {
-                    if(targetCity->IsOriginalCapital())
-                    {
-                        civList.at(currentTurn)->IncrementCapitalsControlled();
-                        civList.at(targetTile->GetCivListIndex())->SetCaptialsControlled(0);
-
-                        targetCity->SetCityAsCapital(false, true);
-                    }
-                    targetCity->SetCityAsCapital(false, false);
-                }
-
-                targetCity->resetAccumulatedProduction();
-                targetCity->setCurrentProductionCost(0);
-                targetCity->setProductionName("No Current Production");
-                targetCity->setProductionIndex(0);
-
-                civList.at(targetTile->GetCivListIndex())->RemoveCity(targetCity->GetCityIndex());
-                targetCity->SetCityIndex(civList.at(currentTurn)->GetCityList().size());
-                civList.at(currentTurn)->AddCity(targetCity);
-
-                clv->addItem(targetCity->GetName());
 
                 renderer->UpdateCityBorders(targetCity, gameView, unitToMove->GetOwner());
 
@@ -1541,6 +1513,55 @@ void GameManager::InitYieldDisplay()
     Yieldinfo->addSpacing(1500);
 
     vLayout->insertLayout(0, Yieldinfo);
+}
+
+void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
+{
+    City* city = new City();
+    city->SetControllingCiv(aCiv->getCiv());
+    city->SetCityHealth(100);
+    city->SetCitizenCount(tCity->GetCitizenCount() / 2);
+
+    if(tCity->GetCitizenCount() < 1)
+    {
+        city->SetCitizenCount(1);
+    }
+
+    if(tCity->IsCityCaptial())
+    {
+        if(tCity->IsOriginalCapital())
+        {
+            aCiv->IncrementCapitalsControlled();
+            tCiv->SetCaptialsControlled(0);
+
+            city->SetCityAsCapital(false, true);
+        }
+        else
+        {
+            city->SetCityAsCapital(false, false);
+        }
+    }
+
+    city->resetAccumulatedProduction();
+    city->setCurrentProductionCost(0);
+    city->setProductionName("No Current Production");
+    city->setProductionIndex(0);
+    city->SetName(tCity->GetName());
+    city->SetCityStrength(tCity->GetCityStrength());
+    city->SetMaximumExpansionBorderTiles(tCity->GetMaximumExpansionBorderTiles());
+    city->tileQueue = tCity->tileQueue;
+    city->SetCityTile(tCity->GetCityTile());
+
+    foreach(Building* building, tCity->getCurrentBuildingList())
+    {
+        city->addBuilding(building);
+    }
+
+    tCiv->RemoveCity(tCity->GetCityIndex());
+    city->SetCityIndex(aCiv->GetCityList().size());
+    aCiv->AddCity(city);
+
+    clv->addItem(city->GetName());
 }
 
 void GameManager::closeGame()

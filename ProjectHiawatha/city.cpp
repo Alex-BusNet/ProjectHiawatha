@@ -728,19 +728,9 @@ void City::UpdateCityYield()
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
 }
 
-void City::SetCityHealthBarIndex(int index)
+void City::SetCityRenderIndex(int index)
 {
-    this->cityHealthBarIndex = index;
-}
-
-void City::SetCityProductionBarIndex(int index)
-{
-    this->cityProductionBarIndex = index;
-}
-
-void City::SetCityGrowthBarIndex(int index)
-{
-    this->cityGrowthBarIndex = index;
+    this->cityRenderIndex = index;
 }
 
 void City::SetCityHealth(float health)
@@ -1414,24 +1404,14 @@ int City::GetCityIndex()
     return this->cityIndex;
 }
 
-int City::GetCityHealthBarIndex()
-{
-    return this->cityHealthBarIndex;
-}
-
 int City::GetCityBordersIndex()
 {
     return this->cityBordersIndex;
 }
 
-int City::GetCityGrowthBarIndex()
+int City::GetCityRenderIndex()
 {
-    return this->cityGrowthBarIndex;
-}
-
-int City::GetCityProductionBarIndex()
-{
-    return this->cityProductionBarIndex;
+    return this->cityRenderIndex;
 }
 
 int City::GetCityHealth()

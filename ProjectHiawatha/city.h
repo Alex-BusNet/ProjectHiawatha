@@ -33,9 +33,10 @@ public:
     void UpdateCityYield();
     void UpdateCityYield(Yield yield);
 
-    void SetCityHealthBarIndex(int index);
-    void SetCityProductionBarIndex(int index);
-    void SetCityGrowthBarIndex(int index);
+    void SetCityRenderIndex(int index);
+//    void SetCityHealthBarIndex(int index);
+//    void SetCityProductionBarIndex(int index);
+//    void SetCityGrowthBarIndex(int index);
 
     void SetCityHealth(float health);
     void SetCityMaxHealth(int health);
@@ -103,10 +104,11 @@ public:
     Focus GetCityFocus();
 
     int GetCityIndex();
-    int GetCityHealthBarIndex();
     int GetCityBordersIndex();
-    int GetCityGrowthBarIndex();
-    int GetCityProductionBarIndex();
+//    int GetCityHealthBarIndex();
+//    int GetCityGrowthBarIndex();
+//    int GetCityProductionBarIndex();
+    int GetCityRenderIndex();
     int GetCityHealth();
     int GetMaxHealth();
     int GetCityStrength();
@@ -169,6 +171,7 @@ private:
     int goldYield;
 
     int cityIndex;
+    int cityRenderIndex;
     int cityHealthBarIndex;
     int cityBordersIndex;
     int cityProductionBarIndex;

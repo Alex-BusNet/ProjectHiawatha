@@ -46,6 +46,7 @@ public:
     void AddUnit(Unit* unit, Map *map, GameView *view);
 
     void RemoveUnit(Unit *unit, GameView *view);
+    void RemoveCity(City* city, GameView *view);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
     void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
@@ -77,7 +78,7 @@ private:
     QVector<QGraphicsRectItem*> cityHealthBars;
     QVector<QGraphicsRectItem*> cityProductionBars;
     QVector<QGraphicsRectItem*> cityGrowthBars;
-    QVector<QGraphicsRectItem*> cityBarOutlines;
+    QVector<QGraphicsPixmapItem*> cityBarOutlines;
     QVector<QGraphicsProxyWidget*> cityPopulationLabels;
 
     QVector<QGraphicsPixmapItem*> unitPixmap;

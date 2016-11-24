@@ -145,6 +145,8 @@ private:
     void InitLayouts();
     void InitYieldDisplay();
 
+    void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
+
     TileData processedData;
 
     std::chrono::steady_clock::time_point begin;
