@@ -25,6 +25,7 @@ City::City()
     this->stagnant = false;
     this->isCaptial = false;
     this->isOriginalCapital = false;
+    this->fullyExpanded = false;
 }
 
 
@@ -137,7 +138,46 @@ void City::SortTileQueue()
     //  -Resources on tile
     //  -Tile type
 
-//    qDebug() << "   ---Sorting TileQueue; Sorting focus:" << this->cityFocus;
+    qDebug() << "   ---Sorting TileQueue; MEB Filter";
+
+    bool inMEB = true;
+    for(int k = 0; k < tileQueue.size(); k++)
+    {
+        foreach(Tile* meb, maximumExpansionBorderTiles)
+        {
+            if(tileQueue.at(k)->GetTileID().column != meb->GetTileID().column)
+            {
+                if(tileQueue.at(k)->GetTileID().row != meb->GetTileID().row)
+                {
+                    inMEB = false;
+                }
+            }
+            else if(tileQueue.at(k)->GetTileID().column == meb->GetTileID().column)
+            {
+                if(tileQueue.at(k)->GetTileID().row == meb->GetTileID().row)
+                {
+                    inMEB = true;
+                }
+            }
+        }
+
+        if(!inMEB)
+        {
+            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
+            inMEB = true;
+            tileQueue.remove(k);
+        }
+    }
+
+
+    if(this->tileQueue.isEmpty())
+    {
+        qDebug() << "-City fully expanded";
+        this->fullyExpanded = true;
+        return;
+    }
+
+    qDebug() << "Sorting focus:" << this->cityFocus;
 
     for(int i = 0; i < tileQueue.size(); i++)
     {
@@ -218,6 +258,24 @@ void City::SortTileQueue()
     //Store all eligible tiles in a heap.
 }
 
+void City::FilterMEBList()
+{
+    qDebug() << "-Filtering MEB list";
+    int i = 0;
+    foreach(Tile* tile, this->maximumExpansionBorderTiles)
+    {
+        if(tile->GetControllingCiv() != NO_NATION || tile->GetTileType() == ICE)
+        {
+            qDebug() << "--Removing tile:" << tile->GetTileIDString();
+            this->maximumExpansionBorderTiles.removeAt(i);
+        }
+
+        i++;
+    }
+
+    qDebug() << "MEB List size:" << this->maximumExpansionBorderTiles.size();
+}
+
 int City::getNumberOfBuildings()
 {
     return this->numberofBuildings;
@@ -232,11 +290,18 @@ Update_t City::UpdateProgress()
 {
     Update_t update{false, false, false};
 
-    if(turnsToBorderGrowth == 0)
+    if(turnsToBorderGrowth == 0 && !fullyExpanded)
     {
         //Gets the first available tile from the tile queue, and adds it to cityControlledTiles.
         foreach(Tile* tile, this->tileQueue)
         {
+            if(tileQueue.isEmpty())
+            {
+                this->fullyExpanded = true;
+                this->turnsToBorderGrowth = 0;
+                break;
+            }
+
             if(tile->GetControllingCiv() == NO_NATION)
             {
                 this->AddControlledTile(this->tileQueue.first());
@@ -725,6 +790,15 @@ void City::AddControlledTile(Tile *tile)
 {
     tile->SetControllingCiv(controllingCiv);
     this->cityControlledTiles.push_back(tile);
+}
+
+void City::SetMaximumExpansionBorderTiles(QList<Tile *> tileVect)
+{
+    foreach(Tile* tile, tileVect)
+    {
+        this->maximumExpansionBorderTiles.push_back(tile);
+    }
+
 }
 
 void City::DefineCityBorders(bool redefine)
@@ -1313,6 +1387,11 @@ Nation City::GetControllingCiv()
 QVector<Tile *> City::GetControlledTiles()
 {
     return this->cityControlledTiles;
+}
+
+QList<Tile *> City::GetMaximumExpansionBorderTiles()
+{
+    return this->maximumExpansionBorderTiles;
 }
 
 QPolygon City::GetCityBorders()

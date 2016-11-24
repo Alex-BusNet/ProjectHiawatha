@@ -48,6 +48,7 @@ public:
     void GarrisonMilitary(Unit *military);
 
     void AddControlledTile(Tile* tile);
+    void SetMaximumExpansionBorderTiles(QList<Tile*> tileVect);
     void DefineCityBorders(bool redefine);
     void SetCityBordersIndex(int index); 
     void setCapitolConnection(bool flag);
@@ -70,6 +71,7 @@ public:
 
     void SortControlledTiles();
     void SortTileQueue();
+    void FilterMEBList();
 
     void SetCityFocus(Focus focus);
     void InitializeCity();
@@ -91,6 +93,7 @@ public:
     Unit* getProducedUnit();
 
     QVector<Tile*> GetControlledTiles();
+    QList<Tile *> GetMaximumExpansionBorderTiles();
     QVector<Tile*> tileQueue;
     QVector<Unit*> getInitialUnitList();
     QVector<Building*> getInitialBuildingList();
@@ -139,6 +142,7 @@ private:
     QVector<Unit*> initialUnitList;
     QVector<Building*> initialBuildingList;
     QVector<Building*> producedBuildings;
+    QList<Tile*> maximumExpansionBorderTiles;
     Unit*   producedUnit;
     QString name;
     QString currentProductionName;
@@ -158,6 +162,7 @@ private:
     bool productionUnit;
     bool initialized;
     bool stagnant;
+    bool fullyExpanded;
 
     int productionYield;
     int scienceYield;

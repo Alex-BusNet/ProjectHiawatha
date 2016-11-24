@@ -17,7 +17,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 {
     qDebug() << "Game Window c'tor called";
 
-
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
     clv = new QListWidget(this);
@@ -528,11 +527,17 @@ void GameManager::StartTurn()
 
     Update_t update = civList.at(currentTurn)->UpdateProgress();
 
+    foreach(City* city, civList.at(currentTurn)->GetCityList())
+    {
+        city->FilterMEBList();
+    }
+
     if(update.updateBorders)
     {
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             map->GetTileQueue(city);
+            city->SortTileQueue();
             renderer->UpdateCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
             foreach(Tile* tile, city->GetControlledTiles())
             {
@@ -1297,6 +1302,16 @@ void GameManager::UpdateTileData()
         civList.at(currentTurn)->AddCity(city);
         qDebug() << "--Setting HasCity flag";
         map->GetTileAt(foundCityIndex)->HasCity = true;
+
+        QList<Tile*> cityMEB = map->GetNeighborsRange(city->GetCityTile(), 4);
+        city->SetMaximumExpansionBorderTiles(cityMEB);
+        city->FilterMEBList();
+
+        map->GetTileQueue(city);
+        city->SortTileQueue();
+
+        city->SortControlledTiles();
+        city->GetControlledTiles().first()->IsWorked = true;
 
         qDebug() << "--Adding City to renderer";
         renderer->AddCity(city, gameView);

@@ -30,6 +30,7 @@ public:
 
     QList<Tile*> GetNeighbors(Tile *node);
     QList<Tile*> GetNeighborsRange(Tile *node, int range);
+    QList<Tile*> GetMaximumExpasionTiles(Tile *cityCenter);
     bool listContains(QList<Tile*> list, Tile *tile);
     bool setContains(QSet<Tile*> set, Tile *tile);
 //    void run();

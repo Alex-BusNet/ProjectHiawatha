@@ -270,6 +270,97 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
     return neighbors;
 }
 
+QList<Tile *> Map::GetMaximumExpasionTiles(Tile *cityCenter)
+{
+    //MEB radius: 5 tiles from node
+    QList<Tile*> neighbors;
+
+    int range = 5;
+    int xMin = (-2) * range;
+    int xMax = 2 * range;
+    int yMin = (-1) * range;
+    int yMax = 1 * range;
+    Tile* boardTile;
+
+    for(; xMin <= xMax; xMin++)
+    {
+        for(; yMin <= yMax; yMin++)
+        {
+            // skip iteration if:
+            //  abs(yMin) != yMax
+            //      --<<AND>>--
+            //  checkX < nodeX + range adjustment
+            //  || checkX > nodeX + range adjustment
+            if((((xMin % 2 == -1) || (xMin % 2 == 1)) && (abs(yMin) != yMax)) || ((xMin % 2 == 0) && (abs(yMin) == yMax)) || ((xMin == 0) && (abs(yMin) != yMax)))
+            {
+                continue;
+            }
+
+            int checkX = cityCenter->GetTileID().column + xMin;
+            int checkY = cityCenter->GetTileID().row + yMin;
+
+            if(checkX % 2 == 1 && checkY % 2 == 0)
+                checkX--;
+
+            if(checkX >= 0 && checkX < (mapSizeX * 2) && checkY >= 0 && checkY < mapSizeX)
+            {
+                int boardIndex = (checkX / 2) + (mapSizeX * checkY);
+
+                if(checkX < cityCenter->GetTileID().column)
+                {
+                    if(abs(yMin) != yMax)
+                    {
+                        if(cityCenter->GetTileID().column - (range + (range - (abs(yMin) % range))) > (checkX + 1))
+                        {
+                            continue;
+                        }
+                        else if(cityCenter->GetTileID().column -(range + (range - (abs(yMin) % range))) < (checkX))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if(cityCenter->GetTileID().column - (range + (abs(yMin) % range)) > checkX)
+                        {
+                            continue;
+                        }
+                    }
+                }
+                else if(checkX > cityCenter->GetTileID().column)
+                {
+                    if(abs(yMin) != yMax)
+                    {
+                        if(cityCenter->GetTileID().column + (range + (range - (abs(yMin) % range))) < checkX)
+                        {
+                            continue;
+                        }
+                        else if(cityCenter->GetTileID().column + (range + (range - (abs(yMin) % range))) > checkX + 1)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if(cityCenter->GetTileID().column + (range + (abs(yMin) % range)) < checkX)
+                        {
+                            continue;
+                        }
+                    }
+                }
+
+                boardTile = board.at(boardIndex);
+                neighbors.push_back(boardTile);
+            }
+
+        }
+
+        yMin = (-1) * range;
+    }
+
+    return neighbors;
+}
+
 bool Map::listContains(QList<Tile *> list, Tile *tile)
 {
     foreach(Tile* h, list)
@@ -568,10 +659,6 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     city->SetName(founder->GetNextCityName());
     city->SetCitizenCount(1);
     city->DefineCityBorders(false);
-    this->GetTileQueue(city);
-    city->SortTileQueue();
-    city->SortControlledTiles();
-    city->GetControlledTiles().first()->IsWorked = true;
 
     city->InitializeCity();
 
@@ -663,6 +750,16 @@ newrand:
             board.at(index)->HasCity = true;
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv());
             board.at(index)->SetGoverningCity(city);
+
+            QList<Tile*> cityMEB = this->GetNeighborsRange(board.at(index), 4);
+            city->SetMaximumExpansionBorderTiles(cityMEB);
+            city->FilterMEBList();
+
+            this->GetTileQueue(city);
+            city->SortTileQueue();
+
+            city->SortControlledTiles();
+            city->GetControlledTiles().first()->IsWorked = true;
 
             civs.at(i)->AddCity(city);
 
