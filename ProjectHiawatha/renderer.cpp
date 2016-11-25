@@ -191,7 +191,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         }
 
         //// Add filter to only render tileWorkedIcon on player controlled tiles.
-        if(map->GetTileAt(i)->GetControllingCiv() != NO_NATION)
+        if(map->GetTileAt(i)->GetCivListIndex() == 0)
         {
             if(map->GetTileAt(i)->IsWorked)
             {
@@ -239,7 +239,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
     {
         selDat = data->dequeue();
         index = selDat.index;
-        qDebug() << "       selDat index:" << index;
 
         if(index > map->GetBoardSize())
         {
@@ -296,8 +295,7 @@ void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 {
     SetOutlinePen(owner);
 
-    view->removeItem(cityBorders.at(city->GetCityBordersIndex()));
-    cityBorders.replace(city->GetCityBordersIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
+    cityBorders.replace(city->GetCityRenderIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
 }
 
 void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView *view)
@@ -421,7 +419,10 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     unitHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
     unitHealthBars.last()->setZValue(6);
 
-    this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
+    if(map->GetTileAt(unit->GetTileIndex())->GetCivListIndex() == 0)
+    {
+        this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
+    }
 }
 
 void Renderer::AddCityHealthBars(City *city, GameView *view)
@@ -437,7 +438,6 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityBarOutlines.last()->setZValue(7);
     cityBarOutlines.last()->setPos(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                                    city->GetCityTile()->GetCityLabelPoint().y() + 13);
-//    cityBarOutlines.last()->setScale(2.0f);
 
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
     cityHealthBars.last()->setZValue(6);
@@ -480,26 +480,24 @@ void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 {
     SetOutlinePen(owner);
 
-    static int i = 0;
-
-    city->SetCityBordersIndex(i);
-    i++;
-
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
+
+    //========================
+    // TO BE REMOVED
     cityExpansionBorders.push_back(view->addPolygon(city->GetMaximumExpansionBorder(), QPen(QColor(Qt::red))));
     cityExpansionBorders.last()->pen().setWidth(1);
     citySettleDistances.push_back(view->addPolygon(city->GetMinimumSettleDistance(), QPen(QColor(Qt::yellow))));
     citySettleDistances.last()->pen().setWidth(1);
+    //========================
 
-    qDebug() << "cityBorders size:" << cityBorders.size();
 }
 
 void Renderer::LoadCities(QVector<City*> cities, GameView *view)
 {
     for(int i = 0; i < cities.size(); i++)
     {
-        this->AddCity(cities.at(i), view);
+        this->AddCity(cities.at(i), view, false);
     }
 }
 
@@ -541,7 +539,6 @@ void Renderer::SetFortifyIcon(int tile, bool unfortify)
 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 {
-    qDebug() << "--Updating Growth bar for" << city->GetName();
     int index = city->GetCityRenderIndex();
 
     view->removeItem(cityGrowthBars.at(index));
@@ -585,7 +582,6 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 
 void Renderer::UpdateCityProductionBar(City *city, GameView *view)
 {
-    qDebug() << "--Updating Production bar for" << city->GetName();
     int index = city->GetCityRenderIndex();
     view->removeItem(cityProductionBars.at(index));
 
@@ -600,7 +596,6 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
         barSize = barSize <= 0 ? 1 : barSize;
     }
 
-//    qDebug() << "------New Bar length:" << barSize;
     QRect *prod = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
                                   city->GetCityTile()->GetCityLabelPoint().y() + 13,
                                   barSize, 2);
@@ -611,7 +606,6 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
 
 void Renderer::UpdateCityHealthBar(City *city, GameView *view)
 {
-    qDebug() <<"--Updating Health bar for" << city->GetName();
     int index = city->GetCityRenderIndex();
     view->removeItem(cityHealthBars.at(index));
 
@@ -621,7 +615,7 @@ void Renderer::UpdateCityHealthBar(City *city, GameView *view)
                               city->GetCityTile()->GetCityLabelPoint().y() + 15,
                               barSize, 5);
 
-    cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
+    cityHealthBars.replace(index, view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
     cityHealthBars.last()->setZValue(6);
 }
 
@@ -633,20 +627,28 @@ void Renderer::AddCityLabel(City* city, GameView *view)
     cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
 }
 
-void Renderer::AddCity(City *city, GameView *view)
+void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
-    static int renderIndex = 0;
     QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944_alt.png");
     cityPixmap.push_back(view->addPixmap(*cityImage));
     cityPixmap.last()->setZValue(2);
     cityPixmap.last()->setScale(1.0f);
     cityPixmap.last()->setPos(city->GetCityTile()->GetTexturePoint().x() + 22, city->GetCityTile()->GetTexturePoint().y() + 24);
-    city->SetCityRenderIndex(renderIndex);
 
-    this->AddCityLabel(city, view);
-    this->AddCityHealthBars(city, view);
+    if(!conqueredCity)
+    {
+        city->SetCityRenderIndex(this->cityBorders.size());
 
-    renderIndex++;
+        this->AddCityLabel(city, view);
+        this->AddCityHealthBars(city, view);
+    }
+    else
+    {
+        this->UpdateCityBorders(city, view, city->GetControllingCiv());
+        this->UpdateCityGrowthBar(city, view);
+        this->UpdateCityHealthBar(city, view);
+        this->UpdateCityProductionBar(city, view);
+    }
 }
 
 void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
@@ -685,16 +687,9 @@ void Renderer::RemoveUnit(Unit *unit, GameView *view)
 void Renderer::RemoveCity(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
-    view->removeItem(cityBarOutlines.at(index));
+
     view->removeItem(cityBorders.at(index));
-    view->removeItem(cityExpansionBorders.at(index));
-    view->removeItem(cityGrowthBars.at(index));
-    view->removeItem(cityHealthBars.at(index));
-    view->removeItem(cityLabels.at(index));
     view->removeItem(cityPixmap.at(index));
-    view->removeItem(cityPopulationLabels.at(index));
-    view->removeItem(cityProductionBars.at(index));
-    view->removeItem(citySettleDistances.at(index));
 }
 
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)

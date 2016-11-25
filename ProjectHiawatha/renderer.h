@@ -42,7 +42,7 @@ public:
     void UpdateCityHealthBar(City* city, GameView *view);
 
     void AddCityLabel(City* city, GameView *view);
-    void AddCity(City* city, GameView *view);
+    void AddCity(City* city, GameView *view, bool conqueredCity);
     void AddUnit(Unit* unit, Map *map, GameView *view);
 
     void RemoveUnit(Unit *unit, GameView *view);

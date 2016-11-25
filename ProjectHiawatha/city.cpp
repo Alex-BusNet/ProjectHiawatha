@@ -105,29 +105,10 @@ void City::SortControlledTiles()
         }
     }
 
-//    foreach(Tile* tile, cityControlledTiles)
-//    {
-//        if(this->cityFocus == GOLD_FOCUS)
-//        {
-//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
-//        }
-//        else if(this->cityFocus == PRODUCTION_FOCUS)
-//        {
-//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetProductionYield();
-//        }
-//        else if(this->cityFocus == SCIENCE_FOCUS)
-//        {
-//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetScienceYield();
-//        }
-//        else if(this->cityFocus == FOOD_FOCUS)
-//        {
-//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetFoodYield();
-//        }
-//        else if(this->cityFocus == CULTURE_FOCUS)
-//        {
-//            qDebug() << "           controlledTile" << tile->GetTileIDString() << tile->GetYield()->GetCultureYield();
-//        }
-//    }
+    for(int k = 0; k < this->citizens; k++)
+    {
+        this->cityControlledTiles.at(k)->IsWorked = true;
+    }
 }
 
 void City::SortTileQueue()
@@ -707,8 +688,6 @@ void City::UpdateCityYield()
 
     foreach(Tile *tile, cityControlledTiles)
     {
-//        qDebug() << "   Tile at:" << tile->GetTileIDString() << "isWorked:" << tile->IsWorked;
-
         if(tile->IsWorked)
         {
             newGold += tile->GetYield()->GetGoldYield();
@@ -728,9 +707,38 @@ void City::UpdateCityYield()
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
 }
 
+void City::UpdateCityStatus()
+{
+    // Border Growth Calculation
+    if(!this->fullyExpanded)
+        this->turnsToBorderGrowth = floor((20 + (pow(10*(this->cityControlledTiles.size() - 1), 1.1))) / this->cityTotalYield->GetCultureYield());
+
+    // Citizen Growth Calculation
+    this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
+
+    if(this->turnsToNewCitizen < 0)
+    {
+        stagnant = true;
+    }
+
+    // City Strength calculation
+    this->cityStrength = this->baseStrength + this->citizens + this->buildingStrength;
+
+    // Set number of buildings in city
+    this->numberofBuildings = this->producedBuildings.size();
+}
+
 void City::SetCityRenderIndex(int index)
 {
     this->cityRenderIndex = index;
+}
+
+void City::SetCityBorders(QPolygon borders)
+{
+    foreach(QPoint pt, borders)
+    {
+        this->cityBorder.push_back(pt);
+    }
 }
 
 void City::SetCityHealth(float health)
@@ -762,8 +770,17 @@ void City::GarrisonWorker(Unit *worker)
 {
     if(worker->isNonCombat())
     {
-        this->StationedWorkers.push_back(worker);
+        this->StationedWorkers = worker;
         this->hasWorker = true;
+    }
+}
+
+void City::RemoveGarrisonWorker()
+{
+    if(this->getHasWorker())
+    {
+        delete this->StationedWorkers;
+        this->hasWorker = false;
     }
 }
 
@@ -771,8 +788,17 @@ void City::GarrisonMilitary(Unit *military)
 {
     if(!military->isNonCombat())
     {
-        this->StationedMilitary.push_back(military);
+        this->StationedMilitary = military;
         this->hasGarrison = true;
+    }
+}
+
+void City::RemoveGarrisonMilitary()
+{
+    if(this->hasGarrison)
+    {
+        delete this->StationedMilitary;
+        this->hasGarrison = false;
     }
 }
 
@@ -943,10 +969,6 @@ void City::DefineCityBorders(bool redefine)
 //    qDebug() << "       Done";
 }
 
-void City::SetCityBordersIndex(int index)
-{
-    this->cityBordersIndex = index;
-}
 
 QString City::GetName()
 {
@@ -988,6 +1010,11 @@ bool City::IsStagnant()
     return this->stagnant;
 }
 
+bool City::IsFullyExpanded()
+{
+    return this->fullyExpanded;
+}
+
 void City::InitializeCity()
 {
     foreach(Tile* tile, this->cityControlledTiles)
@@ -1001,6 +1028,31 @@ void City::InitializeCity()
 void City::SetCitizenCount(int count)
 {
     this->citizens = count;
+}
+
+void City::SetStagnant(bool isStagnant)
+{
+    this->stagnant = isStagnant;
+}
+
+void City::SetGrowthCost(int cost)
+{
+    this->growthCost = cost;
+}
+
+void City::SetFoodSurplus(int surplus)
+{
+    this->foodSurplus = surplus;
+}
+
+void City::SetBuildingStrength(int strength)
+{
+    this->buildingStrength = strength;
+}
+
+void City::SetFullyExpanded(bool fullExpansion)
+{
+    this->fullyExpanded = fullExpansion;
 }
 
 int City::GetCitizenCount()
@@ -1101,6 +1153,11 @@ QString City::getProductionName()
 bool City::getHasWorker()
 {
     return this->hasWorker;
+}
+
+bool City::HasGarrisonUnit()
+{
+    return this->hasGarrison;
 }
 
 bool City::MSDIntersects(QPolygon targetMSD)
@@ -1399,14 +1456,25 @@ QPolygon City::GetMinimumSettleDistance()
     return this->minimumSettleDistance;
 }
 
+Unit *City::GetGarrisonedWorker()
+{
+    if(this->StationedWorkers != NULL)
+    {
+        return this->StationedWorkers;
+    }
+}
+
+Unit *City::GetGarrisonedMilitary()
+{
+    if(this->StationedMilitary != NULL)
+    {
+        return this->StationedMilitary;
+    }
+}
+
 int City::GetCityIndex()
 {
     return this->cityIndex;
-}
-
-int City::GetCityBordersIndex()
-{
-    return this->cityBordersIndex;
 }
 
 int City::GetCityRenderIndex()

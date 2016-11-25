@@ -31,13 +31,10 @@ public:
     void SetCityIndex(int index);
 
     void UpdateCityYield();
-    void UpdateCityYield(Yield yield);
+    void UpdateCityStatus();
 
     void SetCityRenderIndex(int index);
-//    void SetCityHealthBarIndex(int index);
-//    void SetCityProductionBarIndex(int index);
-//    void SetCityGrowthBarIndex(int index);
-
+    void SetCityBorders(QPolygon borders);
     void SetCityHealth(float health);
     void SetCityMaxHealth(int health);
 
@@ -46,14 +43,21 @@ public:
     void SetBaseCityStrength(int strength);
 
     void GarrisonWorker(Unit *worker);
+    void RemoveGarrisonWorker();
     void GarrisonMilitary(Unit *military);
+    void RemoveGarrisonMilitary();
 
     void AddControlledTile(Tile* tile);
     void SetMaximumExpansionBorderTiles(QList<Tile*> tileVect);
     void DefineCityBorders(bool redefine);
-    void SetCityBordersIndex(int index); 
     void setCapitolConnection(bool flag);
+
     void SetCitizenCount(int count);
+    void SetStagnant(bool isStagnant);
+    void SetGrowthCost(int cost);
+    void SetFoodSurplus(int surplus);
+    void SetBuildingStrength(int strength);
+    void SetFullyExpanded(bool fullExpansion);
 
     void setCurrentProductionCost(int cost);
     void setAccumulatedProduction(int total);
@@ -89,8 +93,8 @@ public:
     QPolygon GetMinimumSettleDistance();
 
     Unit GetUnitAt(int index);
-    Unit* GetGarrisonedWorker(int index);
-    Unit* GetGarrisonedMilitary(int index);
+    Unit* GetGarrisonedWorker();
+    Unit* GetGarrisonedMilitary();
     Unit* getProducedUnit();
 
     QVector<Tile*> GetControlledTiles();
@@ -104,10 +108,6 @@ public:
     Focus GetCityFocus();
 
     int GetCityIndex();
-    int GetCityBordersIndex();
-//    int GetCityHealthBarIndex();
-//    int GetCityGrowthBarIndex();
-//    int GetCityProductionBarIndex();
     int GetCityRenderIndex();
     int GetCityHealth();
     int GetMaxHealth();
@@ -128,9 +128,11 @@ public:
     bool getCapitolConnection();
     bool IsInitialized();
     bool IsStagnant();
+    bool IsFullyExpanded();
     bool getProductionFinished();
     bool getIsUnit();
     bool getHasWorker();
+    bool HasGarrisonUnit();
     bool MSDIntersects(QPolygon targetMSD);
 
     ~City();
@@ -139,8 +141,8 @@ private:
     enum SortOrder {LRBT, LRTB, RLTB, RLBT};
 
     QVector<Tile*> cityControlledTiles;
-    QVector<Unit*> StationedWorkers;
-    QVector<Unit*> StationedMilitary;
+    Unit* StationedWorkers;
+    Unit* StationedMilitary;
     QVector<Unit*> initialUnitList;
     QVector<Building*> initialBuildingList;
     QVector<Building*> producedBuildings;
@@ -172,10 +174,6 @@ private:
 
     int cityIndex;
     int cityRenderIndex;
-    int cityHealthBarIndex;
-    int cityBordersIndex;
-    int cityProductionBarIndex;
-    int cityGrowthBarIndex;
 
     int growthCost;
     int foodSurplus;

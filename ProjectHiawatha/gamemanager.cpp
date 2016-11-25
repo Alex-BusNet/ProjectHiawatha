@@ -128,16 +128,15 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                 {
                     clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
                 }
-            }
 
-            foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
-            {
-                renderer->SetTileWorkedIcon(tile, gameView);
+                foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
+                {
+                    renderer->SetTileWorkedIcon(tile, gameView);
+                }
             }
 
             civList.at(i)->GetCityAt(j)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
             civList.at(i)->GetCityAt(j)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-
         }
 
         if(i == 0)
@@ -1168,12 +1167,21 @@ void GameManager::UpdateTileData()
 
                 ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetTile->GetCivListIndex()));
 
-
-
-                renderer->UpdateCityBorders(targetCity, gameView, unitToMove->GetOwner());
-
                 if(civList.at(targetTile->GetCivListIndex())->GetCityList().size() == 0)
                 {
+                    if(!civList.at(targetTile->GetCivListIndex())->GetUnitList().isEmpty())
+                    {
+                        foreach(Unit* unit, civList.at(targetTile->GetCivListIndex())->GetUnitList())
+                        {
+                            renderer->RemoveUnit(unit, gameView);
+                        }
+
+                        for(int i = 0; i < civList.at(targetTile->GetCivListIndex())->GetUnitList().size(); i++)
+                        {
+                            civList.at(targetTile->GetCivListIndex())->RemoveUnit(0);
+                        }
+                    }
+
                     playersAliveCount--;
                 }
             }
@@ -1286,7 +1294,7 @@ void GameManager::UpdateTileData()
         city->GetControlledTiles().first()->IsWorked = true;
 
         qDebug() << "--Adding City to renderer";
-        renderer->AddCity(city, gameView);
+        renderer->AddCity(city, gameView, false);
 
         qDebug() << "--Adding Drawing city borders";
         renderer->DrawCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
@@ -1518,11 +1526,15 @@ void GameManager::InitYieldDisplay()
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
 {
     City* city = new City();
+    city->SetName(tCity->GetName());
+    city->SetCityStrength(tCity->GetCityStrength());
+    city->SetBaseCityStrength(tCity->GetBaseStrength());
     city->SetControllingCiv(aCiv->getCiv());
     city->SetCityHealth(100);
+    city->SetCityFocus(City::GOLD_FOCUS);
     city->SetCitizenCount(tCity->GetCitizenCount() / 2);
 
-    if(tCity->GetCitizenCount() < 1)
+    if(city->GetCitizenCount() < 1)
     {
         city->SetCitizenCount(1);
     }
@@ -1546,19 +1558,71 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     city->setCurrentProductionCost(0);
     city->setProductionName("No Current Production");
     city->setProductionIndex(0);
-    city->SetName(tCity->GetName());
-    city->SetCityStrength(tCity->GetCityStrength());
-    city->SetMaximumExpansionBorderTiles(tCity->GetMaximumExpansionBorderTiles());
-    city->tileQueue = tCity->tileQueue;
+    city->setProductionFinished(false);
+
     city->SetCityTile(tCity->GetCityTile());
+    city->SetMaximumExpansionBorderTiles(tCity->GetMaximumExpansionBorderTiles());
+
+    foreach(Tile* tile, tCity->tileQueue)
+    {
+        city->tileQueue.push_back(tile);
+    }
+
+    city->SortTileQueue();
+
+    foreach(Tile* tile, tCity->GetControlledTiles())
+    {
+        if(tile->IsWorked)
+        {
+            tile->IsWorked = false;
+        }
+
+        city->AddControlledTile(tile);
+    }
+
+    city->SortControlledTiles();
+
+    city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+    city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
 
     foreach(Building* building, tCity->getCurrentBuildingList())
     {
         city->addBuilding(building);
     }
 
-    tCiv->RemoveCity(tCity->GetCityIndex());
+    if(tCity->getHasWorker())
+    {
+        qDebug() << "--Removing worker";
+        renderer->RemoveUnit(tCity->GetGarrisonedWorker(), gameView);
+        qDebug() << "-----";
+        tCiv->RemoveUnit(tCity->GetGarrisonedWorker()->GetUnitListIndex());
+        qDebug() << "----------";
+    }
+
+    if(tCity->HasGarrisonUnit())
+    {
+        renderer->RemoveUnit(tCity->GetGarrisonedMilitary(), gameView);
+        tCiv->RemoveUnit(tCity->GetGarrisonedMilitary()->GetUnitListIndex());
+    }
+
+    city->SetFullyExpanded(tCity->IsFullyExpanded());
+
+    city->SetGrowthCost(tCity->GetFoodNeededToGrow());
+    city->SetFoodSurplus(tCity->GetFoodSurplus());
+    city->SetBuildingStrength(tCity->GetCityBuildingStrength());
+    city->UpdateCityStatus();
+    city->UpdateCityYield();
+
+    city->SetCityBorders(tCity->GetCityBorders());
+    city->setCapitolConnection(false);
     city->SetCityIndex(aCiv->GetCityList().size());
+    city->SetCityRenderIndex(tCity->GetCityRenderIndex());
+
+    renderer->RemoveCity(tCity, gameView);
+    tCiv->RemoveCity(tCity->GetCityIndex());
+
+    city->InitializeCity();
+    renderer->AddCity(city, gameView, true);
     aCiv->AddCity(city);
 
     clv->addItem(city->GetName());
@@ -1816,7 +1880,7 @@ void GameManager::Fortify()
 void GameManager::ChangeCityOwner()
 {
     debugConquer = true;
-    civList.at(1)->GetCityAt(1)->SetCityHealth(5);
+    civList.at(1)->GetCityAt(0)->SetCityHealth(5);
     targetTile = civList.at(1)->GetCityAt(0)->GetCityTile();
     unitToMove = civList.at(0)->GetUnitAt(1);
     renderer->UpdateCityHealthBar(civList.at(1)->GetCityAt(0), gameView);
