@@ -167,7 +167,7 @@ void GameOptions::on_pushButton_clicked()
         numOfAI = 1;
         break;
     case 1:
-        numOfAI = 2;
+        numOfAI = 3;
         break;
     case 2:
         numOfAI = 5;
@@ -182,7 +182,7 @@ void GameOptions::on_pushButton_clicked()
         numOfAI = 11;
         break;
     default:
-        numOfAI = 2;
+        numOfAI = 3;
 
     }
 
