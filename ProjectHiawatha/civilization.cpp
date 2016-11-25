@@ -424,7 +424,6 @@ void Civilization::AddUnit(Unit *unit)
 void Civilization::RemoveCity(int cityIndex)
 {
     this->currentCityList.removeAt(cityIndex);
-    qDebug() << "---Updating city indecies";
     for(int i = 0; i < currentCityList.size(); i++)
     {
         currentCityList.at(i)->SetCityIndex(i);

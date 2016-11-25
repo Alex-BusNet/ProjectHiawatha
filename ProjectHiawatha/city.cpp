@@ -51,8 +51,6 @@ QVector<Building *> City::getCurrentBuildingList()
 
 void City::SortControlledTiles()
 {
-//    qDebug() << "   ---Sorting CityControlledTiles; Sorting focus:" << this->cityFocus;
-
     for(int i = 0; i < cityControlledTiles.size(); i++)
     {
         for(int j = i + 1; j < cityControlledTiles.size(); j++)
@@ -158,8 +156,6 @@ void City::SortTileQueue()
         return;
     }
 
-    qDebug() << "Sorting focus:" << this->cityFocus;
-
     for(int i = 0; i < tileQueue.size(); i++)
     {
         for(int j = i + 1; j < tileQueue.size(); j++)
@@ -211,32 +207,6 @@ void City::SortTileQueue()
             }
         }
     }
-
-//    foreach(Tile* tile, tileQueue)
-//    {
-//        if(this->cityFocus == GOLD_FOCUS)
-//        {
-//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetGoldYield();
-//        }
-//        else if(this->cityFocus == PRODUCTION_FOCUS)
-//        {
-//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetProductionYield();
-//        }
-//        else if(this->cityFocus == SCIENCE_FOCUS)
-//        {
-//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetScienceYield();
-//        }
-//        else if(this->cityFocus == FOOD_FOCUS)
-//        {
-//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetFoodYield();
-//        }
-//        else if(this->cityFocus == CULTURE_FOCUS)
-//        {
-//            qDebug() << "           tileQueue" << tile->GetTileIDString() << tile->GetYield()->GetCultureYield();
-//        }
-//    }
-
-    //Store all eligible tiles in a heap.
 }
 
 void City::FilterMEBList()
@@ -247,14 +217,11 @@ void City::FilterMEBList()
     {
         if(tile->GetControllingCiv() != NO_NATION || tile->GetTileType() == ICE)
         {
-            qDebug() << "--Removing tile:" << tile->GetTileIDString();
             this->maximumExpansionBorderTiles.removeAt(i);
         }
 
         i++;
     }
-
-    qDebug() << "MEB List size:" << this->maximumExpansionBorderTiles.size();
 }
 
 int City::getNumberOfBuildings()
@@ -669,7 +636,6 @@ void City::SetCityIndex(int index)
 
 void City::UpdateCityYield()
 {
-    qDebug() << "   City controls" << cityControlledTiles.size() << "tile(s)";
     //Clear the current YPT
     int oldGold = this->cityTotalYield->GetGoldYield() * -1,
             oldProd = this->cityTotalYield->GetProductionYield() * -1,
@@ -1168,7 +1134,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
     foreach(QPoint pt, targetMSD)
     {
-//        qDebug() << "-pt:" << pt;
         t_MSD.push_back(pt);
     }
 
@@ -1191,9 +1156,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
         //Compare the current point in t_MSD to every point in c_MSD
         for(int i = 0; i < c_MSD.size(); i++)
         {
-//            qDebug() << "   lastX:" << lastX << "lastY:" << lastY;
-//            qDebug() << "       x:" << x << "    y:" << y;
-
             c_dstY = y - lastY;
             c_dstX = x - lastX;
             c_slope = static_cast<float>(c_dstY) / c_dstX;
@@ -1201,8 +1163,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
             t_dstY = pt.y() - lastY;
             t_dstX = pt.x() - lastX;
             t_slope = static_cast<float>(t_dstY) / t_dstX;
-
-//            qDebug() << "c_slope:" << c_slope << "t_slope:" << t_slope;
 
             if(c_slope == t_slope)
                 return false;
@@ -1217,7 +1177,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
-                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
 
                 if(t_slope > currentSlope)
                 {
@@ -1229,18 +1188,15 @@ bool City::MSDIntersects(QPolygon targetMSD)
             else if(x > lastX && y > lastY)
             {
                 //Moving left to right, top to bottom
-                qDebug() << "--LRTB" << pt << lastX << lastY;
 
                 t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
                 float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
-                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
-                    qDebug() << "Invalid";
                     lrtbValid = true;
                 }
 
@@ -1248,18 +1204,15 @@ bool City::MSDIntersects(QPolygon targetMSD)
             else if(x < lastX && y > lastY)
             {
                 //Moving right to left, top to bottom
-                qDebug() << "--RLTB" << pt << lastX << lastY;
 
                 t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
                 float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
-                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
 
                 if(t_slope > currentSlope)
                 {
-                    qDebug() << "Invalid";
                     rltbValid = true;
                 }
 
@@ -1267,39 +1220,35 @@ bool City::MSDIntersects(QPolygon targetMSD)
             else if(x < lastX && y < lastY)
             {
                 //Moving right to left, bottom to top
-                qDebug() << "--RLBT" << pt << lastX << lastY;
 
                 t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
                 float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
-                qDebug() << "   t_slope:" << t_slope << "currentSlope" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
-                    qDebug() << "Invalid";
                     rlbtValid = true;
                 }
 
             }
-            else if(c_dstY == 0)
-            {
-                if(x > lastX)
-                {
-                    //Moving along the top
-                }
-                else if(x < lastX)
-                {
-                    //Moving along the bottom
-                }
-            }
+//            else if(c_dstY == 0)
+//            {
+//                if(x > lastX)
+//                {
+//                    //Moving along the top
+//                }
+//                else if(x < lastX)
+//                {
+//                    //Moving along the bottom
+//                }
+//            }
 
             qDebug() << lrtbValid << lrbtValid << rltbValid << rlbtValid;
 
             if((rltbValid && lrbtValid) || (lrtbValid && rlbtValid))
             {
-                qDebug() << "---Intersection";
                 lrtbValid = false;
                 lrbtValid = false;
                 rltbValid = false;

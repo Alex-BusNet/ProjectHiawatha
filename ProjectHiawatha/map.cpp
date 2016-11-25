@@ -576,7 +576,6 @@ void Map::CleanMap()
 
 void Map::GetTileQueue(City *city)
 {
-    qDebug() << "--Getting Tile Queue";
     QList<Tile*> surroundingTiles;
 
     foreach(Tile* tile, city->GetControlledTiles())
@@ -591,7 +590,6 @@ void Map::GetTileQueue(City *city)
                     ((tile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
                      (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)) || (tile->GetTileType() == ICE))
             {
-//                qDebug() << "---------SurroundingTiles at" << tile->GetTileIDString() << "is already owned";
                 surroundingTiles.removeAt(surroundCount);
             }
             else
@@ -602,10 +600,6 @@ void Map::GetTileQueue(City *city)
                     {
                         city->tileQueue.push_back(tile);
                     }
-//                    else
-//                    {
-//                        qDebug() << "--------------------Tile already added";
-//                    }
                 }
                 else
                 {
@@ -616,12 +610,6 @@ void Map::GetTileQueue(City *city)
             surroundCount++;
         }
     }
-
-//    foreach(Tile* tile, city->tileQueue)
-//    {
-//        qDebug() << "               tileQueue:" << tile->GetTileIDString();
-//    }
-    qDebug() << "--Done";
 }
 
 City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
@@ -709,7 +697,6 @@ newrand:
                 // we can get away with only checking the city at index 0.
                 if(city->GetMaximumExpansionBorder().boundingRect().intersects(civs.at(j)->GetCityAt(0)->GetMaximumExpansionBorder().boundingRect()))
                 {
-                    qDebug() << "--Maximum expansion borders intersected, finding new location to spawn.";
                     delete city;
                     civs.at(i)->SetCityIndex(0);
                     foreach(Tile* tile, city->GetControlledTiles())
@@ -730,7 +717,6 @@ newrand:
                 {
                     if(city->GetMinimumSettleDistance().boundingRect().intersects(board.at(k)->GetTilePolygon().boundingRect()))
                     {
-                        qDebug() << "--Minimum settle distance intersects ice; finding new location to spawn.";
                         delete city;
                         civs.at(i)->SetCityIndex(0);
                         foreach(Tile* tile, city->GetControlledTiles())
@@ -774,7 +760,7 @@ newrand:
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
                     {
-                        unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
+                        unit->SetPositionIndex(tile->GetTileIndex());
                         unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
                         tile->SetCivListIndex(i);
                         tile->ContainsUnit = true;
@@ -799,7 +785,7 @@ newrand:
                 {
                     if(!tile->ContainsUnit && !tile->HasCity)
                     {
-                        unit->SetPositionIndex((tile->GetTileID().column / 2) + (mapSizeX * tile->GetTileID().row));
+                        unit->SetPositionIndex(tile->GetTileIndex());
                         unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
                         tile->SetCivListIndex(i);
                         tile->ContainsUnit = true;
@@ -812,8 +798,8 @@ newrand:
             civs.at(i)->AddUnit(unit);
             civs.at(i)->UpdateCivYield();
 
-            qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString();
-            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString();
+            qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(0)->GetTileIndex();
+            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(1)->GetTileIndex();
         }
     }
 }

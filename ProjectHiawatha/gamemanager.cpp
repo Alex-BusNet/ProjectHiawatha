@@ -75,38 +75,35 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     gameView->ConfigureGraphicsView();
 
-    this->InitButtons();
 
     updateTimer = new QTimer();
     updateTimer->setInterval(50);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
     updateTimer->start();
 
-    qDebug() << "Creating new Renderer";
+    this->InitButtons();
+    this->InitLayouts();
+    this->setLayout(vLayout);
+    this->show();
 
+    qDebug() << "Creating new Renderer";
     renderer = new Renderer(mapSizeX);
 
     qDebug() << "Done.\nInitializing Map.";
     map = new Map(mapSizeX, mapSizeY);
     mapInit = QtConcurrent::run(this->map, Map::InitHexMap);
-//    mapInit.waitForFinished();
-
-    qDebug() << "Done.\nSetting up Scene.";
-    this->InitLayouts();
 
     qDebug() << "Initializing Civs";
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
     civInit.waitForFinished();
+
+    delete &civInit;
+    delete &mapInit;
+
     this->playersAliveCount = civList.size();
 
-    qDebug() << "   CivList size: " << civList.size();
-
     qDebug() << "Done.\nDrawing map.";
-//    gameView->moveToThread(renderThread);
-//    renderThread = QtConcurrent::run(this->renderer, Renderer::DrawHexScene, map, gameView);
-//    renderThread.waitForFinished();
-
-    renderer->DrawHexScene(map, gameView);
+    renderer->DrawHexScene(*map, gameView);
 
     qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
     for(int i = 0; i < civList.size(); i++)
@@ -154,9 +151,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     endGameProgress->setText(*endGameText);
 
+    qDebug() << "Init yield";
+
     InitYieldDisplay();
 
-    renderer->DrawGuiText(map, stringData, gameView);
+//    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     for(int i = 0; i < 3; i++)
@@ -173,9 +172,9 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
 
     playerInfoRect = new QRect(0, 0, this->width(), 20);
-    this->setLayout(vLayout);
-    this->show();
 
+
+    qDebug() << "Screen size:" << gameView->width() << gameView->height();
     qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
 
     qDebug() << "Done.";
@@ -1419,9 +1418,6 @@ void GameManager::InitButtons()
     connect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
     fortifyUnit->setEnabled(false);
 
-    ConquerCity = new QPushButton("Conquer City Test");
-    connect(ConquerCity, SIGNAL(clicked(bool)), this, SLOT(ChangeCityOwner()));
-
 }
 
 void GameManager::InitLayouts()
@@ -1431,7 +1427,7 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addSpacing(500);
     unitControlButtons->addWidget(endGameProgress);
-    unitControlButtons->addWidget(ConquerCity);
+//    unitControlButtons->addWidget(ConquerCity);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1781,6 +1777,8 @@ void GameManager::buildNewRoad()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
     }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 }
 
 void GameManager::buildNewFarm()
@@ -1788,9 +1786,14 @@ void GameManager::buildNewFarm()
     qDebug()<<"YIELD BEFORE: "<<map->GetTileAt(unitToMove->GetTileIndex())->GetYield()->GetFoodYield();
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),FARM))
     {
+        qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(FARM, unitToMove->GetTileIndex(), gameView);
     }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
 
     qDebug()<<"YIELD AFTER: "<<map->GetTileAt(unitToMove->GetTileIndex())->GetYield()->GetFoodYield();
 }
@@ -1799,28 +1802,41 @@ void GameManager::buildNewPlantation()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),PLANTATION))
     {
+        qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(PLANTATION, unitToMove->GetTileIndex(), gameView);
     }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
 }
 
 void GameManager::buildNewTradePost()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),TRADE_POST))
     {
+        qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(TRADE_POST, unitToMove->GetTileIndex(), gameView);
     }
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
 }
 
 void GameManager::buildNewMine()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),MINE))
     {
+        qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
-
+        renderer->SetTileImprovement(MINE, unitToMove->GetTileIndex(), gameView);
     }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
 }
 
 void GameManager::attackMelee()
@@ -1875,16 +1891,6 @@ void GameManager::Fortify()
     qDebug() << "Fortifying unit";
     this->fortify = true;
     fortifyUnit->setEnabled(false);
-}
-
-void GameManager::ChangeCityOwner()
-{
-    debugConquer = true;
-    civList.at(1)->GetCityAt(0)->SetCityHealth(5);
-    targetTile = civList.at(1)->GetCityAt(0)->GetCityTile();
-    unitToMove = civList.at(0)->GetUnitAt(1);
-    renderer->UpdateCityHealthBar(civList.at(1)->GetCityAt(0), gameView);
-    this->UpdateTileData();
 }
 
 void GameManager::parseItem(QListWidgetItem *item)

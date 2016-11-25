@@ -65,7 +65,7 @@ private:
     QPushButton *rangeAttack;
     QPushButton *fortifyUnit;
 
-    QFuture<void> civInit, mapInit, renderThread;
+    QFuture<void> civInit, mapInit;
 
     //=============
     //Dev Buttons
@@ -77,7 +77,6 @@ private:
     QPushButton *scienceFocus;
     QPushButton *foodFocus;
     QPushButton *cultureFocus;
-    QPushButton *ConquerCity;
     //=============
 
     CityScreen *cityScreen;
@@ -179,7 +178,7 @@ public slots:
     void AttackCity();
     void RangeAttack();
     void Fortify();
-    void ChangeCityOwner();
+//    void ChangeCityOwner();
 
     void parseItem(QListWidgetItem *item);
 };

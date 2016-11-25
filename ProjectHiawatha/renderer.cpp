@@ -69,28 +69,35 @@ Renderer::Renderer(int mapSizeX)
     tileWorkedIcon = new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png");
     tileUnworked = new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png");
     fortified = new QPixmap("../ProjectHiawatha/Assets/Icons/fortified.png");
+
+    //Tile improvement icons
+    mine = new QPixmap("../ProjectHiawatha/Assets/Resources/mine.png");
+    plantation = new QPixmap("../ProjectHiawatha/Assets/Resources/plantation.png");
+    farm = new QPixmap("../ProjectHiawatha/Assets/Resources/farm.png");
+    tradePost = new QPixmap("../ProjectHiawatha/Assets/Resources/trade_post.png");
+    none = new QPixmap("../ProjectHiawatha/Assets/Resources/noImprovement.png");
 }
 
-void Renderer::DrawHexScene(Map *map, GameView *view)
+void Renderer::DrawHexScene(Map map, GameView *view)
 {
-    for(int i = 0; i < map->GetBoardSize(); i++)
+    for(int i = 0; i < map.GetBoardSize(); i++)
     {
-        map->GetTileAt(i)->SetTilePen(outlinePen);
-        tiles.push_back(view->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
-        tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
+        map.GetTileAt(i)->SetTilePen(outlinePen);
+        tiles.push_back(view->addPolygon(map.GetTileAt(i)->GetTilePolygon()));
+        tiles.at(i)->setPen(map.GetTileAt(i)->GetTilePen());
         tiles.at(i)->setZValue(1);
         tiles.at(i)->setOpacity(50);
 
-        tileCircles.push_back(view->addEllipse(map->GetTileAt(i)->GetTileRect(), outlinePen));
+        tileCircles.push_back(view->addEllipse(map.GetTileAt(i)->GetTileRect(), outlinePen));
         tileCircles.last()->setZValue(2);
 
-        tilePixmap.push_back(view->addPixmap((*(map->GetTilePixmap(i)))));
+        tilePixmap.push_back(view->addPixmap((*(map.GetTilePixmap(i)))));
         tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
-        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+        tilePixmap.at(i)->setPos(map.GetTileAt(i)->GetTexturePoint());
 
-        if(map->GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
+        if(map.GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
         {
-            switch(map->GetTileAt(i)->GetStratResource())
+            switch(map.GetTileAt(i)->GetStratResource())
             {
             case IRON:
                 resourcePixmap.push_back(view->addPixmap(*ironPix));
@@ -113,12 +120,12 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             }
 
             resourcePixmap.last()->setScale(0.5f);
-            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint());
             resourcePixmap.last()->setZValue(3);
         }
-        else if(map->GetTileAt(i)->GetLuxResource() != NO_LUXURY)
+        else if(map.GetTileAt(i)->GetLuxResource() != NO_LUXURY)
         {
-            switch(map->GetTileAt(i)->GetLuxResource())
+            switch(map.GetTileAt(i)->GetLuxResource())
             {
             case WHEAT:
                 resourcePixmap.push_back(view->addPixmap(*wheatPix));
@@ -186,14 +193,14 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             }
 
             resourcePixmap.last()->setScale(0.5f);
-            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint());
             resourcePixmap.last()->setZValue(3);
         }
 
         //// Add filter to only render tileWorkedIcon on player controlled tiles.
-        if(map->GetTileAt(i)->GetCivListIndex() == 0)
+        if(map.GetTileAt(i)->GetCivListIndex() == 0)
         {
-            if(map->GetTileAt(i)->IsWorked)
+            if(map.GetTileAt(i)->IsWorked)
             {
                 tileWorked.push_back(view->addPixmap(*tileWorkedIcon));
             }
@@ -203,27 +210,34 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             }
 
             tileWorked.last()->setScale(0.6f);
-            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+            tileWorked.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 23, map.GetTileAt(i)->GetResourceIconPoint().y() + 10);
             tileWorked.last()->setZValue(3);
         }
         else
         {
             tileWorked.push_back(view->addPixmap(*tileUnworked));
             tileWorked.last()->setOpacity(0);
-            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+            tileWorked.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 23, map.GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
 
         QLabel *orders = new QLabel("!");
         orders->setStyleSheet("QLabel { color: red; background-color: transparent; font-size: 14px; font-weight: bold; }");
-        orders->setGeometry(map->GetTileAt(i)->GetItemTexturePoint().x() + 30, map->GetTileAt(i)->GetItemTexturePoint().y(), 6, 14);
+        orders->setGeometry(map.GetTileAt(i)->GetItemTexturePoint().x() + 30, map.GetTileAt(i)->GetItemTexturePoint().y(), 6, 14);
         ordersIcon.push_back(view->addWidget(orders));
         ordersIcon.last()->setOpacity(0);
         ordersIcon.last()->setZValue(8);
 
         fortifiedIcon.push_back(view->addPixmap(*fortified));
         fortifiedIcon.last()->setScale(0.3f);
-        fortifiedIcon.last()->setZValue(-1);
-        fortifiedIcon.last()->setPos(map->GetTileAt(i)->GetItemTexturePoint().x(), map->GetTileAt(i)->GetItemTexturePoint().y());
+        fortifiedIcon.last()->setOpacity(0);
+        fortifiedIcon.last()->setZValue(8);
+        fortifiedIcon.last()->setPos(map.GetTileAt(i)->GetItemTexturePoint().x(), map.GetTileAt(i)->GetItemTexturePoint().y());
+
+        tileImprovementIcons.push_back(view->addPixmap(*none));
+        tileImprovementIcons.last()->setScale(0.3f);
+        tileImprovementIcons.last()->setOpacity(0);
+        tileImprovementIcons.last()->setZValue(4);
+        tileImprovementIcons.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 40, map.GetTileAt(i)->GetResourceIconPoint().y());
     }
 }
 
@@ -263,6 +277,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         }
         else if(!selDat.player && !selDat.target)
         {
+            qDebug() << "Deselecting tile";
             view->removeItem(tileCircles.at(index));
             SetOutlinePen(NO_NATION);
             outlinePen.setWidth(1);
@@ -276,8 +291,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
 
 void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
 {
-    qDebug() << "--Updating" << unit->GetName();
-
     unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
     if((unit->GetHealth() / unit->GetMaxHealth()) != 1 || unitMoved)
@@ -419,6 +432,7 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     unitHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
     unitHealthBars.last()->setZValue(6);
 
+
     if(map->GetTileAt(unit->GetTileIndex())->GetCivListIndex() == 0)
     {
         this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
@@ -535,6 +549,41 @@ void Renderer::SetFortifyIcon(int tile, bool unfortify)
         fortifiedIcon.at(tile)->setZValue(8);
     else
         fortifiedIcon.at(tile)->setZValue(-1);
+}
+
+void Renderer::SetTileImprovement(TileImprovement ti, int index, GameView *view)
+{
+    qDebug() << "Setting tile improvement:" << ti << index;
+
+    switch(ti)
+    {
+    case MINE:
+        tileImprovementIcons.replace(index, view->addPixmap(*mine));
+        break;
+    case TRADE_POST:
+        tileImprovementIcons.replace(index, view->addPixmap(*tradePost));
+        break;
+    case PLANTATION:
+        tileImprovementIcons.replace(index, view->addPixmap(*plantation));
+        break;
+    case FARM:
+        tileImprovementIcons.replace(index, view->addPixmap(*farm));
+        break;
+    case NONE:
+        tileImprovementIcons.replace(index, view->addPixmap(*none));
+        break;
+    }
+
+    if(ti != NONE)
+    {
+        tileImprovementIcons.at(index)->setOpacity(100);
+    }
+    else
+    {
+        tileImprovementIcons.at(index)->setOpacity(0);
+    }
+
+    tileImprovementIcons.at(index)->setZValue(4);
 }
 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)

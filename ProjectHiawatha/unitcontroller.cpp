@@ -93,16 +93,10 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
     {
         qDebug() << "Next tile occupied;";
         unit->ClearPath();
-        if(civListIndex == 0)
-        {
-            qDebug() << " Requesting New orders";
-//            unit->RequiresOrders = true;
-        }
-        else
-        {
-            qDebug() << "Finding new Path";
-            FindPath(map->GetTileAt(unit->GetTileIndex()), map->GetTileAt(unit->GetTargetTileIndex()), map, unit);
-        }
+        qDebug() << " Requesting New orders";
+        unit->RequiresOrders = true;
+        return;
+
     }
 
     if(!unit->isPathEmpty())
