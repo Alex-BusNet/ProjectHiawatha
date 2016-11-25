@@ -1396,14 +1396,17 @@ void GameManager::InitButtons()
     buildRoad = new QPushButton("Build Road");
     connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildRoad->setEnabled(false);
+    buildRoad->setShortcut(QKeySequence(Qt::Key_H));
 
     foundCity = new QPushButton("Found City");
     connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
     foundCity->setEnabled(false);
+    foundCity->setShortcut(QKeySequence(Qt::Key_Q));
 
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
     attackUnit->setEnabled(false);
+    attackUnit->setShortcut(QKeySequence(Qt::Key_W));
 
     goldFocus = new QPushButton("Gold Focus");
     connect(goldFocus, SIGNAL(clicked(bool)), this, SLOT(SetGoldFocus()));
@@ -1430,10 +1433,12 @@ void GameManager::InitButtons()
     attackCity = new QPushButton("Attack City");
     connect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
     attackCity->setEnabled(false);
+    attackCity->setShortcut(QKeySequence(Qt::Key_E));
 
     rangeAttack = new QPushButton("Range Attack");
     connect(rangeAttack, SIGNAL(clicked(bool)), this, SLOT(RangeAttack()));
     rangeAttack->setEnabled(false);
+    rangeAttack->setShortcut(QKeySequence(Qt::Key_R));
 
     fortifyUnit = new QPushButton("Fortify");
     connect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
@@ -1791,7 +1796,7 @@ void GameManager::showTechTree()
         }
         techTree = new TechTree(this);
         techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech(),civList.at(0)->getAccumulatedScience());
-        techTree->setGeometry(100, 25, this->width() - 190, this->height() - 150);
+        techTree->setGeometry(124, 33, 1145, this->height() - 150);
         techTree->show();
         techTreeVisible = true;
     }

@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     game = NULL;
     options = NULL;
+    about = NULL;
     fullscreen = false;
     QPixmap *bkgnd = new QPixmap("../ProjectHiawatha/Assets/Menu/Background/dom_hiawatha.png");
     QPixmap *buttonBorder = new QPixmap("../ProjectHiawatha/Assets/Menu/mainMenuBackground.png");
@@ -47,4 +48,15 @@ void MainWindow::on_exit_clicked()
 void MainWindow::on_fullscreen_clicked()
 {
     this->fullscreen = !(this->fullscreen);
+}
+
+void MainWindow::on_controls_clicked()
+{
+    if(about != NULL)
+    {
+        delete about;
+    }
+
+    about = new About();
+    about->show();
 }

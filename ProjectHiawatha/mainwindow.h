@@ -4,6 +4,7 @@
 #include "gamemanager.h"
 #include "renderer.h"
 #include "gameoptions.h"
+#include "about.h"
 #include <QMainWindow>
 
 namespace Ui {
@@ -25,10 +26,13 @@ private slots:
 
     void on_fullscreen_clicked();
 
+    void on_controls_clicked();
+
 private:
     Ui::MainWindow *ui;
     GameManager *game;
     GameOptions *options;
+    About *about;
     bool fullscreen;
 };
 

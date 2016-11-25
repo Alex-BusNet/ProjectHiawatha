@@ -141,11 +141,25 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="controls">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>220</y>
+      <width>201</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Controls</string>
+    </property>
+   </widget>
    <zorder>mainBackground</zorder>
    <zorder>menuButtonBorder</zorder>
    <zorder>newMap</zorder>
    <zorder>exit</zorder>
    <zorder>fullscreen</zorder>
+   <zorder>controls</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
