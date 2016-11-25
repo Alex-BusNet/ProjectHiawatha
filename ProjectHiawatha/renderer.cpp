@@ -234,10 +234,10 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         fortifiedIcon.last()->setPos(map.GetTileAt(i)->GetItemTexturePoint().x(), map.GetTileAt(i)->GetItemTexturePoint().y());
 
         tileImprovementIcons.push_back(view->addPixmap(*none));
-        tileImprovementIcons.last()->setScale(0.3f);
+        tileImprovementIcons.last()->setScale(0.5f);
         tileImprovementIcons.last()->setOpacity(0);
         tileImprovementIcons.last()->setZValue(4);
-        tileImprovementIcons.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 40, map.GetTileAt(i)->GetResourceIconPoint().y());
+        tileImprovementIcons.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 43, map.GetTileAt(i)->GetResourceIconPoint().y());
     }
 }
 
@@ -551,8 +551,9 @@ void Renderer::SetFortifyIcon(int tile, bool unfortify)
         fortifiedIcon.at(tile)->setZValue(-1);
 }
 
-void Renderer::SetTileImprovement(TileImprovement ti, int index, GameView *view)
+void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view)
 {
+    int index = tile->GetTileIndex();
     qDebug() << "Setting tile improvement:" << ti << index;
 
     switch(ti)
@@ -584,6 +585,8 @@ void Renderer::SetTileImprovement(TileImprovement ti, int index, GameView *view)
     }
 
     tileImprovementIcons.at(index)->setZValue(4);
+    tileImprovementIcons.at(index)->setScale(0.5f);
+    tileImprovementIcons.at(index)->setPos(tile->GetResourceIconPoint().x() + 43, tile->GetResourceIconPoint().y());
 }
 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)

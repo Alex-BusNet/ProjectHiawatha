@@ -1832,7 +1832,7 @@ void GameManager::buildNewFarm()
         qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
-        renderer->SetTileImprovement(FARM, unitToMove->GetTileIndex(), gameView);
+        renderer->SetTileImprovement(FARM, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -1848,7 +1848,7 @@ void GameManager::buildNewPlantation()
         qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
-        renderer->SetTileImprovement(PLANTATION, unitToMove->GetTileIndex(), gameView);
+        renderer->SetTileImprovement(PLANTATION, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -1862,7 +1862,7 @@ void GameManager::buildNewTradePost()
         qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
-        renderer->SetTileImprovement(TRADE_POST, unitToMove->GetTileIndex(), gameView);
+        renderer->SetTileImprovement(TRADE_POST, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
     }
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
     this->redrawTile = true;
@@ -1875,7 +1875,7 @@ void GameManager::buildNewMine()
         qDebug() << "True";
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
-        renderer->SetTileImprovement(MINE, unitToMove->GetTileIndex(), gameView);
+        renderer->SetTileImprovement(MINE, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
