@@ -58,7 +58,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     findCity = false;
     foundACity = false;
     aiFoundCity = false;
-    debugConquer = false;
+    attackRange = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -860,6 +860,12 @@ void GameManager::EndTurn()
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
         fortifyUnit->setEnabled(false);
+
+        goldFocus->setEnabled(false);
+        productionFocus->setEnabled(false);
+        scienceFocus->setEnabled(false);
+        cultureFocus->setEnabled(false);
+        foodFocus->setEnabled(false);
     }
 
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
@@ -953,7 +959,7 @@ void GameManager::UpdateTileData()
         if(unitTile->Selected)
         {
             unitTile->Selected = false;
-            selectedTileQueue->enqueue(SelectData{(unitTile->GetTileID().column / 2) + (map->GetMapSizeX() * unitTile->GetTileID().row), false, false});
+            selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
             this->redrawTile = true;
         }
 
@@ -982,6 +988,11 @@ void GameManager::UpdateTileData()
         findUnit = false;
         if(!attackNearby && !attackRange)
         {
+            if(unitToMove != NULL)
+            {
+                selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            }
+
             unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
 
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
@@ -1144,10 +1155,9 @@ void GameManager::UpdateTileData()
             this->redrawTile = true;
         }
     }
-    else if(findCity && !aiFoundCity || debugConquer)
+    else if(findCity && !aiFoundCity)
     {
         findCity = false;
-        debugConquer = false;
 
         targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetCityList());
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -1195,6 +1205,7 @@ void GameManager::UpdateTileData()
     if(processedData.relocateOrderGiven && !findUnit && !aiFoundCity)
     {
         unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
+        unitToMove->SetUnitTargetTileIndex(targetTile->GetTileIndex());
 
         if(unitToMove->isFortified)
         {
@@ -1339,7 +1350,6 @@ void GameManager::UpdateTileData()
         buildRoad->setEnabled(false);
         moveUnit->setEnabled(false);
         fortifyUnit->setEnabled(false);
-
         redrawTile = true;
     }
 }
@@ -1352,10 +1362,12 @@ void GameManager::InitButtons()
 
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
+    showTechTreeButton->setShortcut(QKeySequence(Qt::Key_T));
 
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
     moveUnit->setEnabled(false);
+    moveUnit->setShortcut(QKeySequence(Qt::RightButton));
 
     endTurn = new QPushButton("End Turn");
     connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
@@ -1364,18 +1376,22 @@ void GameManager::InitButtons()
     buildFarm = new QPushButton("Build Farm");
     connect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));
     buildFarm->setEnabled(false);
+    buildFarm->setShortcut(QKeySequence(Qt::Key_F));
 
     buildMine = new QPushButton("Build Mine");
     connect(buildMine, SIGNAL(clicked(bool)), this, SLOT(buildNewMine()));
     buildMine->setEnabled(false);
+    buildMine->setShortcut(QKeySequence(Qt::Key_S));
 
     buildPlantation = new QPushButton("Build Plantation");
     connect(buildPlantation, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildPlantation->setEnabled(false);
+    buildPlantation->setShortcut(QKeySequence(Qt::Key_D));
 
     buildTradePost = new QPushButton ("Build Trading Post");
     connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildTradePost->setEnabled(false);
+    buildTradePost->setShortcut(QKeySequence(Qt::Key_G));
 
     buildRoad = new QPushButton("Build Road");
     connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
@@ -1391,18 +1407,23 @@ void GameManager::InitButtons()
 
     goldFocus = new QPushButton("Gold Focus");
     connect(goldFocus, SIGNAL(clicked(bool)), this, SLOT(SetGoldFocus()));
+    goldFocus->setEnabled(false);
 
     productionFocus = new QPushButton("Production Focus");
     connect(productionFocus, SIGNAL(clicked(bool)), this, SLOT(SetProdFocus()));
+    productionFocus->setEnabled(false);
 
     scienceFocus = new QPushButton("Science Focus");
     connect(scienceFocus, SIGNAL(clicked(bool)), this, SLOT(SetScienceFocus()));
+    scienceFocus->setEnabled(false);
 
     foodFocus = new QPushButton("Food Focus");
     connect(foodFocus, SIGNAL(clicked(bool)), this, SLOT(SetFoodFocus()));
+    foodFocus->setEnabled(false);
 
     cultureFocus = new QPushButton("Culture Focus");
     connect(cultureFocus, SIGNAL(clicked(bool)), this, SLOT(SetCultureFocus()));
+    cultureFocus->setEnabled(false);
 
     connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem(QListWidgetItem*)));
 
@@ -1417,6 +1438,7 @@ void GameManager::InitButtons()
     fortifyUnit = new QPushButton("Fortify");
     connect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
     fortifyUnit->setEnabled(false);
+    fortifyUnit->setShortcut(QKeySequence(Qt::Key_A));
 
 }
 
@@ -1657,7 +1679,7 @@ void GameManager::showCity(City* city)
         cityScreen->updateWidget();
 
         gameView->centerOn(city->GetCityTile()->GetCenter());
-        cityScreen->setGeometry(100, 25, this->width() - 190, this->height() - 150);
+        cityScreen->setGeometry(124, 33, 1145, this->height() - 150);
         gameView->setDragMode(QGraphicsView::NoDrag);
 
         cityScreen->show();
@@ -1665,7 +1687,13 @@ void GameManager::showCity(City* city)
     }
     else
     {
-        cityScreen->hide();
+//        cityScreen->hide();
+        this->goldFocus->setEnabled(false);
+        this->productionFocus->setEnabled(false);
+        this->scienceFocus->setEnabled(false);
+        this->cultureFocus->setEnabled(false);
+        this->foodFocus->setEnabled(false);
+
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
         renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
@@ -1723,6 +1751,12 @@ void GameManager::updateTiles()
         this->closeGame();
     }
 
+    if(cityScreen != NULL && cityScreen->isHidden())
+    {
+        cityScreenVisible = true;
+        showCity(NULL);
+    }
+
     //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING ISN'T TAKING UP A LOT OF TIME
     end = std::chrono::steady_clock::now();
     if(countTime == true)
@@ -1734,7 +1768,11 @@ void GameManager::updateTiles()
 
 void GameManager::moveUnitTo()
 {
-    relocateUnit = true;
+    qDebug() << "MoveUnitTo";
+    if(moveUnit->isEnabled())
+    {
+        relocateUnit = true;
+    }
 }
 
 void GameManager::nextTurn()
@@ -1848,31 +1886,31 @@ void GameManager::attackMelee()
 /// These are for testing the setting and changing the focus of a city.
 void GameManager::SetGoldFocus()
 {
-    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::GOLD_FOCUS);
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::GOLD_FOCUS);
     this->focusChanged = true;
 }
 
 void GameManager::SetProdFocus()
 {
-    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::PRODUCTION_FOCUS);
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::PRODUCTION_FOCUS);
     this->focusChanged = true;
 }
 
 void GameManager::SetScienceFocus()
 {
-    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::SCIENCE_FOCUS);
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::SCIENCE_FOCUS);
     this->focusChanged = true;
 }
 
 void GameManager::SetFoodFocus()
 {
-    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::FOOD_FOCUS);
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::FOOD_FOCUS);
     this->focusChanged = true;
 }
 
 void GameManager::SetCultureFocus()
 {
-    this->civList.at(0)->GetCityAt(0)->SetCityFocus(City::CULTURE_FOCUS);
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::CULTURE_FOCUS);
     this->focusChanged = true;
 }
 
@@ -1896,10 +1934,17 @@ void GameManager::Fortify()
 void GameManager::parseItem(QListWidgetItem *item)
 {
     qDebug() << "--------" << item->text() << "selected";
+    this->goldFocus->setEnabled(true);
+    this->productionFocus->setEnabled(true);
+    this->scienceFocus->setEnabled(true);
+    this->cultureFocus->setEnabled(true);
+    this->foodFocus->setEnabled(true);
+
     this->showCity(civList[0]->GetCityAt(clv->currentRow()));
-    gameView->setDragMode(QGraphicsView::ScrollHandDrag);
-    cityScreenVisible = false;
-    renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
+
+//    gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+//    cityScreenVisible = false;
+//    renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
 }
 
 

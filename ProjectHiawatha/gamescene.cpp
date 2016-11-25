@@ -14,6 +14,7 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
     processedData.column = 0;
     processedData.row = 0;
     processedData.newData = false;
+    processedData.relocateOrderGiven = false;
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -58,11 +59,13 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
             // Drag Occured
             qDebug() << "Drag Screen";
             processedData.newData = false;
+            processedData.relocateOrderGiven = false;
         }
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
             qDebug() << " Move Unit";
+
             column = 0.5 + (mrScenePos.x() / 45);
             row = 0.5 + (mrScenePos.y() / 75);
 
@@ -85,6 +88,9 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
             processedData.row = row;
             processedData.newData = true;
             processedData.relocateOrderGiven = true;
+
+            lastScreenPos = mrScreenPos;
+            lastScenePos = mrScenePos;
         }
         else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos) && !unitAwaitingRelocation)
         {
@@ -113,11 +119,13 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
             processedData.row = row;
             processedData.newData = true;
             processedData.relocateOrderGiven = false;
+
+            lastScreenPos = mrScreenPos;
+            lastScenePos = mrScenePos;
         }
 
         //Save the last mouse release position values
-        lastScreenPos = mrScreenPos;
-        lastScenePos = mrScenePos;
+
     }
     else
     {
@@ -126,9 +134,4 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
     }
 
     return processedData;
-}
-
-void GameScene::drawForeground(QPainter *painter, const QRectF &rect)
-{
-    QGraphicsScene::drawForeground(painter, rect);
 }

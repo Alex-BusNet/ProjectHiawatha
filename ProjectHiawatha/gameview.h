@@ -34,17 +34,9 @@ public:
 
     virtual void wheelEvent(QWheelEvent *e);
 
-    void SceneProcess(QPainter *paint);
-
-
 private:
     QGraphicsView gameView;
     GameScene *game;
-
-//    void mouseMoveEvent(QGraphicsSceneMouseEvent *e);
-//    void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
-//    void mousePressEvent(QGraphicsSceneMouseEvent *e);
-    void paintEvent(QPaintEvent *e);
 
     Map *map;
 

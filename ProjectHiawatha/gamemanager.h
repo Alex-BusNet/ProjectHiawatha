@@ -127,7 +127,6 @@ private:
     bool findUnit, findCity, foundACity, aiFoundCity;
     bool attackNearby, attackRange, attackEnemyCity;
     bool focusChanged;
-    bool debugConquer;
 
     Nation playerCiv;
 
@@ -178,7 +177,6 @@ public slots:
     void AttackCity();
     void RangeAttack();
     void Fortify();
-//    void ChangeCityOwner();
 
     void parseItem(QListWidgetItem *item);
 };

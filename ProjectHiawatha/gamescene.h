@@ -20,8 +20,6 @@ public:
 
     bool isTileSelected, eventQueued, redrawTile, unitMoveOrdered, citySelected, findUnit;
 
-    void drawForeground(QPainter *painter, const QRectF &rect);
-
     int column, row;
     Tile* unitTargetTile, *unitSelectedTile, *cityTileSelected;
 
