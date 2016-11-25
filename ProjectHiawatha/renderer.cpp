@@ -318,7 +318,7 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
         tVect.push_back(view->addText(QString("%1,%2\n%3").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row).arg(i)));
         tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
         tVect.at(i)->setZValue(7);
-        if(map->GetTileAt(i)->GetTileType() == ICE || map->GetTileAt(i)->ContainsUnit || map->GetTileAt(i)->HasCity)
+        if(map->GetTileAt(i)->GetTileType() == ICE)
         {
             tVect.at(i)->setDefaultTextColor(Qt::red);
         }
@@ -477,7 +477,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                             city->GetCityTile()->GetCityLabelPoint().y() + 13,
                             9, 9);
-    population->setStyleSheet(QString("QLabel { color: white; background-color: transparent; border: 1px black; }"));
+    population->setStyleSheet(QString("QLabel { color: white; background-color: transparent; }"));
     population->setText(QString(" %1 ").arg(city->GetCitizenCount()));
 
     cityPopulationLabels.push_back(view->addWidget(population));
@@ -654,6 +654,8 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
 
     cityProductionBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(255, 113, 0, 255))));
     cityProductionBars.at(index)->setZValue(6);
+
+    cityLabels.at(index)->setPlainText(QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength()));
 }
 
 void Renderer::UpdateCityHealthBar(City *city, GameView *view)
@@ -673,10 +675,16 @@ void Renderer::UpdateCityHealthBar(City *city, GameView *view)
 
 void Renderer::AddCityLabel(City* city, GameView *view)
 {
-    QLabel* label = new QLabel(QString(" %1 ").arg(city->GetName()));
-    label->setStyleSheet("QLabel { color: white; background-color: black; font-size: 12px; }");
-    cityLabels.push_back(view->addWidget(label));
-    cityLabels.last()->setPos(city->GetCityTile()->GetCityLabelPoint());
+    QString label = QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength());
+
+    cityLabels.push_back(view->addText(label));
+    cityLabels.last()->setDefaultTextColor(Qt::yellow);
+    cityLabels.last()->setZValue(7);
+    cityLabels.last()->setFont(QFont("Helvetica", 8, QFont::Normal));
+    cityLabels.last()->font().setStretch(QFont::ExtraCondensed);
+    qDebug() << "   Label width:" << cityLabels.last()->boundingRect().size();
+    cityLabels.last()->setPos(city->GetCityTile()->GetCenter().x() - (cityLabels.last()->boundingRect().width() / 2) - 2,
+                              city->GetCityTile()->GetCityLabelPoint().y() - 5);
 }
 
 void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)

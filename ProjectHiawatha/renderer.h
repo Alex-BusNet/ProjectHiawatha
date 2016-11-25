@@ -76,7 +76,7 @@ private:
     QVector<QGraphicsPolygonItem*> citySettleDistances;
 
     QVector<QGraphicsPixmapItem*> cityPixmap;
-    QVector<QGraphicsProxyWidget*> cityLabels;
+    QVector<QGraphicsTextItem*> cityLabels;
     QVector<QGraphicsRectItem*> cityHealthBars;
     QVector<QGraphicsRectItem*> cityProductionBars;
     QVector<QGraphicsRectItem*> cityGrowthBars;
