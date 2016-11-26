@@ -701,8 +701,6 @@ void GameManager::StartTurn()
                     unit->SetRangeStrength(unitData->GetRangeStrength());
                     unit->SetUnitIcon(unitData->GetUnitType());
                     qDebug()<<"Unit #"<<civList.at(currentTurn)->GetCityAt(i)->getProductionIndex();
-                    //unit->SetName(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetName());
-
                     qDebug()<<civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex())->GetCost();
                     unit->SetOwner(civList.at(currentTurn)->getCiv());
                     unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
