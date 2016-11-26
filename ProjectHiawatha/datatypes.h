@@ -12,4 +12,6 @@ typedef struct {int index; bool player, target; } SelectData;
 
 typedef struct {int gold, production, research, food, culture;} YieldStruct;
 
+typedef struct{int IconIndex; QString ToolTipMessage;} Notification;
+
 #endif // DATATYPES_H

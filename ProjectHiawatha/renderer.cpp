@@ -678,11 +678,11 @@ void Renderer::AddCityLabel(City* city, GameView *view)
     QString label = QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength());
 
     cityLabels.push_back(view->addText(label));
-    cityLabels.last()->setDefaultTextColor(Qt::yellow);
+    cityLabels.last()->setDefaultTextColor(Qt::white);
     cityLabels.last()->setZValue(7);
     cityLabels.last()->setFont(QFont("Helvetica", 8, QFont::Normal));
     cityLabels.last()->font().setStretch(QFont::ExtraCondensed);
-    qDebug() << "   Label width:" << cityLabels.last()->boundingRect().size();
+
     cityLabels.last()->setPos(city->GetCityTile()->GetCenter().x() - (cityLabels.last()->boundingRect().width() / 2) - 2,
                               city->GetCityTile()->GetCityLabelPoint().y() - 5);
 }

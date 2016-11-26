@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     techtree.cpp \
     citylabel.cpp \
     heap.cpp \
-    about.cpp
+    about.cpp \
+    notificationsystem.cpp
 
     gameoptions.cpp \
 
@@ -75,7 +76,8 @@ HEADERS  += mainwindow.h \
     tiledata.h \
     datatypes.h \
     resources.h \
-    about.h
+    about.h \
+    notificationsystem.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

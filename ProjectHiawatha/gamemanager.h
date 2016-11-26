@@ -19,6 +19,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QQueue>
+#include "notificationsystem.h"
 #include "tiledata.h"
 #include <chrono>
 
@@ -33,6 +34,7 @@ private:
     Map *map;
     UnitController *uc;
     QListWidget *clv;
+    NotificationSystem *ns;
 
     QTimer *updateTimer;
 

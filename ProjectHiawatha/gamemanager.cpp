@@ -20,6 +20,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
     clv = new QListWidget(this);
+    ns = new NotificationSystem(this);
 
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
@@ -97,9 +98,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
     civInit.waitForFinished();
 
-    delete &civInit;
-    delete &mapInit;
-
     this->playersAliveCount = civList.size();
 
     qDebug() << "Done.\nDrawing map.";
@@ -176,7 +174,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     qDebug() << "Screen size:" << gameView->width() << gameView->height();
     qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
-
     qDebug() << "Done.";
 }
 
@@ -558,7 +555,13 @@ void GameManager::StartTurn()
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
             }
+
+//            if(currentTurn == 0 && update.updateCitizens)
+//            {
+//                ns->PostNotification(Notification{2, QString("The city of %1 has grown!").arg(city->GetName())});
+//            }
         }
+
     }
 
     if(currentTurn == 0)
@@ -798,6 +801,8 @@ void GameManager::StartTurn()
                     qDebug()<<"Production finished";
                 }
             }
+
+//            ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
         }
 
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
@@ -837,6 +842,14 @@ void GameManager::StartTurn()
 
         qDebug() << "  Starting turn for civ" << currentTurn;
     }
+
+//    if(currentTurn == 0)
+//    {
+//        if(ns->HasNotificationsWaiting())
+//        {
+//            ns->ShowNotifications();
+//        }
+//    }
 }
 
 void GameManager::EndTurn()
@@ -1452,9 +1465,9 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-    unitControlButtons->addSpacing(500);
+//    unitControlButtons->addSpacing(500);
+    unitControlButtons->addWidget(ns);
     unitControlButtons->addWidget(endGameProgress);
-//    unitControlButtons->addWidget(ConquerCity);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
