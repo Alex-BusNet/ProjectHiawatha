@@ -1,4 +1,5 @@
 #include "notificationsystem.h"
+#include <QDebug>
 
 NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
 {
@@ -16,36 +17,41 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
     IconArray.push_back(cityProductionFinished);
     IconArray.push_back(warDeclared);
 
+    this->notificationWaiting = false;
+
     this->setAutoFillBackground(false);
-    this->setIconSize(QSize(25, 25));
+    this->setIconSize(QSize(80, 80));
     this->setViewMode(QListWidget::IconMode);
-    connect(this, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(removeNotification()));
 }
 
 void NotificationSystem::PostNotification(Notification n)
 {
     this->notificationsToBePosted.enqueue(n);
+    this->notificationWaiting = true;
 }
 
 void NotificationSystem::ShowNotifications()
 {
-    int rows = 0;
+    static int rows = 0;
     while(!notificationsToBePosted.isEmpty())
     {
         Notification n = notificationsToBePosted.dequeue();
-        this->insertItem(rows, new QListWidgetItem(IconArray.at(n.IconIndex), QString(" "), this, 0));
+        this->addItem(new QListWidgetItem(IconArray.at(n.IconIndex), QString(" "), this, 0));
         this->item(rows)->setToolTip(n.ToolTipMessage);
         rows++;
     }
+
+    this->notificationWaiting = false;
 }
 
 bool NotificationSystem::HasNotificationsWaiting()
 {
-    return !this->notificationsToBePosted.isEmpty();
+    return this->notificationWaiting;
 }
 
-void NotificationSystem::removeNotification()
+void NotificationSystem::removeNotification(QListWidgetItem* item)
 {
-    this->removeItemWidget(this->item(this->currentRow()));
+    qDebug() << "----Removing item";
+    item->setHidden(true);
 }
 

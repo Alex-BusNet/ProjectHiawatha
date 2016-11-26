@@ -1170,7 +1170,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
             if(x > lastX && y < lastY)
             {
                 //Moving left to right bottom to top
-                qDebug() << "--LRBT" << pt << lastX << lastY;
 
                 t_slope = (static_cast<float>(lastY) - pt.y()) / (lastX - pt.x());
                 float currentSlope = (static_cast<float>(y - pt.y())) / (x - pt.x());
@@ -1180,7 +1179,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
                 if(t_slope > currentSlope)
                 {
-                    qDebug() << "Invalid";
                     lrbtValid = true;
                 }
 
@@ -1233,19 +1231,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 }
 
             }
-//            else if(c_dstY == 0)
-//            {
-//                if(x > lastX)
-//                {
-//                    //Moving along the top
-//                }
-//                else if(x < lastX)
-//                {
-//                    //Moving along the bottom
-//                }
-//            }
-
-            qDebug() << lrtbValid << lrbtValid << rltbValid << rlbtValid;
 
             if((rltbValid && lrbtValid) || (lrtbValid && rlbtValid))
             {

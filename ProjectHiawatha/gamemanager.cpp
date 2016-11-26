@@ -136,7 +136,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
         if(i == 0)
         {
-            endGameText = new QString("Capitals Controlled:");
+            endGameText = new QString("Capitols Controlled:");
             endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
         }
         else
@@ -170,7 +170,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
 
     playerInfoRect = new QRect(0, 0, this->width(), 20);
-
+    gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
+    statusMessage = " ";
 
     qDebug() << "Screen size:" << gameView->width() << gameView->height();
     qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
@@ -443,8 +444,10 @@ void GameManager::paintEvent(QPaintEvent *event)
     QPainter paint(this);
 
     paint.fillRect(*playerInfoRect, QBrush(Qt::black));
+    paint.fillRect(*gameStatusRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(*playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
+    paint.drawText(*gameStatusRect, (Qt::AlignHCenter | Qt::AlignVCenter), statusMessage);
 }
 
 void GameManager::TurnController()
@@ -507,7 +510,7 @@ void GameManager::StartTurn()
     {
         if(i == 0)
         {
-            endGameText = new QString("Capitals Controlled:");
+            endGameText = new QString("Capitols Controlled:");
             endGameText->append(QString("\nYou      %1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
         }
         else
@@ -556,10 +559,10 @@ void GameManager::StartTurn()
                 renderer->SetTileWorkedIcon(tile, gameView);
             }
 
-//            if(currentTurn == 0 && update.updateCitizens)
-//            {
-//                ns->PostNotification(Notification{2, QString("The city of %1 has grown!").arg(city->GetName())});
-//            }
+            if(currentTurn == 0 && update.updateCitizens)
+            {
+                ns->PostNotification(Notification{2, QString("The city of %1 has grown!").arg(city->GetName())});
+            }
         }
 
     }
@@ -777,6 +780,8 @@ void GameManager::StartTurn()
 
                 if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
                 {
+                    ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
+
                     QString str2;
                     int numOfCities = 1;
                     for(int j = 0;j<20;j++)
@@ -799,10 +804,10 @@ void GameManager::StartTurn()
                     mBox->setText(finalString);
                     mBox->exec();
                     qDebug()<<"Production finished";
+
                 }
             }
 
-//            ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
         }
 
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
@@ -843,18 +848,19 @@ void GameManager::StartTurn()
         qDebug() << "  Starting turn for civ" << currentTurn;
     }
 
-//    if(currentTurn == 0)
-//    {
-//        if(ns->HasNotificationsWaiting())
-//        {
-//            ns->ShowNotifications();
-//        }
-//    }
+    if(currentTurn == 0)
+    {
+        if(ns->HasNotificationsWaiting())
+        {
+            ns->ShowNotifications();
+        }
+    }
 }
 
 void GameManager::EndTurn()
 {
     qDebug() << "Ending Turn";
+    statusMessage = " ";
     countTime = true;
     begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
@@ -906,6 +912,9 @@ void GameManager::EndTurn()
         if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
         {
             qDebug() << "----Removing Unit";
+            if(currentTurn == 0)
+                ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(civList.at(0)->GetUnitAt(i)->GetName())});
+
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
             map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
@@ -1132,7 +1141,8 @@ void GameManager::UpdateTileData()
             }
             else
             {
-                qDebug() << "Player does not own that unit";
+                //// This will need a currentTurn == 0 check
+                statusMessage = "You does not own that unit";
                 selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             }
         }
@@ -1185,7 +1195,8 @@ void GameManager::UpdateTileData()
             //City Conquering Logic
             if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
             {
-                qDebug() << "--------<<" << targetCity->GetName() << "Has Been Conquered! >>--------";
+                //// This will need a currentTurn == 0 check
+                statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
 
                 ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetTile->GetCivListIndex()));
 
@@ -1276,7 +1287,9 @@ void GameManager::UpdateTileData()
             {
                 if(existingCity->MSDIntersects(city->GetMinimumSettleDistance()))
                 {
-                    qDebug() << "--------<< You cannot settle this close to another city. >>--------";
+                    //// This will need a currentTurn == 0 check
+                    statusMessage = "--------<< You cannot settle this close to another city. >>--------";
+
                     delete city;
                     civList.at(currentTurn)->SetCityIndex(civList.at(currentTurn)->getCityIndex() - 1);
                     foreach(Tile* tile, city->GetControlledTiles())
@@ -1389,36 +1402,43 @@ void GameManager::InitButtons()
     buildFarm = new QPushButton("Build Farm");
     connect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));
     buildFarm->setEnabled(false);
+//    buildFarm->hide();
     buildFarm->setShortcut(QKeySequence(Qt::Key_F));
 
     buildMine = new QPushButton("Build Mine");
     connect(buildMine, SIGNAL(clicked(bool)), this, SLOT(buildNewMine()));
     buildMine->setEnabled(false);
+//    buildMine->hide();
     buildMine->setShortcut(QKeySequence(Qt::Key_S));
 
     buildPlantation = new QPushButton("Build Plantation");
     connect(buildPlantation, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildPlantation->setEnabled(false);
+//    buildPlantation->hide();
     buildPlantation->setShortcut(QKeySequence(Qt::Key_D));
 
     buildTradePost = new QPushButton ("Build Trading Post");
     connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildTradePost->setEnabled(false);
+//    buildTradePost->hide();
     buildTradePost->setShortcut(QKeySequence(Qt::Key_G));
 
     buildRoad = new QPushButton("Build Road");
     connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildRoad->setEnabled(false);
+//    buildRoad->hide();
     buildRoad->setShortcut(QKeySequence(Qt::Key_H));
 
     foundCity = new QPushButton("Found City");
     connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
     foundCity->setEnabled(false);
+//    foundCity->hide();
     foundCity->setShortcut(QKeySequence(Qt::Key_Q));
 
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
     attackUnit->setEnabled(false);
+//    attackUnit->hide();
     attackUnit->setShortcut(QKeySequence(Qt::Key_W));
 
     goldFocus = new QPushButton("Gold Focus");
@@ -1442,10 +1462,12 @@ void GameManager::InitButtons()
     cultureFocus->setEnabled(false);
 
     connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem(QListWidgetItem*)));
+    connect(ns, SIGNAL(itemClicked(QListWidgetItem*)), ns, SLOT(removeNotification(QListWidgetItem*)));
 
     attackCity = new QPushButton("Attack City");
     connect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
     attackCity->setEnabled(false);
+
     attackCity->setShortcut(QKeySequence(Qt::Key_E));
 
     rangeAttack = new QPushButton("Range Attack");
@@ -1465,9 +1487,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-//    unitControlButtons->addSpacing(500);
     unitControlButtons->addWidget(ns);
-    unitControlButtons->addWidget(endGameProgress);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1485,8 +1505,15 @@ void GameManager::InitLayouts()
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
 
+    QFrame *frame = new QFrame(this);
+    frame->setFrameShape(QFrame::HLine);
+    frame->setFrameShadow(QFrame::Sunken);
+    frame->setLineWidth(1);
+
     playerControlButtons->addWidget(exitGame);
     playerControlButtons->addWidget(clv);
+    playerControlButtons->addWidget(endGameProgress);
+    playerControlButtons->addWidget(frame);
     playerControlButtons->addWidget(techLabel);
     playerControlButtons->addWidget(techText);
     playerControlButtons->addWidget(goldFocus);
@@ -1499,6 +1526,7 @@ void GameManager::InitLayouts()
     gameLayout->addLayout(playerControlButtons);
 
     vLayout->addLayout(gameLayout);
+    vLayout->addSpacing(20);
 }
 
 void GameManager::InitYieldDisplay()
@@ -1579,6 +1607,7 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     {
         if(tCity->IsOriginalCapital())
         {
+            ns->PostNotification(Notification{0, QString("%1 has lost their Capitol! %2 Now controls %3 capitols.").arg(tCiv->GetLeaderName()).arg(aCiv->GetLeaderName()).arg(aCiv->GetCapitalsControlled())});
             aCiv->IncrementCapitalsControlled();
             tCiv->SetCaptialsControlled(0);
 
@@ -1964,9 +1993,4 @@ void GameManager::parseItem(QListWidgetItem *item)
 //    cityScreenVisible = false;
 //    renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
 }
-
-
-
-
-
 

@@ -76,7 +76,7 @@ void GameView::ConfigureGraphicsView()
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
     this->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
-    this->setMinimumSize(1155, 668);
+    this->setMinimumSize(1155, 648);
 }
 
 void GameView::wheelEvent(QWheelEvent *e)

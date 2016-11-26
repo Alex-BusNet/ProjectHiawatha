@@ -23,12 +23,13 @@ private:
     QVector<QLabel*> notificationsPosted;
 
     QVector<QIcon> IconArray;
+    bool notificationWaiting;
 
 //    QListWidget *notifView;
 signals:
 
 public slots:
-    void removeNotification();
+    void removeNotification(QListWidgetItem *item);
 };
 
 #endif // NOTIFICATIONSYSTEM_H

@@ -101,12 +101,12 @@ private:
     QString *endGameText;
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
-    QRect *playerInfoRect;
+    QRect *playerInfoRect, *gameStatusRect;
 
     Unit* unitToMove, *targetUnit;
     City* targetCity;
 
-    QString *YieldDisplay;
+    QString *YieldDisplay, statusMessage;
 
     QQueue<SelectData> *selectedTileQueue, *tileModifiedQueue;
 
