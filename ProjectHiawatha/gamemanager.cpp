@@ -539,9 +539,13 @@ void GameManager::StartTurn()
             map->GetTileQueue(city);
             city->SortTileQueue();
             renderer->UpdateCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
-            foreach(Tile* tile, city->GetControlledTiles())
+
+            if(currentTurn == 0)
             {
-                renderer->SetTileWorkedIcon(tile, gameView);
+                foreach(Tile* tile, city->GetControlledTiles())
+                {
+                    renderer->SetTileWorkedIcon(tile, gameView);
+                }
             }
         }
     }
@@ -556,14 +560,17 @@ void GameManager::StartTurn()
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             qDebug() << "----Updating tiles worked";
-            foreach(Tile* tile, city->GetControlledTiles())
+            if(currentTurn == 0)
             {
-                renderer->SetTileWorkedIcon(tile, gameView);
-            }
+                foreach(Tile* tile, city->GetControlledTiles())
+                {
+                    renderer->SetTileWorkedIcon(tile, gameView);
+                }
 
-            if(currentTurn == 0 && update.updateCitizens)
-            {
-                ns->PostNotification(Notification{2, QString("The city of %1 has grown!").arg(city->GetName())});
+                if(update.updateCitizens)
+                {
+                    ns->PostNotification(Notification{2, QString("The city of %1 has grown!").arg(city->GetName())});
+                }
             }
         }
 
