@@ -71,12 +71,15 @@ public:
     void resetAccumulatedScience();
     void SetCaptialsControlled(int cc);
     void IncrementCapitalsControlled();
+    void SetAtWar(Nation enemy, int enemyCivListIndex);
+    void MakePeace();
 
     int getCityIndex();
     int getAccumulatedScience(void);
     int getTechIndex();
     int GetCapitalsControlled();
-
+    int GetCivListIndexAtWar();
+    Nation GetNationAtWar();
 
     Technology* getCurrentTech();
     Technology *getNextTech();
@@ -105,6 +108,7 @@ public:
     QQueue<Unit *> getCityFounding();
 
     Unit* dequeue();
+    bool isAtWar();
     bool isEmpty();
     int queueSize();
     bool cityFounded;
@@ -142,6 +146,10 @@ private:
     int totalScience, totalGold, totalCulture;
     int accumulatedScience;
     int capitalsControlled;
+
+    int atWarWithCivListIndex;
+    Nation atWarWithNation;
+    bool atWar;
 
     //AI stuff
     bool isAIPlayer;

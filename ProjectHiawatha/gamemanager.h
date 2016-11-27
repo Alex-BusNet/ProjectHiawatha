@@ -179,6 +179,7 @@ public slots:
     void AttackCity();
     void RangeAttack();
     void Fortify();
+    void WarDeclared();
 
     void parseItem(QListWidgetItem *item);
 };

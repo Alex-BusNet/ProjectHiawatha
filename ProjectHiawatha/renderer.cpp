@@ -308,6 +308,7 @@ void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 {
     SetOutlinePen(owner);
 
+    view->removeItem(cityBorders.at(city->GetCityRenderIndex()));
     cityBorders.replace(city->GetCityRenderIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
 }
 
@@ -477,7 +478,10 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                             city->GetCityTile()->GetCityLabelPoint().y() + 13,
                             9, 9);
-    population->setStyleSheet(QString("QLabel { color: white; background-color: transparent; }"));
+    population->setStyleSheet(QString("QLabel { color: white; "
+                                      "background-color: transparent; "
+                                      "text-align: right; font-size: 8px; "
+                                      "margin-right: 1px; }"));
     population->setText(QString(" %1 ").arg(city->GetCitizenCount()));
 
     cityPopulationLabels.push_back(view->addWidget(population));

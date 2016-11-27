@@ -38,6 +38,9 @@ Civilization::Civilization(Nation name, bool isAI)
     this->cityFounded = false;
     this->alive = true;
     this->capitalsControlled = 1;
+    this->atWarWithNation = NO_NATION;
+    this->atWarWithCivListIndex = -1;
+    this->atWar = false;
 
     if(isAI)
     {
@@ -264,6 +267,20 @@ void Civilization::IncrementCapitalsControlled()
     this->capitalsControlled++;
 }
 
+void Civilization::SetAtWar(Nation enemy, int enemyCivListIndex)
+{
+    this->atWarWithCivListIndex = enemyCivListIndex;
+    this->atWarWithNation = enemy;
+    this->atWar = true;
+}
+
+void Civilization::MakePeace()
+{
+    this->atWar = false;
+    this->atWarWithCivListIndex = -1;
+    this->atWarWithNation = NO_NATION;
+}
+
 int Civilization::getTechIndex()
 {
     return this->techIndex;
@@ -272,6 +289,16 @@ int Civilization::getTechIndex()
 int Civilization::GetCapitalsControlled()
 {
     return this->capitalsControlled;
+}
+
+int Civilization::GetCivListIndexAtWar()
+{
+    return this->atWarWithCivListIndex;
+}
+
+Nation Civilization::GetNationAtWar()
+{
+    return this->atWarWithNation;
 }
 
 void Civilization::setTechIndex()
@@ -399,6 +426,11 @@ QQueue<Unit *> Civilization::getCityFounding()
 Unit *Civilization::dequeue()
 {
     return this->cityFounding.dequeue();
+}
+
+bool Civilization::isAtWar()
+{
+    return this->atWar;
 }
 
 bool Civilization::isEmpty()

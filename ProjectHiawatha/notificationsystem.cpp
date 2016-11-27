@@ -20,8 +20,12 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
     this->notificationWaiting = false;
 
     this->setAutoFillBackground(false);
-    this->setIconSize(QSize(80, 80));
+    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    this->setIconSize(QSize(45, 45));
     this->setViewMode(QListWidget::IconMode);
+    this->setMinimumSize(50, 648);
+    this->setMaximumWidth(50);
+    this->setStyleSheet("QListWidget { background: transparent; border-color: transparent; }");
 }
 
 void NotificationSystem::PostNotification(Notification n)
@@ -32,13 +36,12 @@ void NotificationSystem::PostNotification(Notification n)
 
 void NotificationSystem::ShowNotifications()
 {
-    static int rows = 0;
     while(!notificationsToBePosted.isEmpty())
     {
         Notification n = notificationsToBePosted.dequeue();
-        this->addItem(new QListWidgetItem(IconArray.at(n.IconIndex), QString(" "), this, 0));
-        this->item(rows)->setToolTip(n.ToolTipMessage);
-        rows++;
+        QListWidgetItem *ni = new QListWidgetItem(IconArray.at(n.IconIndex), QString(" "), this, 0);
+        ni->setToolTip(n.ToolTipMessage);
+        this->addItem(ni);
     }
 
     this->notificationWaiting = false;
@@ -51,7 +54,6 @@ bool NotificationSystem::HasNotificationsWaiting()
 
 void NotificationSystem::removeNotification(QListWidgetItem* item)
 {
-    qDebug() << "----Removing item";
-    item->setHidden(true);
+    this->takeItem(this->currentRow());
 }
 

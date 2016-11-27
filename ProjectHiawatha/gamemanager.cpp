@@ -87,6 +87,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     this->setLayout(vLayout);
     this->show();
 
+    ns->hide();
+
     qDebug() << "Creating new Renderer";
     renderer = new Renderer(mapSizeX);
 
@@ -624,10 +626,11 @@ void GameManager::StartTurn()
     {
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
         {
-            QMessageBox* mBox = new QMessageBox();
-            mBox->setText("Tech has finished");
-            mBox->exec();
-            qDebug()<<"Tech finished";
+            statusMessage = QString("--------<< You have finished researching %1 >>--------").arg(civList.at(0)->GetTechList().at(civList.at(0)->getTechIndex())->getName());
+//            QMessageBox* mBox = new QMessageBox();
+//            mBox->setText("Tech has finished");
+//            mBox->exec();
+//            qDebug()<<"Tech finished";
         }
 
         civList.at(currentTurn)->setTechIndex();
@@ -850,6 +853,9 @@ void GameManager::StartTurn()
     {
         if(ns->HasNotificationsWaiting())
         {
+            if(ns->isHidden())
+                ns->show();
+
             ns->ShowNotifications();
         }
     }
@@ -995,7 +1001,20 @@ void GameManager::UpdateTileData()
         qDebug() << "       ContainsUnit:" << targetTile->ContainsUnit << "HasCity:" << targetTile->HasCity;
         if(targetTile->ContainsUnit && !attackEnemyCity)
         {
-            findUnit = true;
+            if(!civList.at(currentTurn)->isAtWar())
+            {
+                if(targetTile->GetCivListIndex() != civList.at(currentTurn)->GetCivListIndexAtWar())
+                {
+                    QMessageBox *mbox = new QMessageBox();
+                    mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName()));
+                    mbox->addButton(QMessageBox::Cancel);
+                    mbox->addButton(QMessageBox::Ok);
+                    connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                    mbox->exec();
+                    disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                    delete mbox;
+                }
+            }
         }
         else if(targetTile->HasCity)
         {
@@ -1485,7 +1504,8 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-    unitControlButtons->addWidget(ns);
+//    unitControlButtons->addWidget(ns);
+    unitControlButtons->addSpacing(500);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1502,6 +1522,7 @@ void GameManager::InitLayouts()
     gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
+    gameLayout->addWidget(ns);
 
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::HLine);
@@ -1655,11 +1676,8 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
 
     if(tCity->getHasWorker())
     {
-        qDebug() << "--Removing worker";
         renderer->RemoveUnit(tCity->GetGarrisonedWorker(), gameView);
-        qDebug() << "-----";
         tCiv->RemoveUnit(tCity->GetGarrisonedWorker()->GetUnitListIndex());
-        qDebug() << "----------";
     }
 
     if(tCity->HasGarrisonUnit())
@@ -1794,6 +1812,11 @@ void GameManager::updateTiles()
         mBox->exec();
         this->playersAliveCount = 0;
         this->closeGame();
+    }
+
+    if(!ns->HasNotificationsWaiting() && ns->item(0) == NULL)
+    {
+        ns->hide();
     }
 
     if(cityScreen != NULL && cityScreen->isHidden())
@@ -1976,6 +1999,14 @@ void GameManager::Fortify()
     fortifyUnit->setEnabled(false);
 }
 
+void GameManager::WarDeclared()
+{
+    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName())});
+    findUnit = true;
+    civList.at(currentTurn)->SetAtWar(civList.at(targetTile->GetCivListIndex())->getCiv(), targetTile->GetCivListIndex());
+    civList.at(targetTile->GetCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
+}
+
 void GameManager::parseItem(QListWidgetItem *item)
 {
     qDebug() << "--------" << item->text() << "selected";
@@ -1986,9 +2017,5 @@ void GameManager::parseItem(QListWidgetItem *item)
     this->foodFocus->setEnabled(true);
 
     this->showCity(civList[0]->GetCityAt(clv->currentRow()));
-
-//    gameView->setDragMode(QGraphicsView::ScrollHandDrag);
-//    cityScreenVisible = false;
-//    renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
 }
 
