@@ -61,6 +61,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     foundACity = false;
     aiFoundCity = false;
     attackRange = false;
+    invade = false;
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -1286,11 +1287,8 @@ void GameManager::UpdateTileData()
             renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
         }
 
-        qDebug() << "       Tile Data:" << uc->NationName(targetTile->GetControllingCiv()) << targetTile->GetCivListIndex();
-        qDebug() << "       targetTile != NO_NATION" << (targetTile->GetControllingCiv() != NO_NATION);
-        qDebug() << "       targetTile != -1" << (targetTile->GetCivListIndex() != -1);
-        qDebug() << "       civListIndexAtWar != targetTileCivListIndex" << (civList.at(currentTurn)->GetCivListIndexAtWar() != targetTile->GetCivListIndex());
-        qDebug() << "        NationAtWar != targetTileControllingCiv" << (civList.at(currentTurn)->GetNationAtWar() != targetTile->GetControllingCiv());
+        qDebug() << "       Tile Data:" << uc->NationName(targetTile->GetControllingCiv()) << targetTile->GetCivListIndex() << targetTile->GetControllingCivListIndex();
+        qDebug() << "       civ war data" << uc->NationName(civList.at(currentTurn)->GetNationAtWar());
 
         if(((targetTile->GetControllingCiv() != NO_NATION)
                 || (targetTile->GetCivListIndex() != -1))
@@ -1301,23 +1299,28 @@ void GameManager::UpdateTileData()
             mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
             mbox->addButton(QMessageBox::Cancel);
             mbox->addButton(QMessageBox::Ok);
-            connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+            connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
             connect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
             mbox->exec();
-            disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
-            disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
-            delete mbox;
+        }
+        else
+        {
+            invade = true;
         }
 
-        qDebug() <<"    Finding path";
+        if(invade)
+        {
+            invade = false;
+            qDebug() <<"    Finding path";
 
-        uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
+            uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
 
-        relocateUnit = false;
-        processedData.relocateOrderGiven = false;
-        map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
-        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-        this->redrawTile = true;
+            relocateUnit = false;
+            processedData.relocateOrderGiven = false;
+            map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            this->redrawTile = true;
+        }
 
         foundCity->setEnabled(false);
 
@@ -2095,6 +2098,17 @@ void GameManager::WarAvoided()
     attackNearby = false;
     attackRange = false;
     attackCity == false;
+    invade = false;
+}
+
+void GameManager::WarByInvasion()
+{
+    qDebug() << "War By Invasion";
+    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName())});
+    ns->ShowNotifications();
+    invade = true;
+    civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCiv(), targetTile->GetControllingCivListIndex());
+    civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
 }
 
 void GameManager::parseItem(QListWidgetItem *item)

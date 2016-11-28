@@ -129,6 +129,7 @@ private:
     bool findUnit, findCity, foundACity, aiFoundCity;
     bool attackNearby, attackRange, attackEnemyCity;
     bool focusChanged;
+    bool invade;
 
     Nation playerCiv;
 
@@ -181,6 +182,7 @@ public slots:
     void Fortify();
     void WarDeclared();
     void WarAvoided();
+    void WarByInvasion();
 
     void parseItem(QListWidgetItem *item);
 };
