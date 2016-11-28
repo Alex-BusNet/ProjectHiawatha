@@ -26,6 +26,7 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->tabWidget->setTabText(1, "Units");
     ui->tabWidget->setTabText(2, "Completed Buildings");
     ui->progressBar->setMinimum(0);
+    ui->label->setText("Cost: ");
 
 
 }
@@ -220,8 +221,12 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     str2.append(bonusType);
     str.append(str2);
     ui->Bonus->setText(str);
+    QString temp = "Cost: ";
+    QString cost = QString::number(buildings.at(ui->listWidget->currentRow())->getProductionCost());
+    temp += cost;
     ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
     ui->picture->setPixmap(pic);
+    ui->label->setText(temp);
     update();
 }
 
@@ -252,8 +257,13 @@ void CityScreen::on_listWidget_2_itemSelectionChanged()
     tempString += name;
     tempString += extension;
     QPixmap pic(tempString);
+    QString temp = "Cost: ";
+    QString cost = QString::number(initialUnitList.at(ui->listWidget_2->currentRow())->GetCost());
+    temp += cost;
     ui->description->setText(initialUnitList.at(ui->listWidget_2->currentRow())->GetName());
     ui->picture->setPixmap(pic);
+    ui->label->setText(temp);
+    ui->Bonus->setText(" ");
 
 }
 

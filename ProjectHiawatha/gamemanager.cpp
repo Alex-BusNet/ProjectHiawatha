@@ -641,9 +641,14 @@ void GameManager::StartTurn()
 //            mBox->exec();
 //            qDebug()<<"Tech finished";
         }
-
+        QString unlocks = "UNLOCKED: ";
+        QString techName = civList.at(currentTurn)->GetTechList().at(civList.at(0)->getTechIndex())->getName();
+        QString firstLine = "Finished: ";
+        firstLine += techName;
+        firstLine += "\n";
         civList.at(currentTurn)->setTechIndex();
         int techIndex = civList.at(currentTurn)->getTechIndex();
+
         for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
         {
             for(int j = 0; j<civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().size();j++)
@@ -651,6 +656,8 @@ void GameManager::StartTurn()
                 if(civList.at(currentTurn)->GetCityList().at(0)->getInitialUnitList().at(j)->GetTechIndex() == (techIndex-1))
                 {
                     qDebug() << "UNLOCKING: " << civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
+                    unlocks+= civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
+                    unlocks+= ", ";
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
                 }  
             }
@@ -660,6 +667,8 @@ void GameManager::StartTurn()
                 if(civList.at(currentTurn)->GetCityList().at(0)->getInitialBuildingList().at(k)->getTechIndex() == (techIndex - 1))
                 {
                     qDebug() << "UNLOCKING: " << civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->getName();
+                    unlocks+= civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->getName();
+                    unlocks+= ", ";
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->setUnlocked(1);
                 }
             }
@@ -674,6 +683,16 @@ void GameManager::StartTurn()
         if(currentTurn == 0)
         {
             techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+        }
+
+        if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
+        {
+
+            firstLine+=unlocks;
+            QMessageBox* mBox = new QMessageBox();
+            mBox->setText(firstLine);
+            mBox->exec();
+            qDebug()<<"Tech finished";
         }
     }
 
