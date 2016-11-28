@@ -1,6 +1,8 @@
 #include "techtree.h"
 #include "ui_techtree.h"
 #include <QDebug>
+#include <QMessageBox>
+#include <QFile>
 
 TechTree::TechTree(QWidget *parent) :
     QWidget(parent),
@@ -11,6 +13,8 @@ TechTree::TechTree(QWidget *parent) :
     ui->tabWidget->setTabText(1,"Next Tech");
     ui->tabWidget->setTabText(2,"Future Techs");
     ui->progressBar->setMinimum(0);
+    ui->Cost->setText("No Tech Selected");
+    ui->pic->setText(" ");
 
 }
 
@@ -28,7 +32,6 @@ void TechTree::loadData(Technology *currentTech, Technology *nextTech, int curre
     str4 = str4 + ".png";
     str = str + str2;
     str = str + ".png";
-    qDebug()<<"STRING EQUALS "<<str;
     QString tempStr = "Cost: ";
     QString cost;
     QString cost2;
@@ -47,4 +50,59 @@ void TechTree::loadData(Technology *currentTech, Technology *nextTech, int curre
     ui->progressBar->setMaximum(cost.toInt());
     ui->progressBar->setValue(currentProgress);
     this->update();
+}
+
+void TechTree::updateWidget(int currentIndex)
+{
+    this->localIndex = currentIndex;
+    for(int i = currentIndex;i<techListCopy.size();i++)
+    {
+        ui->listWidget->addItem(techListCopy.at(i)->getName());
+
+    }
+    this->update();
+}
+
+void TechTree::loadTechList(QString filename)
+{
+    QFile inputFile(filename);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          QStringList techInfo = line.split(",");
+          int x = techInfo[1].toInt();
+          int y = techInfo[2].toInt();
+          Technology* tech = new Technology(techInfo[0],x,y);
+          techListCopy.push_back(tech);
+       }
+       inputFile.close();
+    }else
+    {
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText("File Not Found");
+        mBox->exec();
+        qDebug()<<"File Not Found";
+
+    }
+}
+
+
+
+void TechTree::on_listWidget_itemSelectionChanged()
+{
+    int vectorIndex = ui->listWidget->currentRow()+ localIndex;
+    QString str = "../ProjectHiawatha/Assets/Techs/";
+    QString str2 = techListCopy.at(vectorIndex)->getName();
+    str = str + str2;
+    str = str + ".png";
+    QString tempStr = "Cost: ";
+    QString cost;
+    cost = cost.number(techListCopy.at(vectorIndex)->getCost());
+    tempStr = tempStr + cost;
+    QPixmap picture(str);
+    ui->Cost->setText(tempStr);
+    ui->pic->setPixmap(picture.scaled(ui->pic->size()));
 }

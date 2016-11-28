@@ -7,6 +7,7 @@
 #include <ctime>
 #include <algorithm>
 #include <QtConcurrent/QtConcurrent>
+#include <QMediaPlayer>
 #include "unittype.h"
 #include "datatypes.h"
 
@@ -636,10 +637,6 @@ void GameManager::StartTurn()
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
         {
             statusMessage = QString("--------<< You have finished researching %1 >>--------").arg(civList.at(0)->GetTechList().at(civList.at(0)->getTechIndex())->getName());
-//            QMessageBox* mBox = new QMessageBox();
-//            mBox->setText("Tech has finished");
-//            mBox->exec();
-//            qDebug()<<"Tech finished";
         }
         QString unlocks = "UNLOCKED: ";
         QString techName = civList.at(currentTurn)->GetTechList().at(civList.at(0)->getTechIndex())->getName();
@@ -946,7 +943,10 @@ void GameManager::EndTurn()
             qDebug() << "----Removing Unit";
             if(currentTurn == 0)
                 ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(civList.at(0)->GetUnitAt(i)->GetName())});
-
+            QMediaPlayer *musicPlayer = new QMediaPlayer();
+            musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
+            musicPlayer->setVolume(50);
+            musicPlayer->play();
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
             map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
@@ -1923,6 +1923,8 @@ void GameManager::showTechTree()
         }
         techTree = new TechTree(this);
         techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech(),civList.at(0)->getAccumulatedScience());
+        techTree->loadTechList("../ProjectHiawatha/Assets/Techs/Technology.txt");
+        techTree->updateWidget(civList.at(0)->getNextTech()->getIndex()+1);
         techTree->setGeometry(gameView->pos().x() + 2, gameView->pos().y() + 3, gameView->width() - 6, gameView->height() - 150);
         techTree->show();
         techTreeVisible = true;
