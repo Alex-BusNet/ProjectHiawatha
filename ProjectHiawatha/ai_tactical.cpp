@@ -97,6 +97,12 @@ void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, QVecto
 
 void AI_Tactical::AtWar(Civilization *civ, City *cityTarget)
 {
+    UnitController *unit;
+    for(int i=0; i<civ->GetUnitList().length();i++){
+        if(!civ->GetUnitAt(i)->HasNoMovementLeft){
+            unit->AttackCity(civ->GetUnitAt(i),cityTarget);
+        }
+    }
     //Scroll through a vector of the military units,
         //check each to see if it has moves remaining
             //direct it toward the target city

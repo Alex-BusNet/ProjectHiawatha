@@ -30,6 +30,8 @@ public:
     Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
     City *FindCityAtTile(Tile *tile, Map *map, QVector<City*> cityList);
 
+    int GetDistance(Tile* a, Tile *b);
+
     QString NationName(Nation nation)
     {
         switch(nation)
@@ -72,7 +74,6 @@ public:
     }
 
 private:
-    int GetDistance(Tile* a, Tile *b);
     void RetracePath(Tile *start, Tile *end, Map *map, Unit *unit);
 
 };

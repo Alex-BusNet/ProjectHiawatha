@@ -37,12 +37,13 @@ AI_Operational::AI_Operational(int midGoal, QVector<Tile *> CityToBeFounded, Civ
 
     if(1==midGoal){
         qDebug()<<"AI_Ops Midgoal 1";
+        //theaterAtWar(civ, player, cityTarget, map);
     }
     else if(2==midGoal){
         theaterPrep(civ, player, troopLocations);
     }
     else if(3==midGoal){
-       theaterAtWar(civ, player, cityTarget);
+       theaterAtWar(civ, player, cityTarget, map);
     }
     else{
         //Probably not anything for operational in this context, aside from threat detection
@@ -109,19 +110,26 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
 
 
 
-void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget){
-    //scan outward for nearest player city
-        //Sets it as city target
-
-    //Probably just easiest to use the findpath from AI capitol to each player city
-    //and return the closest from there
-
+void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget, Map *map){
+    qDebug()<<"Theater At War";
+    int targetIndex=0, targetDistance=INT_MAX;
+    UnitController *checkDist;
+    for(int i =0; i< player->GetCityList().length();i++){
+        if(checkDist->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile())<targetDistance){
+            targetIndex=i;
+            targetDistance=checkDist->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile());
+        }
+    }
+    this->cityTarget=player->GetCityAt(targetIndex);
 }
 //************Theater of War***************
 //Prioritizes the nearest city (by accessibility?) of the player civ
 //If at war, sends x units immediately to priority targets
         //1 city at a time
-
+//scan outward for nearest player city
+    //Sets it as city target
+//Probably just easiest to use the findpath from AI capitol to each player city
+//and return the closest from there
 //Apropriate location??????
 //always priority for siege units unless directly threatened
         //Units which pose a threat to borders or to forces actively invading the enemy city
