@@ -103,11 +103,14 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
     qDebug()<<"City Production";
 
     bool activeSettler = false;
-    int combatUnits=0, meleeUnits=0, rangedUnits=0, siegeUnits=0, mountedUnits=0, antiMoutedUnits=0, attackShips=0, submarines=0, fighters=0, bombers=0, carriers=0;
+    int workers=0, combatUnits=0, meleeUnits=0, rangedUnits=0, siegeUnits=0, mountedUnits=0, antiMoutedUnits=0, attackShips=0, submarines=0, fighters=0, bombers=0, carriers=0;
     for(int i = 0;i< civ->GetUnitList().length();i++){
         QString unitname=civ->GetUnitAt(i)->GetName();
         if("Settler"==unitname){
             activeSettler=true;
+        }
+        else if("Worker"==unitname){
+            workers++;
         }
         else if("Warrior"==unitname||"Swordsman"==unitname||"Musketman"==unitname||"Rifleman"==unitname||"Infantry"==unitname||"Mechanized Infantry"==unitname){
             meleeUnits++;
@@ -167,7 +170,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     qDebug()<<"     Settler";
                     //Set city to build settler
                 }
-                else if((!civ->GetCityAt(i)->getHasWorker())&&(1<civ->GetCityList().length())){
+                else if((!civ->GetCityAt(i)->getHasWorker())&&(1<civ->GetCityList().length())&&(workers<civ->GetCityList().length())){
                     civ->GetCityAt(i)->setCurrentProductionCost(70);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Worker");
