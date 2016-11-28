@@ -307,7 +307,7 @@ Update_t City::UpdateProgress()
             this->foodSurplus = 1;
         }
 
-        this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
+        this->turnsToNewCitizen = 2 * (this->growthCost / this->foodSurplus);
 
         if(this->turnsToNewCitizen < 0)
         {
@@ -777,7 +777,7 @@ void City::RemoveGarrisonMilitary()
 
 void City::AddControlledTile(Tile *tile)
 {
-    tile->SetControllingCiv(controllingCiv);
+    tile->SetControllingCiv(controllingCiv, this->cityTile->GetControllingCivListIndex());
     this->cityControlledTiles.push_back(tile);
 }
 

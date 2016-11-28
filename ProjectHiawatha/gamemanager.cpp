@@ -131,6 +131,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
                 foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
                 {
+//                    tile->SetControllingCiv(civList.at(i)->getCiv());
                     renderer->SetTileWorkedIcon(tile, gameView);
                 }
             }
@@ -1285,14 +1286,19 @@ void GameManager::UpdateTileData()
             renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
         }
 
-        qDebug() <<"    Finding path";
-        if(targetTile->GetControllingCiv() != NO_NATION
-                && targetTile->GetCivListIndex() != -1
+        qDebug() << "       Tile Data:" << uc->NationName(targetTile->GetControllingCiv()) << targetTile->GetCivListIndex();
+        qDebug() << "       targetTile != NO_NATION" << (targetTile->GetControllingCiv() != NO_NATION);
+        qDebug() << "       targetTile != -1" << (targetTile->GetCivListIndex() != -1);
+        qDebug() << "       civListIndexAtWar != targetTileCivListIndex" << (civList.at(currentTurn)->GetCivListIndexAtWar() != targetTile->GetCivListIndex());
+        qDebug() << "        NationAtWar != targetTileControllingCiv" << (civList.at(currentTurn)->GetNationAtWar() != targetTile->GetControllingCiv());
+
+        if(((targetTile->GetControllingCiv() != NO_NATION)
+                || (targetTile->GetCivListIndex() != -1))
                 && (civList.at(currentTurn)->GetCivListIndexAtWar() != targetTile->GetCivListIndex()
                 || civList.at(currentTurn)->GetNationAtWar() != targetTile->GetControllingCiv()))
         {
             QMessageBox *mbox = new QMessageBox();
-            mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName()));
+            mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
             mbox->addButton(QMessageBox::Cancel);
             mbox->addButton(QMessageBox::Ok);
             connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
@@ -1302,6 +1308,8 @@ void GameManager::UpdateTileData()
             disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
             delete mbox;
         }
+
+        qDebug() <<"    Finding path";
 
         uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
 
@@ -1359,7 +1367,7 @@ void GameManager::UpdateTileData()
                     civList.at(currentTurn)->SetCityIndex(civList.at(currentTurn)->getCityIndex() - 1);
                     foreach(Tile* tile, city->GetControlledTiles())
                     {
-                        tile->SetControllingCiv(NO_NATION);
+                        tile->SetControllingCiv(NO_NATION, -1);
                     }
                     unitToMove->RequiresOrders = true;
                     civList.at(currentTurn)->cityFounded= false;
@@ -1400,20 +1408,24 @@ void GameManager::UpdateTileData()
         qDebug() << "--Adding Drawing city borders";
         renderer->DrawCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
 
-        qDebug () << "--Setting tile worked";
-        foreach(Tile* tile, city->GetControlledTiles())
+        if(currentTurn == 0)
         {
-            renderer->SetTileWorkedIcon(tile, gameView);
+            qDebug () << "--Setting tile worked";
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                renderer->SetTileWorkedIcon(tile, gameView);
+            }
+
+            renderer->SetFortifyIcon(foundCityIndex, true);
+            renderer->SetUnitNeedsOrders(foundCityIndex, false);
         }
 
         qDebug() << "--Updating yield";
         civList.at(currentTurn)->UpdateCivYield();
 
-        renderer->SetFortifyIcon(foundCityIndex, true);
-        renderer->SetUnitNeedsOrders(foundCityIndex, false);
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
         map->GetTileAt(foundCityIndex)->HasCity=true;
-        map->GetTileAt(foundCityIndex)->SetControllingCiv(civList.at(currentTurn)->getCiv());
+        map->GetTileAt(foundCityIndex)->SetControllingCiv(civList.at(currentTurn)->getCiv(), currentTurn);
         renderer->RemoveUnit(unitToMove, gameView);
         civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
 
@@ -2073,7 +2085,6 @@ void GameManager::WarDeclared()
 {
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName())});
     ns->ShowNotifications();
-//    findUnit = true;
     civList.at(currentTurn)->SetAtWar(civList.at(targetTile->GetCivListIndex())->getCiv(), targetTile->GetCivListIndex());
     civList.at(targetTile->GetCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
 }

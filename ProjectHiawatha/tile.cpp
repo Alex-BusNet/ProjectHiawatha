@@ -141,9 +141,10 @@ Nation Tile::GetControllingCiv()
     return this->owner;
 }
 
-void Tile::SetControllingCiv(Nation civ)
+void Tile::SetControllingCiv(Nation civ, int civListIndex)
 {
     this->owner = civ;
+    this->controllingCivListIndex = civListIndex;
 }
 
 City* Tile::GetGoverningCity()
@@ -427,6 +428,11 @@ void Tile::SetCivListIndex(int index)
 int Tile::GetCivListIndex()
 {
     return this->occupyingCivListIndex;
+}
+
+int Tile::GetControllingCivListIndex()
+{
+    return this->controllingCivListIndex;
 }
 
 void Tile::SetResource(Strategic strat, Luxury lux)

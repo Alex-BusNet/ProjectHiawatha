@@ -45,7 +45,7 @@ public:
     //void SetTileResource();
 
     Nation GetControllingCiv();
-    void SetControllingCiv(Nation civ);
+    void SetControllingCiv(Nation civ, int civListIndex);
 
     City *GetGoverningCity();
     void SetGoverningCity(City *city);
@@ -99,6 +99,7 @@ public:
 
     void SetCivListIndex(int index);
     int GetCivListIndex();
+    int GetControllingCivListIndex();
 
     void SetResource(Strategic strat, Luxury lux);
     int GetStratResource();
@@ -117,6 +118,7 @@ private:
     City *city;
     int moveCost;
     int occupyingCivListIndex;
+    int controllingCivListIndex;
     int tileIndex;
 
     Strategic stratResource;

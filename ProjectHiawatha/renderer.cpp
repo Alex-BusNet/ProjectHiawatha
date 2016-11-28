@@ -503,10 +503,10 @@ void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 
     //========================
     // TO BE REMOVED
-    cityExpansionBorders.push_back(view->addPolygon(city->GetMaximumExpansionBorder(), QPen(QColor(Qt::red))));
-    cityExpansionBorders.last()->pen().setWidth(1);
-    citySettleDistances.push_back(view->addPolygon(city->GetMinimumSettleDistance(), QPen(QColor(Qt::yellow))));
-    citySettleDistances.last()->pen().setWidth(1);
+//    cityExpansionBorders.push_back(view->addPolygon(city->GetMaximumExpansionBorder(), QPen(QColor(Qt::red))));
+//    cityExpansionBorders.last()->pen().setWidth(1);
+//    citySettleDistances.push_back(view->addPolygon(city->GetMinimumSettleDistance(), QPen(QColor(Qt::yellow))));
+//    citySettleDistances.last()->pen().setWidth(1);
     //========================
 
 }
