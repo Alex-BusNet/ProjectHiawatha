@@ -163,7 +163,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -257,7 +257,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -343,7 +343,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, M
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i));
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -405,7 +405,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
                 {
                     qDebug()<<"Traveling Settler";
                     qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
-                    UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i));
+                    UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
                 }
                 qDebug()<<"Path not empty";
             }
@@ -472,7 +472,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
                         }
                         else {
                             //Send the unused worker to city
-                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i));
+                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
                         }
                     }
                     else if(false==roadWorkerExists){

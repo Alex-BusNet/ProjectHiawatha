@@ -180,6 +180,7 @@ public slots:
     void RangeAttack();
     void Fortify();
     void WarDeclared();
+    void WarAvoided();
 
     void parseItem(QListWidgetItem *item);
 };

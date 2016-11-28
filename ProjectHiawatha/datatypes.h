@@ -2,7 +2,7 @@
 #define DATATYPES_H
 
 #include <QVector>
-
+#include "nation.h"
 
 typedef struct {bool updateBorders, updateCitizens, productionFinished, cityHealed; QVector<int> cityIndecies;} Update_t;
 
@@ -13,5 +13,6 @@ typedef struct {int index; bool player, target; } SelectData;
 typedef struct {int gold, production, research, food, culture;} YieldStruct;
 
 typedef struct{int IconIndex; QString ToolTipMessage;} Notification;
+typedef struct{int warCivIndex; Nation warringCiv;} WarData;
 
 #endif // DATATYPES_H

@@ -10,7 +10,7 @@ UnitController::UnitController()
 
 }
 
-void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit)
+void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
     qDebug() << " End tile has unit:" << endTile->ContainsUnit;
 
@@ -60,7 +60,17 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
 
         foreach(Tile* neighbor, neighborList)
         {
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit)
+            //Skip the tile if it is:
+            //  -Impassable terrain
+            //  -Has already been searched
+            //  -Contains a unit
+            //  -Is occupied or controlled by the civilization that the owner is at war with
+            //      AND is not controlled/occupied by NO_NATION (-1)
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit
+                    || ((neighbor->GetCivListIndex() != wDat.warCivIndex
+                        || neighbor->GetControllingCiv() != wDat.warringCiv)
+                        && (wDat.warCivIndex != -1)
+                        && (wDat.warringCiv != NO_NATION)))
             {
                 continue;
             }

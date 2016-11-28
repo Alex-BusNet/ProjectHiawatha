@@ -550,9 +550,9 @@ void Renderer::SetUnitNeedsOrders(int tile, bool needsOrders)
 void Renderer::SetFortifyIcon(int tile, bool unfortify)
 {
     if(!unfortify)
-        fortifiedIcon.at(tile)->setZValue(8);
+        fortifiedIcon.at(tile)->setOpacity(100);
     else
-        fortifiedIcon.at(tile)->setZValue(-1);
+        fortifiedIcon.at(tile)->setOpacity(0);
 }
 
 void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view)

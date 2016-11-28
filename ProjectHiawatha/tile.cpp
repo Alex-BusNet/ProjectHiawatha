@@ -98,6 +98,7 @@ Tile::Tile(int _posX, int _posY)
     owner = NO_NATION;
     city = new City();
     outlinePen.setColor(QColor(255, 255, 255, 0));
+    occupyingCivListIndex = -1;
 
     gCost = 0;
     hCost = 0;

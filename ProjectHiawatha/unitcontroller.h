@@ -8,13 +8,14 @@
 #include "city.h"
 #include "civilization.h"
 #include "gamescene.h"
+#include "datatypes.h"
 
 class UnitController
 {
 public:
     UnitController();
 
-    void FindPath(Tile *startTile, Tile* endTile, Map *map, Unit *unit);
+    void FindPath(Tile *startTile, Tile* endTile, Map *map, Unit *unit, WarData wDat);
     void MoveUnit(Unit *unit, Map *map, int civListIndex);
 
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
