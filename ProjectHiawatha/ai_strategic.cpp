@@ -160,7 +160,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                 if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
                     ///For debugging purposes, Settler production has been set to 10. This will need to be reset to 100.
-                    civ->GetCityAt(i)->setCurrentProductionCost(10);
+                    civ->GetCityAt(i)->setCurrentProductionCost(100);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Settler");
                     civ->GetCityAt(i)->setProductionIndex(3);

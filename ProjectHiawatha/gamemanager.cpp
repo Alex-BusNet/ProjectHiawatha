@@ -68,10 +68,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     {
         this->setFixedSize(1400, 700);
         this->setWindowTitle("Project Hiawatha");
+        gameView->setFixedWidth(1195);
     }
     else
     {
         this->setWindowState(Qt::WindowFullScreen);
+        gameView->setFixedWidth(this->width() - 200);
     }
 
     gameView->ConfigureGraphicsView();
@@ -1165,8 +1167,9 @@ void GameManager::UpdateTileData()
             }
             else
             {
-                //// This will need a currentTurn == 0 check
-                statusMessage = "You does not own that unit";
+                if(currentTurn == 0)
+                    statusMessage = "You does not own that unit";
+
                 selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             }
         }
@@ -1409,6 +1412,7 @@ void GameManager::InitButtons()
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
+    exitGame->setMaximumWidth(100);
 
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
@@ -1468,25 +1472,32 @@ void GameManager::InitButtons()
     goldFocus = new QPushButton("Gold Focus");
     connect(goldFocus, SIGNAL(clicked(bool)), this, SLOT(SetGoldFocus()));
     goldFocus->setEnabled(false);
+    goldFocus->setMaximumWidth(100);
 
     productionFocus = new QPushButton("Production Focus");
     connect(productionFocus, SIGNAL(clicked(bool)), this, SLOT(SetProdFocus()));
     productionFocus->setEnabled(false);
+    productionFocus->setMaximumWidth(100);
 
     scienceFocus = new QPushButton("Science Focus");
     connect(scienceFocus, SIGNAL(clicked(bool)), this, SLOT(SetScienceFocus()));
     scienceFocus->setEnabled(false);
+    scienceFocus->setMaximumWidth(100);
 
     foodFocus = new QPushButton("Food Focus");
     connect(foodFocus, SIGNAL(clicked(bool)), this, SLOT(SetFoodFocus()));
     foodFocus->setEnabled(false);
+    foodFocus->setMaximumWidth(100);
 
     cultureFocus = new QPushButton("Culture Focus");
     connect(cultureFocus, SIGNAL(clicked(bool)), this, SLOT(SetCultureFocus()));
     cultureFocus->setEnabled(false);
+    cultureFocus->setMaximumWidth(100);
 
     connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem(QListWidgetItem*)));
     connect(ns, SIGNAL(itemClicked(QListWidgetItem*)), ns, SLOT(removeNotification(QListWidgetItem*)));
+
+    clv->setMaximumWidth(100);
 
     attackCity = new QPushButton("Attack City");
     connect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
@@ -1511,8 +1522,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-//    unitControlButtons->addWidget(ns);
-    unitControlButtons->addSpacing(500);
+    unitControlButtons->addSpacing(900);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1524,12 +1534,14 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(buildTradePost);
     unitControlButtons->addWidget(buildRoad);
     unitControlButtons->addWidget(moveUnit);
+    unitControlButtons->setGeometry(QRect(0, 20, 100, this->height() - 20));
 
     gameLayout->addLayout(unitControlButtons);
     gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
     gameLayout->addWidget(ns);
+    gameLayout->setGeometry(QRect(100, 20, this->width() - 100, this->height() - 20));
 
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::HLine);
@@ -1548,6 +1560,7 @@ void GameManager::InitLayouts()
     playerControlButtons->addWidget(foodFocus);
     playerControlButtons->addWidget(cultureFocus);
     playerControlButtons->addWidget(endTurn);
+    playerControlButtons->setGeometry(QRect(this->width() - 100, 20, 100, this->height() - 20));
 
     gameLayout->addLayout(playerControlButtons);
 
@@ -1644,6 +1657,10 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
             city->SetCityAsCapital(false, false);
         }
     }
+    else
+    {
+         statusMessage = QString("--------<< You have conquered the city of %1 >>--------").arg(tCity->GetName());
+    }
 
     city->resetAccumulatedProduction();
     city->setCurrentProductionCost(0);
@@ -1714,6 +1731,8 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     aCiv->AddCity(city);
 
     clv->addItem(city->GetName());
+
+    ns->ShowNotifications();
 }
 
 void GameManager::closeGame()
@@ -1749,7 +1768,7 @@ void GameManager::showCity(City* city)
         cityScreen->updateWidget();
 
         gameView->centerOn(city->GetCityTile()->GetCenter());
-        cityScreen->setGeometry(124, 33, 1145, this->height() - 150);
+        cityScreen->setGeometry(gameView->pos().x() + 2, gameView->pos().y() + 3, gameView->width() - 6, gameView->height() - 150);
         gameView->setDragMode(QGraphicsView::NoDrag);
 
         cityScreen->show();
@@ -1866,7 +1885,7 @@ void GameManager::showTechTree()
         }
         techTree = new TechTree(this);
         techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech(),civList.at(0)->getAccumulatedScience());
-        techTree->setGeometry(124, 33, 1145, this->height() - 150);
+        techTree->setGeometry(gameView->pos().x() + 2, gameView->pos().y() + 3, gameView->width() - 6, gameView->height() - 150);
         techTree->show();
         techTreeVisible = true;
     }
@@ -1958,34 +1977,38 @@ void GameManager::attackMelee()
     qDebug() << "Attack nearby to true";
 }
 
-/// These are for testing the setting and changing the focus of a city.
 void GameManager::SetGoldFocus()
 {
     this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::GOLD_FOCUS);
+    statusMessage = QString("--------<< You have changed %1's focus to gold >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
     this->focusChanged = true;
 }
 
 void GameManager::SetProdFocus()
 {
     this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::PRODUCTION_FOCUS);
+     statusMessage = QString("--------<< You have changed %1's focus to production >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
     this->focusChanged = true;
 }
 
 void GameManager::SetScienceFocus()
 {
     this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::SCIENCE_FOCUS);
+     statusMessage = QString("--------<< You have changed %1's focus to science >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
     this->focusChanged = true;
 }
 
 void GameManager::SetFoodFocus()
 {
     this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::FOOD_FOCUS);
+     statusMessage = QString("--------<< You have changed %1's focus to food >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
     this->focusChanged = true;
 }
 
 void GameManager::SetCultureFocus()
 {
     this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::CULTURE_FOCUS);
+     statusMessage = QString("--------<< You have changed %1's focus to culture >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
     this->focusChanged = true;
 }
 
@@ -2009,6 +2032,7 @@ void GameManager::Fortify()
 void GameManager::WarDeclared()
 {
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName())});
+    ns->ShowNotifications();
     findUnit = true;
     civList.at(currentTurn)->SetAtWar(civList.at(targetTile->GetCivListIndex())->getCiv(), targetTile->GetCivListIndex());
     civList.at(targetTile->GetCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);

@@ -103,9 +103,16 @@ void City::SortControlledTiles()
         }
     }
 
-    for(int k = 0; k < this->citizens; k++)
+    for(int k = 0; k < this->cityControlledTiles.size(); k++)
     {
-        this->cityControlledTiles.at(k)->IsWorked = true;
+        if(k < this->citizens)
+        {
+            this->cityControlledTiles.at(k)->IsWorked = true;
+        }
+        else
+        {
+            break;
+        }
     }
 }
 
