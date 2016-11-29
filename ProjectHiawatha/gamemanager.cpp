@@ -671,6 +671,10 @@ void GameManager::StartTurn()
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
         {
 
+            if(unlocks.endsWith(", "))
+            {
+                unlocks.chop(2);
+            }
             firstLine+=unlocks;
             QMessageBox* mBox = new QMessageBox();
             mBox->setText(firstLine);
