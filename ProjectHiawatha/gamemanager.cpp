@@ -643,8 +643,12 @@ void GameManager::StartTurn()
                 if(civList.at(currentTurn)->GetCityList().at(0)->getInitialUnitList().at(j)->GetTechIndex() == (techIndex-1))
                 {
                     qDebug() << "UNLOCKING: " << civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
-                    unlocks+= civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->GetName();
-                    unlocks+= ", ";
+                    if(i == 0)
+                    {
+                        unlocks+= civList.at(currentTurn)->GetCityList().at(0)->getInitialUnitList().at(j)->GetName();
+                        unlocks+= ", ";
+                    }
+
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialUnitList().at(j)->setUnlocked(1);
                 }  
             }
@@ -654,8 +658,12 @@ void GameManager::StartTurn()
                 if(civList.at(currentTurn)->GetCityList().at(0)->getInitialBuildingList().at(k)->getTechIndex() == (techIndex - 1))
                 {
                     qDebug() << "UNLOCKING: " << civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->getName();
-                    unlocks+= civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->getName();
-                    unlocks+= ", ";
+                    if(i == 0)
+                    {
+                        unlocks+= civList.at(currentTurn)->GetCityList().at(0)->getInitialBuildingList().at(k)->getName();
+                        unlocks+= ", ";
+                    }
+
                     civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(k)->setUnlocked(1);
                 }
             }
@@ -801,34 +809,12 @@ void GameManager::StartTurn()
                 if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
                 {
                     ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
-
-                    QString str2;
-                    int numOfCities = 1;
-                    for(int j = 0;j<20;j++)
-                    {
-                        if(str[j].isEmpty()) { continue; }
-                        else
-                        {
-                            QString str3 = str[j];
-                            if(numOfCities > 1){
-                                str3+= ", ";
-                            }
-                            str2 += str3;
-                            numOfCities++;
-                        }
-
-                    }
-                    QString prodString = "Production has finished in: ";
-                    QString finalString = prodString+str2;
-                    QMessageBox* mBox = new QMessageBox();
-                    mBox->setText(finalString);
-                    mBox->exec();
-                    qDebug()<<"Production finished";
-
                 }
             }
 
         }
+
+
 
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
         {
@@ -866,6 +852,31 @@ void GameManager::StartTurn()
         }
 
         qDebug() << "  Starting turn for civ" << currentTurn;
+    }
+
+    if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
+    {
+
+        QString cityList;
+        for(int j = 0;j<20;j++)
+        {
+            if(str[j].isEmpty()) { continue; }
+            else
+            {
+                QString str3 = str[j];
+                str3+= ", ";
+                cityList += str3;
+            }
+
+        }
+        QString prodString = "Production has finished in: ";
+        QString finalString = prodString+cityList;
+        finalString.chop(2);
+        QMessageBox* mBox = new QMessageBox();
+        mBox->setText(finalString);
+        mBox->exec();
+        qDebug()<<"Production finished";
+
     }
 
     if(currentTurn == 0)
