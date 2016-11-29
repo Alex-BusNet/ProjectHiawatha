@@ -1296,10 +1296,7 @@ void GameManager::UpdateTileData()
         qDebug() << "       Tile Data:" << uc->NationName(targetTile->GetControllingCiv()) << targetTile->GetCivListIndex() << targetTile->GetControllingCivListIndex();
         qDebug() << "       civ war data" << uc->NationName(civList.at(currentTurn)->GetNationAtWar());
 
-        if(((targetTile->GetControllingCiv() != NO_NATION)
-                || (targetTile->GetCivListIndex() != -1))
-                && (civList.at(currentTurn)->GetCivListIndexAtWar() != targetTile->GetCivListIndex()
-                || civList.at(currentTurn)->GetNationAtWar() != targetTile->GetControllingCiv()) && currentTurn != 0)
+        if(uc->WarCheck(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
         {
             QMessageBox *mbox = new QMessageBox();
             mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));

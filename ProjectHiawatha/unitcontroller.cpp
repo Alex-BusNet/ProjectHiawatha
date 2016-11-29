@@ -347,6 +347,26 @@ void UnitController::HealUnit(Unit *unit)
         unit->SetHealth(unit->GetHealth() + 10);
 }
 
+bool UnitController::WarCheck(Tile *target, WarData wDat)
+{
+    if(target->GetControllingCiv() != NO_NATION)
+    {
+        if(target->GetControllingCiv() != wDat.warringCiv)
+        {
+            return true;
+        }
+    }
+    else if(target->GetCivListIndex() != -1)
+    {
+        if(target->GetCivListIndex() != wDat.warCivIndex)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int UnitController::GetDistance(Tile *a, Tile *b)
 {
     int dstX = b->GetTileID().column - a->GetTileID().column;
