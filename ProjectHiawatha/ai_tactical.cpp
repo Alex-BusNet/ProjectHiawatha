@@ -442,41 +442,33 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
 
 void AI_Tactical::workercontrol(Civilization *civ, Map *map){
     qDebug()<<"             Worker Control Start";
-
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
-
     //Make sure a roadworker exists
     bool roadWorkerExists=false;
-
     for(int i = 0; i<unitlist.length();i++){
-
-        //Find worker location
-        Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-
         if(civ->GetUnitList().at(i)->GetUnitType()==WORKER){
+            //Find worker location
+            Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
             if(civ->GetUnitList().at(i)->isFortified){
-
                 //Improve Tiles *******************
             }
             else if (civ->GetUnitList().at(i)->isRoadWorker){
-
                 roadWorkerExists=true;
-
                 //Build Roads ********************
             }
             else{
                 //Check each city for garrisoned worker
                 for(int j = 0; j<civ->GetCityList().length();j++){
                     if(!civ->GetCityAt(j)->getHasWorker()){
-
                         if(unitlocation==civ->GetCityAt(j)->GetCityTile()){
                             //Garrison Worker
                             civ->GetUnitList().at(i)->isFortified=true;
                             civ->GetCityAt(j)->GarrisonWorker(civ->GetUnitList().at(i));
                         }
                         else {
+                            qDebug()<<"City at "<<civ->GetCityAt(j)->GetCityTile()->GetTileIndex();
                             //Send the unused worker to city
                             unitlist.at(i)->SetUnitTargetTile(civ->GetCityAt(j)->GetCityTile()->GetTileID().column, civ->GetCityAt(j)->GetCityTile()->GetTileID().row);
                             unitlist.at(i)->SetUnitTargetTileIndex(civ->GetCityAt(j)->GetCityTile()->GetTileIndex());
@@ -484,12 +476,10 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
                         }
                     }
                     else if(false==roadWorkerExists){
-
                         civ->GetUnitList().at(i)->isRoadWorker=true;
                         roadWorkerExists=true;
                     }
                 }
-
                 //Find workers that aren't garrisoned or roadbuilding
                 //Match them with cities that don't have workers
                     //Should actually be built in the correct city, so just immediately garisson if not roadworker

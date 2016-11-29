@@ -103,7 +103,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
     qDebug()<<"City Production";
 
     bool activeSettler = false;
-    int workers=0, combatUnits=0, meleeUnits=0, rangedUnits=0, siegeUnits=0, mountedUnits=0, antiMoutedUnits=0, attackShips=0, submarines=0, fighters=0, bombers=0, carriers=0;
+    int workers=0, combatUnits=0, meleeUnits=0, rangedUnits=0, siegeUnits=0, mountedUnits=0, antiMoutedUnits=0, fighters=0, bombers=0;
     for(int i = 0;i< civ->GetUnitList().length();i++){
         QString unitname=civ->GetUnitAt(i)->GetName();
         if("Settler"==unitname){
@@ -132,14 +132,14 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
             antiMoutedUnits++;
             combatUnits++;
         }
-        else if("Galley"==unitname||"Caravel"==unitname||"Frigate"==unitname||"Ironclad"==unitname||"Destroyer"==unitname||"Battleship"==unitname){
-            attackShips++;
-            combatUnits++;
-        }
-        else if("Submarine"==unitname){
-            submarines++;
-            combatUnits++;
-        }
+//        else if("Galley"==unitname||"Caravel"==unitname||"Frigate"==unitname||"Ironclad"==unitname||"Destroyer"==unitname||"Battleship"==unitname){
+//            attackShips++;
+//            combatUnits++;
+//        }
+//        else if("Submarine"==unitname){
+//            submarines++;
+//            combatUnits++;
+//        }
         else if("Fighter"==unitname||"Jet Fighter"==unitname){
             fighters++;
             combatUnits++;
@@ -148,13 +148,12 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
             bombers++;
             combatUnits++;
         }
-        else if("Carrier"==unitname){
-            carriers++;
-            combatUnits++;
-        }
+//        else if("Carrier"==unitname){
+//            carriers++;
+//            combatUnits++;
+//        }
     }//Tallies various unit types
 
-    //No tally for scout or worker?
 
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
