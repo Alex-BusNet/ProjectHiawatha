@@ -26,6 +26,7 @@ City::City()
     this->isCaptial = false;
     this->isOriginalCapital = false;
     this->fullyExpanded = false;
+    this->hasWorker=false;
 }
 
 
@@ -752,6 +753,7 @@ void City::GarrisonWorker(Unit *worker)
     {
         this->StationedWorkers = worker;
         this->hasWorker = true;
+        worker->isGarrisoned=true;
     }
 }
 
@@ -770,6 +772,7 @@ void City::GarrisonMilitary(Unit *military)
     {
         this->StationedMilitary = military;
         this->hasGarrison = true;
+        military->isGarrisoned=true;
     }
 }
 

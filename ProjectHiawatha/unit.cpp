@@ -19,6 +19,7 @@ Unit::Unit()
     this->uses = 1;
     this->needsPath = false;
     this->unlocked = 0;
+    this->isGarrisoned=false;
 //    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
@@ -40,6 +41,7 @@ Unit::Unit(Nation owner, UnitType type)
     this->unlocked = 0;
     this->range = 1;
     this->uses = 1;
+    this->isGarrisoned=false;
 }
 
 Unit::Unit(int index)
@@ -60,6 +62,7 @@ Unit::Unit(int index)
     this->uses = 1;
     this->needsPath = false;
     this->unlocked = 0;
+    this->isGarrisoned=false;
 }
 
 Unit::~Unit()

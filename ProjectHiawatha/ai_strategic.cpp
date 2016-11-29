@@ -170,6 +170,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     //Set city to build settler
                 }
                 else if((!civ->GetCityAt(i)->getHasWorker())&&(1<civ->GetCityList().length())&&(workers<civ->GetCityList().length())){
+                    //qDebug()<<"City: "<<civ->GetCityAt(i)->GetName();
                     civ->GetCityAt(i)->setCurrentProductionCost(70);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Worker");

@@ -84,6 +84,7 @@ public:
     bool isRoadWorker;
     bool needsPath;
     bool isSiege;
+    bool isGarrisoned;
 
 private:
     QImage *unitIcon;

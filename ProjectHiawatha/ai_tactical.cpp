@@ -59,21 +59,11 @@ void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, QVecto
     UnitController *UnitControl= new UnitController();
 
     for(int i = 0; i<unitlist.length();i++){
-
-        //Test target tile location
-//        Tile *tile3x3y = map->GetTileFromCoord(3,3);
-//        scene->column=3;
-//        scene->row=3;
-
         //Find Troop location
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
         if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR&&(!civ->GetUnitList().at(i)->HasNoMovementLeft)){
             //Will need additional logic for other unit types
-
-          // UnitControl->FindPath(unitlocation,player->GetCityAt(0)->GetCityTile(),map,scene,unitlist.at(i));
-            //Charges enemy capitol
-
         }
 
     }
@@ -448,7 +438,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
     //Make sure a roadworker exists
     bool roadWorkerExists=false;
     for(int i = 0; i<unitlist.length();i++){
-        if(civ->GetUnitList().at(i)->GetUnitType()==WORKER){
+        if(civ->GetUnitList().at(i)->GetUnitType()==WORKER&&(civ->GetUnitAt(i)->RequiresOrders)){
             //Find worker location
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
             if(civ->GetUnitList().at(i)->isFortified){
@@ -461,14 +451,16 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
             else{
                 //Check each city for garrisoned worker
                 for(int j = 0; j<civ->GetCityList().length();j++){
-                    if(!civ->GetCityAt(j)->getHasWorker()){
-                        if(unitlocation==civ->GetCityAt(j)->GetCityTile()){
+                    //qDebug()<<civ->GetCityAt(j)->getHasWorker();
+                    if(!civ->GetCityAt(j)->getHasWorker()&&!unitlist.at(i)->isGarrisoned){
+                        if(unitlocation->GetTileIndex()==civ->GetCityAt(j)->GetCityTile()->GetTileIndex()){
                             //Garrison Worker
-                            civ->GetUnitList().at(i)->isFortified=true;
+                            //qDebug()<<"garrison worker";
+                            //civ->GetUnitList().at(i)->isFortified=true;
                             civ->GetCityAt(j)->GarrisonWorker(civ->GetUnitList().at(i));
                         }
                         else {
-                            qDebug()<<"City at "<<civ->GetCityAt(j)->GetCityTile()->GetTileIndex();
+                            //qDebug()<<"City at "<<civ->GetCityAt(j)->GetCityTile()->GetTileIndex();
                             //Send the unused worker to city
                             unitlist.at(i)->SetUnitTargetTile(civ->GetCityAt(j)->GetCityTile()->GetTileID().column, civ->GetCityAt(j)->GetCityTile()->GetTileID().row);
                             unitlist.at(i)->SetUnitTargetTileIndex(civ->GetCityAt(j)->GetCityTile()->GetTileIndex());

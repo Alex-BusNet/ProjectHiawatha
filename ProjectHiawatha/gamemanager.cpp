@@ -707,11 +707,16 @@ void GameManager::StartTurn()
 
         if(update.productionFinished)
         {
+            qDebug()<<"i = "<<i;
             if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
             {
+                qDebug()<<"2 ";
                 civList.at(currentTurn)->GetCityAt(i)->setProductionFinished(false);
+
+                qDebug()<<"2.5 ";
                 if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
                 {
+                    qDebug()<<"3 ";
                     str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
                     localIndex++;
 
@@ -719,6 +724,7 @@ void GameManager::StartTurn()
 
                 if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
                 {
+                    qDebug()<<"4 ";
                     civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
                     Unit* unit = new Unit(0);
                     Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
@@ -774,14 +780,18 @@ void GameManager::StartTurn()
                 }
                 else
                 {
+                    qDebug()<<"5";
                     int science = 0;
                     int gold = 0;
                     int production = 0;
                     int culture = 0;
                     int food = 0;
                     civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
+                    qDebug()<<"current turn";
                     int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
+                    qDebug()<<"Production Index";
                     Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
+                    qDebug()<<"Building";
                     int bonusType = building->getbonusType();
                     if(bonusType == 2)
                     {
@@ -801,7 +811,9 @@ void GameManager::StartTurn()
                     {
                          culture = building->getBonusValue();
                     }
-                    civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
+                    if(0==currentTurn){
+                        civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
+                    }
 
                     civList.at(currentTurn)->GetCityList().at(i)->addBuilding(building);
                 }
@@ -813,7 +825,7 @@ void GameManager::StartTurn()
             }
 
         }
-
+qDebug()<<"6";
 
 
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
