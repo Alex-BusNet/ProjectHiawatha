@@ -687,7 +687,7 @@ void City::UpdateCityStatus()
         this->turnsToBorderGrowth = floor((20 + (pow(10*(this->cityControlledTiles.size() - 1), 1.1))) / this->cityTotalYield->GetCultureYield());
 
     // Citizen Growth Calculation
-    this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
+    this->turnsToNewCitizen = 2 * (this->growthCost / this->foodSurplus);
 
     if(this->turnsToNewCitizen < 0)
     {

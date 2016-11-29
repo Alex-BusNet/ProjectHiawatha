@@ -21,9 +21,10 @@ Civilization::Civilization()
 
 }
 
-Civilization::Civilization(Nation name, bool isAI)
+Civilization::Civilization(Nation name, bool isAI, QString leaderName)
 {
     this->name=name;
+    this->LeaderName = leaderName;
     //set color
     //spawn a city, and initialize (based on nation)
     //call updatecityyield and updatecivyield to initialize

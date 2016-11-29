@@ -187,7 +187,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
-    Civilization* civ = new Civilization(player, false);
+    Civilization* civ = new Civilization(player, false, " ");
     civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
@@ -301,106 +301,90 @@ newCivRand:
             switch (civNum)
             {
             case America:
-                civ = new Civilization(America, true);
+                civ = new Civilization(America, true, "Washington");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
-                civ->SetLeaderName(QString("Washington"));
                 selNat.push_back(civNum);
                 break;
             case Germany:
-                civ = new Civilization(Germany, true);
+                civ = new Civilization(Germany, true, "Bismark");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
-                civ->SetLeaderName(QString("Bismark"));
                 selNat.push_back(civNum);
                 break;
             case India:
-                civ = new Civilization(India, true);
+                civ = new Civilization(India, true, "Gandhi");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
-                civ->SetLeaderName(QString("Gandhi"));
                 selNat.push_back(civNum);
                 break;
             case China:
-                civ = new Civilization(China, true);
+                civ = new Civilization(China, true, "Zedong");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
-                civ->SetLeaderName(QString("Zedong"));
                 selNat.push_back(civNum);
                 break;
             case Mongolia:
-                civ = new Civilization(Mongolia, true);
+                civ = new Civilization(Mongolia, true, "Genghis Khan");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
-                civ->SetLeaderName(QString("Genghis Khan"));
                 selNat.push_back(civNum);
                 break;
             case Aztec:
-                civ = new Civilization(Aztec, true);
+                civ = new Civilization(Aztec, true, "Montezuma");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
-                civ->SetLeaderName(QString("Montezuma"));
                 selNat.push_back(civNum);
                 break;
             case France:
-                civ = new Civilization(France, true);
+                civ = new Civilization(France, true, "Napoleon");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
-                civ->SetLeaderName(QString("Napoleon"));
                 selNat.push_back(civNum);
                 break;
             case Iroquois:
-                civ = new Civilization(Iroquois, true);
+                civ = new Civilization(Iroquois, true, "Hiawatha");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/iroquois.txt");
-                civ->SetLeaderName(QString("Hiawatha"));
                 selNat.push_back(Iroquois);
                 break;
             case Greece:
-                civ = new Civilization(Greece, true);
+                civ = new Civilization(Greece, true, "Greece");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/greece.txt");
-                civ->SetLeaderName(QString("Alexander"));
+//                civ->SetLeaderName(QString("Alexander"));
                 selNat.push_back(civNum);
                 break;
             case Rome:
-                civ = new Civilization(Rome, true);
+                civ = new Civilization(Rome, true, "Ceasar");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/rome.txt");
-                civ->SetLeaderName(QString("Ceasar"));
                 selNat.push_back(civNum);
                 break;
             case England:
-                civ = new Civilization(England, true);
+                civ = new Civilization(England, true, "Elizabeth");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/england.txt");
-                civ->SetLeaderName(QString("Elizabeth"));
                 selNat.push_back(civNum);
                 break;
             case Arabia:
-                civ = new Civilization(Arabia, true);
+                civ = new Civilization(Arabia, true, "al-Rashid");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/arabia.txt");
-                civ->SetLeaderName(QString("al-Rashid"));
                 selNat.push_back(civNum);
                 break;
             case Persia:
-                civ = new Civilization(Persia, true);
+                civ = new Civilization(Persia, true, "Cyrus");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/persia.txt");
-                civ->SetLeaderName(QString("Cyrus"));
                 selNat.push_back(civNum);
                 break;
             case Russia:
-                civ = new Civilization(Russia, true);
+                civ = new Civilization(Russia, true, "Stalin");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/russia.txt");
-                civ->SetLeaderName(QString("Stalin"));
                 selNat.push_back(civNum);
                 break;
             case Japan:
-                civ = new Civilization(Japan, true);
+                civ = new Civilization(Japan, true, "Nobunga");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/japan.txt");
-                civ->SetLeaderName(QString("Nobunga"));
                 selNat.push_back(civNum);
                 break;
             case Egypt:
-                civ = new Civilization(Egypt, true);
+                civ = new Civilization(Egypt, true, "Ramesses");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/egypt.txt");
-                civ->SetLeaderName(QString("Ramesses"));
                 selNat.push_back(civNum);
                 break;
             default:
                 //Always default to Ghandi.
-                civ = new Civilization(India, true);
+                civ = new Civilization(India, true, "Gandhi");
                 civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
-                civ->SetLeaderName(QString("Gandhi"));
                 selNat.push_back(civNum);
                 break;
             }
@@ -1138,7 +1122,6 @@ void GameManager::UpdateTileData()
 
                     foreach(Tile *tile, tiles)
                     {
-                        qDebug() << "   CivListIndex:" << tile->GetCivListIndex();
                         if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
                         {
                             int tileIndex = tile->GetTileIndex();
@@ -1191,7 +1174,7 @@ void GameManager::UpdateTileData()
             else
             {
                 if(currentTurn == 0)
-                    statusMessage = "You does not own that unit";
+                    statusMessage = "--------<< You do not own that unit >>--------";
 
                 selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             }
@@ -1278,14 +1261,6 @@ void GameManager::UpdateTileData()
 
     if(processedData.relocateOrderGiven && !findUnit && !aiFoundCity)
     {
-        unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
-        unitToMove->SetUnitTargetTileIndex(targetTile->GetTileIndex());
-
-        if(unitToMove->isFortified)
-        {
-            unitToMove->isFortified = false;
-            renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
-        }
 
         qDebug() << "       Tile Data:" << uc->NationName(targetTile->GetControllingCiv()) << targetTile->GetCivListIndex() << targetTile->GetControllingCivListIndex();
         qDebug() << "       civ war data" << uc->NationName(civList.at(currentTurn)->GetNationAtWar());
@@ -1311,6 +1286,16 @@ void GameManager::UpdateTileData()
         if(invade)
         {
             invade = false;
+
+            unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
+            unitToMove->SetUnitTargetTileIndex(targetTile->GetTileIndex());
+
+            if(unitToMove->isFortified)
+            {
+                unitToMove->isFortified = false;
+                renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+            }
+
             qDebug() <<"    Finding path";
 
             uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
@@ -2104,7 +2089,7 @@ void GameManager::WarAvoided()
 void GameManager::WarByInvasion()
 {
     qDebug() << "War By Invasion";
-    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName())});
+    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
     ns->ShowNotifications();
     invade = true;
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCiv(), targetTile->GetControllingCivListIndex());

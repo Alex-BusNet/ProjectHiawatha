@@ -638,7 +638,6 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
 
     foreach(Tile* tile, initialTiles)
     {
-        tile->SetControllingCiv(founder->getCiv(), founder->getCivIndex());
         city->AddControlledTile(tile);
     }
 
@@ -687,9 +686,11 @@ newrand:
         {
             lastIndex = index;
 
+            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
+
             city = this->CreateCity(index, civs.at(i), true);
 
-            if(!city->IsInitialized()){ goto newrand; }
+            if(!city->IsInitialized()){ board.at(index)->SetControllingCiv(NO_NATION, -1); goto newrand; }
 
             for(int j = 0; j < i; j++)
             {
@@ -707,6 +708,7 @@ newrand:
                             tile->IsWorked = false;
                         }
                     }
+                    board.at(index)->SetControllingCiv(NO_NATION, -1);
                     goto newrand;
                 }
             }
@@ -727,6 +729,7 @@ newrand:
                                 tile->IsWorked = false;
                             }
                         }
+                        board.at(index)->SetControllingCiv(NO_NATION, -1);
                         goto newrand;
                     }
                 }
@@ -734,7 +737,7 @@ newrand:
 
             board.at(index)->SetCivListIndex(i);
             board.at(index)->HasCity = true;
-            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
+//            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
             board.at(index)->SetGoverningCity(city);
 
             QList<Tile*> cityMEB = this->GetNeighborsRange(board.at(index), 4);

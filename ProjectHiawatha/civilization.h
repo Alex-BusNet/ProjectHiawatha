@@ -21,7 +21,7 @@ class Civilization
 {
 public:
     Civilization();//default, don't use
-    Civilization(Nation name, bool isAI);
+    Civilization(Nation name, bool isAI, QString leaderName);
 
     //Accessors and Mutators
     void UpdateCivYield();
