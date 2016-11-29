@@ -363,6 +363,7 @@ int UnitController::GetDistance(Tile *a, Tile *b)
 
 void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
 {
+    qDebug() << "   Start:" << start->GetTileIDString() << "End:" << end->GetTileIDString();
     QList<Tile*> path;
     Tile *current = end;
 

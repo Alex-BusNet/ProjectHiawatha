@@ -1308,6 +1308,7 @@ void GameManager::UpdateTileData()
         if(invade)
         {
             invade = false;
+            qDebug() << "       " << unitToMove->GetName() << "targetTile:" << targetTile->GetTileIDString() << targetTile->GetTileIndex();
 
             unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
             unitToMove->SetUnitTargetTileIndex(targetTile->GetTileIndex());

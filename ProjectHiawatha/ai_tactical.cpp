@@ -478,6 +478,8 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
                         }
                         else {
                             //Send the unused worker to city
+                            unitlist.at(i)->SetUnitTargetTile(civ->GetCityAt(j)->GetCityTile()->GetTileID().column, civ->GetCityAt(j)->GetCityTile()->GetTileID().row);
+                            unitlist.at(i)->SetUnitTargetTileIndex(civ->GetCityAt(j)->GetCityTile()->GetTileIndex());
                             UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
                         }
                     }
