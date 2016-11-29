@@ -124,36 +124,37 @@ void City::SortTileQueue()
     //  -Resources on tile
     //  -Tile type
 
-    qDebug() << "   ---Sorting TileQueue; MEB Filter";
+//    qDebug() << "   ---Sorting TileQueue; MEB Filter";
 
-    bool inMEB = true;
-    for(int k = 0; k < tileQueue.size(); k++)
-    {
-        foreach(Tile* meb, maximumExpansionBorderTiles)
-        {
-            if(tileQueue.at(k)->GetTileID().column != meb->GetTileID().column)
-            {
-                if(tileQueue.at(k)->GetTileID().row != meb->GetTileID().row)
-                {
-                    inMEB = false;
-                }
-            }
-            else if(tileQueue.at(k)->GetTileID().column == meb->GetTileID().column)
-            {
-                if(tileQueue.at(k)->GetTileID().row == meb->GetTileID().row)
-                {
-                    inMEB = true;
-                }
-            }
-        }
+//    bool inMEB = true;
+//    for(int k = 0; k < tileQueue.size(); k++)
+//    {
+//        foreach(Tile* meb, maximumExpansionBorderTiles)
+//        {
+//            if(tileQueue.at(k)->GetTileID().column != meb->GetTileID().column)
+//            {
+//                if(tileQueue.at(k)->GetTileID().row != meb->GetTileID().row)
+//                {
+//                    inMEB = false;
+//                }
+//            }
+//            else if(tileQueue.at(k)->GetTileID().column == meb->GetTileID().column)
+//            {
+//                if(tileQueue.at(k)->GetTileID().row == meb->GetTileID().row)
+//                {
+//                    inMEB = true;
+//                }
+//            }
+//        }
 
-        if(!inMEB)
-        {
-            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
-            inMEB = true;
-            tileQueue.remove(k);
-        }
-    }
+//        if(!inMEB)
+//        {
+//            qDebug() << k << "out of" << tileQueue.size();
+//            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
+//            inMEB = true;
+//            tileQueue.remove(k);
+//        }
+//    }
 
 
     if(this->tileQueue.isEmpty())
@@ -372,6 +373,7 @@ Update_t City::UpdateProgress()
              << "citizens:" << this->citizens
              << "Building Strength" << this->buildingStrength;
 
+    qDebug() << " City total production:" << this->cityTotalYield->GetProductionYield();
     return update;
 }
 
@@ -615,6 +617,7 @@ void City::SetName(QString name)
 void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
+    qDebug() << "--Setting MSD and MEB";
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
     this->minimumSettleDistance << QPoint(x - 88, y - 147)
                                  << QPoint(x + 88, y - 147)
@@ -650,6 +653,8 @@ void City::UpdateCityYield()
             oldFood = this->cityTotalYield->GetFoodYield() * -1,
             oldCul = this->cityTotalYield->GetCultureYield() * -1;
 
+    qDebug() << "   Old YPT:" << oldGold << oldProd << oldSci << oldFood << oldCul;
+
     this->cityTotalYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
 
     //Recalculate the city's YPT
@@ -670,6 +675,8 @@ void City::UpdateCityYield()
             newCul += tile->GetYield()->GetCultureYield();
         }
     }
+
+    qDebug() << "   New YPT:" << newGold << newProd << newSci << newFood << newCul;
 
     if(this->stagnant && (newFood > (oldFood * -1)))
     {
@@ -1153,6 +1160,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
     float c_slope, t_slope;
     bool lrtbValid = false, rltbValid = false, rlbtValid = false, lrbtValid = false;
 
+    qDebug() << "   t_MSD size:" << t_MSD.size() << "c_MSD size" << c_MSD.size();
     foreach(QPoint pt, t_MSD)
     {
         lastX = c_MSD.at(c_MSD.size() - 1).x();
@@ -1184,6 +1192,8 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
+                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+
                 if(t_slope > currentSlope)
                 {
                     lrbtValid = true;
@@ -1199,6 +1209,8 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
+
+                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
@@ -1216,6 +1228,8 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
+                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+
                 if(t_slope > currentSlope)
                 {
                     rltbValid = true;
@@ -1232,6 +1246,8 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
+                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+
                 if(t_slope < currentSlope)
                 {
                     rlbtValid = true;
@@ -1239,7 +1255,9 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
             }
 
-            if((rltbValid && lrbtValid) || (lrtbValid && rlbtValid))
+            qDebug() << "rltb:" << rltbValid << "lrbt:" << lrbtValid << "lrtb:" << lrtbValid << "rlbt:" << rlbtValid;
+
+            if((rltbValid || lrbtValid) || (lrtbValid || rlbtValid))
             {
                 lrtbValid = false;
                 lrbtValid = false;

@@ -132,8 +132,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
                 foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
                 {
-//                    tile->SetControllingCiv(civList.at(i)->getCiv());
                     renderer->SetTileWorkedIcon(tile, gameView);
+                }
+
+                foreach(Tile* tile, civList.at(i)->GetCityAt(j)->tileQueue)
+                {
+                    uc->GetDistance(tile, civList.at(i)->GetCityAt(j)->GetCityTile());
                 }
             }
 
@@ -160,7 +164,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     InitYieldDisplay();
 
-//    renderer->DrawGuiText(map, stringData, gameView);
+    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     for(int i = 0; i < 3; i++)
@@ -1021,7 +1025,7 @@ void GameManager::UpdateTileData()
         {
             if(!civList.at(currentTurn)->isAtWar())
             {
-                if(targetTile->GetCivListIndex() != civList.at(currentTurn)->GetCivListIndexAtWar())
+                if(targetTile->GetCivListIndex() != civList.at(currentTurn)->GetCivListIndexAtWar() && currentTurn != 0)
                 {
                     QMessageBox *mbox = new QMessageBox();
                     mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetCivListIndex())->GetLeaderName()));
@@ -1272,7 +1276,7 @@ void GameManager::UpdateTileData()
         if(((targetTile->GetControllingCiv() != NO_NATION)
                 || (targetTile->GetCivListIndex() != -1))
                 && (civList.at(currentTurn)->GetCivListIndexAtWar() != targetTile->GetCivListIndex()
-                || civList.at(currentTurn)->GetNationAtWar() != targetTile->GetControllingCiv()))
+                || civList.at(currentTurn)->GetNationAtWar() != targetTile->GetControllingCiv()) && currentTurn != 0)
         {
             QMessageBox *mbox = new QMessageBox();
             mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
@@ -1281,6 +1285,9 @@ void GameManager::UpdateTileData()
             connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
             connect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
             mbox->exec();
+            disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+            disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+            delete mbox;
         }
         else
         {
@@ -1341,26 +1348,33 @@ void GameManager::UpdateTileData()
         qDebug()<<foundACity<<aiFoundCity;
         City* city;
 
+        qDebug() << "Found City index";
         foundCityIndex = unitToMove->GetTileIndex();
 
+        qDebug() << "Create City";
         city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
 
         bool valid = true;
+        int dstX, dstY;
         for(int i = 0; i < civList.size(); i++)
         {
             foreach(City* existingCity, civList.at(i)->GetCityList())
             {
-                if(existingCity->MSDIntersects(city->GetMinimumSettleDistance()))
+                dstX = city->GetCityTile()->GetTileID().column - existingCity->GetCityTile()->GetTileID().column;
+                dstY = city->GetCityTile()->GetTileID().row - existingCity->GetCityTile()->GetTileID().row;
+
+                if((abs(dstX) < 8 && dstY == 0) || (abs(dstX) <= 4 && abs(dstY) <= 4) || (dstX == 0 && abs(dstY) < 4))
                 {
+                    qDebug() << "   Invalid Settle Location";
                     //// This will need a currentTurn == 0 check
                     statusMessage = "--------<< You cannot settle this close to another city. >>--------";
 
-                    delete city;
                     civList.at(currentTurn)->SetCityIndex(civList.at(currentTurn)->getCityIndex() - 1);
                     foreach(Tile* tile, city->GetControlledTiles())
                     {
                         tile->SetControllingCiv(NO_NATION, -1);
                     }
+                    delete city;
                     unitToMove->RequiresOrders = true;
                     civList.at(currentTurn)->cityFounded= false;
                     valid = false;

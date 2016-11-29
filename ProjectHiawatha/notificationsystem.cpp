@@ -23,6 +23,7 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setIconSize(QSize(40, 40));
     this->setViewMode(QListWidget::IconMode);
+    this->setAcceptDrops(false);
     this->setMinimumSize(50, 648);
     this->setMaximumWidth(50);
     this->setStyleSheet("QListWidget { background: transparent; border-color: transparent; }");
