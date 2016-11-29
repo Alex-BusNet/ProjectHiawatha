@@ -190,20 +190,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(5);
                             qDebug()<<"Warrior";
                         }
-                        else if(rangedUnits<8){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(50);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Archer");
                             civ->GetCityAt(i)->setProductionIndex(0);
                             qDebug()<<"Archer";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(50);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Galley");
-                            civ->GetCityAt(i)->setProductionIndex(1);
-                            qDebug()<<"Galley";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Galley");
+//                            civ->GetCityAt(i)->setProductionIndex(1);
+//                            qDebug()<<"Galley";
+//                        }
                     }
                     else if(7>=numBuildings){
                         //Tech Level 2 (Spear)
@@ -221,20 +221,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(0);
                             qDebug()<<"Archer";
                         }
-                        else if(antiMoutedUnits<3){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(60);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Spearman");
                             civ->GetCityAt(i)->setProductionIndex(4);
                             qDebug()<<"Spearman";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(50);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Galley");
-                            civ->GetCityAt(i)->setProductionIndex(1);
-                            qDebug()<<"Galley";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Galley");
+//                            civ->GetCityAt(i)->setProductionIndex(1);
+//                            qDebug()<<"Galley";
+//                        }
                     }
                     else if(11>=numBuildings){
                         //Tech 3 cata/sword
@@ -260,20 +260,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(11);
                             qDebug()<<"Pikeman";
                         }
-                        else if(siegeUnits<4){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(80);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Catapult");
                             civ->GetCityAt(i)->setProductionIndex(7);
                             qDebug()<<"Catapult";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(50);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Galley");
-                            civ->GetCityAt(i)->setProductionIndex(1);
-                            qDebug()<<"Galley";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Galley");
+//                            civ->GetCityAt(i)->setProductionIndex(1);
+//                            qDebug()<<"Galley";
+//                        }
                     }
                     else if(12>=numBuildings){
                         //Tech 5 cross/knight
@@ -305,20 +305,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(10);
                             qDebug()<<"Knight";
                         }
-                        else if(siegeUnits<4){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(80);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Catapult");
                             civ->GetCityAt(i)->setProductionIndex(7);
                             qDebug()<<"Catapult";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(50);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Galley");
-                            civ->GetCityAt(i)->setProductionIndex(1);
-                            qDebug()<<"Galley";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(50);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Galley");
+//                            civ->GetCityAt(i)->setProductionIndex(1);
+//                            qDebug()<<"Galley";
+//                        }
                     }
                     else if(13>=numBuildings){
                         //Tech 6 carav/musket
@@ -350,20 +350,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(10);
                             qDebug()<<"Knight";
                         }
-                        else if(siegeUnits<4){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(80);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Catapult");
                             civ->GetCityAt(i)->setProductionIndex(7);
                             qDebug()<<"Catapult";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(120);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Caravel");
-                            civ->GetCityAt(i)->setProductionIndex(13);
-                            qDebug()<<"Caravel";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(120);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Caravel");
+//                            civ->GetCityAt(i)->setProductionIndex(13);
+//                            qDebug()<<"Caravel";
+//                        }
                     }
                     else if(14>=numBuildings){
                         //tech 7 cann/frig
@@ -395,20 +395,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(10);
                             qDebug()<<"Knight";
                         }
-                        else if(siegeUnits<4){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(190);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cannon");
                             civ->GetCityAt(i)->setProductionIndex(12);
                             qDebug()<<"Cannon";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(190);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Frigate");
-                            civ->GetCityAt(i)->setProductionIndex(15);
-                            qDebug()<<"Frigate";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Frigate");
+//                            civ->GetCityAt(i)->setProductionIndex(15);
+//                            qDebug()<<"Frigate";
+//                        }
                     }
                     else if(15>=numBuildings){
                         //tech 8 cav/rifl
@@ -440,20 +440,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(14);
                             qDebug()<<"Cavalry";
                         }
-                        else if(siegeUnits<4){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(190);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cannon");
                             civ->GetCityAt(i)->setProductionIndex(12);
                             qDebug()<<"Cannon";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(190);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Frigate");
-                            civ->GetCityAt(i)->setProductionIndex(15);
-                            qDebug()<<"Frigate";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(190);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Frigate");
+//                            civ->GetCityAt(i)->setProductionIndex(15);
+//                            qDebug()<<"Frigate";
+//                        }
                     }
                     else if(16>=numBuildings){
                         //tech 9 iron
@@ -485,20 +485,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(14);
                             qDebug()<<"Cavalry";
                         }
-                        else if(siegeUnits<4){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(190);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cannon");
                             civ->GetCityAt(i)->setProductionIndex(12);
                             qDebug()<<"Cannon";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(275);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Ironclad");
-                            civ->GetCityAt(i)->setProductionIndex(24);
-                            qDebug()<<"Ironclad";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(275);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Ironclad");
+//                            civ->GetCityAt(i)->setProductionIndex(24);
+//                            qDebug()<<"Ironclad";
+//                        }
                     }
                     else if(17>=numBuildings){
                         //tech 10 art/dest/infan
@@ -530,20 +530,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(14);
                             qDebug()<<"Cavalry";
                         }
-                        else if(siegeUnits<5){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(330);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Artillery");
                             civ->GetCityAt(i)->setProductionIndex(18);
                             qDebug()<<"Artillery";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(380);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Destroyer");
-                            civ->GetCityAt(i)->setProductionIndex(22);
-                            qDebug()<<"Destroyer";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Destroyer");
+//                            civ->GetCityAt(i)->setProductionIndex(22);
+//                            qDebug()<<"Destroyer";
+//                        }
                     }
                     else if(18>=numBuildings){
                         //tech 11 battl/carr/fight/sub/tank
@@ -575,20 +575,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(18);
                             qDebug()<<"Artillery";
                         }
-                        else if(fighters<3){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(380);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Fighter");
                             civ->GetCityAt(i)->setProductionIndex(22);
                             qDebug()<<"Fighter";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(380);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Battleship");
-                            civ->GetCityAt(i)->setProductionIndex(19);
-                            qDebug()<<"Battleship";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Battleship");
+//                            civ->GetCityAt(i)->setProductionIndex(19);
+//                            qDebug()<<"Battleship";
+//                        }
 
                         //Carrier and Sub not used right now
                     }
@@ -622,20 +622,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(22);
                             qDebug()<<"Fighter";
                         }
-                        else if(bombers<2){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(375);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Bomber");
                             civ->GetCityAt(i)->setProductionIndex(27);
                             qDebug()<<"Bomber";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(380);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Battleship");
-                            civ->GetCityAt(i)->setProductionIndex(19);
-                            qDebug()<<"Battleship";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Battleship");
+//                            civ->GetCityAt(i)->setProductionIndex(19);
+//                            qDebug()<<"Battleship";
+//                        }
                     }
                     else if(20>=numBuildings){
                         //tech 13 heli/jetfig/modarmor
@@ -674,20 +674,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(29);
                             qDebug()<<"Jet Fighter";
                         }
-                        else if(bombers<2){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(375);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Bomber");
                             civ->GetCityAt(i)->setProductionIndex(27);
                             qDebug()<<"Bomber";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(380);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Battleship");
-                            civ->GetCityAt(i)->setProductionIndex(19);
-                            qDebug()<<"Battleship";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Battleship");
+//                            civ->GetCityAt(i)->setProductionIndex(19);
+//                            qDebug()<<"Battleship";
+//                        }
                     }
                     else if(21>=numBuildings){
                         //tech 14 stealthbomb
@@ -726,20 +726,20 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                             civ->GetCityAt(i)->setProductionIndex(29);
                             qDebug()<<"Jet Fighter";
                         }
-                        else if(bombers<2){
+                        else{
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Stealth Bomber");
                             civ->GetCityAt(i)->setProductionIndex(32);
                             qDebug()<<"Stealth Bomber";
                         }
-                        else{
-                            civ->GetCityAt(i)->setCurrentProductionCost(380);
-                            civ->GetCityAt(i)->setIsUnit(true);
-                            civ->GetCityAt(i)->setProductionName("Battleship");
-                            civ->GetCityAt(i)->setProductionIndex(19);
-                            qDebug()<<"Battleship";
-                        }
+//                        else{
+//                            civ->GetCityAt(i)->setCurrentProductionCost(380);
+//                            civ->GetCityAt(i)->setIsUnit(true);
+//                            civ->GetCityAt(i)->setProductionName("Battleship");
+//                            civ->GetCityAt(i)->setProductionIndex(19);
+//                            qDebug()<<"Battleship";
+//                        }
                     }
                 }
 
