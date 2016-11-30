@@ -28,14 +28,14 @@ AI_Tactical::AI_Tactical()
 
 }
 
-AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
+AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
 {
     qDebug()<<"             Tactical AI called";
     highThreatProcessing(civ, player, map);
    // midThreatProcessing(civ, player, map, scene);
     lowThreatProcessing(civ, player, map);
 
-    if(3==midGoal){
+    if(civ->getProvoked()){
         AtWar(civ, cityTarget);
     }
     else{

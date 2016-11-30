@@ -35,11 +35,8 @@ qDebug()<<"     Strategic AI Called";
     civ->clearThreats();
     invasionCheck(civ,player,map);
 
-    int midGoal = midTermGoal(civ);
-    //Some logic based on the different goal options
-    cityProduction(midGoal, civ, map);
-    qDebug()<<"Midgoal "<<midGoal;
-    aiOp = new AI_Operational(midGoal, cityLocations, civ, player, map);
+    cityProduction(civ, map);
+    aiOp = new AI_Operational(cityLocations, civ, player, map);
 
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
@@ -52,49 +49,10 @@ qDebug()<<"     Strategic AI Called";
         civ->cityFounded = false;
         cityLocations.removeFirst();
     }
-
     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
-
 }
 
-
-int AI_Strategic::midTermGoal(Civilization *civ){
-    int goal;
-    if(civ->getProvoked()){
-        //Needs to be a flag set once player has provoked the AI (set by InvasionCheck)
-        goal=3;//At War
-    }
-    else if(civ->GetCityList().length()<10){
-        goal=1;//Settle more cities
-        //Tweak for settlers currently active
-    }
-    else{
-        goal=2;//Build resources
-    }
-    qDebug()<<"Goal = "<<goal;
-    return goal;
-}
-
-//*****************Calculate mid-term goal************
-//The mid-term goal will be: (int returned)
-//1)expanding its borders (settling)
-//2)Preparing for war
-//3)at war
-//4)Building up its resources (working, but no longer settling)(usually also happening during expanding borders)
-
-//Should spend the early game expanding borders/resources
-//Determine if more cities are needed
-      //(factor settlers already around, then city? but only if available location?)(city 0 only?)
-//at some point it will decide its ready to prepare for war
-    //given a minimum city number, say, 4,
-    //and an estimate that it has higher production and tech level than player (by enough)
-//Once it has built enough units, it will launch into at war and begin maneuvering them
-    //continue to build units while at war, unless its strength drops (significantly?) below the opposing player
-    //then it will retreat and try to improve production etc by a margin over the player and try again
-
-
-
-void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
+void AI_Strategic::cityProduction(Civilization *civ, Map* map){
     qDebug()<<"City Production";
 
     bool activeSettler = false;
@@ -152,7 +110,7 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
 
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
-            if(1==midGoal){//Settle more cities
+            if(!civ->getProvoked()){//Settle more cities
                 qDebug()<<"produce stuff";
                 if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
@@ -172,7 +130,168 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
                     civ->GetCityAt(i)->setProductionIndex(6);
                     qDebug()<<"     Worker";
                 }
-                else if(civ->getProvoked()&&combatUnits<20){
+                else{
+                    qDebug()<<" Buildings";
+                    int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
+                    //Buildings are a linear progression, which simulates tech progress
+                    if(0==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(75);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Walls");
+                        civ->GetCityAt(i)->setProductionIndex(0);
+                        qDebug()<<"walls";
+                    }
+                    else if(1==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(50);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Granary");
+                        civ->GetCityAt(i)->setProductionIndex(5);
+                        qDebug()<<"Granary";
+                    }
+                    else if(2==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(70);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("LightHouse");
+                        civ->GetCityAt(i)->setProductionIndex(9);
+                        qDebug()<<"Lighthouse";
+                    }
+                    else if(3==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(125);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Barracks");
+                        civ->GetCityAt(i)->setProductionIndex(3);
+                        qDebug()<<"Barracks";
+                    }
+                    else if(4==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(100);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Library");
+                        civ->GetCityAt(i)->setProductionIndex(1);
+                        qDebug()<<"Library";
+                    }
+                    else if(5==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(100);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Colosseum");
+                        civ->GetCityAt(i)->setProductionIndex(7);
+                        qDebug()<<"Colosseum";
+                    }
+                    else if(6==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(110);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Temple");
+                        civ->GetCityAt(i)->setProductionIndex(12);
+                        qDebug()<<"Temple";
+                    }
+                    else if(7==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(120);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Courthouse");
+                        civ->GetCityAt(i)->setProductionIndex(8);
+                        qDebug()<<"Courthouse";
+                    }
+                    else if(8==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(130);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Forge");
+                        civ->GetCityAt(i)->setProductionIndex(16);
+                        qDebug()<<"Forge";
+                    }
+                    else if(9==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(115);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Aqueduct");
+                        civ->GetCityAt(i)->setProductionIndex(13);
+                        qDebug()<<"Aqueduct";
+                    }
+                    else if(10==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(130);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Monastery");
+                        civ->GetCityAt(i)->setProductionIndex(20);
+                        qDebug()<<"Monastery";
+                    }
+                    else if(11==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(150);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Market");
+                        civ->GetCityAt(i)->setProductionIndex(19);
+                        qDebug()<<"Market";
+                    }
+                    else if(12==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(175);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Castle");
+                        civ->GetCityAt(i)->setProductionIndex(15);
+                        qDebug()<<"Castle";
+                    }
+                    else if(13==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(180);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("University");
+                        civ->GetCityAt(i)->setProductionIndex(21);
+                        qDebug()<<"University";
+                    }
+                    else if(14==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(220);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Observatory");
+                        civ->GetCityAt(i)->setProductionIndex(2);
+                        qDebug()<<"Observatory";
+                    }
+                    else if(15==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(200);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Theatre");
+                        civ->GetCityAt(i)->setProductionIndex(6);
+                        qDebug()<<"Theatre";
+                    }
+                    else if(16==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(300);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Bank");
+                        civ->GetCityAt(i)->setProductionIndex(4);
+                        qDebug()<<"Bank";
+                    }
+                    else if(17==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(365);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Factory");
+                        civ->GetCityAt(i)->setProductionIndex(10);
+                        qDebug()<<"Factory";
+                    }
+                    else if(18==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(365);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Hospital");
+                        civ->GetCityAt(i)->setProductionIndex(11);
+                        qDebug()<<"Hospital";
+                    }
+                    else if(19==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(500);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Harbor");
+                        civ->GetCityAt(i)->setProductionIndex(18);
+                        qDebug()<<"Harbor";
+                    }
+                    else if(20==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(425);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Hydro Plant");
+                        civ->GetCityAt(i)->setProductionIndex(14);
+                        qDebug()<<"Hydro Plant";
+                    }
+                    else if(21==numBuildings){
+                        civ->GetCityAt(i)->setCurrentProductionCost(500);
+                        civ->GetCityAt(i)->setIsUnit(false);
+                        civ->GetCityAt(i)->setProductionName("Nuclear Plant");
+                        civ->GetCityAt(i)->setProductionIndex(17);
+                        qDebug()<<"Nuclear Plant";
+                    }
+                }
+            }
+            else {
+                if(combatUnits<20){
                     int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
                     //Unit capabilities are based on what buildings exist (linear progression)
                     qDebug()<<"Provoked Construction at tech level "<<numBuildings;
@@ -737,186 +856,12 @@ void AI_Strategic::cityProduction(int midGoal, Civilization *civ, Map* map){
 //                        }
                     }
                 }
-
-                else{
-                    qDebug()<<" Buildings";
-                    int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
-                    //Buildings are a linear progression, which simulates tech progress
-                    if(0==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(75);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Walls");
-                        civ->GetCityAt(i)->setProductionIndex(0);
-                        qDebug()<<"walls";
-                    }
-                    else if(1==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(50);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Granary");
-                        civ->GetCityAt(i)->setProductionIndex(5);
-                        qDebug()<<"Granary";
-                    }
-                    else if(2==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(70);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("LightHouse");
-                        civ->GetCityAt(i)->setProductionIndex(9);
-                        qDebug()<<"Lighthouse";
-                    }
-                    else if(3==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(125);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Barracks");
-                        civ->GetCityAt(i)->setProductionIndex(3);
-                        qDebug()<<"Barracks";
-                    }
-                    else if(4==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(100);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Library");
-                        civ->GetCityAt(i)->setProductionIndex(1);
-                        qDebug()<<"Library";
-                    }
-                    else if(5==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(100);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Colosseum");
-                        civ->GetCityAt(i)->setProductionIndex(7);
-                        qDebug()<<"Colosseum";
-                    }
-                    else if(6==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(110);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Temple");
-                        civ->GetCityAt(i)->setProductionIndex(12);
-                        qDebug()<<"Temple";
-                    }
-                    else if(7==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(120);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Courthouse");
-                        civ->GetCityAt(i)->setProductionIndex(8);
-                        qDebug()<<"Courthouse";
-                    }
-                    else if(8==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(130);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Forge");
-                        civ->GetCityAt(i)->setProductionIndex(16);
-                        qDebug()<<"Forge";
-                    }
-                    else if(9==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(115);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Aqueduct");
-                        civ->GetCityAt(i)->setProductionIndex(13);
-                        qDebug()<<"Aqueduct";
-                    }
-                    else if(10==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(130);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Monastery");
-                        civ->GetCityAt(i)->setProductionIndex(20);
-                        qDebug()<<"Monastery";
-                    }
-                    else if(11==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(150);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Market");
-                        civ->GetCityAt(i)->setProductionIndex(19);
-                        qDebug()<<"Market";
-                    }
-                    else if(12==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(175);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Castle");
-                        civ->GetCityAt(i)->setProductionIndex(15);
-                        qDebug()<<"Castle";
-                    }
-                    else if(13==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(180);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("University");
-                        civ->GetCityAt(i)->setProductionIndex(21);
-                        qDebug()<<"University";
-                    }
-                    else if(14==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(220);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Observatory");
-                        civ->GetCityAt(i)->setProductionIndex(2);
-                        qDebug()<<"Observatory";
-                    }
-                    else if(15==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(200);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Theatre");
-                        civ->GetCityAt(i)->setProductionIndex(6);
-                        qDebug()<<"Theatre";
-                    }
-                    else if(16==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(300);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Bank");
-                        civ->GetCityAt(i)->setProductionIndex(4);
-                        qDebug()<<"Bank";
-                    }
-                    else if(17==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(365);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Factory");
-                        civ->GetCityAt(i)->setProductionIndex(10);
-                        qDebug()<<"Factory";
-                    }
-                    else if(18==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(365);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Hospital");
-                        civ->GetCityAt(i)->setProductionIndex(11);
-                        qDebug()<<"Hospital";
-                    }
-                    else if(19==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(500);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Harbor");
-                        civ->GetCityAt(i)->setProductionIndex(18);
-                        qDebug()<<"Harbor";
-                    }
-                    else if(20==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(425);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Hydro Plant");
-                        civ->GetCityAt(i)->setProductionIndex(14);
-                        qDebug()<<"Hydro Plant";
-                    }
-                    else if(21==numBuildings){
-                        civ->GetCityAt(i)->setCurrentProductionCost(500);
-                        civ->GetCityAt(i)->setIsUnit(false);
-                        civ->GetCityAt(i)->setProductionName("Nuclear Plant");
-                        civ->GetCityAt(i)->setProductionIndex(17);
-                        qDebug()<<"Nuclear Plant";
-                    }
-                }
-            }
-            else if(2==midGoal||3==midGoal){
-                civ->GetCityAt(i)->setCurrentProductionCost(425);
-                civ->GetCityAt(i)->setIsUnit(true);
-                civ->GetCityAt(i)->setProductionName("Stealth Bomber");
-                civ->GetCityAt(i)->setProductionIndex(32);
-                qDebug()<<"     Stealth Bomber";
-                //Build military units
-            }
-            else{
-               qDebug()<<"Production Logic Fail"; //buildings and Minimum military strength(defensive)
             }
         }
         else{
             qDebug()<<"City already producing "<<civ->GetCityAt(i)->getProductionName();
         }
     }
-
-    //logic for road workers
-        //roadworker gets built in capitol early on
 }
 
 //*************City production Decision Tree***********

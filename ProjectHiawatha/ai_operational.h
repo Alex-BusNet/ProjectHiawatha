@@ -11,7 +11,7 @@ public:
     AI_Operational();
 
     //Used Constructor
-    AI_Operational(int midGoal, QVector<Tile *> CityToBeFounded, Civilization *civ, Civilization *player, Map *map);
+    AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *civ, Civilization *player, Map *map);
 
 private:
     void threatScan(Civilization *civ, Civilization *player, Map *map);

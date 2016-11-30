@@ -16,8 +16,7 @@ public:
     //shouldn't need passed values
 
 private:
-    int midTermGoal(Civilization *civ);
-    void cityProduction(int midGoal, Civilization *civ, Map *map);
+    void cityProduction(Civilization *civ, Map *map);
     void invasionCheck(Civilization *civ, Civilization *player, Map *map);
     AI_Operational *aiOp;
     void cityLocation(Civilization *civ, Map *map);
