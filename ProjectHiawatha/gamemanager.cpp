@@ -1502,15 +1502,18 @@ void GameManager::UpdateTileData()
 
 void GameManager::InitButtons()
 {
+    QString buttonStyle = "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }";
+
+    this->setStyleSheet(buttonStyle);
+
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     exitGame->setShortcut(QKeySequence(Qt::Key_Escape));
-    exitGame->setMaximumWidth(100);
 
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
     showTechTreeButton->setShortcut(QKeySequence(Qt::Key_T));
-    showTechTreeButton->setMaximumWidth(100);
+//    showTechTreeButton->setMaximumWidth(100);
 
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
