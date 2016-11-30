@@ -184,6 +184,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
     statusMessage = " ";
 
+    qDebug() << "button size:" << exitGame->size() << showTechTreeButton->size();
     qDebug() << "Screen size:" << gameView->width() << gameView->height();
     qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
     qDebug() << "Done.";
@@ -707,16 +708,12 @@ void GameManager::StartTurn()
 
         if(update.productionFinished)
         {
-            qDebug()<<"i = "<<i;
             if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
             {
-                qDebug()<<"2 ";
                 civList.at(currentTurn)->GetCityAt(i)->setProductionFinished(false);
 
-                qDebug()<<"2.5 ";
                 if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
                 {
-                    qDebug()<<"3 ";
                     str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
                     localIndex++;
 
@@ -724,7 +721,6 @@ void GameManager::StartTurn()
 
                 if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
                 {
-                    qDebug()<<"4 ";
                     civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
                     Unit* unit = new Unit(0);
                     Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
@@ -780,18 +776,14 @@ void GameManager::StartTurn()
                 }
                 else
                 {
-                    qDebug()<<"5";
                     int science = 0;
                     int gold = 0;
                     int production = 0;
                     int culture = 0;
                     int food = 0;
                     civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
-                    qDebug()<<"current turn";
                     int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
-                    qDebug()<<"Production Index";
                     Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
-                    qDebug()<<"Building";
                     int bonusType = building->getbonusType();
                     if(bonusType == 2)
                     {
@@ -825,8 +817,6 @@ void GameManager::StartTurn()
             }
 
         }
-qDebug()<<"6";
-
 
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
         {
@@ -861,6 +851,8 @@ qDebug()<<"6";
             sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
             culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
             techText->setText(QString(" %1 / %2").arg(accumulatedScience).arg(techCost));
+
+            endTurn->setEnabled(true);
         }
 
         qDebug() << "  Starting turn for civ" << currentTurn;
@@ -931,6 +923,7 @@ void GameManager::EndTurn()
         scienceFocus->setEnabled(false);
         cultureFocus->setEnabled(false);
         foodFocus->setEnabled(false);
+        endTurn->setEnabled(false);
     }
 
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
@@ -960,10 +953,12 @@ void GameManager::EndTurn()
             qDebug() << "----Removing Unit";
             if(currentTurn == 0)
                 ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(civList.at(0)->GetUnitAt(i)->GetName())});
+
             QMediaPlayer *musicPlayer = new QMediaPlayer();
             musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
             musicPlayer->setVolume(50);
             musicPlayer->play();
+
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
             map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
@@ -1149,10 +1144,12 @@ void GameManager::UpdateTileData()
 
                     fortifyUnit->setEnabled(true);
 
+                    qDebug() << "Unit range:" << unitToMove->GetRange();
                     QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
 
                     foreach(Tile *tile, tiles)
                     {
+
                         if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
                         {
                             int tileIndex = tile->GetTileIndex();
@@ -1169,7 +1166,7 @@ void GameManager::UpdateTileData()
                             }
                             else if(tile->ContainsUnit)
                             {
-                                if(!attackUnit->isEnabled() && unitToMove->isMelee)
+                                if(unitToMove->isMelee)
                                 {
                                     buildFarm->setEnabled(false);
                                     buildMine->setEnabled(false);
@@ -1179,7 +1176,7 @@ void GameManager::UpdateTileData()
                                     rangeAttack->setEnabled(false);
                                     attackUnit->setEnabled(true);
                                 }
-                                else if(!rangeAttack->isEnabled() && !unitToMove->isMelee)
+                                else if(!unitToMove->isMelee)
                                 {
                                     buildFarm->setEnabled(false);
                                     buildMine->setEnabled(false);
@@ -1198,6 +1195,18 @@ void GameManager::UpdateTileData()
                             {
                                 rangeAttack->setEnabled(false);
                             }
+//                            else
+//                            {
+//                                selectedTileQueue->enqueue(SelectData {tileIndex, false, false});
+//                                buildFarm->setEnabled(false);
+//                                buildMine->setEnabled(false);
+//                                buildPlantation->setEnabled(false);
+//                                buildTradePost->setEnabled(false);
+//                                buildRoad->setEnabled(false);
+//                                attackUnit->setEnabled(false);
+//                                rangeAttack->setEnabled(false);
+//                                attackCity->setEnabled(false);
+//                            }
                         }
                     }
                 }
@@ -1292,11 +1301,8 @@ void GameManager::UpdateTileData()
 
     if(processedData.relocateOrderGiven && !findUnit && !aiFoundCity)
     {
-
-        qDebug() << "       Tile Data:" << uc->NationName(targetTile->GetControllingCiv()) << targetTile->GetCivListIndex() << targetTile->GetControllingCivListIndex();
-        qDebug() << "       civ war data" << uc->NationName(civList.at(currentTurn)->GetNationAtWar());
-
-        if(uc->WarCheck(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
+        if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()})
+                && (currentTurn != targetTile->GetControllingCivListIndex() || targetTile->GetCivListIndex() != currentTurn || targetTile->GetControllingCiv() != civList[currentTurn]->getCiv()))
         {
             QMessageBox *mbox = new QMessageBox();
             mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
@@ -1311,7 +1317,15 @@ void GameManager::UpdateTileData()
         }
         else
         {
-            invade = true;
+            if(targetTile->ContainsUnit)
+            {
+                statusMessage = "--------<< You cannot move there >>--------";
+                invade = false;
+            }
+            else
+            {
+                invade = true;
+            }
         }
 
         if(invade)
@@ -1388,7 +1402,8 @@ void GameManager::UpdateTileData()
                 {
                     qDebug() << "   Invalid Settle Location";
                     //// This will need a currentTurn == 0 check
-                    statusMessage = "--------<< You cannot settle this close to another city. >>--------";
+                    if(currentTurn == 0)
+                        statusMessage = "--------<< You cannot settle this close to another city. >>--------";
 
                     civList.at(currentTurn)->SetCityIndex(civList.at(currentTurn)->getCityIndex() - 1);
                     foreach(Tile* tile, city->GetControlledTiles())
@@ -1410,13 +1425,13 @@ void GameManager::UpdateTileData()
         if(!valid)
             return;
 
-        qDebug() << "--Loading buildings";
+//        qDebug() << "--Loading buildings";
         city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-        qDebug() << "--Loading units";
+//        qDebug() << "--Loading units";
         city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-        qDebug() << "--Adding City";
+//        qDebug() << "--Adding City";
         civList.at(currentTurn)->AddCity(city);
-        qDebug() << "--Setting HasCity flag";
+//        qDebug() << "--Setting HasCity flag";
         map->GetTileAt(foundCityIndex)->HasCity = true;
 
         QList<Tile*> cityMEB = map->GetNeighborsRange(city->GetCityTile(), 4);
@@ -1429,15 +1444,15 @@ void GameManager::UpdateTileData()
         city->SortControlledTiles();
         city->GetControlledTiles().first()->IsWorked = true;
 
-        qDebug() << "--Adding City to renderer";
+//        qDebug() << "--Adding City to renderer";
         renderer->AddCity(city, gameView, false);
 
-        qDebug() << "--Adding Drawing city borders";
+//        qDebug() << "--Adding Drawing city borders";
         renderer->DrawCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
 
         if(currentTurn == 0)
         {
-            qDebug () << "--Setting tile worked";
+//            qDebug () << "--Setting tile worked";
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
@@ -1447,7 +1462,7 @@ void GameManager::UpdateTileData()
             renderer->SetUnitNeedsOrders(foundCityIndex, false);
         }
 
-        qDebug() << "--Updating yield";
+//        qDebug() << "--Updating yield";
         civList.at(currentTurn)->UpdateCivYield();
 
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
@@ -1473,6 +1488,7 @@ void GameManager::UpdateTileData()
 
         attackCity->setEnabled(false);
         attackUnit->setEnabled(false);
+        rangeAttack->setEnabled(false);
         buildFarm->setEnabled(false);
         buildMine->setEnabled(false);
         buildPlantation->setEnabled(false);
@@ -1494,6 +1510,7 @@ void GameManager::InitButtons()
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
     showTechTreeButton->setShortcut(QKeySequence(Qt::Key_T));
+    showTechTreeButton->setMaximumWidth(100);
 
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
@@ -1592,6 +1609,8 @@ void GameManager::InitButtons()
     fortifyUnit->setEnabled(false);
     fortifyUnit->setShortcut(QKeySequence(Qt::Key_A));
 
+
+
 }
 
 void GameManager::InitLayouts()
@@ -1618,7 +1637,7 @@ void GameManager::InitLayouts()
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
     gameLayout->addWidget(ns);
-    gameLayout->setGeometry(QRect(100, 20, this->width() - 100, this->height() - 20));
+    gameLayout->setGeometry(QRect(100, 20, this->width() - 105, this->height() - 20));
 
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::HLine);
@@ -1837,7 +1856,7 @@ void GameManager::showCity(City* city)
         }
         cityScreen = new CityScreen(this);
         //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
-        cityScreen->setAutoFillBackground(true);
+//        cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
@@ -1845,7 +1864,7 @@ void GameManager::showCity(City* city)
         cityScreen->updateWidget();
 
         gameView->centerOn(city->GetCityTile()->GetCenter());
-        cityScreen->setGeometry(gameView->pos().x() + 2, gameView->pos().y() + 3, gameView->width() - 6, gameView->height() - 150);
+        cityScreen->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, cityScreen->width(), cityScreen->height());
         gameView->setDragMode(QGraphicsView::NoDrag);
 
         cityScreen->show();

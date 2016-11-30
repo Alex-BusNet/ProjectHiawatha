@@ -122,6 +122,7 @@ public:
     int getAccumulatedProduction();
     int getProductionIndex();
     int getNumberOfBuildings();
+    int GetTurnsToBorderGrowth();
 
     bool IsCityCaptial();
     bool IsOriginalCapital();

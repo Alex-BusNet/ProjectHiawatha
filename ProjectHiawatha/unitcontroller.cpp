@@ -13,7 +13,7 @@ UnitController::UnitController()
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
     qDebug() << " End tile has unit:" << endTile->ContainsUnit;
-    qDebug() << "   WarData" << wDat.warCivIndex << wDat.warringCiv;
+    bool warCheckFailed = false;
     if(startTile==endTile)
     {
         qDebug()<<"Start = End";
@@ -66,14 +66,19 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
             //  -Contains a unit
             //  -Is occupied or controlled by the civilization that the owner is not at war with
             //      AND is not controlled/occupied by NO_NATION (-1)
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit
-//                    || ((neighbor->GetCivListIndex() != wDat.warCivIndex
-//                    || neighbor->GetControllingCivListIndex() != wDat.warCivIndex
-//                    || neighbor->GetControllingCiv() != wDat.warringCiv)
-//                    || ((wDat.warCivIndex != -1)
-//                    || (wDat.warringCiv != NO_NATION))))
-                    )
+            if(neighbor->GetControllingCiv() != unit->GetOwner())
             {
+                warCheckFailed = this->AtPeaceWith(neighbor, wDat);
+            }
+            else
+            {
+                warCheckFailed = false;
+            }
+
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed)
+            {
+                qDebug() << "continue" << warCheckFailed;
+                warCheckFailed = false;
                 continue;
             }
 
@@ -347,8 +352,18 @@ void UnitController::HealUnit(Unit *unit)
         unit->SetHealth(unit->GetHealth() + 10);
 }
 
-bool UnitController::WarCheck(Tile *target, WarData wDat)
+/*
+ * Returns TRUE if the passed tile
+ * is not controlled by NO_NATION and
+ * not controlled by the civilization that
+ * is passed in the WarData.
+ * Also returns TRUE if the passed tile is not
+ * occupied by NO_NATION (-1) and is not occupied
+ * by the civListIndex passed in WarData
+ */
+bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
 {
+    qDebug() << "   AtPeaceWith:" << wDat.warCivIndex << wDat.warringCiv << target->GetControllingCivListIndex() << target->GetControllingCiv();
     if(target->GetControllingCiv() != NO_NATION)
     {
         if(target->GetControllingCiv() != wDat.warringCiv)
@@ -358,12 +373,18 @@ bool UnitController::WarCheck(Tile *target, WarData wDat)
     }
     else if(target->GetCivListIndex() != -1)
     {
-        if(target->GetCivListIndex() != wDat.warCivIndex)
+        if(target->GetCivListIndex() == wDat.warCivIndex)
+        {
+            return true;
+        }
+        else if(target->GetControllingCivListIndex() != wDat.warCivIndex)
         {
             return true;
         }
     }
 
+    // This should only return false for non-controlled tiles
+    // i.e. NO_NATION, -1
     return false;
 }
 

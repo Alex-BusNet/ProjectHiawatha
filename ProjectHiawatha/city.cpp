@@ -238,6 +238,11 @@ int City::getNumberOfBuildings()
     return this->numberofBuildings;
 }
 
+int City::GetTurnsToBorderGrowth()
+{
+    return this->turnsToBorderGrowth;
+}
+
 void City::IncrementNumberOfBuildings()
 {
     this->numberofBuildings++;

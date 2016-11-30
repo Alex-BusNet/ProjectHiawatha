@@ -27,7 +27,7 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->tabWidget->setTabText(2, "Completed Buildings");
     ui->progressBar->setMinimum(0);
     ui->label->setText("Cost: ");
-
+    ui->ItemBG->setPixmap(QPixmap("../ProjectHiawatha/Assets/UI/CityScreenBackground_alt2.png"));
 
 }
 
@@ -161,6 +161,15 @@ void CityScreen::getCityInfo(City *city)
 {
     currentCity = city;
     ui->city_name->setText(currentCity->GetName());
+    ui->GoldYield->setText(QString("%1 per turn").arg(city->getCityYield()->GetGoldYield()));
+    ui->ProdYield->setText(QString("%1 per turn").arg(city->getCityYield()->GetProductionYield()));
+    ui->SciYield->setText(QString("%1 per turn").arg(city->getCityYield()->GetScienceYield()));
+    ui->FoodYield->setText(QString("%1 per turn").arg(city->getCityYield()->GetFoodYield()));
+    ui->CultureYield->setText(QString("%1 per turn").arg(city->getCityYield()->GetCultureYield()));
+    ui->citizenCountDown->setText(QString("%1").arg(city->GetTurnsToNewCitizen()));
+    ui->citizenCount->setText(QString("%1").arg(city->GetCitizenCount()));
+    ui->cityStrength->setText(QString("%1").arg(city->GetCityStrength()));
+    ui->borderGrowth->setText(QString("%1").arg(city->GetTurnsToBorderGrowth()));
 }
 
 void CityScreen::updateWidget()
@@ -223,7 +232,11 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     ui->Bonus->setText(str);
     QString temp = "Cost: ";
     QString cost = QString::number(buildings.at(ui->listWidget->currentRow())->getProductionCost());
+    QString turns = QString::number(ceil(static_cast<double>(buildings.at(ui->listWidget->currentRow())->getProductionCost()) / currentCity->getCityYield()->GetProductionYield()));
     temp += cost;
+    temp += " (";
+    temp += turns;
+    temp += " turns)";
     ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
     ui->picture->setPixmap(pic);
     ui->label->setText(temp);
@@ -259,7 +272,11 @@ void CityScreen::on_listWidget_2_itemSelectionChanged()
     QPixmap pic(tempString);
     QString temp = "Cost: ";
     QString cost = QString::number(initialUnitList.at(ui->listWidget_2->currentRow())->GetCost());
+    QString turns = QString::number(ceil(static_cast<double>(initialUnitList.at(ui->listWidget_2->currentRow())->GetCost()) / currentCity->getCityYield()->GetProductionYield()));
     temp += cost;
+    temp += " (";
+    temp += turns;
+    temp += " turns)";
     ui->description->setText(initialUnitList.at(ui->listWidget_2->currentRow())->GetName());
     ui->picture->setPixmap(pic);
     ui->label->setText(temp);
