@@ -53,28 +53,23 @@ qDebug()<<"     Strategic AI Called";
         cityLocations.removeFirst();
     }
 
+    qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
+
 }
 
 
 int AI_Strategic::midTermGoal(Civilization *civ){
     int goal;
-    if(civ->GetCityList().length()<10){
+    if(civ->getProvoked()){
+        //Needs to be a flag set once player has provoked the AI (set by InvasionCheck)
+        goal=3;//At War
+    }
+    else if(civ->GetCityList().length()<10){
         goal=1;//Settle more cities
         //Tweak for settlers currently active
     }
-    else if(civ->GetCityList().length()>4){
-        //needs logic to compare tech, gold, and prod yields with player
-        //May be made obscolete by goal 3 logic
-        qDebug()<<"********Broken Goal Logic here";
-        goal=2;//Preparing for War
-    }
-    else if(civ->getProvoked()){
-        //Needs to be a flag set once player has provoked the AI (set by InvasionCheck)
-        //might need moved ahead of goal 1
-        goal=3;//At War
-    }
     else{
-        goal=4;//Build resources
+        goal=2;//Build resources
     }
     qDebug()<<"Goal = "<<goal;
     return goal;

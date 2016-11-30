@@ -39,18 +39,14 @@ AI_Operational::AI_Operational(int midGoal, QVector<Tile *> CityToBeFounded, Civ
         qDebug()<<"AI_Ops Midgoal 1";
         //theaterAtWar(civ, player, cityTarget, map);
     }
-    else if(2==midGoal){
-        theaterPrep(civ, player, troopLocations);
-    }
     else if(3==midGoal){
-       theaterAtWar(civ, player, cityTarget, map);
+        theaterAtWar(civ, player, cityTarget, map);
     }
     else{
         //Probably not anything for operational in this context, aside from threat detection
-        //midgoal==4 is resource gathering - run theaterprep?
+        //midgoal==2 is resource gathering - run theaterprep?
         theaterPrep(civ, player, troopLocations);
     }
-
     aiTact = new AI_Tactical(midGoal, civ, player, map, CityToBeFounded, cityTarget, troopLocations);
 }
 

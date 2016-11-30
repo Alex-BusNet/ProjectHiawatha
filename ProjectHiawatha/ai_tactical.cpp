@@ -45,7 +45,6 @@ AI_Tactical::AI_Tactical(int midGoal, Civilization *civ, Civilization *player, M
     settlercontrol(civ, map, CityToBeFounded);
     workercontrol(civ, map);
 
-    qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 }
 
 
