@@ -737,36 +737,34 @@ void GameManager::StartTurn()
                     unit->SetOwner(civList.at(currentTurn)->getCiv());
                     unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
 
-                    for(int i = 0; i<map->GetBoardSize();i++)
+                    for(int j = 0; j < civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().size();j++)
                     {
+                        int tileIndex = civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().at(j)->GetTileIndex();
                         if(unit->isNaval())
                         {
-                            if(map->GetTileAt(i)->ContainsUnit  || !(map->GetTileTypeAt(i) == WATER)) { continue; }
+                            if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
                             else
                             {
-                                if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
-                                {
-                                    unit->SetPositionIndex(i);
-                                    map->GetTileAt(i)->ContainsUnit = true;
+
+                                    unit->SetPositionIndex(tileIndex);
+                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
                                     qDebug()<<"         Naval Unit built"<<unit->GetName();
                                     break;
-                                }
 
                             }
                         }
                         else
                         {
-                            if(map->GetTileAt(i)->ContainsUnit || !(map->GetTileAt(i)->Walkable) || (map->GetTileTypeAt(i) == WATER)) { continue; }
+                            if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
                             else
                             {
-                                if(civList.at(currentTurn)->getCiv() == map->GetTileAt(i)->GetControllingCiv())
-                                {
-                                    unit->SetPositionIndex(i);
-                                    map->GetTileAt(i)->ContainsUnit = true;
+
+                                    unit->SetPositionIndex(tileIndex);
+                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
                                     qDebug()<<"         Land Unit built";
                                     qDebug()<<unit->GetName();
                                     break;
-                                }
+
                             }
                         }
                     }
