@@ -31,6 +31,7 @@ public:
     explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42, Nation player = India, int numAI = 2);
 
 private:
+
     Renderer *renderer;
     Map *map;
     UnitController *uc;
@@ -135,6 +136,7 @@ private:
     bool invade;
 
     Nation playerCiv;
+    ActionState state;
 
     void InitCivs(Nation player, int numAI);
     void paintEvent(QPaintEvent *event);
