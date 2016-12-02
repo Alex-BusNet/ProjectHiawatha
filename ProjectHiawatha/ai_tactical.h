@@ -17,18 +17,15 @@ public:
 
     AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget);
 
-    //2 functions, depending if the civ is attacking or defending
-    void Prep(Civilization *civ, Civilization *player, Map *map);
     void AtWar(Civilization *civ, Map *map, City *cityTarget);
-
 
 private:
 
     void settlercontrol(Civilization *civ, Map *map, QVector<Tile *> CityToBeFounded);
     void workercontrol(Civilization *civ, Map *map);
-    void highThreatProcessing(Civilization *civ, Civilization *player, Map *map);
-    void midThreatProcessing(Civilization *civ, Civilization *player, Map *map);
-    void lowThreatProcessing(Civilization *civ, Civilization *player, Map *map);
+    void highThreatProcessing(Civilization *civ, Map *map);
+    void midThreatProcessing(Civilization *civ, Map *map);
+    void lowThreatProcessing(Civilization *civ, Map *map);
 
 
 };

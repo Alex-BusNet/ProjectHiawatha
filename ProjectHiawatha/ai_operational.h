@@ -15,8 +15,7 @@ public:
 
 private:
     void threatScan(Civilization *civ, Civilization *player, Map *map);
-    void theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget, Map *map);
-    void theaterPrep(Civilization *civ, Civilization *player);
+    void theaterAtWar(Civilization *civ, Civilization *player);
 
      City *cityTarget;
 

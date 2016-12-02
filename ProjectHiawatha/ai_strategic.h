@@ -16,7 +16,7 @@ public:
     //shouldn't need passed values
 
 private:
-    void cityProduction(Civilization *civ, Map *map);
+    void cityProduction(Civilization *civ);
     void invasionCheck(Civilization *civ, Civilization *player, Map *map);
     AI_Operational *aiOp;
     void cityLocation(Civilization *civ, Map *map);

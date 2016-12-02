@@ -31,58 +31,18 @@ AI_Tactical::AI_Tactical()
 AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget)
 {
     qDebug()<<"             Tactical AI called";
-    highThreatProcessing(civ, player, map);
-   // midThreatProcessing(civ, player, map, scene);
-    lowThreatProcessing(civ, player, map);
+    highThreatProcessing(civ, map);
+   // midThreatProcessing(civ, map);
+    lowThreatProcessing(civ, map);
 
     if(civ->isAtWar()){
         AtWar(civ, map, cityTarget);
-    }
-    else{
-        Prep(civ, player, map);
     }
 
     settlercontrol(civ, map, CityToBeFounded);
     workercontrol(civ, map);
 
 }
-
-
-
-void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map)
-{
-    qDebug()<<"             Prep Control Start";
-
-    //Get list of units and make a controller
-    QVector<Unit*> unitlist=civ->GetUnitList();
-    UnitController *UnitControl= new UnitController();
-
-    for(int i = 0; i<unitlist.length();i++){
-        //Find Troop location
-        Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-
-        if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR&&(!civ->GetUnitList().at(i)->HasNoMovementLeft)){
-            //Will need additional logic for other unit types
-        }
-
-    }
-    //Scroll through a vector of the military units,
-        //check each to see if it has moves remaining
-        //direct it into an appropriate tile
-
-}
-
-
-
-//*****************Military Unit control (Prep)***************
-    //fills in the vectors of acceptable positions with appropriate unit
-        //first slot in vector = priority placement
-            //while units remain
-            //logic to put melee units in front, etc?
-
-
-
-
 
 void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 {
@@ -91,7 +51,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
         if(!civ->GetUnitAt(i)->isNonCombat()){
             combatUnits++;
         }
-    }
+    }//Tally combat units
 
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
@@ -107,16 +67,13 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                     UnitControl->AttackCity(unitlist.at(i),cityTarget);
                     while(!unitlist.at(i)->isPathEmpty()){
                         unitlist.at(i)->UpdatePath();
-                    }
+                    }//Clear remaining movement
                     qDebug()<<unitlist.at(i)->GetTargetTileIndex();
                     if(0>=cityTarget->GetCityHealth()){
                         civ->setCityFounding(AIQueueData{CONQUER,unitlist.at(i)->GetTileIndex()});
-                    }
-                }
-                else{
-
-                }
-            }
+                    }//Only Melee units can conquer cities
+                }//Melee Attack
+            }//Check if in range
             if(!canHit&&(civ->GetUnitAt(i)->RequiresOrders)){
                 qDebug()<<"Send to city: "<<(cityTarget->GetName());
                 QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),1);
@@ -125,14 +82,25 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                     if(targetNeighbor.at(k)->ContainsUnit){
                         k++;
                         continue;
-                    }
+                    }//Check if tile is occupied
                     UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
-
                     qDebug()<<unitlist.at(i)->GetTargetTileIndex();
-                }//Find path accounts for impassable terrain around the target unit
-            }
+                }//Attempts to send melee units into attack range
+                if(civ->GetUnitAt(i)->RequiresOrders){
+                    QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),3);
+                    int k=0;
+                    while(unitlist.at(i)->isPathEmpty()){
+                        if(targetNeighbor.at(k)->ContainsUnit){
+                            k++;
+                            continue;
+                        }//Check if tile is occupied
+                        UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                        qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                    }
+                }//Places units in 'On Deck' position if attack spots are occupied
+            }//Direct Melee units to an appropriate tile
 
-        }
+        }//Melee Unit City Combat
         else if(!civ->GetUnitAt(i)->isNonCombat()&&(combatUnits>4)){
             QList<Tile*> inRange = map->GetNeighborsRange(unitlocation,2);
             bool canHit = false;
@@ -143,13 +111,10 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                     UnitControl->AttackCity(unitlist.at(i),cityTarget);
                     while(!unitlist.at(i)->isPathEmpty()){
                         unitlist.at(i)->UpdatePath();
-                    }
+                    }//Clear remaining movement
                     qDebug()<<unitlist.at(i)->GetTargetTileIndex();
-                }
-                else{
-
-                }
-            }
+                }//Ranged Attack
+            }//Check if in range
             if(!canHit&&(civ->GetUnitAt(i)->RequiresOrders)){
                 qDebug()<<"Send to city: "<<(cityTarget->GetName());
                 QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),2);
@@ -157,22 +122,19 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                 while(unitlist.at(i)->isPathEmpty()){
                     if(targetNeighbor.at(k)->ContainsUnit){
                         k++;
-                    }
+                    }//Check if tile is occupied
                     UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
-
                     qDebug()<<unitlist.at(i)->GetTargetTileIndex();
-                }//Find path accounts for impassable terrain around the target unit
-            }
-        }
-    }
+                }//Attempt to send ranged units into attack range
+            }//Direct ranged units to appropriate tile
+        }//Ranged Unit City Combat
+    }//Apply to each unit
+}
     //Scroll through a vector of the military units,
         //check each to see if it has moves remaining
             //direct it toward the target city
                 //Have each unit attack from its max range - that way the melee units will be able to get in front.
                 //Attack with ranged units first
-
-}
-
     //****************Military Unit Control (At War)******************
     //Targets each remaining unit toward the opposing city
         //while units remain
@@ -182,7 +144,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 
 
 
-void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, Map *map){
+void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
 
     qDebug()<<"             High Threat Processing Start";
 
@@ -276,7 +238,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
             //remove enemy from vector if killed
 
 
-void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, Map *map){
+void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
 
     qDebug()<<"             Mid Threat Processing Start";
 
@@ -362,7 +324,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Civilization *player, M
         //each appropriate unit will target the closest remaining mid threat (unless more than 3 turns away)
             //remove enemy from vector if killed
 
-void AI_Tactical::lowThreatProcessing(Civilization *civ, Civilization *player, Map *map){
+void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
 
     qDebug()<<"             Low Threat Processing Start";
 
