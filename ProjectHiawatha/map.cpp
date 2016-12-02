@@ -428,7 +428,7 @@ void Map::GenerateMap()
                 board.at(i)->SetTileType(WATER);
                 board.at(i)->SetTileTexture(WATER);
                 board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
-                board.at(i)->Walkable = false;
+                board.at(i)->Walkable = true;
             }
         }
         else if (dbl == 1)

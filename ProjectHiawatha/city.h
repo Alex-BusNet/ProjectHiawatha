@@ -12,6 +12,7 @@
 #include "tile.h"
 #include "yield.h"
 #include "datatypes.h"
+#include "unit.h"
 
 class Tile;
 class Unit;

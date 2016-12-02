@@ -137,6 +137,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                 }
             }
 
+            if(j == 0)
+            {
+//                civList.at(i)->GetCityAt(j)->GetCityTile()->SetControllingCiv(civList.at(i)->getCiv(), i);
+                civList.at(i)->GetCityAt(j)->SetControllingCiv(civList.at(i)->getCiv());
+            }
+
             civList.at(i)->GetCityAt(j)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
             civList.at(i)->GetCityAt(j)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         }
@@ -465,17 +471,17 @@ void GameManager::TurnController()
         qDebug() << "running AI";
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
 
-        while(future.isRunning() || (future.isFinished() && !civList.at(currentTurn)->isEmpty()))
+        while(future.isRunning() /*|| (future.isFinished() && !civList.at(currentTurn)->isEmpty())*/)
         {
             if(!civList.at(currentTurn)->isEmpty())
             {
                 AIQueueData data = civList.at(currentTurn)->dequeue();
                 state = data.action;
 
-                if(state = AI_FOUND_CITY)
-                    unitToMove = uc->FindUnitAtTile(map->GetTileAt(data.tileIndex), map, civList.at(currentTurn)->GetUnitList());
-                else if(state = CONQUER)
-                    targetTile = map->GetTileAt(data.tileIndex);
+                if(state == AI_FOUND_CITY)
+                    unitToMove = data.unit;
+                else if(state == CONQUER)
+                    targetTile = map->GetTileAt(data.unit->GetTileIndex());
 
                 this->UpdateTileData();
             }
@@ -1177,6 +1183,7 @@ void GameManager::UpdateTileData()
     }
     else if(state == FIND_CITY || state == CONQUER)
     {
+        qDebug()<<"Conquer City";
         state = IDLE;
         targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetCityList());
 
@@ -1186,14 +1193,16 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
             attackCity->setEnabled(false);
         }
-
+qDebug()<<targetCity->GetControllingCiv();
         if(targetCity->GetControllingCiv() != NO_NATION)
         {
             uc->AttackCity(unitToMove, targetCity);
 
             //City Conquering Logic
+            qDebug()<<targetCity->GetCityHealth();
             if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
             {
+                qDebug()<<"Conquered";
                 //// This will need a currentTurn == 0 check
                 statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
 
@@ -1296,16 +1305,16 @@ void GameManager::UpdateTileData()
 
         qDebug() << "   Done";
     }
-
+qDebug()<<state<<FOUND_CITY<<AI_FOUND_CITY;
     if(state == FOUND_CITY || state == AI_FOUND_CITY)
     {
         qDebug() << "found a city";
 
         state = IDLE;
         foundCityIndex = unitToMove->GetTileIndex();
-
+qDebug()<<"tgjdas";
         City* city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
-
+qDebug()<<"dsjfglaf";
         bool valid = true;
         int dstX, dstY;
         for(int i = 0; i < civList.size(); i++)

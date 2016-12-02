@@ -76,7 +76,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
                 warCheckFailed = false;
             }
 
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed)
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed /*|| neighbor->HasCity*/)
             {
                 //qDebug() << "continue" << warCheckFailed;
                 warCheckFailed = false;

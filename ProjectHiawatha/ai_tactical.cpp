@@ -62,16 +62,18 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
             bool canHit = false;
             for(int j=0; j<inRange.length();j++){
                 if(inRange.at(j)->GetTileIndex()==cityTarget->GetCityTile()->GetTileIndex()){
-                    qDebug()<<"Attack City of "<<(cityTarget->GetName());
                     canHit=true;
-                    UnitControl->AttackCity(unitlist.at(i),cityTarget);
-                    while(!unitlist.at(i)->isPathEmpty()){
-                        unitlist.at(i)->UpdatePath();
-                    }//Clear remaining movement
-                    qDebug()<<unitlist.at(i)->GetTargetTileIndex();
                     if(0>=cityTarget->GetCityHealth()){
-                        civ->setCityFounding(AIQueueData{CONQUER,unitlist.at(i)->GetTileIndex()});
+                        civ->setCityFounding(AIQueueData{CONQUER,unitlist.at(i)});
                     }//Only Melee units can conquer cities
+                    else{
+                        qDebug()<<"Attack City of "<<(cityTarget->GetName());
+                        UnitControl->AttackCity(unitlist.at(i),cityTarget);
+                        while(!unitlist.at(i)->isPathEmpty()){
+                            unitlist.at(i)->UpdatePath();
+                        }//Clear remaining movement
+                        qDebug()<<"test"<<unitlist.at(i)->GetTargetTileIndex();
+                    }
                 }//Melee Attack
             }//Check if in range
             if(!canHit&&(civ->GetUnitAt(i)->RequiresOrders)){
@@ -79,40 +81,47 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                 QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),1);
                 int k=0;
                 while(unitlist.at(i)->isPathEmpty()){
-                    if(targetNeighbor.at(k)->ContainsUnit){
+                    if(targetNeighbor.at(k)->ContainsUnit||MOUNTAIN==targetNeighbor.at(k)->GetTileType()||WATER==targetNeighbor.at(k)->GetTileType()){
                         k++;
                         continue;
                     }//Check if tile is occupied
+                    qDebug()<<"K="<<k;
+                    if(k>6){
+                        qDebug()<<"All tiles occupied";
+                        break;
+                    }
+                    qDebug()<<"Sent to tile: "<<targetNeighbor.at(k)->GetTileIndex();
                     UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
-                    qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                    qDebug()<<"test2"<<unitlist.at(i)->GetTargetTileIndex();
                 }//Attempts to send melee units into attack range
                 if(civ->GetUnitAt(i)->RequiresOrders){
                     QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),3);
                     int k=0;
                     while(unitlist.at(i)->isPathEmpty()){
-                        if(targetNeighbor.at(k)->ContainsUnit){
+                        if(targetNeighbor.at(k)->ContainsUnit||MOUNTAIN==targetNeighbor.at(k)->GetTileType()||WATER==targetNeighbor.at(k)->GetTileType()){
                             k++;
                             continue;
                         }//Check if tile is occupied
                         UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
-                        qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                        qDebug()<<"Test3"<<unitlist.at(i)->GetTargetTileIndex();
                     }
                 }//Places units in 'On Deck' position if attack spots are occupied
             }//Direct Melee units to an appropriate tile
-
         }//Melee Unit City Combat
         else if(!civ->GetUnitAt(i)->isNonCombat()&&(combatUnits>4)){
             QList<Tile*> inRange = map->GetNeighborsRange(unitlocation,2);
             bool canHit = false;
             for(int j=0; j<inRange.length();j++){
                 if(inRange.at(j)->GetTileIndex()==cityTarget->GetCityTile()->GetTileIndex()){
-                    qDebug()<<"Attack City of "<<(cityTarget->GetName());
                     canHit=true;
-                    UnitControl->AttackCity(unitlist.at(i),cityTarget);
-                    while(!unitlist.at(i)->isPathEmpty()){
-                        unitlist.at(i)->UpdatePath();
-                    }//Clear remaining movement
-                    qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                    if(0<cityTarget->GetCityHealth()){
+                        qDebug()<<"Attack City of "<<(cityTarget->GetName());
+                        UnitControl->AttackCity(unitlist.at(i),cityTarget);
+                        while(!unitlist.at(i)->isPathEmpty()){
+                            unitlist.at(i)->UpdatePath();
+                        }//Clear remaining movement
+                        qDebug()<<"Ranged Attack from "<<unitlist.at(i)->GetTargetTileIndex();
+                    }//Stop attacking with Ranged Units when the city hits 0hp (Only Melee units can conquer cities)
                 }//Ranged Attack
             }//Check if in range
             if(!canHit&&(civ->GetUnitAt(i)->RequiresOrders)){
@@ -120,11 +129,12 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                 QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),2);
                 int k=0;
                 while(unitlist.at(i)->isPathEmpty()){
-                    if(targetNeighbor.at(k)->ContainsUnit){
+                    if(targetNeighbor.at(k)->ContainsUnit||MOUNTAIN==targetNeighbor.at(k)->GetTileType()||WATER==targetNeighbor.at(k)->GetTileType()){
                         k++;
+                        continue;
                     }//Check if tile is occupied
                     UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
-                    qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                    qDebug()<<"Ranged moving to "<<unitlist.at(i)->GetTargetTileIndex()<<unitlist.at(i)->GetPath().length();
                 }//Attempt to send ranged units into attack range
             }//Direct ranged units to appropriate tile
         }//Ranged Unit City Combat
@@ -239,10 +249,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
 
 
 void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
-
     qDebug()<<"             Mid Threat Processing Start";
-
-
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
@@ -250,21 +257,17 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
     for(int i=0;i<civ->getMidThreats().length();i++){
         threatVec.push_back(civ->getMidThreats().at(i));
     }
-
     for(int i = 0; i<unitlist.length();i++){
         if(!threatVec.isEmpty()&&civ->isAtWar()){
                 qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
         //Find AI Troop location
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
                 qDebug()<<"test";
                 //Logic should be for all combat units
                 //Will need additional logic for other unit types (ranged, etc)
-
                 if(civ->GetUnitAt(i)->isMelee){
                     //Melee flag not being set
-
                     QList<Tile*> inRange = map->GetNeighbors(unitlocation);
                     bool canHit = false;
                     for(int j=0; j<inRange.length();j++){
@@ -275,12 +278,8 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
                             while(!unitlist.at(i)->isPathEmpty()){
                                 unitlist.at(i)->UpdatePath();
                             }
-
                             //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
                             qDebug()<<unitlist.at(i)->GetTargetTileIndex();
-                        }
-                        else{
-
                         }
                     }
                     if(!canHit){
@@ -293,7 +292,6 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
                     }
-
                 }
                 else{
                     qDebug()<<"ranged";
@@ -302,9 +300,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
             else {
                 qDebug()<<"worker/settler";
             }
-
         }
-
     }
 }
     //Scroll through a vector of the military units,
@@ -325,10 +321,7 @@ void AI_Tactical::midThreatProcessing(Civilization *civ, Map *map){
             //remove enemy from vector if killed
 
 void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
-
     qDebug()<<"             Low Threat Processing Start";
-
-
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
@@ -342,15 +335,12 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
                 qDebug()<<"Not empty, at "<<threatVec.at(0)->GetTileIndex();
         //Find AI Troop location
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
                 qDebug()<<"test";
                 //Logic should be for all combat units
                 //Will need additional logic for other unit types (ranged, etc)
-
                 if(civ->GetUnitAt(i)->isMelee){
                     //Melee flag not being set
-
                     QList<Tile*> inRange = map->GetNeighbors(unitlocation);
                     bool canHit = false;
                     for(int j=0; j<inRange.length();j++){
@@ -361,12 +351,8 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
                             while(!unitlist.at(i)->isPathEmpty()){
                                 unitlist.at(i)->UpdatePath();
                             }
-
                             //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
                             qDebug()<<unitlist.at(i)->GetTargetTileIndex();
-                        }
-                        else{
-
                         }
                     }
                     if(!canHit){
@@ -379,7 +365,6 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
                     }
-
                 }
                 else{
                     qDebug()<<"ranged";
@@ -388,11 +373,8 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
             else {
                 qDebug()<<"worker/settler";
             }
-
         }
-
     }
-
 }
     //Scroll through a vector of the military units,
         //Check first enemy for weaknesses and strengths
@@ -422,7 +404,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
             qDebug()<<"Settler selected";
             if(map->GetTileAt(unitlist.at(i)->GetTileIndex())==CityToBeFounded.at(0)){
                 qDebug() << "------AI" << civ->getCivIndex() << "writing to foundCity queue";
-                civ->setCityFounding(AIQueueData{AI_FOUND_CITY,unitlist.at(i)->GetTileIndex()});
+                civ->setCityFounding(AIQueueData{AI_FOUND_CITY,unitlist.at(i)});
                 //This will get set regardless if a city is actually settled or not.
                 // If the city is not founded, the AI <<SHOULD>> try to move the settler
                 // to the next valid location until a city is actually settled.
@@ -460,8 +442,6 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
     //if a settler exists after all city locations in queue have been used, searches radially for suitable site
         //adds the site to the queue for eval purposes
             //most likely scenario if last city site is taken by others after settler is already built
-
-
 
 
 
@@ -522,19 +502,9 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
         //else (non-garrisonned workers should always be road workers
             //if not already building a road
                 //target a city not currently connected to capitol (bool val for this??)
-
-
     //****************Worker Control***************
     //Unassigned but garrisoned workers will be targeted to the tile closest to the city
         //starting to the top right and clockwise spiral out
         //and will perform the 'ideal' improvement
     //the roadworker will be given a city to connect to if not already working
         //should always be in a city OR building roads
-
-
-
-
-
-
-
-
