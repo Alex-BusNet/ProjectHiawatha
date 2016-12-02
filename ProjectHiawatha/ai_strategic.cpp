@@ -35,7 +35,7 @@ qDebug()<<"     Strategic AI Called";
     civ->clearThreats();
     invasionCheck(civ,player,map);
 
-    cityProduction(civ, map);
+    cityProduction(civ);
     aiOp = new AI_Operational(cityLocations, civ, player, map);
 
     //****************Operational AI called**************
@@ -52,7 +52,7 @@ qDebug()<<"     Strategic AI Called";
     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 }
 
-void AI_Strategic::cityProduction(Civilization *civ, Map* map){
+void AI_Strategic::cityProduction(Civilization *civ){
     qDebug()<<"City Production";
 
     bool activeSettler = false;
@@ -110,7 +110,7 @@ void AI_Strategic::cityProduction(Civilization *civ, Map* map){
 
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
-            if(!civ->isAtWar()){//Settle more cities
+            if(!civ->isAtWar()||civ->GetCityList().length()<2){//Settle more cities
                 qDebug()<<"produce stuff";
                 if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time

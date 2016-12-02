@@ -35,15 +35,8 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
 
     threatScan(civ, player, map);
 
-    if(!civ->isAtWar()){
-        qDebug()<<"AI_Ops Midgoal 1";
-        //theaterAtWar(civ, player, cityTarget, map);
-        //Probably not anything for operational in this context, aside from threat detection
-        //midgoal==2 is resource gathering - run theaterprep?
-        theaterPrep(civ, player);
-    }
-    else{
-        theaterAtWar(civ, player, cityTarget, map);
+    if(civ->isAtWar()){
+        theaterAtWar(civ, player);
     }
 
     aiTact = new AI_Tactical(civ, player, map, CityToBeFounded, cityTarget);
@@ -105,7 +98,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
 
 
 
-void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget, Map *map){
+void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player){
     qDebug()<<"Theater At War";
     int targetIndex=0, targetDistance=INT_MAX;
     UnitController *checkDist;
@@ -129,24 +122,4 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City 
 //always priority for siege units unless directly threatened
         //Units which pose a threat to borders or to forces actively invading the enemy city
             //targets threatening units with whatever they are weak to first, then neutral, and only strong against as last resort
-
-
-
-void AI_Operational::theaterPrep(Civilization *civ, Civilization *player){
-
-    //Might be partially obsolete because of provocation mechanic
-
-    //Scans for player's nearest city
-        //Locates open tiles within civ's borders that are near the enemy city
-            //Maybe does the rotational scan out from the located city?
-            //adds tiles within ai's civ to vector, starting with nearest to enemy city
-}
-//************Theater of War(prep)***************
-//If preparing for war, sends units in the general direction of opponent's nearest city
-        //Lays out a set of positions which are acceptable for unit types to station
-
-//Location???
-            //infantry will be in front of siege, etc
-        //careful not to be too obvious - Fog of War buffer zone?
-
 
