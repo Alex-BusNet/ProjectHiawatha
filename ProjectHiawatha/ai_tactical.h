@@ -15,11 +15,11 @@ class AI_Tactical
 public:
     AI_Tactical();
 
-    AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile*> TroopPositions);
+    AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget);
 
     //2 functions, depending if the civ is attacking or defending
-    void Prep(Civilization *civ, Civilization *player, Map *map, QVector<Tile*> TroopPositions);
-    void AtWar(Civilization *civ, City *cityTarget);
+    void Prep(Civilization *civ, Civilization *player, Map *map);
+    void AtWar(Civilization *civ, Map *map, City *cityTarget);
 
 
 private:

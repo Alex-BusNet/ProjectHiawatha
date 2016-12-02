@@ -16,10 +16,9 @@ public:
 private:
     void threatScan(Civilization *civ, Civilization *player, Map *map);
     void theaterAtWar(Civilization *civ, Civilization *player, City *cityTarget, Map *map);
-    void theaterPrep(Civilization *civ, Civilization *player, QVector<Tile*> troopLocations);
+    void theaterPrep(Civilization *civ, Civilization *player);
 
      City *cityTarget;
-     QVector<Tile*> troopLocations;
 
      AI_Tactical *aiTact;
 };

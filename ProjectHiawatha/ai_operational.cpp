@@ -40,13 +40,13 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
         //theaterAtWar(civ, player, cityTarget, map);
         //Probably not anything for operational in this context, aside from threat detection
         //midgoal==2 is resource gathering - run theaterprep?
-        theaterPrep(civ, player, troopLocations);
+        theaterPrep(civ, player);
     }
     else{
         theaterAtWar(civ, player, cityTarget, map);
     }
 
-    aiTact = new AI_Tactical(civ, player, map, CityToBeFounded, cityTarget, troopLocations);
+    aiTact = new AI_Tactical(civ, player, map, CityToBeFounded, cityTarget);
 }
 
 
@@ -132,7 +132,7 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player, City 
 
 
 
-void AI_Operational::theaterPrep(Civilization *civ, Civilization *player, QVector<Tile *> troopLocations){
+void AI_Operational::theaterPrep(Civilization *civ, Civilization *player){
 
     //Might be partially obsolete because of provocation mechanic
 

@@ -28,7 +28,7 @@ AI_Tactical::AI_Tactical()
 
 }
 
-AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget, QVector<Tile *> TroopPositions)
+AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget)
 {
     qDebug()<<"             Tactical AI called";
     highThreatProcessing(civ, player, map);
@@ -36,10 +36,10 @@ AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVec
     lowThreatProcessing(civ, player, map);
 
     if(civ->getProvoked()){
-        AtWar(civ, cityTarget);
+        AtWar(civ, map, cityTarget);
     }
     else{
-        Prep(civ, player, map, TroopPositions);
+        Prep(civ, player, map);
     }
 
     settlercontrol(civ, map, CityToBeFounded);
@@ -49,7 +49,7 @@ AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVec
 
 
 
-void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> TroopPositions)
+void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map)
 {
     qDebug()<<"             Prep Control Start";
 
@@ -84,12 +84,79 @@ void AI_Tactical::Prep(Civilization *civ, Civilization *player, Map *map, QVecto
 
 
 
-void AI_Tactical::AtWar(Civilization *civ, City *cityTarget)
+void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 {
-    UnitController *unit;
-    for(int i=0; i<civ->GetUnitList().length();i++){
-        if(!civ->GetUnitAt(i)->HasNoMovementLeft){
-            unit->AttackCity(civ->GetUnitAt(i),cityTarget);
+    int combatUnits=0;
+    for(int i = 0;i< civ->GetUnitList().length();i++){
+        if(!civ->GetUnitAt(i)->isNonCombat()){
+            combatUnits++;
+        }
+    }
+
+    QVector<Unit*> unitlist=civ->GetUnitList();
+    UnitController *UnitControl= new UnitController();
+    for(int i=0; i<unitlist.length();i++){
+        Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
+        if(civ->GetUnitAt(i)->isMelee&&(!civ->GetUnitAt(i)->HasNoMovementLeft)&&(combatUnits>8)){
+            QList<Tile*> inRange = map->GetNeighbors(unitlocation);
+            bool canHit = false;
+            for(int j=0; j<inRange.length();j++){
+                if(inRange.at(j)->GetTileIndex()==cityTarget->GetCityTile()->GetTileIndex()){
+                    qDebug()<<"Attack City of "<<(cityTarget->GetName());
+                    canHit=true;
+                    UnitControl->AttackCity(unitlist.at(i),cityTarget);
+                    while(!unitlist.at(i)->isPathEmpty()){
+                        unitlist.at(i)->UpdatePath();
+                    }
+
+                    //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                    qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                }
+                else{
+
+                }
+            }
+            if(!canHit){
+                qDebug()<<"Send to city: "<<(cityTarget->GetName());
+                QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()));
+                int k=0;
+                while(unitlist.at(i)->isPathEmpty()){
+                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                    k++;
+                    if(k>5){break;}
+                }//Find path accounts for impassable terrain around the target unit
+            }
+
+        }
+        else if(!civ->GetUnitAt(i)->isNonCombat()&&(!civ->GetUnitAt(i)->HasNoMovementLeft)&&(combatUnits>8)){
+            QList<Tile*> inRange = map->GetNeighborsRange(unitlocation,2);
+            bool canHit = false;
+            for(int j=0; j<inRange.length();j++){
+                if(inRange.at(j)->GetTileIndex()==cityTarget->GetCityTile()->GetTileIndex()){
+                    qDebug()<<"Attack City of "<<(cityTarget->GetName());
+                    canHit=true;
+                    UnitControl->AttackCity(unitlist.at(i),cityTarget);
+                    while(!unitlist.at(i)->isPathEmpty()){
+                        unitlist.at(i)->UpdatePath();
+                    }
+
+                    //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
+                    qDebug()<<unitlist.at(i)->GetTargetTileIndex();
+                }
+                else{
+
+                }
+            }
+            if(!canHit){
+                qDebug()<<"Send to city: "<<(cityTarget->GetName());
+                QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),2);
+                int k=0;
+                while(unitlist.at(i)->isPathEmpty()){
+                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                    k++;
+                    if(k>5){break;}
+                }//Find path accounts for impassable terrain around the target unit
+            }
         }
     }
     //Scroll through a vector of the military units,
@@ -128,7 +195,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
             Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
 
             if(civ->GetUnitList().at(i)->GetUnitType()==WARRIOR){
-                qDebug()<<"test";
+//                qDebug()<<"test";
                 //Logic should be for all combat units
                 //Will need additional logic for other unit types (ranged, etc)
 
@@ -145,6 +212,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Civilization *player, 
                             while(!unitlist.at(i)->isPathEmpty()){
                                 unitlist.at(i)->UpdatePath();
                             }
+                            unitlist.at(i)->HasNoMovementLeft=true;
 
                             //UnitControl->FindPath(unitlocation,unitlocation,map,unitlist.at(i));
                             qDebug()<<unitlist.at(i)->GetTargetTileIndex();
