@@ -45,7 +45,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     unitToMove = NULL;
     targetUnit = NULL;
     targetCity = NULL;
-    //state = IDLE;
+    state = IDLE;
 
     cityScreenVisible = false;
     techTreeVisible = false;
@@ -54,16 +54,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     turnStarted = true;
     countTime = false;
     citySelected = false;
-    findUnit = false;
-    attackNearby = false;
+
     focusChanged = false;
     fortify = false;
-    attackEnemyCity = false;
-    findCity = false;
-    foundACity = false;
-    aiFoundCity = false;
-    attackRange = false;
-    invade = false;
+
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -475,16 +469,15 @@ void GameManager::TurnController()
         {
             if(!civList.at(currentTurn)->isEmpty())
             {
+                AIQueueData data = civList.at(currentTurn)->dequeue();
+                state = data.action;
 
-//                unitToMove = civList.at(currentTurn)->dequeue();
+                if(state = AI_FOUND_CITY)
+                    unitToMove = uc->FindUnitAtTile(map->GetTileAt(data.tileIndex), map, civList.at(currentTurn)->GetUnitList());
+                else if(state = CONQUER)
+                    targetTile = map->GetTileAt(data.tileIndex);
 
-//                if(unitToMove->GetUnitType() == SETTLER)
-//                {
-//                    qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
-//                    aiFoundCity = true;
-//                    this->UpdateTileData();
-//                    break;
-//                }
+                this->UpdateTileData();
             }
         }
         qDebug() << "Waiting for finish";
@@ -893,6 +886,7 @@ void GameManager::EndTurn()
     qDebug() << "Ending Turn";
     statusMessage = " ";
     countTime = true;
+    state = IDLE;
     begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
 
@@ -1010,7 +1004,8 @@ nextCivAlive:
 
 void GameManager::UpdateTileData()
 {
-    if(!processedData.relocateOrderGiven && !attackNearby && !attackEnemyCity && !aiFoundCity && !attackRange)
+    qDebug() << "Updating Tile Data";
+    if(!processedData.relocateOrderGiven && state == IDLE)
     {
         qDebug() << "Relocation not ordered" << processedData.column << processedData.row;
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
@@ -1024,15 +1019,13 @@ void GameManager::UpdateTileData()
 
         if(unitTile->ContainsUnit)
         {
-            findUnit = true;
+            state = FIND_UNIT;
         }
     }
-    else if((attackNearby || processedData.relocateOrderGiven || attackEnemyCity || attackRange) && !aiFoundCity)
+    else if(state == ATTACK_MELEE || processedData.relocateOrderGiven || state == ATTACK_RANGE || state == ATTACK_CITY)
     {
-        qDebug() << "   attackNearby:"<< attackNearby << " relocation ordered:" << processedData.relocateOrderGiven << "attackEnemyCity:" << attackEnemyCity << "attackRange" << attackRange;
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
-        qDebug() << "       ContainsUnit:" << targetTile->ContainsUnit << "HasCity:" << targetTile->HasCity;
-        if(targetTile->ContainsUnit && !attackEnemyCity)
+        if(targetTile->ContainsUnit && state != ATTACK_CITY)
         {
             if(!civList.at(currentTurn)->isAtWar())
             {
@@ -1053,194 +1046,146 @@ void GameManager::UpdateTileData()
         }
         else if(targetTile->HasCity)
         {
-            findCity = true;
+            state = FIND_CITY;
         }
     }
 
-    if(findUnit && !attackEnemyCity && !aiFoundCity)
+    if(state == FIND_UNIT)
     {
-        findUnit = false;
-        if(!attackNearby && !attackRange)
+        qDebug() << "Finding Unit";
+        if(unitToMove != NULL)
         {
-            if(unitToMove != NULL)
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+        }
+
+        unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
+
+        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
+        tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+
+        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && unitToMove->RequiresOrders)
+        {
+            map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
+            moveUnit->setEnabled(true);
+            this->redrawTile = true;
+
+            if(unitToMove->isNonCombat())
             {
-                selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-            }
+                attackUnit->setEnabled(false);
+                attackCity->setEnabled(false);
+                rangeAttack->setEnabled(false);
+                fortifyUnit->setEnabled(false);
 
-            unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
-
-            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
-            tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-
-            if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && unitToMove->RequiresOrders)
-            {
-                map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
-                moveUnit->setEnabled(true);
-                this->redrawTile = true;
-
-                if(unitToMove->isNonCombat())
+                qDebug() << "   non-combat unit";
+                if(unitToMove->GetUnitType() == SETTLER)
                 {
-                    qDebug() << "   non-combat unit";
-                    if(unitToMove->GetUnitType() == SETTLER)
+                    qDebug() << "       unit is settler";
+                    qDebug()<<"Tile Index: "<<unitToMove->GetTileIndex();
+                    qDebug()<<"HAS CITY: "<<map->GetTileAt(unitToMove->GetTileIndex())->HasCity;
+                    if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
                     {
-                        qDebug() << "       unit is settler";
-                        qDebug()<<"Tile Index: "<<unitToMove->GetTileIndex();
-                        qDebug()<<"HAS CITY: "<<map->GetTileAt(unitToMove->GetTileIndex())->HasCity;
-                        if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
-                        {
-                            foundCity->setEnabled(true);
+                        foundCity->setEnabled(true);
 
-                            buildFarm->setEnabled(false);
-                            buildMine->setEnabled(false);
-                            buildPlantation->setEnabled(false);
-                            buildTradePost->setEnabled(false);
-                            buildRoad->setEnabled(false);
-
-                            attackUnit->setEnabled(false);
-                            attackCity->setEnabled(false);
-                            rangeAttack->setEnabled(false);
-                            fortifyUnit->setEnabled(false);
-                        }
-                    }
-                    else if (unitToMove->GetUnitType() == WORKER)
-                    {
-                        qDebug() << "       unit is worker";
-                        if(map->GetTileAt(unitToMove->GetTileIndex())->GetControllingCiv() == civList.at(currentTurn)->getCiv())
-                        {
-                            buildFarm->setEnabled(true);
-                            buildMine->setEnabled(true);
-                            buildPlantation->setEnabled(true);
-                            buildTradePost->setEnabled(true);
-                        }
-                        foundCity->setEnabled(false);
-
-
-                        buildRoad->setEnabled(true);
-
-                        attackUnit->setEnabled(false);
-                        attackCity->setEnabled(false);
-                        rangeAttack->setEnabled(false);
-                        fortifyUnit->setEnabled(false);
+                        buildFarm->setEnabled(false);
+                        buildMine->setEnabled(false);
+                        buildPlantation->setEnabled(false);
+                        buildTradePost->setEnabled(false);
+                        buildRoad->setEnabled(false);
                     }
                 }
-                else //Combat Unit button controls
+                else if (unitToMove->GetUnitType() == WORKER)
                 {
-                    qDebug() << "    unit is combat type";
+                    qDebug() << "       unit is worker";
+                    if(map->GetTileAt(unitToMove->GetTileIndex())->GetControllingCiv() == civList.at(currentTurn)->getCiv())
+                    {
+                        buildFarm->setEnabled(true);
+                        buildMine->setEnabled(true);
+                        buildPlantation->setEnabled(true);
+                        buildTradePost->setEnabled(true);
+                    }
 
                     foundCity->setEnabled(false);
 
-                    buildFarm->setEnabled(false);
-                    buildMine->setEnabled(false);
-                    buildPlantation->setEnabled(false);
-                    buildTradePost->setEnabled(false);
-                    buildRoad->setEnabled(false);
+                    buildRoad->setEnabled(true);
+                }
+            }
+            else //Combat Unit button controls
+            {
+                qDebug() << "    unit is combat type";
 
-                    fortifyUnit->setEnabled(true);
+                foundCity->setEnabled(false);
 
-                    qDebug() << "Unit range:" << unitToMove->GetRange();
-                    QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
+                buildFarm->setEnabled(false);
+                buildMine->setEnabled(false);
+                buildPlantation->setEnabled(false);
+                buildTradePost->setEnabled(false);
+                buildRoad->setEnabled(false);
 
-                    foreach(Tile *tile, tiles)
+                fortifyUnit->setEnabled(true);
+
+                qDebug() << "Unit range:" << unitToMove->GetRange();
+                QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
+
+                foreach(Tile *tile, tiles)
+                {
+
+                    if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
                     {
+                        int tileIndex = tile->GetTileIndex();
 
-                        if((tile->GetCivListIndex() != 0) && (tile->GetCivListIndex() != -1))
+                        selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                        tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+
+                        if(tile->HasCity)
                         {
-                            int tileIndex = tile->GetTileIndex();
-
-                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
-
-                            if(tile->HasCity)
+                            if(!attackCity->isEnabled())
                             {
-                                if(!attackCity->isEnabled())
-                                {
-                                    attackCity->setEnabled(true);
-                                }
+                                attackCity->setEnabled(true);
                             }
-                            else if(tile->ContainsUnit)
+                        }
+                        else if(tile->ContainsUnit)
+                        {
+                            if(unitToMove->isMelee)
                             {
-                                if(unitToMove->isMelee)
-                                {
-                                    buildFarm->setEnabled(false);
-                                    buildMine->setEnabled(false);
-                                    buildPlantation->setEnabled(false);
-                                    buildTradePost->setEnabled(false);
-                                    buildRoad->setEnabled(false);
-                                    rangeAttack->setEnabled(false);
-                                    attackUnit->setEnabled(true);
-                                }
-                                else if(!unitToMove->isMelee)
-                                {
-                                    buildFarm->setEnabled(false);
-                                    buildMine->setEnabled(false);
-                                    buildPlantation->setEnabled(false);
-                                    buildTradePost->setEnabled(false);
-                                    buildRoad->setEnabled(false);
-                                    attackUnit->setEnabled(false);
-                                    rangeAttack->setEnabled(true);
-                                }
+                                attackUnit->setEnabled(true);
                             }
-                            else if(attackCity->isEnabled())
+                            else if(!unitToMove->isMelee)
                             {
-                                attackCity->setEnabled(false);
+                                attackUnit->setEnabled(false);
+                                rangeAttack->setEnabled(true);
                             }
-                            else if(rangeAttack->isEnabled())
-                            {
-                                rangeAttack->setEnabled(false);
-                            }
+                        }
+                        else if(attackCity->isEnabled())
+                        {
+                            attackCity->setEnabled(false);
+                        }
+                        else if(rangeAttack->isEnabled())
+                        {
+                            rangeAttack->setEnabled(false);
                         }
                     }
                 }
-            }
-            else
-            {
-                if(currentTurn == 0)
-                    statusMessage = "--------<< You do not own that unit >>--------";
-
-                selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             }
         }
         else
         {
-            attackNearby = false;
-            attackRange = false;
-
-            if(unitToMove->isFortified)
-            {
-                unitToMove->isFortified = false;
-                renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
-            }
-
-            targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetUnitList());
+            if(currentTurn == 0)
+                statusMessage = "--------<< You do not own that unit >>--------";
 
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-
-            selectedTileQueue->enqueue(SelectData{targetUnit->GetTileIndex(), false, false});
-
-            attackUnit->setEnabled(false);
-            rangeAttack->setEnabled(false);
-            if(map->GetTileAt(unitToMove->GetTileIndex())->GetTileType() == WATER)
-                uc->Attack(unitToMove, targetUnit, true);
-            else
-                uc->Attack(unitToMove, targetUnit, false);
-
-            renderer->UpdateUnits(map, gameView, unitToMove, false);
-            renderer->UpdateUnits(map, gameView, targetUnit, false);
-
-            renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
-
-            this->redrawTile = true;
         }
     }
-    else if(findCity && !aiFoundCity)
+    else if(state == FIND_CITY || state == CONQUER)
     {
-        findCity = false;
-
+        state = IDLE;
         targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetCityList());
-        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-        selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
-        attackCity->setEnabled(false);
-        attackEnemyCity = false;
+
+        if(currentTurn == 0)
+        {
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
+            attackCity->setEnabled(false);
+        }
 
         if(targetCity->GetControllingCiv() != NO_NATION)
         {
@@ -1280,7 +1225,7 @@ void GameManager::UpdateTileData()
         }
     }
 
-    if(processedData.relocateOrderGiven && !findUnit && !aiFoundCity)
+    if(processedData.relocateOrderGiven && state == MOVE_UNIT)
     {
         if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()})
                 && (currentTurn != targetTile->GetControllingCivListIndex() || targetTile->GetCivListIndex() != currentTurn || targetTile->GetControllingCiv() != civList[currentTurn]->getCiv()))
@@ -1301,17 +1246,19 @@ void GameManager::UpdateTileData()
             if(targetTile->ContainsUnit)
             {
                 statusMessage = "--------<< You cannot move there >>--------";
-                invade = false;
+                state = IDLE;
             }
             else
             {
-                invade = true;
+                //Even though we aren't technically invading all the time,
+                //  this is set to simply allow the move processing to occur
+                state = INVADE;
             }
         }
 
-        if(invade)
+        if(state == INVADE)
         {
-            invade = false;
+            state = IDLE;
             qDebug() << "       " << unitToMove->GetName() << "targetTile:" << targetTile->GetTileIDString() << targetTile->GetTileIndex();
 
             unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
@@ -1350,23 +1297,14 @@ void GameManager::UpdateTileData()
         qDebug() << "   Done";
     }
 
-    if(foundACity || aiFoundCity)
+    if(state == FOUND_CITY || state == AI_FOUND_CITY)
     {
         qDebug() << "found a city";
 
-        qDebug()<<foundACity<<aiFoundCity;
-
-        if(foundCity)
-            this->foundACity = false;
-        if(aiFoundCity)
-            this->aiFoundCity = false;
-
-        qDebug()<<foundACity<<aiFoundCity;
-        City* city;
-
+        state = IDLE;
         foundCityIndex = unitToMove->GetTileIndex();
 
-        city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
+        City* city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
 
         bool valid = true;
         int dstX, dstY;
@@ -1432,12 +1370,12 @@ void GameManager::UpdateTileData()
             renderer->SetFortifyIcon(foundCityIndex, true);
             renderer->SetUnitNeedsOrders(foundCityIndex, false);
         }
-
         civList.at(currentTurn)->UpdateCivYield();
 
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
         map->GetTileAt(foundCityIndex)->HasCity=true;
         map->GetTileAt(foundCityIndex)->SetControllingCiv(civList.at(currentTurn)->getCiv(), currentTurn);
+
         renderer->RemoveUnit(unitToMove, gameView);
         civList.at(currentTurn)->RemoveUnit(unitToMove->GetUnitListIndex());
 
@@ -1446,10 +1384,9 @@ void GameManager::UpdateTileData()
             clv->addItem(city->GetName());
             selectedTileQueue->enqueue(SelectData{foundCityIndex, false, false});
         }
-
     }
 
-    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && !aiFoundCity)
+    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && state != AI_FOUND_CITY)
     {
         if(unitToMove != NULL)
         {
@@ -1804,6 +1741,37 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     ns->ShowNotifications();
 }
 
+void GameManager::ProcessAttackUnit()
+{
+    state = IDLE;
+
+    if(unitToMove->isFortified)
+    {
+        unitToMove->isFortified = false;
+        renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+    }
+
+    targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetCivListIndex())->GetUnitList());
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+
+    selectedTileQueue->enqueue(SelectData{targetUnit->GetTileIndex(), false, false});
+
+    attackUnit->setEnabled(false);
+    rangeAttack->setEnabled(false);
+    if(map->GetTileAt(unitToMove->GetTileIndex())->GetTileType() == WATER)
+        uc->Attack(unitToMove, targetUnit, true);
+    else
+        uc->Attack(unitToMove, targetUnit, false);
+
+    renderer->UpdateUnits(map, gameView, unitToMove, false);
+    renderer->UpdateUnits(map, gameView, targetUnit, false);
+
+    renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+
+    this->redrawTile = true;
+}
+
 void GameManager::closeGame()
 {
     this->close();
@@ -1859,7 +1827,7 @@ void GameManager::updateTiles()
 {
     processedData = gameView->GetScene()->ProcessTile(relocateUnit);
 
-    if(processedData.newData || foundACity)
+    if(processedData.newData || state == FOUND_CITY)
     {
         this->UpdateTileData();
     }
@@ -1931,6 +1899,7 @@ void GameManager::moveUnitTo()
     qDebug() << "MoveUnitTo";
     if(moveUnit->isEnabled())
     {
+        state = MOVE_UNIT;
         relocateUnit = true;
     }
 }
@@ -1967,7 +1936,7 @@ void GameManager::showTechTree()
 
 void GameManager::foundNewCity()
 {
-    this->foundACity = true;
+    state = FOUND_CITY;
 }
 
 void GameManager::buildNewRoad()
@@ -2041,7 +2010,7 @@ void GameManager::buildNewMine()
 
 void GameManager::attackMelee()
 {
-    attackNearby = true;
+    state = ATTACK_MELEE;
     qDebug() << "Attack nearby to true";
 }
 
@@ -2082,12 +2051,12 @@ void GameManager::SetCultureFocus()
 
 void GameManager::AttackCity()
 {
-    attackEnemyCity = true;
+    state = ATTACK_CITY;
 }
 
 void GameManager::RangeAttack()
 {
-    attackRange = true;
+    state = ATTACK_RANGE;
 }
 
 void GameManager::Fortify()
@@ -2107,11 +2076,7 @@ void GameManager::WarDeclared()
 
 void GameManager::WarAvoided()
 {
-    findUnit = false;
-    attackNearby = false;
-    attackRange = false;
-    attackCity == false;
-    invade = false;
+    state = IDLE;
 }
 
 void GameManager::WarByInvasion()
@@ -2119,7 +2084,7 @@ void GameManager::WarByInvasion()
     qDebug() << "War By Invasion";
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
     ns->ShowNotifications();
-    invade = true;
+    state = INVADE;
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCiv(), targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
 }

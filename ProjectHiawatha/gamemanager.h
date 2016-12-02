@@ -130,10 +130,7 @@ private:
     bool turnEnded, turnStarted;
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected;
-    bool findUnit, findCity, foundACity, aiFoundCity;
-    bool attackNearby, attackRange, attackEnemyCity;
     bool focusChanged;
-    bool invade;
 
     Nation playerCiv;
     ActionState state;
@@ -152,6 +149,7 @@ private:
     void InitYieldDisplay();
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
+    void ProcessAttackUnit();
 
     TileData processedData;
 

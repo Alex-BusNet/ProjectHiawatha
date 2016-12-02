@@ -669,6 +669,8 @@ void Renderer::UpdateCityHealthBar(City *city, GameView *view)
 
     int barSize = ceil(65 * (static_cast<double>(city->GetCityHealth()) / city->GetMaxHealth()));
 
+    barSize = barSize <= 0 ? 1 : barSize;
+
     QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
                               city->GetCityTile()->GetCityLabelPoint().y() + 15,
                               barSize, 5);
