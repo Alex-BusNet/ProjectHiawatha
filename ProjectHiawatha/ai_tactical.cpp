@@ -97,7 +97,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
     UnitController *UnitControl= new UnitController();
     for(int i=0; i<unitlist.length();i++){
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
-        if(civ->GetUnitAt(i)->isMelee&&(!civ->GetUnitAt(i)->HasNoMovementLeft)&&(combatUnits>8)){
+        if(civ->GetUnitAt(i)->isMelee&&(!civ->GetUnitAt(i)->HasNoMovementLeft)&&(combatUnits>4)){
             QList<Tile*> inRange = map->GetNeighbors(unitlocation);
             bool canHit = false;
             for(int j=0; j<inRange.length();j++){
@@ -128,7 +128,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
             }
 
         }
-        else if(!civ->GetUnitAt(i)->isNonCombat()&&(!civ->GetUnitAt(i)->HasNoMovementLeft)&&(combatUnits>8)){
+        else if(!civ->GetUnitAt(i)->isNonCombat()&&(!civ->GetUnitAt(i)->HasNoMovementLeft)&&(combatUnits>4)){
             QList<Tile*> inRange = map->GetNeighborsRange(unitlocation,2);
             bool canHit = false;
             for(int j=0; j<inRange.length();j++){
