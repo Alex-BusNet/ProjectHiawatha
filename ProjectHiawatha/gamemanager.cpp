@@ -22,6 +22,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ac = new AI_Controller();
     clv = new QListWidget(this);
     ns = new NotificationSystem(this);
+    about = new About();
 
     vLayout = new QVBoxLayout();
     hLayout = new QHBoxLayout();
@@ -1193,18 +1194,6 @@ void GameManager::UpdateTileData()
                             {
                                 rangeAttack->setEnabled(false);
                             }
-//                            else
-//                            {
-//                                selectedTileQueue->enqueue(SelectData {tileIndex, false, false});
-//                                buildFarm->setEnabled(false);
-//                                buildMine->setEnabled(false);
-//                                buildPlantation->setEnabled(false);
-//                                buildTradePost->setEnabled(false);
-//                                buildRoad->setEnabled(false);
-//                                attackUnit->setEnabled(false);
-//                                rangeAttack->setEnabled(false);
-//                                attackCity->setEnabled(false);
-//                            }
                         }
                     }
                 }
@@ -1500,9 +1489,14 @@ void GameManager::UpdateTileData()
 
 void GameManager::InitButtons()
 {
-    QString buttonStyle = "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }";
+    QString GameStyle = "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }";
+    GameStyle += "QPushButton:pressed { background-color: #77adcb; }";
+    GameStyle += "QScrollBar:vertical { border: 2px sold black; background: #77adcb; width: 15px; margin: 12px 0 12px 0;} QScrollBar::handle:vertical { background: #4899C8; min-height: 10px; }";
+    GameStyle += "QScrollBar::add-line:vertical { border: 1px solid black; background: #dedede; height: 10px; subcontrol-position: bottom; subcontrol-origin: margin; }  QScrollBar::sub-line:vertical { border: 1px solid black; height: 10px; background: #dedede; subcontrol-position: top; subcontrol-origin: margin; }";
+    GameStyle += "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { border: 1px solid black; width: 3px; height: 3px; background: purple; } QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }";
+    GameStyle += "QTabBar::tab { background: #dedede; border: 1px solid black; min-width: 10ex; padding: 3px;} QTabBar::tab:selected { background: #4899C8; } QTabBar::tab:hover { background: #77adcb; }";
 
-    this->setStyleSheet(buttonStyle);
+    this->setStyleSheet(GameStyle);
 
     exitGame = new QPushButton("Exit To Menu");
     connect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
@@ -1511,7 +1505,6 @@ void GameManager::InitButtons()
     showTechTreeButton = new QPushButton("Technology Tree");
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
     showTechTreeButton->setShortcut(QKeySequence(Qt::Key_T));
-//    showTechTreeButton->setMaximumWidth(100);
 
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
@@ -1525,43 +1518,36 @@ void GameManager::InitButtons()
     buildFarm = new QPushButton("Build Farm");
     connect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));
     buildFarm->setEnabled(false);
-//    buildFarm->hide();
     buildFarm->setShortcut(QKeySequence(Qt::Key_F));
 
     buildMine = new QPushButton("Build Mine");
     connect(buildMine, SIGNAL(clicked(bool)), this, SLOT(buildNewMine()));
     buildMine->setEnabled(false);
-//    buildMine->hide();
     buildMine->setShortcut(QKeySequence(Qt::Key_S));
 
     buildPlantation = new QPushButton("Build Plantation");
     connect(buildPlantation, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildPlantation->setEnabled(false);
-//    buildPlantation->hide();
     buildPlantation->setShortcut(QKeySequence(Qt::Key_D));
 
     buildTradePost = new QPushButton ("Build Trading Post");
     connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildTradePost->setEnabled(false);
-//    buildTradePost->hide();
     buildTradePost->setShortcut(QKeySequence(Qt::Key_G));
 
     buildRoad = new QPushButton("Build Road");
     connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
     buildRoad->setEnabled(false);
-//    buildRoad->hide();
     buildRoad->setShortcut(QKeySequence(Qt::Key_H));
 
     foundCity = new QPushButton("Found City");
     connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
     foundCity->setEnabled(false);
-//    foundCity->hide();
     foundCity->setShortcut(QKeySequence(Qt::Key_Q));
 
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
     attackUnit->setEnabled(false);
-//    attackUnit->hide();
     attackUnit->setShortcut(QKeySequence(Qt::Key_W));
 
     goldFocus = new QPushButton("Gold Focus");
@@ -1610,7 +1596,9 @@ void GameManager::InitButtons()
     fortifyUnit->setEnabled(false);
     fortifyUnit->setShortcut(QKeySequence(Qt::Key_A));
 
-
+    help = new QPushButton("Help");
+    connect(help, SIGNAL(clicked(bool)), this, SLOT(OpenHelp()));
+    help->setShortcut(QKeySequence(Qt::Key_Z));
 
 }
 
@@ -1646,6 +1634,7 @@ void GameManager::InitLayouts()
     frame->setLineWidth(1);
 
     playerControlButtons->addWidget(exitGame);
+    playerControlButtons->addWidget(help);
     playerControlButtons->addWidget(clv);
     playerControlButtons->addWidget(endGameProgress);
     playerControlButtons->addWidget(frame);
@@ -2153,6 +2142,11 @@ void GameManager::WarByInvasion()
     invade = true;
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCiv(), targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
+}
+
+void GameManager::OpenHelp()
+{
+    about->show();
 }
 
 void GameManager::parseItem(QListWidgetItem *item)

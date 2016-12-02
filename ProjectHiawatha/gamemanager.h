@@ -22,6 +22,7 @@
 #include "notificationsystem.h"
 #include "tiledata.h"
 #include <chrono>
+#include "about.h"
 
 class GameManager : public QWidget
 {
@@ -35,6 +36,7 @@ private:
     UnitController *uc;
     QListWidget *clv;
     NotificationSystem *ns;
+    About *about;
 
     QTimer *updateTimer;
 
@@ -66,6 +68,7 @@ private:
     QPushButton *attackCity;
     QPushButton *rangeAttack;
     QPushButton *fortifyUnit;
+    QPushButton *help;
 
     QFuture<void> civInit, mapInit;
 
@@ -183,6 +186,7 @@ public slots:
     void WarDeclared();
     void WarAvoided();
     void WarByInvasion();
+    void OpenHelp();
 
     void parseItem(QListWidgetItem *item);
 };

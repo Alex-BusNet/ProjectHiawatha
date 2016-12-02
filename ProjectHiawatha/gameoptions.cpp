@@ -11,6 +11,7 @@
 
 typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QString SecondColor; int mapDimension1;
                int mapDimension2;}CivInfo;
+QString OptionsStyle = "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 75px; max-height: 23px; } QPushButton:pressed { background-color: #77adcb; }";
 
 GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QWidget(parent),
@@ -19,6 +20,12 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->setupUi(this);
     FullScreen = fullscreen;
     game = NULL;
+    OptionsStyle += "QScrollBar:vertical { border: 2px sold black; background: #77adcb; width: 15px; margin: 12px 0 12px 0;} QScrollBar::handle:vertical { background: #4899C8; min-height: 10px; }";
+    OptionsStyle += "QScrollBar::add-line:vertical { border: 1px solid black; background: #dedede; height: 10px; subcontrol-position: bottom; subcontrol-origin: margin; }  QScrollBar::sub-line:vertical { border: 1px solid black; height: 10px; background: #dedede; subcontrol-position: top; subcontrol-origin: margin; }";
+    OptionsStyle += "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { border: 1px solid black; width: 3px; height: 3px; background: purple; } QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }";
+    OptionsStyle += "QListView#listWidget { border: 5px inset #f6b300; show-decoration-selected: 1; } QLabel#label_3, #label_2 { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 15px; min-width: 150px; }";
+
+    this->setStyleSheet(OptionsStyle);
 
     QListWidgetItem* item1 =new QListWidgetItem(tr("China"), ui->listWidget);
     QListWidgetItem* item2 =new QListWidgetItem(tr("Germany"), ui->listWidget);
