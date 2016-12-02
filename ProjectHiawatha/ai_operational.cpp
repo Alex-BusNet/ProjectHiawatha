@@ -35,7 +35,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
 
     threatScan(civ, player, map);
 
-    if(!civ->getProvoked()){
+    if(!civ->isAtWar()){
         qDebug()<<"AI_Ops Midgoal 1";
         //theaterAtWar(civ, player, cityTarget, map);
         //Probably not anything for operational in this context, aside from threat detection

@@ -13,6 +13,7 @@ UnitController::UnitController()
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
     qDebug() << " End tile has unit:" << endTile->ContainsUnit;
+    qDebug()<<"End tile has city: "<<endTile->HasCity;
     bool warCheckFailed = false;
     if(startTile==endTile)
     {
@@ -77,7 +78,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
 
             if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed)
             {
-                qDebug() << "continue" << warCheckFailed;
+                //qDebug() << "continue" << warCheckFailed;
                 warCheckFailed = false;
                 continue;
             }
@@ -101,7 +102,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
     // This is for if the last tile is occupied and the algorithm ends
     // without finding the last tile.
     qDebug() << "----End tile not found; setting path to currentHex";
-    RetracePath(startTile, currentHex, map, unit);
+    //RetracePath(startTile, currentHex, map, unit);
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
@@ -363,7 +364,7 @@ void UnitController::HealUnit(Unit *unit)
  */
 bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
 {
-    qDebug() << "   AtPeaceWith:" << wDat.warCivIndex << wDat.warringCiv << target->GetControllingCivListIndex() << target->GetControllingCiv();
+    //qDebug() << "   AtPeaceWith:" << wDat.warCivIndex << wDat.warringCiv << target->GetControllingCivListIndex() << target->GetControllingCiv();
     if(target->GetControllingCiv() != NO_NATION)
     {
         if(target->GetControllingCiv() != wDat.warringCiv)

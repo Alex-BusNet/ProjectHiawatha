@@ -46,7 +46,6 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     if(isAI)
     {
         this->isAIPlayer = true;
-        this->provoked=false;
     }
 }
 
@@ -394,16 +393,6 @@ QVector<Unit *> Civilization::getHighThreats()
     return this->highThreats;
 }
 
-void Civilization::setProvoked(bool provoked)
-{
-    this->provoked=provoked;
-}
-
-bool Civilization::getProvoked()
-{
-    return provoked;
-}
-
 void Civilization::setCivIndex(int index)
 {
     this->civIndex=index;
@@ -414,17 +403,17 @@ int Civilization::getCivIndex()
     return civIndex;
 }
 
-void Civilization::setCityFounding(Unit* unit)
+void Civilization::setCityFounding(AIQueueData data)
 {
-    this->cityFounding.enqueue(unit);
+    this->cityFounding.enqueue(data);
 }
 
-QQueue<Unit *> Civilization::getCityFounding()
+QQueue<AIQueueData> Civilization::getCityFounding()
 {
     return cityFounding;
 }
 
-Unit *Civilization::dequeue()
+AIQueueData Civilization::dequeue()
 {
     return this->cityFounding.dequeue();
 }

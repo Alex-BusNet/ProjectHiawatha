@@ -99,15 +99,13 @@ public:
     QVector<Unit *> getMidThreats();
     QVector<Unit *> getHighThreats();
 
-    void setProvoked(bool provoked);
-    bool getProvoked();
 
     void setCivIndex(int index);
     int getCivIndex();
-    void setCityFounding(Unit *unit);
-    QQueue<Unit *> getCityFounding();
+    void setCityFounding(AIQueueData data);
+    QQueue<AIQueueData> getCityFounding();
 
-    Unit* dequeue();
+    AIQueueData dequeue();
     bool isAtWar();
     bool isEmpty();
     int queueSize();
@@ -153,11 +151,10 @@ private:
 
     //AI stuff
     bool isAIPlayer;
-    bool provoked;
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;
-    QQueue<Unit*> cityFounding;
+    QQueue<AIQueueData> cityFounding;
 
     int civIndex;
 };

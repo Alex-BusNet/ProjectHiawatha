@@ -45,7 +45,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     unitToMove = NULL;
     targetUnit = NULL;
     targetCity = NULL;
-    state = IDLE;
+    //state = IDLE;
 
     cityScreenVisible = false;
     techTreeVisible = false;
@@ -476,15 +476,15 @@ void GameManager::TurnController()
             if(!civList.at(currentTurn)->isEmpty())
             {
 
-                unitToMove = civList.at(currentTurn)->dequeue();
+//                unitToMove = civList.at(currentTurn)->dequeue();
 
-                if(unitToMove->GetUnitType() == SETTLER)
-                {
-                    qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
-                    aiFoundCity = true;
-                    this->UpdateTileData();
-                    break;
-                }
+//                if(unitToMove->GetUnitType() == SETTLER)
+//                {
+//                    qDebug() << "--AI founded city at" << unitToMove->GetTileIndex();
+//                    aiFoundCity = true;
+//                    this->UpdateTileData();
+//                    break;
+//                }
             }
         }
         qDebug() << "Waiting for finish";

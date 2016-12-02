@@ -110,7 +110,7 @@ void AI_Strategic::cityProduction(Civilization *civ, Map* map){
 
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
-            if(!civ->getProvoked()){//Settle more cities
+            if(!civ->isAtWar()){//Settle more cities
                 qDebug()<<"produce stuff";
                 if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
@@ -903,7 +903,6 @@ void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *m
             //So a scan of those tiles would also be good, for tier 2 targets
 
             qDebug()<<"Invasion";
-            civ->setProvoked(true);
             QVector<Unit*> tempVec = civ->getHighThreats();
             tempVec.push_back(player->GetUnitAt(i));
             civ->setHighThreats(tempVec);
