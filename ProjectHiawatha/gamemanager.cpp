@@ -45,6 +45,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     unitToMove = NULL;
     targetUnit = NULL;
     targetCity = NULL;
+    state = IDLE;
 
     cityScreenVisible = false;
     techTreeVisible = false;
@@ -469,20 +470,13 @@ void GameManager::TurnController()
         StartTurn();
         qDebug() << "running AI";
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
-//        future.waitForFinished();
-        while(future.isRunning())
+
+        while(future.isRunning() || (future.isFinished() && !civList.at(currentTurn)->isEmpty()))
         {
-//            qDebug() << "------Manager reading queue";
             if(!civList.at(currentTurn)->isEmpty())
             {
-                qDebug() << "Queue size:" << civList.at(currentTurn)->queueSize();
-                qDebug() << "CurrentTurn:" << currentTurn;
-                unitToMove = civList.at(currentTurn)->dequeue();
-                qDebug() << "Founding index:" << unitToMove->GetTileIndex();
 
-                qDebug() << "Is list empty:" << civList.at(currentTurn)->isEmpty();
-                qDebug() << "Unit type:" << unitToMove->GetName();
-                qDebug() << "Owner:" << unitToMove->GetOwner();
+                unitToMove = civList.at(currentTurn)->dequeue();
 
                 if(unitToMove->GetUnitType() == SETTLER)
                 {
@@ -1370,10 +1364,8 @@ void GameManager::UpdateTileData()
         qDebug()<<foundACity<<aiFoundCity;
         City* city;
 
-        qDebug() << "Found City index";
         foundCityIndex = unitToMove->GetTileIndex();
 
-        qDebug() << "Create City";
         city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
 
         bool valid = true;
@@ -1388,7 +1380,6 @@ void GameManager::UpdateTileData()
                 if((abs(dstX) < 8 && dstY == 0) || (abs(dstX) <= 4 && abs(dstY) <= 4) || (dstX == 0 && abs(dstY) < 4))
                 {
                     qDebug() << "   Invalid Settle Location";
-                    //// This will need a currentTurn == 0 check
                     if(currentTurn == 0)
                         statusMessage = "--------<< You cannot settle this close to another city. >>--------";
 
@@ -1412,13 +1403,9 @@ void GameManager::UpdateTileData()
         if(!valid)
             return;
 
-//        qDebug() << "--Loading buildings";
         city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-//        qDebug() << "--Loading units";
         city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-//        qDebug() << "--Adding City";
         civList.at(currentTurn)->AddCity(city);
-//        qDebug() << "--Setting HasCity flag";
         map->GetTileAt(foundCityIndex)->HasCity = true;
 
         QList<Tile*> cityMEB = map->GetNeighborsRange(city->GetCityTile(), 4);
@@ -1431,15 +1418,12 @@ void GameManager::UpdateTileData()
         city->SortControlledTiles();
         city->GetControlledTiles().first()->IsWorked = true;
 
-//        qDebug() << "--Adding City to renderer";
         renderer->AddCity(city, gameView, false);
 
-//        qDebug() << "--Adding Drawing city borders";
         renderer->DrawCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
 
         if(currentTurn == 0)
         {
-//            qDebug () << "--Setting tile worked";
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 renderer->SetTileWorkedIcon(tile, gameView);
@@ -1449,7 +1433,6 @@ void GameManager::UpdateTileData()
             renderer->SetUnitNeedsOrders(foundCityIndex, false);
         }
 
-//        qDebug() << "--Updating yield";
         civList.at(currentTurn)->UpdateCivYield();
 
         map->GetTileAt(foundCityIndex)->ContainsUnit = false;
@@ -1845,8 +1828,6 @@ void GameManager::showCity(City* city)
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
-        //ONLY DID THIS SO I CAN SEE TEXT FOR DEBUGGING PURPOSES
-//        cityScreen->setAutoFillBackground(true);
         cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
@@ -1862,7 +1843,6 @@ void GameManager::showCity(City* city)
     }
     else
     {
-//        cityScreen->hide();
         this->goldFocus->setEnabled(false);
         this->productionFocus->setEnabled(false);
         this->scienceFocus->setEnabled(false);
