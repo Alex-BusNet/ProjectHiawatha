@@ -480,7 +480,9 @@ void GameManager::TurnController()
 
                 if(state == AI_FOUND_CITY)
                     unitToMove = data.unit;
-                else if(state == CONQUER){
+                else if(state == CONQUER)
+                {
+                    state = FIND_CITY;
                     unitToMove = data.unit;
                     targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
                 }
@@ -1032,28 +1034,23 @@ void GameManager::UpdateTileData()
     else if(state == ATTACK_MELEE || processedData.relocateOrderGiven || state == ATTACK_RANGE || state == ATTACK_CITY)
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
-        if(targetTile->ContainsUnit && state != ATTACK_CITY)
+        qDebug() << targetTile->ContainsUnit << targetTile->HasCity << (targetTile->GetControllingCivListIndex() != 0);
+        if((targetTile->ContainsUnit || targetTile->HasCity) && targetTile->GetControllingCivListIndex() != 0)
         {
-            if(!civList.at(currentTurn)->isAtWar())
+            qDebug() << uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
+            if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
             {
-                if(targetTile->GetControllingCivListIndex() != civList.at(currentTurn)->GetCivListIndexAtWar() && currentTurn != 0)
-                {
-                    QMessageBox *mbox = new QMessageBox();
-                    mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
-                    mbox->addButton(QMessageBox::Cancel);
-                    mbox->addButton(QMessageBox::Ok);
-                    connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
-                    connect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
-                    mbox->exec();
-                    disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
-                    disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
-                    delete mbox;
-                }
+                QMessageBox *mbox = new QMessageBox();
+                mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
+                mbox->addButton(QMessageBox::Cancel);
+                mbox->addButton(QMessageBox::Ok);
+                connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                connect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                mbox->exec();
+                disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                delete mbox;
             }
-        }
-        else if(targetTile->HasCity)
-        {
-            state = FIND_CITY;
         }
     }
 
@@ -1087,8 +1084,7 @@ void GameManager::UpdateTileData()
                 if(unitToMove->GetUnitType() == SETTLER)
                 {
                     qDebug() << "       unit is settler";
-                    qDebug()<<"Tile Index: "<<unitToMove->GetTileIndex();
-                    qDebug()<<"HAS CITY: "<<map->GetTileAt(unitToMove->GetTileIndex())->HasCity;
+
                     if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
                     {
                         foundCity->setEnabled(true);
@@ -1120,8 +1116,10 @@ void GameManager::UpdateTileData()
             {
                 qDebug() << "    unit is combat type";
 
+                attackCity->setEnabled(false);
+                attackUnit->setEnabled(false);
+                rangeAttack->setEnabled(false);
                 foundCity->setEnabled(false);
-
                 buildFarm->setEnabled(false);
                 buildMine->setEnabled(false);
                 buildPlantation->setEnabled(false);
@@ -1135,7 +1133,6 @@ void GameManager::UpdateTileData()
 
                 foreach(Tile *tile, tiles)
                 {
-
                     if((tile->GetOccupyingCivListIndex() != 0) && (tile->GetOccupyingCivListIndex() != -1))
                     {
                         int tileIndex = tile->GetTileIndex();
@@ -1145,12 +1142,10 @@ void GameManager::UpdateTileData()
 
                         if(tile->HasCity)
                         {
-                            if(!attackCity->isEnabled())
-                            {
-                                attackCity->setEnabled(true);
-                            }
+                            attackCity->setEnabled(true);
                         }
-                        else if(tile->ContainsUnit)
+
+                        if(tile->ContainsUnit && !tile->HasCity)
                         {
                             if(unitToMove->isMelee)
                             {
@@ -1161,14 +1156,6 @@ void GameManager::UpdateTileData()
                                 attackUnit->setEnabled(false);
                                 rangeAttack->setEnabled(true);
                             }
-                        }
-                        else if(attackCity->isEnabled())
-                        {
-                            attackCity->setEnabled(false);
-                        }
-                        else if(rangeAttack->isEnabled())
-                        {
-                            rangeAttack->setEnabled(false);
                         }
                     }
                 }
@@ -1182,9 +1169,8 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         }
     }
-    else if(state == FIND_CITY || state == CONQUER)
+    else if(state == FIND_CITY)
     {
-        qDebug()<<"Conquer City";
         state = IDLE;
         targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetControllingCivListIndex())->GetCityList());
 
@@ -1194,16 +1180,14 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
             attackCity->setEnabled(false);
         }
-//qDebug()<<(targetCity->GetCityTile() == NULL);
+
         if(targetTile->GetControllingCivListIndex() == civList.at(currentTurn)->GetCivListIndexAtWar())
         {
             uc->AttackCity(unitToMove, targetCity);
 
             //City Conquering Logic
-            qDebug()<<"city health"<<targetCity->GetCityHealth()<< unitToMove->isMelee;
             if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
             {
-                qDebug()<<"Conquered";
                 //// This will need a currentTurn == 0 check
                 statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
 
@@ -1306,16 +1290,21 @@ void GameManager::UpdateTileData()
 
         qDebug() << "   Done";
     }
-//qDebug()<<state<<FOUND_CITY<<AI_FOUND_CITY;
+
+//    if(state == ATTACK_RANGE || state == ATTACK_MELEE)
+//    {
+//        state = IDLE;
+//        ProcessAttackUnit();
+//    }
+
     if(state == FOUND_CITY || state == AI_FOUND_CITY)
     {
         qDebug() << "found a city";
 
         state = IDLE;
         foundCityIndex = unitToMove->GetTileIndex();
-//qDebug()<<"tgjdas";
         City* city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
-//qDebug()<<"dsjfglaf";
+
         bool valid = true;
         int dstX, dstY;
         for(int i = 0; i < civList.size(); i++)
@@ -2062,11 +2051,13 @@ void GameManager::SetCultureFocus()
 
 void GameManager::AttackCity()
 {
+    qDebug() << "Attack City";
     state = ATTACK_CITY;
 }
 
 void GameManager::RangeAttack()
 {
+    qDebug() << "Range attack";
     state = ATTACK_RANGE;
 }
 
@@ -2081,6 +2072,17 @@ void GameManager::WarDeclared()
 {
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
     ns->ShowNotifications();
+
+    if(targetTile->HasCity)
+    {
+        state = FIND_CITY;
+    }
+    else if(targetTile->ContainsUnit)
+    {
+        state = IDLE;
+        ProcessAttackUnit();
+    }
+
     civList.at(currentTurn)->SetAtWar(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
 }

@@ -219,11 +219,16 @@ void UnitController::AttackCity(Unit *attacker, City *city)
         AtkBonus = 4.0f;
         melee = 0.0f;
     }
-    else
+    else if(!attacker->isMelee)
     {
-        AtkBonus = 0.8f;
+        AtkBonus = 1.0f;
         melee = 0.0f;
     }
+    else if(attacker->isNonCombat())
+    {
+        return;
+    }
+
     qDebug() << "--City strength:" << city->GetCityStrength();
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
     float damageSustained = (city->GetCityStrength() - damageDealt) * melee;
@@ -232,6 +237,7 @@ void UnitController::AttackCity(Unit *attacker, City *city)
 
     city->SetCityHealth(city->GetCityHealth() - damageDealt);
     attacker->DealDamage(damageSustained);
+    attacker->RequiresOrders = false;
 }
 
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
