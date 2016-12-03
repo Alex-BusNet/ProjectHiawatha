@@ -949,12 +949,14 @@ void GameManager::EndTurn()
             qDebug() << "----Removing Unit";
             if(currentTurn == 0)
                 ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(civList.at(0)->GetUnitAt(i)->GetName())});
+            if(civList.at(currentTurn)->getCiv() == civList.at(0)->getCiv())
+            {
+                QMediaPlayer *musicPlayer = new QMediaPlayer();
+                musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
+                musicPlayer->setVolume(50);
+                musicPlayer->play();
 
-            QMediaPlayer *musicPlayer = new QMediaPlayer();
-            musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
-            musicPlayer->setVolume(50);
-            musicPlayer->play();
-
+            }
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
             map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
