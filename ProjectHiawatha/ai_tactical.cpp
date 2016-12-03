@@ -55,6 +55,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 
     QVector<Unit*> unitlist=civ->GetUnitList();
     UnitController *UnitControl= new UnitController();
+    bool conquered=false;
     for(int i=0; i<unitlist.length();i++){
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
         if(civ->GetUnitAt(i)->isMelee&&(combatUnits>4)){
@@ -64,7 +65,9 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                 if(inRange.at(j)->GetTileIndex()==cityTarget->GetCityTile()->GetTileIndex()){
                     canHit=true;
                     if(0>=cityTarget->GetCityHealth()){
+                        unitlist.at(i)->SetUnitTargetTileIndex(cityTarget->GetCityTile()->GetTileIndex());
                         civ->setCityFounding(AIQueueData{CONQUER,unitlist.at(i)});
+                        conquered=true;
                     }//Only Melee units can conquer cities
                     else{
                         qDebug()<<"Attack City of "<<(cityTarget->GetName());
@@ -75,6 +78,10 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                         qDebug()<<"test"<<unitlist.at(i)->GetTargetTileIndex();
                     }
                 }//Melee Attack
+                if(conquered){
+                    qDebug()<<"Conquered Break 1";
+                    break;
+                }
             }//Check if in range
             if(!canHit&&(civ->GetUnitAt(i)->RequiresOrders)){
                 qDebug()<<"Send to city: "<<(cityTarget->GetName());
@@ -138,6 +145,10 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                 }//Attempt to send ranged units into attack range
             }//Direct ranged units to appropriate tile
         }//Ranged Unit City Combat
+        if(conquered){
+            qDebug()<<"Conquered Break 2";
+            break;
+        }
     }//Apply to each unit
 }
     //Scroll through a vector of the military units,

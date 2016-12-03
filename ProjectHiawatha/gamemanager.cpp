@@ -480,9 +480,10 @@ void GameManager::TurnController()
 
                 if(state == AI_FOUND_CITY)
                     unitToMove = data.unit;
-                else if(state == CONQUER)
-                    targetTile = map->GetTileFromCoord(data.unit->GetTargetTileColumn(), data.unit->GetTargetTileRow());
-
+                else if(state == CONQUER){
+                    unitToMove = data.unit;
+                    targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
+                }
                 this->UpdateTileData();
             }
         }
@@ -1199,7 +1200,7 @@ void GameManager::UpdateTileData()
             uc->AttackCity(unitToMove, targetCity);
 
             //City Conquering Logic
-            qDebug()<<targetCity->GetCityHealth();
+            qDebug()<<"city health"<<targetCity->GetCityHealth()<< unitToMove->isMelee;
             if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
             {
                 qDebug()<<"Conquered";
@@ -1862,13 +1863,14 @@ void GameManager::updateTiles()
 
     this->update();
 
-    if(this->currentTurn == 0 && !civList.at(currentTurn)->alive)
+    if(this->currentTurn == 0 && !civList.at(currentTurn)->alive && this->playersAliveCount == 1)
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setWindowFlags(Qt::FramelessWindowHint);
         mBox->setFixedSize(200, 500);
         mBox->setText("You Lose!");
         mBox->exec();
+        this->playersAliveCount=0;
         //Defeat screen?
         this->closeGame();
     }
