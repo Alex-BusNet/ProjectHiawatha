@@ -65,7 +65,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
 
              for(int j=0; j<borderingTiles.length();j++){
 
-                 if(0==borderingTiles.at(j)->GetCivListIndex()){
+                 if(0==borderingTiles.at(j)->GetOccupyingCivListIndex()){
                     qDebug()<<"Enemy Near";
                     QVector<Unit*> tempVec = civ->getMidThreats();
                     unit = unitCon->FindUnitAtTile(borderingTiles.at(j),map,player->GetUnitList());

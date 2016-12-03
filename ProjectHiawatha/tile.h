@@ -97,8 +97,9 @@ public:
     int fCost();
     TileID parent;
 
-    void SetCivListIndex(int index);
-    int GetCivListIndex();
+    void SetOccupyingCivListIndex(int index);
+    void SetControllingCivListIndex(int index);
+    int GetOccupyingCivListIndex();
     int GetControllingCivListIndex();
 
     void SetResource(Strategic strat, Luxury lux);

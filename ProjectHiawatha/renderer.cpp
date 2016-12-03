@@ -198,7 +198,7 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         }
 
         //// Add filter to only render tileWorkedIcon on player controlled tiles.
-        if(map.GetTileAt(i)->GetCivListIndex() == 0)
+        if(map.GetTileAt(i)->GetControllingCivListIndex() == 0)
         {
             if(map.GetTileAt(i)->IsWorked)
             {
@@ -434,7 +434,7 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     unitHealthBars.last()->setZValue(6);
 
 
-    if(map->GetTileAt(unit->GetTileIndex())->GetCivListIndex() == 0)
+    if(map->GetTileAt(unit->GetTileIndex())->GetOccupyingCivListIndex() == 0)
     {
         this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
     }

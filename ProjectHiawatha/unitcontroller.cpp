@@ -121,7 +121,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
     {
         // Clear the data from the current tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
-        map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(-1);
+        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
 
         if(map->GetTileAt(unit->GetTileIndex())->Selected)
                 map->GetTileAt(unit->GetTileIndex())->Selected = false;
@@ -135,7 +135,7 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
         //update the unit's position
         unit->SetPositionIndex(unit->GetNextTileInPath()->GetTileIndex());
         unit->SetPosition(unit->GetNextTileInPath()->GetTileID().column, unit->GetNextTileInPath()->GetTileID().row);
-        map->GetTileAt(unit->GetTileIndex())->SetCivListIndex(civListIndex);
+        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(civListIndex);
 
         // Set the data for the unit's new tile
         map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
@@ -372,9 +372,9 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
             return true;
         }
     }
-    else if(target->GetCivListIndex() != -1)
+    else if(target->GetOccupyingCivListIndex() != -1)
     {
-        if(target->GetCivListIndex() == wDat.warCivIndex)
+        if(target->GetOccupyingCivListIndex() == wDat.warCivIndex)
         {
             return true;
         }

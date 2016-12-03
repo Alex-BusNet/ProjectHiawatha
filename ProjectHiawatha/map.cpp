@@ -489,7 +489,8 @@ void Map::GenerateMap()
             }
         }
 
-        board.at(i)->SetCivListIndex(-1);
+        board.at(i)->SetControllingCivListIndex(-1);
+        board.at(i)->SetOccupyingCivListIndex(-1);
     }
 }
 
@@ -690,7 +691,12 @@ newrand:
 
             city = this->CreateCity(index, civs.at(i), true);
 
-            if(!city->IsInitialized()){ board.at(index)->SetControllingCiv(NO_NATION, -1); goto newrand; }
+            if(!city->IsInitialized())
+            {
+                if(board.at(index)->GetControllingCivListIndex() == -1)
+                    board.at(index)->SetControllingCiv(NO_NATION, -1);
+                goto newrand;
+            }
 
             for(int j = 0; j < i; j++)
             {
@@ -698,7 +704,6 @@ newrand:
                 // we can get away with only checking the city at index 0.
                 if(city->GetMaximumExpansionBorder().boundingRect().intersects(civs.at(j)->GetCityAt(0)->GetMaximumExpansionBorder().boundingRect()))
                 {
-                    delete city;
                     civs.at(i)->SetCityIndex(0);
                     foreach(Tile* tile, city->GetControlledTiles())
                     {
@@ -708,6 +713,8 @@ newrand:
                             tile->IsWorked = false;
                         }
                     }
+
+                    delete city;
                     board.at(index)->SetControllingCiv(NO_NATION, -1);
                     goto newrand;
                 }
@@ -735,9 +742,9 @@ newrand:
                 }
             }
 
-            board.at(index)->SetCivListIndex(i);
+            board.at(index)->SetControllingCivListIndex(i);
             board.at(index)->HasCity = true;
-//            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
+            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
             board.at(index)->SetGoverningCity(city);
 
             QList<Tile*> cityMEB = this->GetNeighborsRange(board.at(index), 4);
@@ -765,7 +772,7 @@ newrand:
                     {
                         unit->SetPositionIndex(tile->GetTileIndex());
                         unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                        tile->SetCivListIndex(i);
+                        tile->SetOccupyingCivListIndex(i);
                         tile->ContainsUnit = true;
                         break;
                     }
@@ -790,7 +797,7 @@ newrand:
                     {
                         unit->SetPositionIndex(tile->GetTileIndex());
                         unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                        tile->SetCivListIndex(i);
+                        tile->SetOccupyingCivListIndex(i);
                         tile->ContainsUnit = true;
                         break;
                     }
