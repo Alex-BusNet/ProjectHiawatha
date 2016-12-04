@@ -66,7 +66,7 @@ Civilization *Civilization::GetCivObject()
 
 void Civilization::UpdateCivYield()
 {
-    qDebug() << "   Civ controls" << currentCityList.size() << "cities";
+//    qDebug() << "   Civ controls" << currentCityList.size() << "cities";
 
     int newGold = 0, newProd = 0, newSci = 0, newFood = 0, newCul = 0;
 
@@ -142,20 +142,20 @@ Update_t Civilization::UpdateProgress()
 
         if(cityProgress.updateCitizens)
         {
-            qDebug() << "--------Updating citizens";
+//            qDebug() << "--------Updating citizens";
             this->UpdateCivYield();
             redraw.updateCitizens = true;
         }
 
         if(cityProgress.productionFinished)
         {
-            qDebug() << "---------Production Finished";
+//            qDebug() << "---------Production Finished";
             redraw.productionFinished = true;
         }
 
         if(cityProgress.cityHealed)
         {
-            qDebug() << "---------City Healed";
+//            qDebug() << "---------City Healed";
             redraw.cityHealed = true;
         }
     }
@@ -171,7 +171,7 @@ Update_t Civilization::UpdateProgress()
     double gpf =  turn / 500.0;
 
     int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
-    qDebug() << "   --Maintenance cost:" << pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
+//    qDebug() << "   --Maintenance cost:" << pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
     this->totalGold -= maintenance;
 
@@ -237,7 +237,7 @@ void Civilization::loadTechs(QString filename)
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-        qDebug()<<"File Not Found";
+//        qDebug()<<"File Not Found";
 
     }
 }
@@ -350,7 +350,7 @@ void Civilization::loadCities(QString filename)
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-        qDebug()<<"File Not Found";
+//        qDebug()<<"File Not Found";
 
     }
 }
@@ -526,7 +526,7 @@ City* Civilization::GetCityAt(int index)
     else
     {
         //If the index is too large, return the capital
-        qDebug() << "CityList -- Index out of range";
+//        qDebug() << "CityList -- Index out of range";
         return this->currentCityList.at(0);
     }
 }
@@ -540,7 +540,7 @@ Unit* Civilization::GetUnitAt(int index)
     }
     else
     {
-        qDebug() << "UnitList -- Index out of range";
+//        qDebug() << "UnitList -- Index out of range";
         return this->UnitList.at(0);
     }
 }

@@ -12,12 +12,9 @@ UnitController::UnitController()
 
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
-    qDebug() << " End tile has unit:" << endTile->ContainsUnit;
-    qDebug()<<"End tile has city: "<<endTile->HasCity;
     bool warCheckFailed = false;
     if(startTile==endTile)
     {
-        qDebug()<<"Start = End";
         return;
     }
 
@@ -26,7 +23,6 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
         endTile = unit->GetPath().at(unit->GetPath().size() - 2);
     }
 
-    qDebug() << "UnitController finding path";
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
     Tile *currentHex;
@@ -78,7 +74,6 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
 
             if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed /*|| neighbor->HasCity*/)
             {
-                //qDebug() << "continue" << warCheckFailed;
                 warCheckFailed = false;
                 continue;
             }
@@ -101,17 +96,14 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
 
     // This is for if the last tile is occupied and the algorithm ends
     // without finding the last tile.
-    qDebug() << "----End tile not found; setting path to currentHex";
-    //RetracePath(startTile, currentHex, map, unit);
+//    qDebug() << "----End tile not found; setting path to currentHex";
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 {
     if(map->GetTileAt(unit->GetNextTileInPath()->GetTileIndex())->ContainsUnit)
     {
-        qDebug() << "Next tile occupied;";
         unit->ClearPath();
-        qDebug() << " Requesting New orders";
         unit->RequiresOrders = true;
         return;
 
@@ -125,12 +117,6 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
 
         if(map->GetTileAt(unit->GetTileIndex())->Selected)
                 map->GetTileAt(unit->GetTileIndex())->Selected = false;
-
-        //// FOR DEBUGGING PURPOSES
-        if(!unit->isPathEmpty())
-        {
-            qDebug() << "       Tiles in path:" << unit->GetPath().size();
-        }
 
         //update the unit's position
         unit->SetPositionIndex(unit->GetNextTileInPath()->GetTileIndex());
@@ -153,9 +139,9 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     float waterPenalty = 0.0f, fortifyBonus = 0.0f;
     float AtkBonus = 1.5f, a_melee, t_melee;
 
-    qDebug() << "--Attacking";
-    qDebug() << "   Attacker belongs to:" << NationName(attacker->GetOwner()) << "Target belongs to:" << NationName(target->GetOwner());
-    qDebug() << "   FromWater:" << attackFromWater;
+//    qDebug() << "--Attacking";
+//    qDebug() << "   Attacker belongs to:" << NationName(attacker->GetOwner()) << "Target belongs to:" << NationName(target->GetOwner());
+//    qDebug() << "   FromWater:" << attackFromWater;
 
     if(attackFromWater == true)
         waterPenalty = 0.8f;
@@ -169,7 +155,7 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     else
         fortifyBonus = 1.0f;
 
-    qDebug() << "   forifyBonus:" << fortifyBonus;
+//    qDebug() << "   forifyBonus:" << fortifyBonus;
 
     if(attacker->isMelee)
         a_melee = 1.0f;
@@ -181,18 +167,18 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
     else
         t_melee = 0.0f;
 
-    qDebug() << "   a_melee:" << a_melee << "t_melee:" << t_melee;
+//    qDebug() << "   a_melee:" << a_melee << "t_melee:" << t_melee;
 
     //Need to adjust this for range units attacking.
-    qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
-    qDebug() << "       Damage Sustained by Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
+//    qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
+//    qDebug() << "       Damage Sustained by Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
     float damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * a_melee * t_melee;
 
-    qDebug() << "           Damage taken by target:" << damageDealt << "Damage Recieved by attacker:" << damageReceived;
+//    qDebug() << "           Damage taken by target:" << damageDealt << "Damage Recieved by attacker:" << damageReceived;
 
     target->DealDamage(damageDealt);
     attacker->DealDamage(damageReceived);
@@ -206,7 +192,7 @@ void UnitController::RangeAttack(Unit *attacker, Unit *target)
 
 void UnitController::AttackCity(Unit *attacker, City *city)
 {
-    qDebug() << "targetCity belongs to:" << NationName(city->GetControllingCiv());
+//    qDebug() << "targetCity belongs to:" << NationName(city->GetControllingCiv());
     float AtkBonus, melee;
 
     if(attacker->isMelee)
@@ -229,11 +215,11 @@ void UnitController::AttackCity(Unit *attacker, City *city)
         return;
     }
 
-    qDebug() << "--City strength:" << city->GetCityStrength();
+//    qDebug() << "--City strength:" << city->GetCityStrength();
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
     float damageSustained = (city->GetCityStrength() - damageDealt) * melee;
 
-    qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
+//    qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
 
     city->SetCityHealth(city->GetCityHealth() - damageDealt);
     attacker->DealDamage(damageSustained);
@@ -285,8 +271,6 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
         break;
     }
 
-
-
     if((currentTile->GetTileImprovement()) == NONE)
     {
         currentTile->SetTileImprovement(improvement);
@@ -295,27 +279,24 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
 
     }
 
-
-    qDebug()<<"UNIT USES: "<<unit->GetRemainingUses();
-
-        if(unit->GetRemainingUses() <= 0)
+    if(unit->GetRemainingUses() <= 0)
+    {
+        int unitIndex = unit->GetUnitListIndex();
+        int unitIndexCopy = unitIndex;
+        if(currentCiv->GetUnitList().size() > unitIndex)
         {
-            int unitIndex = unit->GetUnitListIndex();
-            int unitIndexCopy = unitIndex;
-            if(currentCiv->GetUnitList().size() > unitIndex)
+            for(unitIndexCopy; unitIndexCopy < currentCiv->GetUnitList().size();unitIndexCopy++)
             {
-                for(unitIndexCopy; unitIndexCopy < currentCiv->GetUnitList().size();unitIndexCopy++)
-                {
-                    int oldIndex = currentCiv->GetUnitList().at(unitIndexCopy)->GetUnitListIndex();
-                    currentCiv->GetUnitList().at(unitIndexCopy)->SetUnitListIndex(oldIndex-1);
-                }
+                int oldIndex = currentCiv->GetUnitList().at(unitIndexCopy)->GetUnitListIndex();
+                currentCiv->GetUnitList().at(unitIndexCopy)->SetUnitListIndex(oldIndex-1);
             }
-            currentCiv->RemoveUnit(unitIndex);
-            unitRemoved = true;
-
         }
+        currentCiv->RemoveUnit(unitIndex);
+        unitRemoved = true;
 
-        return unitRemoved;
+    }
+
+    return unitRemoved;
 
 }
 
@@ -326,7 +307,6 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
     {
         if(unit->GetTileIndex() == tIndex)
         {
-            qDebug() << "           Unit belongs to:" << this->NationName(unit->GetOwner());
             return unit;
         }
     }
@@ -352,7 +332,7 @@ City *UnitController::FindCityAtTile(Tile *tile, Map* map, QVector<City *> cityL
 
 void UnitController::HealUnit(Unit *unit)
 {
-    qDebug() << "Healing unit";
+//    qDebug() << "Healing unit";
     if((unit->GetHealth() + 10) > 100)
         unit->SetHealth(100);
     else
@@ -370,7 +350,6 @@ void UnitController::HealUnit(Unit *unit)
  */
 bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
 {
-    //qDebug() << "   AtPeaceWith:" << wDat.warCivIndex << wDat.warringCiv << target->GetControllingCivListIndex() << target->GetControllingCiv();
     if(target->GetControllingCiv() != NO_NATION)
     {
         if(target->GetControllingCiv() != wDat.warringCiv)
@@ -380,7 +359,7 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
     }
     else if(target->GetOccupyingCivListIndex() != -1)
     {
-        if(target->GetOccupyingCivListIndex() == wDat.warCivIndex)
+        if(target->GetOccupyingCivListIndex() != wDat.warCivIndex)
         {
             return true;
         }
@@ -412,7 +391,6 @@ int UnitController::GetDistance(Tile *a, Tile *b)
 
 void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
 {
-    qDebug() << "   Start:" << start->GetTileIDString() << "End:" << end->GetTileIDString();
     QList<Tile*> path;
     Tile *current = end;
 
@@ -437,22 +415,11 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
 
     if(end->ContainsUnit)
     {
-        qDebug() << "----Target tile contains unit; stopping one short";
         path.removeLast();
     }
 
-    //// This is for debugging purposes
-    ///  Displays the path that the unit is to take;
-//    qDebug() << "   Path:";
-//    foreach(Tile* hex, path)
-//    {
-//          qDebug() << "   "<<hex->GetTileIDString();
-//    }
-
     //This sets the path the unit needs to take.
-    qDebug() << "   Setting unit path";
     unit->SetPath(path);
     unit->SetUnitTargetTileIndex(path.last()->GetTileIndex());
-    qDebug() << "   Setting RequiresOrders to false";
     unit->RequiresOrders = false;
 }

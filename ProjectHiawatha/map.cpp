@@ -55,12 +55,12 @@ Map::Map(int mapSizeX, int mapSizeY)
         break;
     }
 
-    qDebug() << "Ocean scale factor:" << this->oceanScaleFactor;
+//    qDebug() << "Ocean scale factor:" << this->oceanScaleFactor;
 }
 
 void Map::InitHexMap()
 {
-    qDebug() << "InitHexMap() called";
+//    qDebug() << "InitHexMap() called";
 
     Tile *tile;
     //Flattop: x = 12, y =0;
@@ -71,7 +71,7 @@ void Map::InitHexMap()
     bool odd = false;
     int column = 0, row = 0;
 
-    qDebug() << "MapSizeX: " << mapSizeX << " MapSizeY: " << mapSizeY;
+//    qDebug() << "MapSizeX: " << mapSizeX << " MapSizeY: " << mapSizeY;
 
     for(int i = 0; i < (mapSizeY); i++)
     {
@@ -529,7 +529,7 @@ void Map::CleanMap()
     // Step 8) Set Player and AI spawns.
     //=====================
 
-    qDebug() << "Cleaning map";
+//    qDebug() << "Cleaning map";
     Tile* adjacentTiles[3]; // { SW, S, SE }
 
     for(int i = 0; i < board.size(); i++)
@@ -808,8 +808,8 @@ newrand:
             civs.at(i)->AddUnit(unit);
             civs.at(i)->UpdateCivYield();
 
-            qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(0)->GetTileIndex();
-            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(1)->GetTileIndex();
+//            qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(0)->GetTileIndex();
+//            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(1)->GetTileIndex();
         }
     }
 }

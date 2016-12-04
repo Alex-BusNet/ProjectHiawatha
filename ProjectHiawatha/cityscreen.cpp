@@ -51,7 +51,6 @@ void CityScreen::loadBuildings(QString filename)
        {
           QString line = in.readLine();
           QStringList buildingInfo = line.split(",");
-          qDebug()<<"Building Name: "<<buildingInfo[0];
           QString name = buildingInfo[0];
           QString description = buildingInfo[1];
           int cost = buildingInfo[2].toInt();
@@ -65,14 +64,11 @@ void CityScreen::loadBuildings(QString filename)
           buildings.push_back(building);
        }
        inputFile.close();
-       qDebug()<<buildings.at(1)->getName();
-       qDebug()<<buildings.size();
     }else
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-        qDebug()<<"File Not Found";
         this->showMinimized();
     }
 }
@@ -87,7 +83,6 @@ void CityScreen::loadUnits(QString filename)
        {
           QString line = in.readLine();
           QStringList unitInfo = line.split(",");
-          qDebug()<<"Unit Name: "<<unitInfo[0];
           int cost = unitInfo[1].toInt();
           int strength = unitInfo[2].toInt();
           int rangeStrength = unitInfo[3].toInt();
@@ -106,21 +101,16 @@ void CityScreen::loadUnits(QString filename)
           tempUnit->SetRangeStrength(rangeStrength);
           tempUnit->setUnlocked(unlocked);
           tempUnit->SetTechIndex(techIndex);
-          qDebug()<<"TYPE: "<<type;
           tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
-          qDebug()<<initialUnitList.at(0)->GetName();
 
        }
        inputFile.close();
-       qDebug()<<initialUnitList.at(1)->GetName();
-       qDebug()<<initialUnitList.at(10)->GetName();
     }else
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-        qDebug()<<"File Not Found";
 
     }
 }

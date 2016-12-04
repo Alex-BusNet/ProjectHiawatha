@@ -106,7 +106,7 @@ private:
     QLabel *techLabel, *techText;
     QLabel *endGameProgress;
     QString *endGameText;
-    QMessageBox *mbox;
+    QMessageBox *warbox;
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
     QRect *playerInfoRect, *gameStatusRect;
@@ -154,6 +154,7 @@ private:
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();
+    void ProcessPeace();
 
     TileData processedData;
 

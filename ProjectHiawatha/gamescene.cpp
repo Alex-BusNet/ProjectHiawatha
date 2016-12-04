@@ -57,19 +57,19 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
         if((mpScreenPos != mrScreenPos) && (mpScenePos == mrScenePos))
         {
             // Drag Occured
-            qDebug() << "Drag Screen";
+//            qDebug() << "Drag Screen";
             processedData.newData = false;
             processedData.relocateOrderGiven = false;
         }
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
-            qDebug() << " Move Unit";
+//            qDebug() << " Move Unit";
 
             column = 0.5 + (mrScenePos.x() / 45);
             row = 0.5 + (mrScenePos.y() / 75);
 
-            qDebug() << "   Before Adjust: " << column << "," << row;
+//            qDebug() << "   Before Adjust: " << column << "," << row;
 
             if((column % 2 == 0) && (row % 2 != 0))
             {
@@ -82,7 +82,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
                 column--;
             }
 
-            qDebug() << "   After Adjust: " << column << "," << row;
+//            qDebug() << "   After Adjust: " << column << "," << row;
 
             processedData.column = column;
             processedData.row = row;
@@ -95,13 +95,13 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
         else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos) && !unitAwaitingRelocation)
         {
             // Tile was Selected
-            qDebug() << "Tile selected";
-            qDebug() << "ScenePos: " << mrScenePos;
+//            qDebug() << "Tile selected";
+//            qDebug() << "ScenePos: " << mrScenePos;
 
             column = 0.5 + (mrScenePos.x() / 45);
             row = 0.5 + (mrScenePos.y() / 75);
 
-            qDebug() << "   Before Adjust: " << column << "," << row;
+//            qDebug() << "   Before Adjust: " << column << "," << row;
 
             if((column % 2 == 0) && (row % 2 != 0))
             {
@@ -114,7 +114,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
                 column--;
             }
 
-            qDebug() << "   After Adjust: " << column << "," << row;
+//            qDebug() << "   After Adjust: " << column << "," << row;
             processedData.column = column;
             processedData.row = row;
             processedData.newData = true;

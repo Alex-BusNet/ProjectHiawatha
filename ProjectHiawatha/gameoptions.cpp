@@ -212,7 +212,7 @@ void GameOptions::on_pushButton_clicked()
     {
         delete game;
     }
-    qDebug()<<"Map Size: "<<info.mapDimension1;
+//    qDebug()<<"Map Size: "<<info.mapDimension1;
     switch(ui->listWidget->currentRow())
     {
     case 0:

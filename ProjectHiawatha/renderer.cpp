@@ -197,7 +197,6 @@ void Renderer::DrawHexScene(Map map, GameView *view)
             resourcePixmap.last()->setZValue(3);
         }
 
-        //// Add filter to only render tileWorkedIcon on player controlled tiles.
         if(map.GetTileAt(i)->GetControllingCivListIndex() == 0)
         {
             if(map.GetTileAt(i)->IsWorked)
@@ -246,22 +245,23 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
     if(data->isEmpty())
         return;
 
-    int index, size = data->size();
+    int index;
 
     SelectData selDat;
-    for(int i = 0; i < size; i++)
+    while(!data->isEmpty())
     {
         selDat = data->dequeue();
         index = selDat.index;
 
         if(index > map->GetBoardSize())
         {
-            qDebug() << "index to large. Invalid Tile";
+//            qDebug() << "index to large. Invalid Tile";
             return;
         }
 
         if(selDat.player && !selDat.target)
         {
+//            qDebug() << "Player unit selected";
             view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::yellow);
             outlinePen.setWidth(2);
@@ -269,7 +269,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         }
         else if(!selDat.player && selDat.target)
         {
-            qDebug() << "Deselecting tile";
+//            qDebug() << "Enemy unit in range";
             view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::red);
             outlinePen.setWidth(2);
@@ -277,7 +277,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         }
         else if(!selDat.player && !selDat.target)
         {
-            qDebug() << "Deselecting tile";
+//            qDebug() << "Deselecting tile";
             view->removeItem(tileCircles.at(index));
             SetOutlinePen(NO_NATION);
             outlinePen.setWidth(1);
@@ -434,7 +434,7 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     unitHealthBars.last()->setZValue(6);
 
 
-    if(map->GetTileAt(unit->GetTileIndex())->GetOccupyingCivListIndex() == 0)
+    if(map->GetTileAt(unit->GetTileIndex())->GetControllingCivListIndex() == 0)
     {
         this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
     }
@@ -558,7 +558,7 @@ void Renderer::SetFortifyIcon(int tile, bool unfortify)
 void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view)
 {
     int index = tile->GetTileIndex();
-    qDebug() << "Setting tile improvement:" << ti << index;
+//    qDebug() << "Setting tile improvement:" << ti << index;
 
     switch(ti)
     {

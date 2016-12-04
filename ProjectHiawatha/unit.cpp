@@ -612,12 +612,12 @@ void Unit::UpdatePath()
 
 void Unit::ClearPath()
 {
-    qDebug() << "--Clearing unit path";
+//    qDebug() << "--Clearing unit path";
 
     while(!this->path.isEmpty())
     {
         this->path.removeFirst();
     }
 
-    qDebug() << "--Done";
+//    qDebug() << "--Done";
 }

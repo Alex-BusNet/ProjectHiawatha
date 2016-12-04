@@ -125,42 +125,41 @@ void City::SortTileQueue()
     //  -Resources on tile
     //  -Tile type
 
-//    qDebug() << "   ---Sorting TileQueue; MEB Filter";
+    //Assume the tile is in the MEB list until proven otherwise
+    bool inMEB = true;
+    for(int k = 0; k < tileQueue.size(); k++)
+    {
+        foreach(Tile* meb, maximumExpansionBorderTiles)
+        {
+            if(tileQueue.at(k)->GetTileID().column != meb->GetTileID().column)
+            {
+                if(tileQueue.at(k)->GetTileID().row != meb->GetTileID().row)
+                {
+                    inMEB = false;
+                }
+            }
+            else if(tileQueue.at(k)->GetTileID().column == meb->GetTileID().column)
+            {
+                if(tileQueue.at(k)->GetTileID().row == meb->GetTileID().row)
+                {
+                    // If we find the tile in the MEB list, then stop searching the list
+                    inMEB = true;
+                    break;
+                }
+            }
+        }
 
-//    bool inMEB = true;
-//    for(int k = 0; k < tileQueue.size(); k++)
-//    {
-//        foreach(Tile* meb, maximumExpansionBorderTiles)
-//        {
-//            if(tileQueue.at(k)->GetTileID().column != meb->GetTileID().column)
-//            {
-//                if(tileQueue.at(k)->GetTileID().row != meb->GetTileID().row)
-//                {
-//                    inMEB = false;
-//                }
-//            }
-//            else if(tileQueue.at(k)->GetTileID().column == meb->GetTileID().column)
-//            {
-//                if(tileQueue.at(k)->GetTileID().row == meb->GetTileID().row)
-//                {
-//                    inMEB = true;
-//                }
-//            }
-//        }
-
-//        if(!inMEB)
-//        {
-//            qDebug() << k << "out of" << tileQueue.size();
-//            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
-//            inMEB = true;
-//            tileQueue.remove(k);
-//        }
-//    }
+        if(!inMEB)
+        {
+            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
+            inMEB = true;
+            tileQueue.remove(k);
+        }
+    }
 
 
     if(this->tileQueue.isEmpty())
     {
-        qDebug() << "-City fully expanded";
         this->fullyExpanded = true;
         return;
     }
@@ -220,7 +219,6 @@ void City::SortTileQueue()
 
 void City::FilterMEBList()
 {
-    qDebug() << "-Filtering MEB list";
     int i = 0;
     foreach(Tile* tile, this->maximumExpansionBorderTiles)
     {
@@ -288,23 +286,17 @@ Update_t City::UpdateProgress()
         this->turnsToBorderGrowth--;
     }
 
-    qDebug() << "       " << this->name << " turns to growth:" << turnsToBorderGrowth;
-
     this->turnsToNewCitizen--;
 
     if(turnsToNewCitizen == 0 && !this->stagnant)
     {
         //Increment the number of citizens in the city
-        qDebug() << "--Increment Citizens";
         this->citizens++;
 
-        //// THIS CALCULATION NEEDS TO CHANGE
         // Calculate the number of turns until a new citizen is born
-        qDebug() << "--Calculate growth cost";
         this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
-        qDebug() << "--Calculate food surplus; food yield:" << this->cityTotalYield->GetFoodYield() << "citizens:" << this->citizens;
         this->foodSurplus = this->cityTotalYield->GetFoodYield() - (2 * this->citizens);
-        qDebug() << "--Calculate turns to new citizen; Surplus:" << this->foodSurplus;
+
         if(this->foodSurplus < 0)
         {
             this->foodSurplus *= -1;
@@ -318,31 +310,24 @@ Update_t City::UpdateProgress()
 
         if(this->turnsToNewCitizen < 0)
         {
-            qDebug() << "----City is stagnant";
             stagnant = true;
         }
 
-        // If the city has more tiles than there are citizens then put a citizen to work.
         if(this->citizens < this->GetControlledTiles().size())
         {
-            qDebug() << "---City has more tiles than citizens";
             foreach(Tile* tile, this->cityControlledTiles)
             {
-                // If the tile is not a mountain and is not already worked, then work that tile.
                 if(tile->GetTileType() != MOUNTAIN && !tile->IsWorked)
                 {
-                    qDebug() << "--Tile not mountain and not worked";
                     tile->IsWorked = true;
                     update.updateCitizens = true;
                     break;
                 }
             }
-            qDebug() << "updating city yield";
             this->UpdateCityYield();
         }
     }
 
-    qDebug() << "       " << this->name << " turns to new citizen" << turnsToNewCitizen;
     if(this->currentProductionCost > 0)
     {
         this->accumulatedProduction += this->cityTotalYield->GetProductionYield();
@@ -350,7 +335,6 @@ Update_t City::UpdateProgress()
 
     if(this->accumulatedProduction >= this->currentProductionCost && (this->currentProductionName != "No Current Production"))
     {
-        qDebug() << "----Production of" << this->getProductionName() << "finished";
         this->accumulatedProduction = 0;
         this->currentProductionName = "No Current Production";
         this->currentProductionCost = 0;
@@ -363,7 +347,6 @@ Update_t City::UpdateProgress()
 
     if(this->cityHealth < this->maxHealth)
     {
-        qDebug() << "------Healing City";
         this->cityHealth += this->maxHealth * 0.15f;
 
         if(this->cityHealth > this->maxHealth)
@@ -374,19 +357,17 @@ Update_t City::UpdateProgress()
 
     this->cityStrength = this->baseStrength + this->citizens + this->buildingStrength;
 
-    qDebug() << "       Total city Strength:" << this->cityStrength
-             << "Base Strength:" << this->baseStrength
-             << "citizens:" << this->citizens
-             << "Building Strength" << this->buildingStrength;
-
-    qDebug() << " City total production:" << this->cityTotalYield->GetProductionYield();
     return update;
 }
 
 void City::SetCityFocus(City::Focus focus)
 {
-    qDebug() << "------City focus changed to" << focus;
     this->cityFocus = focus;
+    foreach(Tile* tile, cityControlledTiles)
+    {
+        tile->IsWorked = false;
+    }
+
     this->SortTileQueue();
     this->SortControlledTiles();
     /// Need function to reassign worked tiles.
@@ -623,7 +604,6 @@ void City::SetName(QString name)
 void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
-    qDebug() << "--Setting MSD and MEB";
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
     this->minimumSettleDistance << QPoint(x - 88, y - 147)
                                  << QPoint(x + 88, y - 147)
@@ -659,7 +639,7 @@ void City::UpdateCityYield()
             oldFood = this->cityTotalYield->GetFoodYield() * -1,
             oldCul = this->cityTotalYield->GetCultureYield() * -1;
 
-    qDebug() << "   Old YPT:" << oldGold << oldProd << oldSci << oldFood << oldCul;
+//    qDebug() << "   Old YPT:" << oldGold << oldProd << oldSci << oldFood << oldCul;
 
     this->cityTotalYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
 
@@ -682,11 +662,11 @@ void City::UpdateCityYield()
         }
     }
 
-    qDebug() << "   New YPT:" << newGold << newProd << newSci << newFood << newCul;
+//    qDebug() << "   New YPT:" << newGold << newProd << newSci << newFood << newCul;
 
     if(this->stagnant && (newFood > (oldFood * -1)))
     {
-        qDebug() << "----City is no longer stagnant";
+//        qDebug() << "----City is no longer stagnant";
         this->stagnant = false;
     }
 
@@ -1150,7 +1130,7 @@ bool City::HasGarrisonUnit()
 
 bool City::MSDIntersects(QPolygon targetMSD)
 {
-    qDebug() << "-----MSDINTERSECTS-----";
+//    qDebug() << "-----MSDINTERSECTS-----";
     QList<QPoint> t_MSD;
     QList<QPoint> c_MSD;
 
@@ -1168,7 +1148,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
     float c_slope, t_slope;
     bool lrtbValid = false, rltbValid = false, rlbtValid = false, lrbtValid = false;
 
-    qDebug() << "   t_MSD size:" << t_MSD.size() << "c_MSD size" << c_MSD.size();
+//    qDebug() << "   t_MSD size:" << t_MSD.size() << "c_MSD size" << c_MSD.size();
     foreach(QPoint pt, t_MSD)
     {
         lastX = c_MSD.at(c_MSD.size() - 1).x();
@@ -1200,7 +1180,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope > currentSlope)
                 {
@@ -1218,7 +1198,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
@@ -1236,7 +1216,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope > currentSlope)
                 {
@@ -1254,7 +1234,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
+//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
@@ -1263,7 +1243,7 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
             }
 
-            qDebug() << "rltb:" << rltbValid << "lrbt:" << lrbtValid << "lrtb:" << lrtbValid << "rlbt:" << rlbtValid;
+//            qDebug() << "rltb:" << rltbValid << "lrbt:" << lrbtValid << "lrtb:" << lrtbValid << "rlbt:" << rlbtValid;
 
             if((rltbValid || lrbtValid) || (lrtbValid || rlbtValid))
             {
@@ -1342,7 +1322,6 @@ void City::loadUnits(QString filename)
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-        qDebug()<<"File Not Found";
 
     }
 }
@@ -1357,7 +1336,6 @@ void City::loadBuildings(QString filename)
        {
           QString line = in.readLine();
           QStringList buildingInfo = line.split(",");
-//          qDebug()<<"Building Name: "<<buildingInfo[0];
           QString name = buildingInfo[0];
           QString description = buildingInfo[1];
           int cost = buildingInfo[2].toInt();
@@ -1371,14 +1349,11 @@ void City::loadBuildings(QString filename)
           initialBuildingList.push_back(building);
        }
        inputFile.close();
-//       qDebug()<<initialBuildingList.at(1)->getName();
-//       qDebug()<<initialBuildingList.size();
     }else
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-        qDebug()<<"File Not Found";
 
     }
 }

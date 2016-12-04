@@ -3,19 +3,21 @@
 
 NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
 {
-    QIcon capitolLost("../ProjectHiawatha/Assets/Icons/capitolLost.png");
+    QIcon capitalLost("../ProjectHiawatha/Assets/Icons/capitolLost.png");
     QIcon unitKilled("../ProjectHiawatha/Assets/Icons/unitKilled.png");
     QIcon populationIncreased("../ProjectHiawatha/Assets/Icons/populationIncreased.png");
     QIcon cityStagnant("../ProjectHiawatha/Assets/Icons/cityStagnant.png");
     QIcon cityProductionFinished("../ProjectHiawatha/Assets/Icons/productionFinished.png");
     QIcon warDeclared("../ProjectHiawatha/Assets/Icons/warDeclared.png");
+    QIcon madePeace("../ProjectHiawatha/Assets/Icons/madePeace.png");
 
-    IconArray.push_back(capitolLost);
+    IconArray.push_back(capitalLost);
     IconArray.push_back(unitKilled);
     IconArray.push_back(populationIncreased);
     IconArray.push_back(cityStagnant);
     IconArray.push_back(cityProductionFinished);
     IconArray.push_back(warDeclared);
+    IconArray.push_back(madePeace);
 
     this->notificationWaiting = false;
 
@@ -26,7 +28,11 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
     this->setAcceptDrops(false);
     this->setMinimumSize(50, 648);
     this->setMaximumWidth(50);
-    this->setStyleSheet("QListWidget { background: transparent; border-color: transparent; }");
+
+    QString nsStyle = "QListWidget { background: transparent; border-color: transparent; }";
+    nsStyle += "QListView::item:hover { background: transparent; } QListView::item:selected: { background: transparent; border: 1px solid transparent}";
+
+    this->setStyleSheet(nsStyle);
 }
 
 void NotificationSystem::PostNotification(Notification n)
@@ -40,7 +46,7 @@ void NotificationSystem::ShowNotifications()
     while(!notificationsToBePosted.isEmpty())
     {
         Notification n = notificationsToBePosted.dequeue();
-        QListWidgetItem *ni = new QListWidgetItem(IconArray.at(n.IconIndex), QString(" "), this, 0);
+        QListWidgetItem *ni = new QListWidgetItem(IconArray.at(n.IconIndex), QString(""), this, 0);
         ni->setToolTip(n.ToolTipMessage);
         this->addItem(ni);
     }
