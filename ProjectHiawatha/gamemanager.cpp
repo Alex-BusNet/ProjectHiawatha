@@ -9,13 +9,15 @@
 #include <QMediaPlayer>
 #include "unittype.h"
 #include "datatypes.h"
+#include <QDesktopWidget>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
-    qDebug() << "Game Window c'tor called";
+
+    qDebug() << "Game Window c'tor called" << widget.screenGeometry(widget.primaryScreen());
 
     gameView = new GameView(this, fullscreen);
     ac = new AI_Controller();
@@ -1536,7 +1538,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-    unitControlButtons->addSpacing(750);
+    unitControlButtons->addSpacing(widget.screenGeometry(widget.primaryScreen()).height() / 1.8f);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1636,8 +1638,15 @@ void GameManager::InitYieldDisplay()
     Yieldinfo->addWidget(culLabel);
     Yieldinfo->addWidget(culText);
 
-    Yieldinfo->addSpacing(1600);
-
+    if(!this->isFullScreen())
+    {
+        Yieldinfo->addSpacing(1600);
+    }
+    else
+    {
+        float space = (static_cast<float>(widget.screenGeometry(widget.primaryScreen()).width()) / 1.2f) * 0.75f;
+        Yieldinfo->addSpacing(ceil(space));
+    }
     vLayout->insertLayout(0, Yieldinfo);
 }
 

@@ -24,6 +24,7 @@
 #include "tiledata.h"
 #include <chrono>
 #include "about.h"
+#include <QDesktopWidget>
 
 class GameManager : public QWidget
 {
@@ -39,6 +40,7 @@ private:
     QListWidget *clv;
     NotificationSystem *ns;
     About *about;
+    QDesktopWidget widget;
 
     QTimer *updateTimer;
 
