@@ -17,6 +17,7 @@
 #include <QGraphicsSceneWheelEvent>
 #include <QGraphicsView>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QQueue>
 #include "notificationsystem.h"
@@ -103,6 +104,7 @@ private:
     QLabel *techLabel, *techText;
     QLabel *endGameProgress;
     QString *endGameText;
+    QMessageBox *mbox;
 
     QPixmap *goldPix, *prodPix, *sciPix, *foodPix, *culPix;
     QRect *playerInfoRect, *gameStatusRect;

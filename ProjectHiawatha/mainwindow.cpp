@@ -60,6 +60,6 @@ void MainWindow::on_controls_clicked()
         delete about;
     }
 
-    about = new About(this);
+    about = new About();
     about->show();
 }

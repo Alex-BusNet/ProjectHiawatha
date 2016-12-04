@@ -1,6 +1,5 @@
 #include "gamemanager.h"
 #include <QDebug>
-#include <QMessageBox>
 #include <QDialog>
 #include <QLabel>
 #include <QThread>
@@ -71,7 +70,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     else
     {
         this->setWindowState(Qt::WindowFullScreen);
-        gameView->setFixedWidth(this->width() - 200);
     }
 
     gameView->ConfigureGraphicsView();
@@ -137,12 +135,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                 }
             }
 
-            if(j == 0)
-            {
-//                civList.at(i)->GetCityAt(j)->GetCityTile()->SetControllingCiv(civList.at(i)->getCiv(), i);
-                civList.at(i)->GetCityAt(j)->SetControllingCiv(civList.at(i)->getCiv());
-            }
-
             civList.at(i)->GetCityAt(j)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
             civList.at(i)->GetCityAt(j)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
         }
@@ -166,7 +158,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     InitYieldDisplay();
 
-    renderer->DrawGuiText(map, stringData, gameView);
+//    renderer->DrawGuiText(map, stringData, gameView);
     zoomScale = 1;
 
     for(int i = 0; i < 3; i++)
@@ -686,9 +678,11 @@ void GameManager::StartTurn()
                 unlocks.chop(2);
             }
             firstLine+=unlocks;
-            QMessageBox* mBox = new QMessageBox();
-            mBox->setText(firstLine);
-            mBox->exec();
+            mbox = new QMessageBox();
+            mbox->setText(firstLine);
+            mbox->setWindowFlags(Qt::FramelessWindowHint);
+            mbox->exec();
+            delete mbox;
             qDebug()<<"Tech finished";
         }
     }
@@ -871,9 +865,11 @@ void GameManager::StartTurn()
         QString prodString = "Production has finished in: ";
         QString finalString = prodString+cityList;
         finalString.chop(2);
-        QMessageBox* mBox = new QMessageBox();
-        mBox->setText(finalString);
-        mBox->exec();
+        mbox = new QMessageBox();
+        mbox->setText(finalString);
+        mbox->setWindowFlags(Qt::FramelessWindowHint);
+        mbox->exec();
+        delete mbox;
         qDebug()<<"Production finished";
 
     }
@@ -1042,13 +1038,19 @@ void GameManager::UpdateTileData()
             qDebug() << uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
             if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
             {
-                QMessageBox *mbox = new QMessageBox();
+                mbox = new QMessageBox();
                 mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
                 mbox->addButton(QMessageBox::Cancel);
                 mbox->addButton(QMessageBox::Ok);
+                mbox->button(QMessageBox::Ok)->setText("Go to War");
+                mbox->button(QMessageBox::Cancel)->setText("Let me reconsider...");
+                mbox->setWindowFlags(Qt::FramelessWindowHint);
+
                 connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
                 connect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+
                 mbox->exec();
+
                 disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
                 disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
                 delete mbox;
@@ -1226,13 +1228,19 @@ void GameManager::UpdateTileData()
         if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()})
                 && (currentTurn != targetTile->GetControllingCivListIndex() || targetTile->GetOccupyingCivListIndex() != currentTurn || targetTile->GetControllingCiv() != civList[currentTurn]->getCiv()))
         {
-            QMessageBox *mbox = new QMessageBox();
+            mbox = new QMessageBox();
             mbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
             mbox->addButton(QMessageBox::Cancel);
             mbox->addButton(QMessageBox::Ok);
+            mbox->button(QMessageBox::Ok)->setText("Go to War");
+            mbox->button(QMessageBox::Cancel)->setText("Let me reconsider...");
+            mbox->setWindowFlags(Qt::FramelessWindowHint);
+
             connect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
             connect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+
             mbox->exec();
+
             disconnect(mbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
             disconnect(mbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
             delete mbox;
@@ -1292,12 +1300,6 @@ void GameManager::UpdateTileData()
 
         qDebug() << "   Done";
     }
-
-//    if(state == ATTACK_RANGE || state == ATTACK_MELEE)
-//    {
-//        state = IDLE;
-//        ProcessAttackUnit();
-//    }
 
     if(state == FOUND_CITY || state == AI_FOUND_CITY)
     {
@@ -1410,12 +1412,18 @@ void GameManager::UpdateTileData()
 
 void GameManager::InitButtons()
 {
-    QString GameStyle = "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }";
+    QString GameStyle = "QWidget { background-color: #145e88; } QFrame { background-color: black; }";
+    GameStyle += "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }";
     GameStyle += "QPushButton:pressed { background-color: #77adcb; }";
     GameStyle += "QScrollBar:vertical { border: 2px sold black; background: #77adcb; width: 15px; margin: 12px 0 12px 0;} QScrollBar::handle:vertical { background: #4899C8; min-height: 10px; }";
     GameStyle += "QScrollBar::add-line:vertical { border: 1px solid black; background: #dedede; height: 10px; subcontrol-position: bottom; subcontrol-origin: margin; }  QScrollBar::sub-line:vertical { border: 1px solid black; height: 10px; background: #dedede; subcontrol-position: top; subcontrol-origin: margin; }";
     GameStyle += "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { border: 1px solid black; width: 3px; height: 3px; background: purple; } QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }";
     GameStyle += "QTabBar::tab { background: #dedede; border: 1px solid black; min-width: 10ex; padding: 3px;} QTabBar::tab:selected { background: #4899C8; } QTabBar::tab:hover { background: #77adcb; }";
+    GameStyle += "QGraphicsView { background-color: transparent; border-color: transparent;}";
+    GameStyle += "NotificationSystem { background-color: transparent; border-color: transparent; }";
+    GameStyle += "QListWidget { background-color: grey; color: white; border: 3px inset black; }";
+    GameStyle += "QProgressBar { border: 2px solid grey; border-radius: 5px; } QProgressBar::chunk { background-color: #CD96CD; }";
+    GameStyle += "QLabel { background-color: transparent; color: white; }";
 
     this->setStyleSheet(GameStyle);
 
@@ -1528,7 +1536,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
-    unitControlButtons->addSpacing(900);
+    unitControlButtons->addSpacing(750);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -1628,7 +1636,7 @@ void GameManager::InitYieldDisplay()
     Yieldinfo->addWidget(culLabel);
     Yieldinfo->addWidget(culText);
 
-    Yieldinfo->addSpacing(1500);
+    Yieldinfo->addSpacing(1600);
 
     vLayout->insertLayout(0, Yieldinfo);
 }
