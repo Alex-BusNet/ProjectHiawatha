@@ -25,7 +25,6 @@ SOURCES += main.cpp\
     gamemanager.cpp \
     gameoptions.cpp \
     civilization.cpp \
-    player.cpp \
     ai_operational.cpp \
     cityscreen.cpp \
     gamescene.cpp \
@@ -57,7 +56,6 @@ HEADERS  += mainwindow.h \
     gamemanager.h \
     gameoptions.h \
     civilization.h \
-    player.h \
     ai_operational.h \
     nation.h \
     cityscreen.h \
@@ -73,7 +71,6 @@ HEADERS  += mainwindow.h \
     citylabel.h \
     unittype.h \
     heap.h \
-    tiledata.h \
     datatypes.h \
     resources.h \
     about.h \
