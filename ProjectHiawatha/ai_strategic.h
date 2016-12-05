@@ -1,5 +1,4 @@
 //City Control
-
 #ifndef AI_STRATEGIC_H
 #define AI_STRATEGIC_H
 
@@ -13,8 +12,6 @@ class AI_Strategic
 {
 public:
     AI_Strategic(Civilization *civ, Civilization *player, Map *map);//Probably use default constructor
-    //shouldn't need passed values
-
 private:
     void cityProduction(Civilization *civ);
     void invasionCheck(Civilization *civ, Civilization *player, Map *map);
