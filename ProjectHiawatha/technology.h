@@ -19,6 +19,7 @@ public:
 private:
     QString name;
     int cost;
+    //Techs are stored in a list. Index helps to identify which tech a civ is on
     int index;
 
 };

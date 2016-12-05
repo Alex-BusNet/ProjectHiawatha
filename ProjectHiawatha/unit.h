@@ -97,6 +97,7 @@ private:
     int pixmapIndex, dataMapIndex, unitListIndex, targetTileIndex, healthBarIndex;
     bool NonCombat;
     bool Settler;
+    //Flag to indicate of it is a naval or a land unit
     bool naval;
     int movementPoints;
     int strength;
@@ -107,6 +108,7 @@ private:
     int uses; // uses = -1 for combat units.
     int cost;
     int unlocked;
+    //TechIndex indicates the index of the technology required to unlock the building
     int techIndex;
     UnitType type;
 

@@ -27,9 +27,11 @@ private:
     int productionCost;
     int currentProduction;
     int bonusType;// 0 = gold, 1 = production, 2 = science, 3 = food, 4 = culture, 5 = defense
+    //Bonus is the value added to the yield once the building is finished
     int bonus;
     int buildingMaintenanceCost;
     int unlocked;
+    //TechIndex indicates the index of the technology required to unlock the building
     int techIndex;
 
 

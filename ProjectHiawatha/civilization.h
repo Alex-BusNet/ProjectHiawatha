@@ -142,6 +142,7 @@ private:
     Technology* nextTech;
 
     int happiness;
+    //Keeps track of which tech is the list the civ is currently on
     int techIndex;
     int totalScience, totalGold, totalCulture;
     int accumulatedScience;

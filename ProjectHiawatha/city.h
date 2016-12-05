@@ -185,6 +185,7 @@ private:
 
     int currentProductionCost;
     int accumulatedProduction;
+    //Keeps track of which item is being produced
     int productionIndex;
 
     int numberofBuildings;
