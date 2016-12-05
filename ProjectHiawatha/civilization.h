@@ -116,17 +116,11 @@ public:
 
 private:
     Nation name;
-    //Enum for leader?
-    //civcolors
 
     QVector<Unit*> UnitList; //Needs a Units object type
-        //Will contain all of the civ's units
-
     QVector<City*> currentCityList; //Needs a City object type
-        //Will contain all of the civ's Cities
-
     QVector<QString> initialCityList;
-
+    QVector <Technology*> techList;
     QString LeaderName;
 
 
@@ -134,7 +128,7 @@ private:
 
     Yield* totalCivYield;
         //Will contain the totals for the civ's yields (uses city->cityyield)
-    QVector <Technology*> techList;
+
 
     void UpdateYield();
 
@@ -142,7 +136,7 @@ private:
     Technology* nextTech;
 
     int happiness;
-    //Keeps track of which tech is the list the civ is currently on
+    //Keeps track of which tech in the list the civ is currently on
     int techIndex;
     int totalScience, totalGold, totalCulture;
     int accumulatedScience;
