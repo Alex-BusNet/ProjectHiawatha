@@ -95,23 +95,18 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     ns->hide();
 
-//    qDebug() << "Creating new Renderer";
     renderer = new Renderer(mapSizeX);
 
-//    qDebug() << "Done.\nInitializing Map.";
     map = new Map(mapSizeX, mapSizeY);
     mapInit = QtConcurrent::run(this->map, Map::InitHexMap);
 
-//    qDebug() << "Initializing Civs";
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
     civInit.waitForFinished();
 
     this->playersAliveCount = civList.size();
 
-//    qDebug() << "Done.\nDrawing map.";
     renderer->DrawHexScene(*map, gameView);
 
-//    qDebug() << "Done.\nDrawing Cities, Borders, and Units.";
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
@@ -162,11 +157,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     endGameProgress->setText(*endGameText);
 
-//    qDebug() << "Init yield";
-
     InitYieldDisplay();
 
+    ////Keep this statement. I need it at different points
+    /// in the debugging process. -Port
 //    renderer->DrawGuiText(map, stringData, gameView);
+
     zoomScale = 1;
 
     for(int i = 0; i < 3; i++)
@@ -174,7 +170,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         zoomIn();
     }
 
-//    qDebug() << "Done.\nCentering on Player's Capital at:" << civList.at(0)->GetCityAt(0)->GetCityTile()->GetTileIDString();
     currentTurn = 0;
     gameTurn = 0;
     //Start at 4000 BC. The game increments the turn to 1, and subsequently the in game year by 40 years, upon game start.
@@ -185,10 +180,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     playerInfoRect = new QRect(0, 0, this->width(), 20);
     gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
     statusMessage = " ";
-
-//    qDebug() << "Screen size:" << gameView->width() << gameView->height();
-//    qDebug() << "Scene size: " << gameView->GetScene()->sceneRect().width() << "x" << gameView->GetScene()->sceneRect().height();
-//    qDebug() << "Done.";
 }
 
 void GameManager::InitCivs(Nation player, int numAI)
@@ -439,8 +430,10 @@ void GameManager::paintEvent(QPaintEvent *event)
 
 void GameManager::TurnController()
 {
+    //Is it currently the Player's turn?
     if(currentTurn == 0)
     {
+        //Has the player ended their turn?
         if(turnEnded)
         {
             turnEnded = false;
@@ -454,10 +447,13 @@ void GameManager::TurnController()
     }
     else
     {
+        //Cycle through the AI turns.
         statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
         StartTurn();
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
 
+        //While the AI is taking its turn, check the Queue
+        // if the AI is trying to settle a city or conquer one
         while(future.isRunning())
         {
             if(!civList.at(currentTurn)->isEmpty())
@@ -466,7 +462,9 @@ void GameManager::TurnController()
                 state = data.action;
 
                 if(state == AI_FOUND_CITY)
+                {
                     unitToMove = data.unit;
+                }
                 else if(state == CONQUER)
                 {
                     state = FIND_CITY;
@@ -476,6 +474,8 @@ void GameManager::TurnController()
                 this->UpdateTileData();
             }
         }
+        //This is just for extra precautions so that we don't try to end the AI's
+        // turn and move on before the AI thread has completly finished.
         future.waitForFinished();
         EndTurn();
     }
@@ -501,15 +501,20 @@ void GameManager::StartTurn()
     endGameProgress->setText(*endGameText);
     endGameProgress->setAlignment(Qt::AlignRight);
 
+    //Update the progress in all cities the Civ controls.
     Update_t update = civList.at(currentTurn)->UpdateProgress();
 
+    //Filter out each city's MEB list for any potential tiles that
+    // have been claimed by another city.
     foreach(City* city, civList.at(currentTurn)->GetCityList())
     {
         city->FilterMEBList();
     }
 
+    //Did a city grow?
     if(update.updateBorders)
     {
+        //Alert the renderer to redraw all city borders.
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             map->GetTileQueue(city);
@@ -551,6 +556,8 @@ void GameManager::StartTurn()
 
     }
 
+    //If it is the player's turn, then all the AI have completed their turns
+    // so we can increment the turn and year counter.
     if(currentTurn == 0)
     {
         statusMessage = " ";
@@ -597,6 +604,10 @@ void GameManager::StartTurn()
 
     int localIndex = 0;
     QString str[20];
+
+    //--------------------------------------------------------
+    // The following section updates the science yield of the
+    // active civ object
 
     int scienceYield = civList.at(currentTurn)->getCivYield()->GetScienceYield();
     civList.at(currentTurn)->setAccumulatedScience(scienceYield);
@@ -677,6 +688,12 @@ void GameManager::StartTurn()
             delete mbox;
         }
     }
+
+    //---------------------------------------------------------------
+
+    //---------------------------------------------------------------
+    // The following section updates the production progress of
+    // active civ object
 
     int accumulatedProduction;
     int productionCost;
@@ -806,27 +823,20 @@ void GameManager::StartTurn()
                 renderer->SetUnitNeedsOrders(unit->GetTileIndex(), false);
             }
         }
+        //-----------------------------------------------------------------------
 
+        //If a city took damage and has healed, alert the renderer of this change.
         if(update.cityHealed)
         {
             renderer->UpdateCityHealthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         }
 
+        //Update the production and population growth bars for the city.
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
 
-        if(currentTurn == 0)
-        {
-            goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
-            prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
-            foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
-            sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
-            culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
-            techText->setText(QString(" %1 / %2").arg(accumulatedScience).arg(techCost));
-
-            endTurn->setEnabled(true);
-        }
     }
+
 
     if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
     {
@@ -854,15 +864,30 @@ void GameManager::StartTurn()
         delete mbox;
 
     }
+
+    //Update the yield status bar for the player.
+    if(currentTurn == 0)
+    {
+        goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
+        prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
+        foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
+        sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
+        culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
+        techText->setText(QString(" %1 / %2").arg(accumulatedScience).arg(techCost));
+
+        endTurn->setEnabled(true);
+    }
 }
 
 void GameManager::EndTurn()
 {
     countTime = true;
     state = IDLE;
+    //This is for debugging purposes.
     begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
 
+    //Disable all the buttons when the player ends their turn.
     if(currentTurn == 0)
     {
         statusMessage = " ";
@@ -887,6 +912,7 @@ void GameManager::EndTurn()
         endTurn->setEnabled(false);
     }
 
+    // Update all units that a city controls
     for(int i = 0; i < civList.at(currentTurn)->GetUnitList().size(); i++)
     {
         if(!civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders && !civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty())
@@ -917,6 +943,8 @@ void GameManager::EndTurn()
                 musicPlayer->play();
 
             }
+
+            //These statements handle removing a unit from the game if it is killed.
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
             map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
@@ -963,6 +991,9 @@ nextCivAlive:
     else
     {
         currentTurn++;
+        //This allows an AI to be 'removed' from the game
+        // without all references to the CivList index
+        // needing to be adjusted when a civ is eliminated.
         if(!civList.at(currentTurn)->alive)
         {
             goto nextCivAlive;
@@ -970,6 +1001,11 @@ nextCivAlive:
     }
 }
 
+/*
+ * UpdateTileData() is the function that handles all of the tile selection, unit combat,
+ * unit-to-city combat, and Declarations of War done by the player as well as handling
+ * city founding and city conquering for both the player and the AI.
+ */
 void GameManager::UpdateTileData()
 {
     if(!processedData.relocateOrderGiven && state == IDLE)
@@ -1241,6 +1277,8 @@ void GameManager::UpdateTileData()
         fortifyUnit->setEnabled(false);
     }
 
+    //City founding Logic. This operates nearly the same as
+    // initial city spawning in the Map class
     if(state == FOUND_CITY || state == AI_FOUND_CITY)
     {
         state = IDLE;
@@ -1882,6 +1920,14 @@ void GameManager::showCity(City* city)
     }
 }
 
+/*
+ * updateTiles() is run by the updateTimer every 50 ms
+ * this goes to the gameView to see if the player has
+ * provided any new mouse inputs and then processes the data
+ * appropriately. This is also where TurnController() is called from
+ * as well as End Game control and where the notification is shown if
+ * there are new notifications for the player.
+ */
 void GameManager::updateTiles()
 {
     processedData = gameView->GetScene()->ProcessTile(relocateUnit);
@@ -1951,6 +1997,9 @@ void GameManager::updateTiles()
     }
 
     //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING ISN'T TAKING UP A LOT OF TIME
+    // -Sad new is, on bigger maps, it is taking up a lot of time. On Standard and higher, the updateTiles() misses
+    //  about 2-4 deadlines. Since this is the AI though, I am not concerned about it because it may
+    //  cause issues if the TurnController() is called while the AI is still processing it's turn.
     end = std::chrono::steady_clock::now();
     if(countTime == true)
     {
@@ -2179,9 +2228,13 @@ void GameManager::OpenHelp()
     about->show();
 }
 
+
+/*
+ * Parse item is used when the player selects
+ * a city they wish to manage.
+ */
 void GameManager::parseItem(QListWidgetItem *item)
 {
-//    qDebug() << "--------" << item->text() << "selected";
     this->goldFocus->setEnabled(true);
     this->productionFocus->setEnabled(true);
     this->scienceFocus->setEnabled(true);

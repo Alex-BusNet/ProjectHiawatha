@@ -30,6 +30,10 @@ Map::Map(int mapSizeX, int mapSizeY)
     this->mapSizeX = mapSizeX;
     this->mapSizeY = mapSizeY;
 
+
+    // The Ocean scale factor is used to determine
+    // how many columns should be created
+    // at the center and edges of the map
     switch(this->mapSizeX)
     {
     case 20:
@@ -54,14 +58,10 @@ Map::Map(int mapSizeX, int mapSizeY)
         this->oceanScaleFactor = 3;
         break;
     }
-
-//    qDebug() << "Ocean scale factor:" << this->oceanScaleFactor;
 }
 
 void Map::InitHexMap()
 {
-//    qDebug() << "InitHexMap() called";
-
     Tile *tile;
     //Flattop: x = 12, y =0;
     //Pointtop: x = 0, y = 12;
@@ -71,7 +71,6 @@ void Map::InitHexMap()
     bool odd = false;
     int column = 0, row = 0;
 
-//    qDebug() << "MapSizeX: " << mapSizeX << " MapSizeY: " << mapSizeY;
 
     for(int i = 0; i < (mapSizeY); i++)
     {
@@ -120,6 +119,7 @@ void Map::InitHexMap()
         //Point: posY += 37;
         posY += 37;
     }
+
     GenerateBiomes();
     GenerateMapEdge();
     GenerateMap();
@@ -169,6 +169,10 @@ int Map::GetMapSizeX()
     return this->mapSizeX;
 }
 
+/*
+ * GetNeighbors() will return a list of the 6 tiles
+ * adjacent to the passed tile.
+ */
 QList<Tile *> Map::GetNeighbors(Tile *node)
 {
     QList<Tile*> neighbors;
@@ -195,6 +199,12 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
     return neighbors;
 }
 
+/*
+ * GetNeighborsRange() is a modified version of GetNeighbors
+ * that returns a list of all tiles within a specified range
+ * of the passed tile. This function operates the same as
+ * GetNeighbors() when range = 1;
+ */
 QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
 {
     QList<Tile*> neighbors;
@@ -270,6 +280,13 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
     return neighbors;
 }
 
+
+/*
+ * GetMaximumExpansionTiles() returns a list of all tiles that
+ * a city can expand to. This function is run only when a city
+ * is founded. It is filtered through every turn after a city
+ * has been for any tile that has been claimed by other cities.
+ */
 QList<Tile *> Map::GetMaximumExpasionTiles(Tile *cityCenter)
 {
     //MEB radius: 5 tiles from node
@@ -361,6 +378,12 @@ QList<Tile *> Map::GetMaximumExpasionTiles(Tile *cityCenter)
     return neighbors;
 }
 
+/*
+ * listContains() and setContains() perform the same operation
+ * the only difference being the passed parameters. These functions
+ * are only used by the pathfinder for determining if a tile has
+ * already been searched.
+ */
 bool Map::listContains(QList<Tile *> list, Tile *tile)
 {
     foreach(Tile* h, list)
@@ -575,6 +598,12 @@ void Map::CleanMap()
 
 }
 
+/*
+ * GetTileQueue() uses the passed city's list of controlled
+ * tiles to search for the tiles adjacent to the city's borders
+ * that are not controlled by another city. This queue is used
+ * to keep track of what tile a city will expand to next.
+ */
 void Map::GetTileQueue(City *city)
 {
     QList<Tile*> surroundingTiles;
@@ -613,6 +642,10 @@ void Map::GetTileQueue(City *city)
     }
 }
 
+/*
+ * CreateCity() is the function that actually generates the city object that
+ * is added to each civ upon its initial spawn and every city founding thereafter
+ */
 City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
 {
     City* city = new City();
@@ -653,21 +686,13 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     return city;
 }
 
+/*
+ * SpawnCivs() is the main function that runs during initalization.
+ * this function generates the starting capital for each civ as well
+ * as the starting Worked and Warrior units.
+ */
 void Map::SpawnCivs(QVector<Civilization*> civs)
 {
-    //=====================
-    //
-    // Future steps will involve spacing civs farther apart
-    // so no two civs are on top of each other.
-    //
-    // There will also be an initial unit spawning and
-    // bigger borders for cities.
-    //
-    // This may change later to where the player gets a warrior
-    // and a settler instead of a city, warrior, and worker to start.
-    //
-    //=====================
-
     City *city;
     Unit *unit;
     srand(time(0));
@@ -807,9 +832,6 @@ newrand:
             unit->SetUnitListIndex(1);
             civs.at(i)->AddUnit(unit);
             civs.at(i)->UpdateCivYield();
-
-//            qDebug() << "       UnitPos 0:" << board.at(civs.at(i)->GetUnitAt(0)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(0)->GetTileIndex();
-//            qDebug() << "       UnitPos 1:" << board.at(civs.at(i)->GetUnitAt(1)->GetTileIndex())->GetTileIDString() << civs[i]->GetUnitAt(1)->GetTileIndex();
         }
     }
 }
@@ -906,11 +928,8 @@ void Map::GenerateResources()
     for(int i = 0; i < board.size(); i++)
     {
         resource = d(gen);
-//        qDebug() << "--Board Tile Type:" << board.at(i)->GetTileTypeString();
         if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST))
         {
-//            qDebug() << "   Resource:" << resource;
-            /// Need to set this so they also update the tile yields.
             switch(resource)
             {
             case NO_STRATEGIC:
