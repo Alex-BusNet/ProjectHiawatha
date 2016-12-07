@@ -17,7 +17,7 @@ CityScreen::CityScreen(QWidget *parent) :
 {
 
     ui->setupUi(this);
-    QPixmap pic("../ProjectHiawatha/Assets/Buildings/walls.png");
+    QPixmap pic("Assets/Buildings/walls.png");
     ui->picture->setPixmap(pic);
     ui->picture->setScaledContents(true);
     ui->city_name->setText(" ");
@@ -27,7 +27,7 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->tabWidget->setTabText(2, "Completed Buildings");
     ui->progressBar->setMinimum(0);
     ui->label->setText("Cost: ");
-    ui->ItemBG->setPixmap(QPixmap("../ProjectHiawatha/Assets/UI/CityScreenBackground_alt2.png"));
+    ui->ItemBG->setPixmap(QPixmap("Assets/UI/CityScreenBackground_alt2.png"));
 
 }
 
@@ -179,7 +179,7 @@ void CityScreen::updateWidget()
 
 void CityScreen::on_listWidget_itemSelectionChanged()
 {
-    QString tempString = "../ProjectHiawatha/Assets/Buildings/";
+    QString tempString = "Assets/Buildings/";
     QString extension = ".png";
     QString name = buildings.at(ui->listWidget->currentRow())->getName();
     tempString += name;
@@ -251,7 +251,7 @@ void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 void CityScreen::on_listWidget_2_itemSelectionChanged()
 {
-    QString tempString = "../ProjectHiawatha/Assets/Units/";
+    QString tempString = "Assets/Units/";
     QString extension = ".png";
     QString name = initialUnitList.at(ui->listWidget_2->currentRow())->GetName();
     tempString += name;

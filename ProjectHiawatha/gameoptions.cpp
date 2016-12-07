@@ -68,22 +68,22 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QIcon* icon15 = new QIcon();
     QIcon* icon16 = new QIcon();
     //add the icon that correspond to the civ
-    icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/CHINA.png");
-    icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY2.png");
-    icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/INDIA.png");
-    icon4->addFile("../ProjectHiawatha/Assets/Leaders/Icons/USA.png");
-    icon5->addFile("../ProjectHiawatha/Assets/Leaders/Icons/MONGOLIA.jpg");
-    icon6->addFile("../ProjectHiawatha/Assets/Leaders/Icons/AZTEC.png");
-    icon7->addFile("../ProjectHiawatha/Assets/Leaders/Icons/FRANCE.png");
-    icon8->addFile("../ProjectHiawatha/Assets/Leaders/Icons/IROQUOIS.png");
-    icon9->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GREECE.png");
-    icon10->addFile("../ProjectHiawatha/Assets/Leaders/Icons/ROME.png");
-    icon11->addFile("../ProjectHiawatha/Assets/Leaders/Icons/RUSSIA.png");
-    icon12->addFile("../ProjectHiawatha/Assets/Leaders/Icons/ENGLAND.png");
-    icon13->addFile("../ProjectHiawatha/Assets/Leaders/Icons/EGYPT.png");
-    icon14->addFile("../ProjectHiawatha/Assets/Leaders/Icons/JAPAN.png");
-    icon15->addFile("../ProjectHiawatha/Assets/Leaders/Icons/PERSIA.png");
-    icon16->addFile("../ProjectHiawatha/Assets/Leaders/Icons/ARABIA.png");
+    icon1->addFile("Assets/Leaders/Icons/CHINA.png");
+    icon2->addFile("Assets/Leaders/Icons/GERMANY2.png");
+    icon3->addFile("Assets/Leaders/Icons/INDIA.png");
+    icon4->addFile("Assets/Leaders/Icons/USA.png");
+    icon5->addFile("Assets/Leaders/Icons/MONGOLIA.jpg");
+    icon6->addFile("Assets/Leaders/Icons/AZTEC.png");
+    icon7->addFile("Assets/Leaders/Icons/FRANCE.png");
+    icon8->addFile("Assets/Leaders/Icons/IROQUOIS.png");
+    icon9->addFile("Assets/Leaders/Icons/GREECE.png");
+    icon10->addFile("Assets/Leaders/Icons/ROME.png");
+    icon11->addFile("Assets/Leaders/Icons/RUSSIA.png");
+    icon12->addFile("Assets/Leaders/Icons/ENGLAND.png");
+    icon13->addFile("Assets/Leaders/Icons/EGYPT.png");
+    icon14->addFile("Assets/Leaders/Icons/JAPAN.png");
+    icon15->addFile("Assets/Leaders/Icons/PERSIA.png");
+    icon16->addFile("Assets/Leaders/Icons/ARABIA.png");
 
     item1->setIcon(*icon1);
     item2->setIcon(*icon2);
@@ -127,22 +127,22 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
 //    ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
 //    ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
     //Initialize the pics that correpsond to the civs
-    pic = QPixmap("../ProjectHiawatha/Assets/Leaders/Mao.jpg");
-    pic2 = QPixmap("../ProjectHiawatha/Assets/Leaders/George_head.jpg");
-    pic3 = QPixmap("../ProjectHiawatha/Assets/Leaders/bismark.jpg");
-    pic4 = QPixmap("../ProjectHiawatha/Assets/Leaders/gandhi.jpg");
-    pic5 = QPixmap("../ProjectHiawatha/Assets/Leaders/khan.jpg");
-    pic6 = QPixmap("../ProjectHiawatha/Assets/Leaders/montezuma.jpg");
-    pic7 = QPixmap("../ProjectHiawatha/Assets/Leaders/napoleon.jpg");
-    pic8 = QPixmap("../ProjectHiawatha/Assets/Leaders/Hiawatha.jpg");
-    pic9 = QPixmap("../ProjectHiawatha/Assets/Leaders/Alexander.jpg");
-    pic10 = QPixmap("../ProjectHiawatha/Assets/Leaders/Julius_Caesar.jpg");
-    pic11 = QPixmap("../ProjectHiawatha/Assets/Leaders/stalin.jpg");
-    pic12 = QPixmap("../ProjectHiawatha/Assets/Leaders/Queen_Elizabeth.jpg");
-    pic13 = QPixmap("../ProjectHiawatha/Assets/Leaders/Ramseses.jpg");
-    pic14 = QPixmap("../ProjectHiawatha/Assets/Leaders/Oda_Nobunga.jpg");
-    pic15 = QPixmap("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
-    pic16 = QPixmap("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
+    pic = QPixmap("Assets/Leaders/Mao.jpg");
+    pic2 = QPixmap("Assets/Leaders/George_head.jpg");
+    pic3 = QPixmap("Assets/Leaders/bismark.jpg");
+    pic4 = QPixmap("Assets/Leaders/gandhi.jpg");
+    pic5 = QPixmap("Assets/Leaders/khan.jpg");
+    pic6 = QPixmap("Assets/Leaders/montezuma.jpg");
+    pic7 = QPixmap("Assets/Leaders/napoleon.jpg");
+    pic8 = QPixmap("Assets/Leaders/Hiawatha.jpg");
+    pic9 = QPixmap("Assets/Leaders/Alexander.jpg");
+    pic10 = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
+    pic11 = QPixmap("Assets/Leaders/stalin.jpg");
+    pic12 = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
+    pic13 = QPixmap("Assets/Leaders/Ramseses.jpg");
+    pic14 = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
+    pic15 = QPixmap("Assets/Leaders/Cyrus.jpg");
+    pic16 = QPixmap("Assets/Leaders/Harun-Rashid.jpg");
 
     ui->label_3->setText("Gandhi");
     ui->label->setPixmap(pic4);
@@ -267,7 +267,7 @@ void GameOptions::on_pushButton_clicked()
     }
     //Play a notification
     QMediaPlayer *musicPlayer = new QMediaPlayer();
-    musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
+    musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
     musicPlayer->setVolume(50);
     musicPlayer->play();
     //Start new game

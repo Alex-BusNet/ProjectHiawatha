@@ -31,47 +31,47 @@ Renderer::Renderer(int mapSizeX)
     outlinePen.setColor(cc->NO_NATION_PRIMARY);
 
     //Strategic Resource Images
-    ironPix = new QPixmap("../ProjectHiawatha/Assets/Resources/iron.png");
-    horsePix = new QPixmap("../ProjectHiawatha/Assets/Resources/horses.png");
-    uraniumPix = new QPixmap("../ProjectHiawatha/Assets/Resources/uranium.png");
-    aluminumPix = new QPixmap("../ProjectHiawatha/Assets/Resources/aluminum.png");
-    coalPix = new QPixmap("../ProjectHiawatha/Assets/Resources/coal.png");
-    oilPix = new QPixmap("../ProjectHiawatha/Assets/Resources/oil.png");
+    ironPix = new QPixmap("Assets/Resources/iron.png");
+    horsePix = new QPixmap("Assets/Resources/horses.png");
+    uraniumPix = new QPixmap("Assets/Resources/uranium.png");
+    aluminumPix = new QPixmap("Assets/Resources/aluminum.png");
+    coalPix = new QPixmap("Assets/Resources/coal.png");
+    oilPix = new QPixmap("Assets/Resources/oil.png");
 
     //Luxury Resource images
-    wheatPix = new QPixmap("../ProjectHiawatha/Assets/Resources/wheat.png");
-    cattlePix = new QPixmap("../ProjectHiawatha/Assets/Resources/cattle.png");
-    deerPix = new QPixmap("../ProjectHiawatha/Assets/Resources/deer.png");
-    fishPix = new QPixmap("../ProjectHiawatha/Assets/Resources/fish.png");
-    whalePix = new QPixmap("../ProjectHiawatha/Assets/Resources/whales.png");
-    bananaPix = new QPixmap("../ProjectHiawatha/Assets/Resources/bananas.png");
-    goldResourcePix = new QPixmap("../ProjectHiawatha/Assets/Resources/gold.png");
-    gemsPix = new QPixmap("../ProjectHiawatha/Assets/Resources/gems.png");
-    marblePix = new QPixmap("../ProjectHiawatha/Assets/Resources/marble.png");
-    ivoryPix = new QPixmap("../ProjectHiawatha/Assets/Resources/ivory.png");
-    dyesPix = new QPixmap("../ProjectHiawatha/Assets/Resources/dyes.png");
-    spicesPix = new QPixmap("../ProjectHiawatha/Assets/Resources/spices.png");
-    silkPix = new QPixmap("../ProjectHiawatha/Assets/Resources/silk.png");
-    sugarPix = new QPixmap("../ProjectHiawatha/Assets/Resources/sugar.png");
-    cottonPix = new QPixmap("../ProjectHiawatha/Assets/Resources/cotton.png");
-    pearlsPix = new QPixmap("../ProjectHiawatha/Assets/Resources/pearls.png");
-    incencePix = new QPixmap("../ProjectHiawatha/Assets/Resources/incense.png");
-    winePix = new QPixmap("../ProjectHiawatha/Assets/Resources/wine.png");
-    silverPix = new QPixmap("../ProjectHiawatha/Assets/Resources/silver.png");
-    fursPix = new QPixmap("../ProjectHiawatha/Assets/Resources/furs.png");
-    sheepPix = new QPixmap("../ProjectHiawatha/Assets/Resources/sheep.png");
+    wheatPix = new QPixmap("Assets/Resources/wheat.png");
+    cattlePix = new QPixmap("Assets/Resources/cattle.png");
+    deerPix = new QPixmap("Assets/Resources/deer.png");
+    fishPix = new QPixmap("Assets/Resources/fish.png");
+    whalePix = new QPixmap("Assets/Resources/whales.png");
+    bananaPix = new QPixmap("Assets/Resources/bananas.png");
+    goldResourcePix = new QPixmap("Assets/Resources/gold.png");
+    gemsPix = new QPixmap("Assets/Resources/gems.png");
+    marblePix = new QPixmap("Assets/Resources/marble.png");
+    ivoryPix = new QPixmap("Assets/Resources/ivory.png");
+    dyesPix = new QPixmap("Assets/Resources/dyes.png");
+    spicesPix = new QPixmap("Assets/Resources/spices.png");
+    silkPix = new QPixmap("Assets/Resources/silk.png");
+    sugarPix = new QPixmap("Assets/Resources/sugar.png");
+    cottonPix = new QPixmap("Assets/Resources/cotton.png");
+    pearlsPix = new QPixmap("Assets/Resources/pearls.png");
+    incencePix = new QPixmap("Assets/Resources/incense.png");
+    winePix = new QPixmap("Assets/Resources/wine.png");
+    silverPix = new QPixmap("Assets/Resources/silver.png");
+    fursPix = new QPixmap("Assets/Resources/furs.png");
+    sheepPix = new QPixmap("Assets/Resources/sheep.png");
 
     //Tile Worked Icons
-    tileWorkedIcon = new QPixmap("../ProjectHiawatha/Assets/Citizens/worked.png");
-    tileUnworked = new QPixmap("../ProjectHiawatha/Assets/Citizens/unworked.png");
-    fortified = new QPixmap("../ProjectHiawatha/Assets/Icons/fortified.png");
+    tileWorkedIcon = new QPixmap("Assets/Citizens/worked.png");
+    tileUnworked = new QPixmap("Assets/Citizens/unworked.png");
+    fortified = new QPixmap("Assets/Icons/fortified.png");
 
     //Tile improvement icons
-    mine = new QPixmap("../ProjectHiawatha/Assets/Resources/mine.png");
-    plantation = new QPixmap("../ProjectHiawatha/Assets/Resources/plantation.png");
-    farm = new QPixmap("../ProjectHiawatha/Assets/Resources/farm.png");
-    tradePost = new QPixmap("../ProjectHiawatha/Assets/Resources/trade_post.png");
-    none = new QPixmap("../ProjectHiawatha/Assets/Resources/noImprovement.png");
+    mine = new QPixmap("Assets/Resources/mine.png");
+    plantation = new QPixmap("Assets/Resources/plantation.png");
+    farm = new QPixmap("Assets/Resources/farm.png");
+    tradePost = new QPixmap("Assets/Resources/trade_post.png");
+    none = new QPixmap("Assets/Resources/noImprovement.png");
 }
 
 /*
@@ -441,7 +441,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
 {
     //------------------------------------------------------------------------------
 
-    QPixmap *cityOutlines = new QPixmap("../ProjectHiawatha/Assets/UI/CityStatusBarOutline.png");
+    QPixmap *cityOutlines = new QPixmap("Assets/UI/CityStatusBarOutline.png");
 
     cityBarOutlines.push_back(view->addPixmap(*cityOutlines));
     cityBarOutlines.last()->setZValue(7);
@@ -729,7 +729,7 @@ void Renderer::AddCityLabel(City* city, GameView *view)
  */
 void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
-    QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944_alt.png");
+    QPixmap *cityImage = new QPixmap("Assets/Icons/CityIcon4944_alt.png");
     cityPixmap.push_back(view->addPixmap(*cityImage));
     cityPixmap.last()->setZValue(2);
     cityPixmap.last()->setScale(1.0f);

@@ -137,8 +137,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                 }
             }
 
-            civList.at(i)->GetCityAt(j)->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-            civList.at(i)->GetCityAt(j)->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
+            civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
+            civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
         }
 
         if(i == 0)
@@ -184,12 +184,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 void GameManager::InitCivs(Nation player, int numAI)
 {
     Civilization* civ = new Civilization(player, false, " ");
-    civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
+    civ->loadTechs("Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
     civ->setNextTech(civ->GetTechList().at(1));
     civ->setCivIndex(0);
     techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
-    QString str = "../ProjectHiawatha/Assets/CityLists/";
+    QString str = "Assets/CityLists/";
     QString str2;
     switch (player)
     {
@@ -296,88 +296,88 @@ newCivRand:
             {
             case America:
                 civ = new Civilization(America, true, "Washington");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/america.txt");
+                civ->loadCities("Assets/CityLists/america.txt");
                 selNat.push_back(civNum);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true, "Bismark");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/germany.txt");
+                civ->loadCities("Assets/CityLists/germany.txt");
                 selNat.push_back(civNum);
                 break;
             case India:
                 civ = new Civilization(India, true, "Gandhi");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
+                civ->loadCities("Assets/CityLists/india.txt");
                 selNat.push_back(civNum);
                 break;
             case China:
                 civ = new Civilization(China, true, "Zedong");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/china.txt");
+                civ->loadCities("Assets/CityLists/china.txt");
                 selNat.push_back(civNum);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true, "Genghis Khan");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/mongolia.txt");
+                civ->loadCities("Assets/CityLists/mongolia.txt");
                 selNat.push_back(civNum);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true, "Montezuma");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/aztec.txt");
+                civ->loadCities("Assets/CityLists/aztec.txt");
                 selNat.push_back(civNum);
                 break;
             case France:
                 civ = new Civilization(France, true, "Napoleon");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/france.txt");
+                civ->loadCities("Assets/CityLists/france.txt");
                 selNat.push_back(civNum);
                 break;
             case Iroquois:
                 civ = new Civilization(Iroquois, true, "Hiawatha");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/iroquois.txt");
+                civ->loadCities("Assets/CityLists/iroquois.txt");
                 selNat.push_back(Iroquois);
                 break;
             case Greece:
                 civ = new Civilization(Greece, true, "Alexander");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/greece.txt");
+                civ->loadCities("Assets/CityLists/greece.txt");
                 selNat.push_back(civNum);
                 break;
             case Rome:
                 civ = new Civilization(Rome, true, "Ceasar");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/rome.txt");
+                civ->loadCities("Assets/CityLists/rome.txt");
                 selNat.push_back(civNum);
                 break;
             case England:
                 civ = new Civilization(England, true, "Elizabeth");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/england.txt");
+                civ->loadCities("Assets/CityLists/england.txt");
                 selNat.push_back(civNum);
                 break;
             case Arabia:
                 civ = new Civilization(Arabia, true, "al-Rashid");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/arabia.txt");
+                civ->loadCities("Assets/CityLists/arabia.txt");
                 selNat.push_back(civNum);
                 break;
             case Persia:
                 civ = new Civilization(Persia, true, "Cyrus");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/persia.txt");
+                civ->loadCities("Assets/CityLists/persia.txt");
                 selNat.push_back(civNum);
                 break;
             case Russia:
                 civ = new Civilization(Russia, true, "Stalin");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/russia.txt");
+                civ->loadCities("Assets/CityLists/russia.txt");
                 selNat.push_back(civNum);
                 break;
             case Japan:
                 civ = new Civilization(Japan, true, "Nobunga");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/japan.txt");
+                civ->loadCities("Assets/CityLists/japan.txt");
                 selNat.push_back(civNum);
                 break;
             case Egypt:
                 civ = new Civilization(Egypt, true, "Ramesses");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/egypt.txt");
+                civ->loadCities("Assets/CityLists/egypt.txt");
                 selNat.push_back(civNum);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true, "Gandhi");
-                civ->loadCities("../ProjectHiawatha/Assets/CityLists/india.txt");
+                civ->loadCities("Assets/CityLists/india.txt");
                 selNat.push_back(civNum);
                 break;
             }
@@ -385,7 +385,7 @@ newCivRand:
             // If was not found, place in civList vector
             if(!found)
             {
-                civ->loadTechs("../ProjectHiawatha/Assets/Techs/Technology.txt");
+                civ->loadTechs("Assets/Techs/Technology.txt");
                 civ->setCurrentTech(civ->GetTechList().at(0));
                 civ->setNextTech(civ->GetTechList().at(1));
                 civ->setCivIndex(i+1);
@@ -932,7 +932,7 @@ void GameManager::EndTurn()
             if(civList.at(currentTurn)->getCiv() == civList.at(0)->getCiv())
             {
                 QMediaPlayer *musicPlayer = new QMediaPlayer();
-                musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
+                musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
                 musicPlayer->setVolume(50);
                 musicPlayer->play();
 
@@ -1371,8 +1371,8 @@ void GameManager::UpdateTileData()
         if(!valid)
             return;
 
-        city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-        city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+        city->loadBuildings("Assets/Buildings/BuildingList.txt");
+        city->loadUnits("Assets/Units/UnitList.txt");
         civList.at(currentTurn)->AddCity(city);
         map->GetTileAt(foundCityIndex)->HasCity = true;
 
@@ -1630,11 +1630,11 @@ void GameManager::InitYieldDisplay()
     sciText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     culText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    goldPix = new QPixmap("../ProjectHiawatha/Assets/Icons/gold.png");
-    prodPix = new QPixmap("../ProjectHiawatha/Assets/Icons/production.png");
-    foodPix = new QPixmap("../ProjectHiawatha/Assets/Icons/food.png");
-    sciPix = new QPixmap("../ProjectHiawatha/Assets/Icons/research.png");
-    culPix = new QPixmap("../ProjectHiawatha/Assets/Icons/culture.png");
+    goldPix = new QPixmap("Assets/Icons/gold.png");
+    prodPix = new QPixmap("Assets/Icons/production.png");
+    foodPix = new QPixmap("Assets/Icons/food.png");
+    sciPix = new QPixmap("Assets/Icons/research.png");
+    culPix = new QPixmap("Assets/Icons/culture.png");
 
     goldLabel = new QLabel();
     prodLabel = new QLabel();
@@ -1739,8 +1739,8 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
 
     city->SortControlledTiles();
 
-    city->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
-    city->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
+    city->loadUnits("Assets/Units/UnitList.txt");
+    city->loadBuildings("Assets/Buildings/BuildingList.txt");
 
     foreach(Building* building, tCity->getCurrentBuildingList())
     {
@@ -1943,8 +1943,8 @@ void GameManager::showCity(City* city)
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
-        cityScreen->loadBuildings("../ProjectHiawatha/Assets/Buildings/BuildingList.txt");
-        cityScreen->loadUnits("../ProjectHiawatha/Assets/Units/UnitList.txt");
+        cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
+        cityScreen->loadUnits("Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
         cityScreen->updateList(city->getNumberOfBuildings());
         cityScreen->updateWidget();
@@ -2082,7 +2082,7 @@ void GameManager::showTechTree()
         }
         techTree = new TechTree(this);
         techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech(),civList.at(0)->getAccumulatedScience());
-        techTree->loadTechList("../ProjectHiawatha/Assets/Techs/Technology.txt");
+        techTree->loadTechList("Assets/Techs/Technology.txt");
         techTree->updateWidget(civList.at(0)->getNextTech()->getIndex()+1);
         techTree->setGeometry(gameView->pos().x() + 2, gameView->pos().y() + 3, gameView->width() - 6, gameView->height() - 150);
         techTree->show();

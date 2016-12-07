@@ -25,7 +25,7 @@ TechTree::~TechTree()
 
 void TechTree::loadData(Technology *currentTech, Technology *nextTech, int currentProgress)
 {
-    QString str = "../ProjectHiawatha/Assets/Techs/";
+    QString str = "Assets/Techs/";
     QString str2 = currentTech->getName();
     QString str3 = nextTech->getName();
     QString str4 = str + str3;
@@ -94,7 +94,7 @@ void TechTree::loadTechList(QString filename)
 void TechTree::on_listWidget_itemSelectionChanged()
 {
     int vectorIndex = ui->listWidget->currentRow()+ localIndex;
-    QString str = "../ProjectHiawatha/Assets/Techs/";
+    QString str = "Assets/Techs/";
     QString str2 = techListCopy.at(vectorIndex)->getName();
     str = str + str2;
     str = str + ".png";

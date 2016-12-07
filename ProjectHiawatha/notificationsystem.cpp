@@ -3,13 +3,13 @@
 
 NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
 {
-    QIcon capitalLost("../ProjectHiawatha/Assets/Icons/capitolLost.png");
-    QIcon unitKilled("../ProjectHiawatha/Assets/Icons/unitKilled.png");
-    QIcon populationIncreased("../ProjectHiawatha/Assets/Icons/populationIncreased.png");
-    QIcon cityStagnant("../ProjectHiawatha/Assets/Icons/cityStagnant.png");
-    QIcon cityProductionFinished("../ProjectHiawatha/Assets/Icons/productionFinished.png");
-    QIcon warDeclared("../ProjectHiawatha/Assets/Icons/warDeclared.png");
-    QIcon madePeace("../ProjectHiawatha/Assets/Icons/madePeace.png");
+    QIcon capitalLost("Assets/Icons/capitolLost.png");
+    QIcon unitKilled("Assets/Icons/unitKilled.png");
+    QIcon populationIncreased("Assets/Icons/populationIncreased.png");
+    QIcon cityStagnant("Assets/Icons/cityStagnant.png");
+    QIcon cityProductionFinished("Assets/Icons/productionFinished.png");
+    QIcon warDeclared("Assets/Icons/warDeclared.png");
+    QIcon madePeace("Assets/Icons/madePeace.png");
 
     IconArray.push_back(capitalLost);
     IconArray.push_back(unitKilled);
