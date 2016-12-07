@@ -20,7 +20,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
     if(civ->isAtWar()){
         theaterAtWar(civ, player);
     }
-    aiTact = new AI_Tactical(civ, player, map, CityToBeFounded, cityTarget);
+    aiTact = new AI_Tactical(civ, map, CityToBeFounded, cityTarget);
 }
 //****************Tactical AI Called**************
     //Pass target city
@@ -39,7 +39,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
                  if(0==borderingTiles.at(j)->GetOccupyingCivListIndex()){
                     //qDebug()<<"Enemy Near";
                     QVector<Unit*> tempVec = civ->getMidThreats();
-                    unit = unitCon->FindUnitAtTile(borderingTiles.at(j),map,player->GetUnitList());
+                    unit = unitCon->FindUnitAtTile(borderingTiles.at(j),player->GetUnitList());
                     tempVec.push_back(unit);
                     civ->setMidThreats(tempVec);
                     //qDebug()<<"Unit: "<<unit->GetTileIndex();
@@ -68,7 +68,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *ma
 void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player){
     //qDebug()<<"Theater At War";
     int targetIndex=0, targetDistance=INT_MAX;
-    UnitController *checkDist;
+    UnitController *checkDist = new UnitController();
     for(int i =0; i< player->GetCityList().length();i++){
         if(checkDist->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile())<targetDistance){
             targetIndex=i;
@@ -76,6 +76,8 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player){
         }
     }
     this->cityTarget=player->GetCityAt(targetIndex);
+
+    delete checkDist;
 }
 //************Theater of War***************
 //Prioritizes the nearest city (by accessibility?) of the player civ

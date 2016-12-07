@@ -15,7 +15,7 @@ class GameView : public QGraphicsView
 {
 
 public:
-    GameView(QWidget *parent = 0, bool fullscreen = false);
+    GameView(QWidget *parent = 0);
 
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon, const QPen &pen);

@@ -7,7 +7,7 @@
 #include "qmath.h"
 #include <QApplication>
 
-GameView::GameView(QWidget *parent, bool fullscreen) : QGraphicsView(parent)
+GameView::GameView(QWidget *parent) : QGraphicsView(parent)
 {
     game = new GameScene(this);
     zoomScale = 1;

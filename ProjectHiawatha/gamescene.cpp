@@ -30,59 +30,37 @@ void GameScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
     eventQueued = true;
 }
 
+/*
+ * ProcessTile is used to find the player clicked on. This function
+ * is not 100% accurate, but tends to be the most accurate if a tile
+ * is the area where a unit icon would normally be drawn.
+ */
 TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
 {
     if(eventQueued == true)
     {
         eventQueued = false;
 
-        //==================================
-        // Mouse input filter function:
-        //
-        //  If ((mpScreenPos != mrScreenPos) && (mrScenePos == lastPos))
-        //      then drag occured
-        //  else if ((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos))
-        //      then move unit command issued
-        //  else if ((mrScreenPos == lastScreenPos) && (mrScenePos == lastScenePos))
-        //      then column = mrScenePos.x() / 74;
-        //           row = mrScenePos.y() / 44;
-        //
-        //           if (tileAt(column, row).hasCity)
-        //               then tile.at(column,row).GetControllingCity().activateCityScreen();
-        //           else if (tileAt(column, row).ContainsUnit)
-        //               then tile.at(column, row).GetUnit().activateUnitControls();
-        //
-        //==================================
-
         if((mpScreenPos != mrScreenPos) && (mpScenePos == mrScenePos))
         {
             // Drag Occured
-//            qDebug() << "Drag Screen";
             processedData.newData = false;
             processedData.relocateOrderGiven = false;
         }
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
-//            qDebug() << " Move Unit";
-
             column = 0.5 + (mrScenePos.x() / 45);
             row = 0.5 + (mrScenePos.y() / 75);
 
-//            qDebug() << "   Before Adjust: " << column << "," << row;
-
             if((column % 2 == 0) && (row % 2 != 0))
             {
-//                row--;
                 column--;
             }
             else if ((column % 2 != 0) && (row % 2 == 0))
             {
-//                row--;
                 column--;
             }
-
-//            qDebug() << "   After Adjust: " << column << "," << row;
 
             processedData.column = column;
             processedData.row = row;
@@ -95,26 +73,19 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
         else if((mpScreenPos == mrScreenPos) && (mpScenePos == mrScenePos) && !unitAwaitingRelocation)
         {
             // Tile was Selected
-//            qDebug() << "Tile selected";
-//            qDebug() << "ScenePos: " << mrScenePos;
 
             column = 0.5 + (mrScenePos.x() / 45);
             row = 0.5 + (mrScenePos.y() / 75);
 
-//            qDebug() << "   Before Adjust: " << column << "," << row;
-
             if((column % 2 == 0) && (row % 2 != 0))
             {
-//                row--;
                 column--;
             }
             else if ((column % 2 != 0) && (row % 2 == 0))
             {
-//                row--;
                 column--;
             }
 
-//            qDebug() << "   After Adjust: " << column << "," << row;
             processedData.column = column;
             processedData.row = row;
             processedData.newData = true;

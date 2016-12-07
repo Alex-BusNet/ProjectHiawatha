@@ -1,4 +1,3 @@
-
 #include "renderer.h"
 #include "civcolors.h"
 #include <QPen>
@@ -6,9 +5,6 @@
 #include <QProgressBar>
 #include "resources.h"
 
-#ifndef MAXSIZE
-#define MAXSIZE 128
-#endif
 
 //======================================
 //  Render Layers
@@ -78,6 +74,10 @@ Renderer::Renderer(int mapSizeX)
     none = new QPixmap("../ProjectHiawatha/Assets/Resources/noImprovement.png");
 }
 
+/*
+ * DrawHexScene runs during init and is used to set up the
+ * rendered version of the data map in the GameView
+ */
 void Renderer::DrawHexScene(Map map, GameView *view)
 {
     for(int i = 0; i < map.GetBoardSize(); i++)
@@ -219,6 +219,12 @@ void Renderer::DrawHexScene(Map map, GameView *view)
             tileWorked.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 23, map.GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
 
+        // Every tile created has a requires orders icon, fortified icon
+        // and a tile improvement icon slot. The tile improvement icon is
+        // changed as the Player or AI builds builds different improvements.
+        // The requires orders icon and fortified icons are turned on and off by changing
+        // their opacity levels when told to do so by the manager.
+
         QLabel *orders = new QLabel("!");
         orders->setStyleSheet("QLabel { color: red; background-color: transparent; font-size: 14px; font-weight: bold; }");
         orders->setGeometry(map.GetTileAt(i)->GetItemTexturePoint().x() + 30, map.GetTileAt(i)->GetItemTexturePoint().y(), 6, 14);
@@ -253,37 +259,40 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         selDat = data->dequeue();
         index = selDat.index;
 
-        if(index > map->GetBoardSize())
+        // Prevent the renderer trying to retrieve a
+        // tileCircle that is out of range.
+        if(index >= map->GetBoardSize())
         {
-//            qDebug() << "index to large. Invalid Tile";
             return;
         }
 
+        // The tile has been selected by the player
         if(selDat.player && !selDat.target)
         {
-//            qDebug() << "Player unit selected";
             view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::yellow);
             outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = true;
         }
+        // The tile is contains a unit that can be targeted
         else if(!selDat.player && selDat.target)
         {
-//            qDebug() << "Enemy unit in range";
             view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::red);
             outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = false;
         }
+        // Return the tile to it's default state.
         else if(!selDat.player && !selDat.target)
         {
-//            qDebug() << "Deselecting tile";
             view->removeItem(tileCircles.at(index));
             SetOutlinePen(NO_NATION);
             outlinePen.setWidth(1);
             map->GetTileAt(index)->Selected = false;
         }
 
+        // Update the tileCircle vector and GameView with the
+        // new circle information.
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(outlinePen);
     }
@@ -293,6 +302,8 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
 {
     unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
 
+    // If the unit has moved, or their health has changed,
+    // update the unit's health bar.
     if((unit->GetHealth() / unit->GetMaxHealth()) != 1 || unitMoved)
     {
         view->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
@@ -304,6 +315,9 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
     }
 }
 
+/*
+ * UpdateCityBorders() is used when a city expands or has it's ownership changed.
+ */
 void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 {
     SetOutlinePen(owner);
@@ -331,35 +345,10 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
 
 }
 
-void Renderer::DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget *> wVect, QGraphicsScene *view)
-{
-    wVect.push_back(view->addWidget(obj));
-}
-
-////This is for development and debug purposes only
-QString Renderer::SetYieldDisplay(Map *map)
-{
-    //This is a placeholder, it will need to be re-adjusted once the player class is added.
-     return QString("Gold: %1  Production: %2  Food: %3  Science: %4  Culture: %5")
-                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::GOLD))
-                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::PRODUCTION))
-                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::FOOD))
-                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::RESEARCH))
-                                          .arg(map->GetTileAt(0)->GetYield()->GetYield(Yield::CULTURE));
-}
-
-QString Renderer::SetYieldDisplay(Civilization *player)
-{
-    return QString("        %1(+%2)         %3          %4          %5(+%6)              %7")
-                                         .arg(player->GetTotalGold())
-                                         .arg(player->getCivYield()->GetYield(Yield::GOLD))
-                                         .arg(player->getCivYield()->GetYield(Yield::PRODUCTION))
-                                         .arg(player->getCivYield()->GetYield(Yield::FOOD))
-                                         .arg(player->GetTotalScience())
-                                         .arg(player->getCivYield()->GetYield(Yield::RESEARCH))
-                                         .arg(player->getCivYield()->GetYield(Yield::CULTURE));
-}
-
+/*
+ * SetOutlinePen is an internal function used to change the
+ * color of the pen used to draw all non-image items in the gameView
+ */
 void Renderer::SetOutlinePen(Nation owner)
 {
     switch(owner)
@@ -423,6 +412,10 @@ void Renderer::SetOutlinePen(Nation owner)
     outlinePen.setWidth(5);
 }
 
+/*
+ * AddUnitHealthBars is an internal function
+ * that is a sub-function of AddUnit.
+ */
 void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
 {
     QRect *health = new QRect(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
@@ -440,12 +433,13 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     }
 }
 
+/*
+ * AddCityHealthBars adds the health and
+ * progression meters to every city created
+ */
 void Renderer::AddCityHealthBars(City *city, GameView *view)
 {
     //------------------------------------------------------------------------------
-    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
-                              city->GetCityTile()->GetCityLabelPoint().y() + 15,
-                              65, 5);
 
     QPixmap *cityOutlines = new QPixmap("../ProjectHiawatha/Assets/UI/CityStatusBarOutline.png");
 
@@ -453,6 +447,10 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityBarOutlines.last()->setZValue(7);
     cityBarOutlines.last()->setPos(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                                    city->GetCityTile()->GetCityLabelPoint().y() + 13);
+
+    QRect *health = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
+                              city->GetCityTile()->GetCityLabelPoint().y() + 15,
+                              65, 5);
 
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
     cityHealthBars.last()->setZValue(6);
@@ -489,28 +487,21 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     //--------------------------------------------------------------------------------
 }
 
-void Renderer::DrawGuiImages(QGraphicsScene *scene)
-{
-
-}
-
+/*
+ * DrawCityBorders is user to draw a city's borders for the first time.
+ */
 void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 {
     SetOutlinePen(owner);
 
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
-
-    //========================
-    //
-//    cityExpansionBorders.push_back(view->addPolygon(city->GetMaximumExpansionBorder(), QPen(QColor(Qt::red))));
-//    cityExpansionBorders.last()->pen().setWidth(1);
-//    citySettleDistances.push_back(view->addPolygon(city->GetMinimumSettleDistance(), QPen(QColor(Qt::yellow))));
-//    citySettleDistances.last()->pen().setWidth(1);
-    //========================
-
 }
 
+/*
+ * LoadCities is used during game initialization to
+ * load all cities that are controlled by a civ
+ */
 void Renderer::LoadCities(QVector<City*> cities, GameView *view)
 {
     for(int i = 0; i < cities.size(); i++)
@@ -519,6 +510,10 @@ void Renderer::LoadCities(QVector<City*> cities, GameView *view)
     }
 }
 
+/*
+ * This function is used to set show that player what tiles
+ * are currently being worked by a city.
+ */
 void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
 {
     int index = tile->GetTileIndex();
@@ -539,6 +534,10 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
     tileWorked.at(index)->setZValue(3);
 }
 
+/*
+ * SetUnitNeedsOrders is used to show the player what
+ * units can be given orders.
+ */
 void Renderer::SetUnitNeedsOrders(int tile, bool needsOrders)
 {
     if(needsOrders)
@@ -547,6 +546,10 @@ void Renderer::SetUnitNeedsOrders(int tile, bool needsOrders)
         ordersIcon.at(tile)->setOpacity(0);
 }
 
+/*
+ * SetFortifyIcon is used to show the player what
+ * unit, including AI units, are currently fortified.
+ */
 void Renderer::SetFortifyIcon(int tile, bool unfortify)
 {
     if(!unfortify)
@@ -555,10 +558,14 @@ void Renderer::SetFortifyIcon(int tile, bool unfortify)
         fortifiedIcon.at(tile)->setOpacity(0);
 }
 
+/*
+ * SetTileImprovement is used to set the proper icon
+ * the passed tile's improvement type slot. Different
+ * improvements have different effects on a city's yield.
+ */
 void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view)
 {
     int index = tile->GetTileIndex();
-//    qDebug() << "Setting tile improvement:" << ti << index;
 
     switch(ti)
     {
@@ -577,6 +584,8 @@ void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view
     case NONE:
         tileImprovementIcons.replace(index, view->addPixmap(*none));
         break;
+    case ROAD:
+        break;
     }
 
     if(ti != NONE)
@@ -593,6 +602,11 @@ void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view
     tileImprovementIcons.at(index)->setPos(tile->GetResourceIconPoint().x() + 43, tile->GetResourceIconPoint().y());
 }
 
+/*
+ * UpdateCityGrowthBar is used to show current progress
+ * towards generating a new citizen in a particular city
+ * as well as keeping the population counter up to date.
+ */
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
@@ -606,7 +620,7 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     }
     else
     {
-        barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus()))));
+        barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (2 *(static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus())))));
     }
 
     barSize = barSize <= 0 ? 1 : barSize;
@@ -636,6 +650,11 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     cityPopulationLabels.at(index)->setZValue(7);
 }
 
+/*
+ * UpdateCityProductionBar is used to show current progress
+ * towards completing a particular city's project. When the bar
+ * is full, then production has been completed.
+ */
 void Renderer::UpdateCityProductionBar(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
@@ -662,6 +681,10 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
     cityLabels.at(index)->setPlainText(QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength()));
 }
 
+/*
+ * UpdateCityHealthBar is only used once a city has
+ * been attack or has healed from being attacked.
+ */
 void Renderer::UpdateCityHealthBar(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
@@ -678,7 +701,11 @@ void Renderer::UpdateCityHealthBar(City *city, GameView *view)
     cityHealthBars.replace(index, view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
     cityHealthBars.last()->setZValue(6);
 }
-
+/*
+ * AddCityLabel is part of city creation and
+ * is used to display the name of a city above the
+ * progression bars.
+ */
 void Renderer::AddCityLabel(City* city, GameView *view)
 {
     QString label = QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength());
@@ -693,6 +720,13 @@ void Renderer::AddCityLabel(City* city, GameView *view)
                               city->GetCityTile()->GetCityLabelPoint().y() - 5);
 }
 
+/*
+ * AddCity is used whenever a city has been founded
+ * or conquered by another civ. The conqueredCity flag
+ * indicates the circumstance under which the city is being
+ * created, and adjusts the visual details of the city
+ * appropriately.
+ */
 void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
     QPixmap *cityImage = new QPixmap("../ProjectHiawatha/Assets/Icons/CityIcon4944_alt.png");
@@ -717,6 +751,11 @@ void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
     }
 }
 
+/*
+ * AddUnit is responsible for getting the correct
+ * icon for the new unit and filling in the white
+ * space with the appropriate color of the owning civ.
+ */
 void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
 {
     QPixmap *unitPix;
@@ -744,12 +783,18 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
     AddUnitHealthBars(unit, map, view);
 }
 
+/*
+ * RemoveUnit is used to remove a killed unit from the scene
+ */
 void Renderer::RemoveUnit(Unit *unit, GameView *view)
 {
     view->removeItem(unitHealthBars.at(unit->GetHealthBarIndex()));
     view->removeItem(unitPixmap.at(unit->GetPixmapIndex()));
 }
 
+/*
+ * RemoveCity is used to remove a city's borders and icon from the scene.
+ */
 void Renderer::RemoveCity(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
@@ -758,6 +803,10 @@ void Renderer::RemoveCity(City *city, GameView *view)
     view->removeItem(cityPixmap.at(index));
 }
 
+/*
+ * DrawUnits is used during game initalization to
+ * run AddUnit for all units a civ owns.
+ */
 void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
 {
     for(int i = 0; i < units.size(); i++)
@@ -765,30 +814,3 @@ void Renderer::DrawUnits(QVector<Unit *> units, Map *map, GameView *view)
         this->AddUnit(units.at(i), map, view);
     }
 }
-
-void Renderer::DrawCityHealthBars(QVector<City *> cities, GameView *scene)
-{
-//    QProgressBar* health;
-
-//    foreach(City *city, cities)
-//    {
-//        health = new QProgressBar();
-//        health->setGeometry(city->GetCityTile()->GetCityLabelPoint().x() - 15,
-//                            city->GetCityTile()->GetCityLabelPoint().y() + 15,
-//                            75, 10);
-
-//        health->setMaximumWidth(75);
-//        health->setMaximumHeight(10);
-
-//        health->setMaximum(100);
-//        health->setMinimum(0);
-
-//        health->setValue(100);
-//        health->setTextVisible(false);
-
-//        cityHealthBars.push_back(scene->addWidget(health));
-//        cityHealthBars.last()->setZValue(6);
-//    }
-}
-
-

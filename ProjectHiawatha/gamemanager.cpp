@@ -17,7 +17,7 @@ QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  bac
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
-    gameView = new GameView(this, fullscreen);
+    gameView = new GameView(this);
     ac = new AI_Controller();
     clv = new QListWidget(this);
     ns = new NotificationSystem(this);
@@ -65,7 +65,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     focusChanged = false;
     fortify = false;
-
 
     currentProductionName = "No Production Selected";
     playerCiv = player;
@@ -695,13 +694,8 @@ void GameManager::StartTurn()
     // The following section updates the production progress of
     // active civ object
 
-    int accumulatedProduction;
-    int productionCost;
     for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
     {
-        productionCost = civList.at(currentTurn)->GetCityList().at(i)->getCurrentProductionCost();
-        accumulatedProduction = civList.at(currentTurn)->GetCityList().at(i)->getAccumulatedProduction();
-
         if(update.productionFinished)
         {
             if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
@@ -1056,7 +1050,7 @@ void GameManager::UpdateTileData()
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         }
 
-        unitToMove = uc->FindUnitAtTile(unitTile, map, civList.at(currentTurn)->GetUnitList());
+        unitToMove = uc->FindUnitAtTile(unitTile, civList.at(currentTurn)->GetUnitList());
 
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
         tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -1159,7 +1153,7 @@ void GameManager::UpdateTileData()
     else if(state == FIND_CITY)
     {
         state = IDLE;
-        targetCity = uc->FindCityAtTile(targetTile, map, civList.at(targetTile->GetControllingCivListIndex())->GetCityList());
+        targetCity = uc->FindCityAtTile(targetTile, civList.at(targetTile->GetControllingCivListIndex())->GetCityList());
 
         if(currentTurn == 0)
         {
@@ -1275,6 +1269,12 @@ void GameManager::UpdateTileData()
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
         fortifyUnit->setEnabled(false);
+    }
+
+    if(state == ATTACK_MELEE || state == ATTACK_RANGE)
+    {
+        state = IDLE;
+        ProcessAttackUnit();
     }
 
     //City founding Logic. This operates nearly the same as
@@ -1479,7 +1479,7 @@ void GameManager::InitButtons()
     cultureFocus->setEnabled(false);
     cultureFocus->setMaximumWidth(100);
 
-    connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem(QListWidgetItem*)));
+    connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem()));
     connect(ns, SIGNAL(itemClicked(QListWidgetItem*)), ns, SLOT(removeNotification(QListWidgetItem*)));
 
     clv->setMaximumWidth(100);
@@ -1740,7 +1740,7 @@ void GameManager::ProcessAttackUnit()
         renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
     }
 
-    targetUnit = uc->FindUnitAtTile(targetTile, map, civList.at(targetTile->GetControllingCivListIndex())->GetUnitList());
+    targetUnit = uc->FindUnitAtTile(targetTile, civList.at(targetTile->GetControllingCivListIndex())->GetUnitList());
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
@@ -1748,6 +1748,7 @@ void GameManager::ProcessAttackUnit()
 
     attackUnit->setEnabled(false);
     rangeAttack->setEnabled(false);
+
     if(map->GetTileAt(unitToMove->GetTileIndex())->GetTileType() == WATER)
         uc->Attack(unitToMove, targetUnit, true);
     else
@@ -1775,7 +1776,7 @@ void GameManager::ProcessPeace()
         {
             if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == 0)
             {
-                Unit *unit = uc->FindUnitAtTile(tile, map, civList.at(currentTurn)->GetUnitList());
+                Unit *unit = uc->FindUnitAtTile(tile, civList.at(currentTurn)->GetUnitList());
 
                 foreach(Tile* outside, city->tileQueue)
                 {
@@ -1825,7 +1826,7 @@ void GameManager::ProcessPeace()
         {
             if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == indexAtWar)
             {
-                Unit *unit = uc->FindUnitAtTile(tile, map, civList.at(indexAtWar)->GetUnitList());
+                Unit *unit = uc->FindUnitAtTile(tile, civList.at(indexAtWar)->GetUnitList());
 
                 if(unit->isPathEmpty())
                 {
@@ -1996,10 +1997,6 @@ void GameManager::updateTiles()
         showCity(NULL);
     }
 
-    //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING ISN'T TAKING UP A LOT OF TIME
-    // -Sad new is, on bigger maps, it is taking up a lot of time. On Standard and higher, the updateTiles() misses
-    //  about 2-4 deadlines. Since this is the AI though, I am not concerned about it because it may
-    //  cause issues if the TurnController() is called while the AI is still processing it's turn.
     end = std::chrono::steady_clock::now();
     if(countTime == true)
     {
@@ -2233,7 +2230,7 @@ void GameManager::OpenHelp()
  * Parse item is used when the player selects
  * a city they wish to manage.
  */
-void GameManager::parseItem(QListWidgetItem *item)
+void GameManager::parseItem()
 {
     this->goldFocus->setEnabled(true);
     this->productionFocus->setEnabled(true);

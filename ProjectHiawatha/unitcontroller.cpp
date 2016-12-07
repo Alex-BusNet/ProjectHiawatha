@@ -10,6 +10,24 @@ UnitController::UnitController()
 
 }
 
+/*
+ * FindPath, in conjunction with GetNeighbors, GetDistance,
+ * and RetracePath, uses the A* pathfinding algorithm to determine the
+ * most efficient path for a unit to reach the target tile while avoiding
+ * obstacles on the map. The A* pathfinding algorithm uses a heuristic cost system
+ * and by calculating 'cost' to move to an adjacent tile (stored as gCost) and the distance
+ * of the adjacent tile to the target tile (stored as hCost), and the summation of
+ * the two (known as fCost). The algorithm determines what direction it travels by looking at
+ * the fCost of all surrounding tiles and choosing the lowest one, if there is a tie in lowest
+ * fCosts, then the lower hCost of the two is used, if hCosts tie, then one of the two is chosed
+ * and the algorithm proceeds. Tiles that are determined to be impassable (indicated by a tile's walkable flag or the AtWar check)
+ * then a gCost and hCost are not calculated for that tile. As tiles are searched, any tile that is determined
+ * to be a valid tile, and has not already been searched, is added to the openSet, as tiles are checked, they are
+ * added to the closedSet. As new tiles are searched and are determined to be valid options, the neighboring
+ * tiles' parent attribute is set to the current tile. Tiles that have been determined to be part of the path will
+ * always a higher fCost, preventing the algorithm from revistiing a tile it has already visited. Once FindPath
+ * reaches it's destination the end tile and start tile are sent to RetracePath.
+ */
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
     bool warCheckFailed = false;
@@ -35,6 +53,9 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
 
         for(int i = 1; i < openSet.count(); i++)
         {
+            // Compare the fCost of the current tile to the fCost of
+            // the tile at index i of the openSet. CurrentHex is always
+            // the tile at index 0 of the openSet.
             if(openSet.at(i)->fCost() < currentHex->fCost() || openSet.at(i)->fCost() == currentHex->fCost())
             {
                 if((openSet.at(i)->hCost < currentHex->hCost))
@@ -44,15 +65,21 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
             }
         }
 
+        // Remove the tile from the open set
+        // and add it to the closed set
         openSet.removeOne(currentHex);
         closedSet.insert(currentHex);
 
+        // If we haved reached our destination,
+        // Quit searching and retrace the path
+        // back to the start.
         if(currentHex == endTile)
         {
             RetracePath(startTile, endTile, map, unit);
             return;
         }
 
+        // Get the tiles adjacent to currentHex
         QList<Tile*> neighborList = map->GetNeighbors(currentHex);
 
         foreach(Tile* neighbor, neighborList)
@@ -72,20 +99,27 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
                 warCheckFailed = false;
             }
 
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed /*|| neighbor->HasCity*/)
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed)
             {
                 warCheckFailed = false;
                 continue;
             }
 
+            //Calculate the cost of moving to the neighboring tile.
             int newMoveCostToNeighbor = currentHex->gCost + GetDistance(currentHex, neighbor);
 
+            // Check if the the cost to move to the neighbor is lower than the tile's gCost
+            // or the tile is not already in the openSet.
             if(newMoveCostToNeighbor < neighbor->gCost || !map->listContains(openSet, neighbor))
             {
+                // Set the gCost of the neighbor to the calculated move cost.
                 neighbor->gCost = newMoveCostToNeighbor;
+                // update the hCost of the tile to our destination
                 neighbor->hCost = GetDistance(neighbor, endTile);
+                // Set the parent of the neighbor tile to the current tile
                 neighbor->parent = currentHex->GetTileID();
 
+                // If the tile is not in the open set, add it.
                 if(!(map->listContains(openSet, neighbor)))
                 {
                     openSet.push_back(neighbor);
@@ -93,10 +127,6 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
             }
         }
     }
-
-    // This is for if the last tile is occupied and the algorithm ends
-    // without finding the last tile.
-//    qDebug() << "----End tile not found; setting path to currentHex";
 }
 
 void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
@@ -134,65 +164,66 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
     }
 }
 
+/*
+ * Attack is used for unit-to-unit combat. Attackers are granted a 1.5 bonus
+ * to their attack, this is to prevent two units of the same type from dealing
+ * equal damage to each other (assuming both the attacker and target are melee units).
+ * a 40% reduction in damge taken is granted to the target if they are fortified
+ * and attackers will only deal 80% of the normal damage dealt if they attack from water.
+ * if the attacker, target, or both are ranged type units, then the attacking unit will
+ * not take any damage. However, if both units are melee type, then the attacker will
+ * recieve some damage equal to a ratio of the target's current health to their overall strength
+ * mulitplied by the ratio of the fortify bonus over the attack bonus.
+ */
 void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 {
     float waterPenalty = 0.0f, fortifyBonus = 0.0f;
     float AtkBonus = 1.5f, a_melee, t_melee;
-
-//    qDebug() << "--Attacking";
-//    qDebug() << "   Attacker belongs to:" << NationName(attacker->GetOwner()) << "Target belongs to:" << NationName(target->GetOwner());
-//    qDebug() << "   FromWater:" << attackFromWater;
+    float damageDealt, damageReceived;
 
     if(attackFromWater == true)
         waterPenalty = 0.8f;
     else
         waterPenalty = 1.0f; // No penalty
 
-    qDebug() << "   waterPenalty:" << waterPenalty;
-
     if(target->isFortified)
         fortifyBonus = 0.4f;
     else
-        fortifyBonus = 1.0f;
-
-//    qDebug() << "   forifyBonus:" << fortifyBonus;
+        fortifyBonus = 1.0f; // No bonus
 
     if(attacker->isMelee)
+    {
+        damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
         a_melee = 1.0f;
+    }
     else
+    {
+        damageDealt = (((attacker->GetHealth() / attacker->GetRangeStrength())) * AtkBonus * waterPenalty);
         a_melee = 0.0f;
+    }
 
     if(target->isMelee && attacker->isMelee)
         t_melee = 1.0f;
     else
         t_melee = 0.0f;
 
-//    qDebug() << "   a_melee:" << a_melee << "t_melee:" << t_melee;
-
-    //Need to adjust this for range units attacking.
-//    qDebug() << "       Damage Dealt by Attacker:" << (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
-//    qDebug() << "       Damage Sustained by Target:" << ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
-
-    float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
     float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
 
-    float damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * a_melee * t_melee;
-
-//    qDebug() << "           Damage taken by target:" << damageDealt << "Damage Recieved by attacker:" << damageReceived;
+    damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * a_melee * t_melee;
 
     target->DealDamage(damageDealt);
     attacker->DealDamage(damageReceived);
     attacker->RequiresOrders = false;
 }
 
-void UnitController::RangeAttack(Unit *attacker, Unit *target)
-{
-
-}
-
+/*
+ * AttackCity functions similarly to Attack however there is no damage received calulation.
+ * Melee units that attack a city will automatically recieve a 80% damage penalty for attacking
+ * cities and also will take on damage for attacking. If a unit is classified as siege type, then it will receive a 400% bouns to the
+ * damage it deals to the city. Range units do not receive any bonus or penalty for attacking cities.
+ */
 void UnitController::AttackCity(Unit *attacker, City *city)
 {
-//    qDebug() << "targetCity belongs to:" << NationName(city->GetControllingCiv());
     float AtkBonus, melee;
 
     if(attacker->isMelee)
@@ -215,17 +246,17 @@ void UnitController::AttackCity(Unit *attacker, City *city)
         return;
     }
 
-//    qDebug() << "--City strength:" << city->GetCityStrength();
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
     float damageSustained = (city->GetCityStrength() - damageDealt) * melee;
-
-//    qDebug() << "           Damage taken by city:" << damageDealt << "Damage sustained by attacker:" << damageSustained;
 
     city->SetCityHealth(city->GetCityHealth() - damageDealt);
     attacker->DealDamage(damageSustained);
     attacker->RequiresOrders = false;
 }
 
+/*
+ * FoundCity is used to set up premilimary information when a player tries to found a city.
+ */
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
 {
     if(unit->isSettler() && (CurrentTile->GetTileType() == (WATER | MOUNTAIN | ICE)) )
@@ -240,6 +271,9 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
     }
 }
 
+/*
+ *
+ */
 bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilization *currentCiv, TileImprovement improvement)
 {
     int gold = 0;
@@ -288,9 +322,13 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
 
 }
 
-Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitList)
+/*
+ * FindUnitAtTile searces the supplied unit list and searches the list until the
+ * tile index matches the unit's tile index.
+ */
+Unit* UnitController::FindUnitAtTile(Tile *tile, QVector<Unit *> unitList)
 {
-    int tIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+    int tIndex = tile->GetTileIndex();
     foreach(Unit* unit, unitList)
     {
         if(unit->GetTileIndex() == tIndex)
@@ -302,13 +340,17 @@ Unit* UnitController::FindUnitAtTile(Tile *tile, Map *map, QVector<Unit *> unitL
     return new Unit(NO_NATION, WORKER);
 }
 
-City *UnitController::FindCityAtTile(Tile *tile, Map* map, QVector<City *> cityList)
+/*
+ * FindCityAtTile functions identically to FindUnitAtTile, only taking a City object in
+ * place of a Unit object.
+ */
+City *UnitController::FindCityAtTile(Tile *tile, QVector<City *> cityList)
 {
-    int tIndex = (tile->GetTileID().column / 2) + (map->GetMapSizeX() * tile->GetTileID().row);
+    int tIndex = tile->GetTileIndex();
     int cIndex;
     foreach(City* city, cityList)
     {
-        cIndex = (city->GetCityTile()->GetTileID().column / 2) + (map->GetMapSizeX() * city->GetCityTile()->GetTileID().row);
+        cIndex = (city->GetCityTile()->GetTileIndex());
         if(cIndex == tIndex)
         {
             return city;
@@ -318,9 +360,12 @@ City *UnitController::FindCityAtTile(Tile *tile, Map* map, QVector<City *> cityL
     return new City();
 }
 
+/*
+ * If a unit has taken damage, then HealUnit will replenish 10 HP
+ * per turn untill their health is at max.
+ */
 void UnitController::HealUnit(Unit *unit)
 {
-//    qDebug() << "Healing unit";
     if((unit->GetHealth() + 10) > 100)
         unit->SetHealth(100);
     else
@@ -362,6 +407,11 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
     return false;
 }
 
+/*
+ * GetDistance calculates the distance, in pixels between two tiles.
+ * This distance is an approximate value and does not follow true
+ * mathmatical formulas for calculating distance.
+ */
 int UnitController::GetDistance(Tile *a, Tile *b)
 {
     int dstX = b->GetTileID().column - a->GetTileID().column;
@@ -377,6 +427,15 @@ int UnitController::GetDistance(Tile *a, Tile *b)
     }
 }
 
+/*
+ * Retrace is the final piece of the A* pathfinding algorithm. This part starts by setting the current
+ * tile to the end tile, and then adds the current tile to the path. The current tile is updated to the
+ * parent of that tile and continues until the start tile has been reached. Since this list is in reverse
+ * order, we set to index variables, one set to 0 and the other set to path size - 1, and swap the tiles
+ * at each index. After each swap, the first index is incremented and the second index is decremented by one.
+ * This continues until the first index is equal to the second index. Once the path has been correctly
+ * organized, it is loaded into the unit.
+ */
 void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
 {
     QList<Tile*> path;

@@ -151,7 +151,6 @@ void City::SortTileQueue()
 
         if(!inMEB)
         {
-            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
             inMEB = true;
             tileQueue.remove(k);
         }
@@ -248,7 +247,7 @@ void City::IncrementNumberOfBuildings()
 
 Update_t City::UpdateProgress()
 {
-    Update_t update{false, false, false};
+    Update_t update{false, false, false, false};
 
     if(turnsToBorderGrowth == 0 && !fullyExpanded)
     {
@@ -394,8 +393,6 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
 {
     int dstXUp, dstYUp, dstXLow, dstYLow, x, y, newX, newY;
 
-//    qDebug() << "       upperX:" << upperX << "lowX:" << lowX << "upperY:" << upperY << "lowY:" << lowY;
-//    qDebug() << "   --SortOrder:" << sortOrder;
     QVector<QPoint> tempPt;
 
     //Find any point that falls between the x and y bounds passed to the funtion.
@@ -508,14 +505,10 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         {
             if(tempPt[i].y() == tempPt[i + 1].y())
             {
-//                qDebug() << "       --Removing point:" << tempPt[i +1];
                 tempPt.removeAt(i + 1);
             }
         }
-
-//        qDebug() << "       tempPt[" << i << "]" << tempPt[i];
     }
-//    qDebug() << "       tempPt[" << tempPt.size() - 1 << "]" << tempPt.last();
     int lastX = 0, lastY = 0;
 
     // Load the points into the cityBorder vector
@@ -639,8 +632,6 @@ void City::UpdateCityYield()
             oldFood = this->cityTotalYield->GetFoodYield() * -1,
             oldCul = this->cityTotalYield->GetCultureYield() * -1;
 
-//    qDebug() << "   Old YPT:" << oldGold << oldProd << oldSci << oldFood << oldCul;
-
     this->cityTotalYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
 
     //Recalculate the city's YPT
@@ -662,11 +653,8 @@ void City::UpdateCityYield()
         }
     }
 
-//    qDebug() << "   New YPT:" << newGold << newProd << newSci << newFood << newCul;
-
     if(this->stagnant && (newFood > (oldFood * -1)))
     {
-//        qDebug() << "----City is no longer stagnant";
         this->stagnant = false;
     }
 
@@ -1130,7 +1118,6 @@ bool City::HasGarrisonUnit()
 
 bool City::MSDIntersects(QPolygon targetMSD)
 {
-//    qDebug() << "-----MSDINTERSECTS-----";
     QList<QPoint> t_MSD;
     QList<QPoint> c_MSD;
 
@@ -1148,7 +1135,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
     float c_slope, t_slope;
     bool lrtbValid = false, rltbValid = false, rlbtValid = false, lrbtValid = false;
 
-//    qDebug() << "   t_MSD size:" << t_MSD.size() << "c_MSD size" << c_MSD.size();
     foreach(QPoint pt, t_MSD)
     {
         lastX = c_MSD.at(c_MSD.size() - 1).x();
@@ -1180,8 +1166,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
-
                 if(t_slope > currentSlope)
                 {
                     lrbtValid = true;
@@ -1197,8 +1181,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
-
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
@@ -1216,8 +1198,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
-
                 if(t_slope > currentSlope)
                 {
                     rltbValid = true;
@@ -1234,16 +1214,12 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
-
                 if(t_slope < currentSlope)
                 {
                     rlbtValid = true;
                 }
 
             }
-
-//            qDebug() << "rltb:" << rltbValid << "lrbt:" << lrbtValid << "lrtb:" << lrtbValid << "rlbt:" << rlbtValid;
 
             if((rltbValid || lrbtValid) || (lrtbValid || rlbtValid))
             {
@@ -1289,7 +1265,6 @@ void City::loadUnits(QString filename)
        {
           QString line = in.readLine();
           QStringList unitInfo = line.split(",");
-//          qDebug()<<"Unit Name: "<<unitInfo[0];
           int cost = unitInfo[1].toInt();
           int strength = unitInfo[2].toInt();
           int rangeStrength = unitInfo[3].toInt();
@@ -1309,7 +1284,6 @@ void City::loadUnits(QString filename)
           tempUnit->setUnlocked(unlocked);
           tempUnit->SetTechIndex(techIndex);
           tempUnit->setUnitType(type);
-//          qDebug()<<"TYPE: "<<type;
           tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
 
@@ -1404,6 +1378,8 @@ Unit *City::GetGarrisonedWorker()
     {
         return this->StationedWorkers;
     }
+
+    return NULL;
 }
 
 Unit *City::GetGarrisonedMilitary()
@@ -1412,6 +1388,8 @@ Unit *City::GetGarrisonedMilitary()
     {
         return this->StationedMilitary;
     }
+
+    return NULL;
 }
 
 int City::GetCityIndex()

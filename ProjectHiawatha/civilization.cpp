@@ -29,7 +29,6 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     //spawn a city, and initialize (based on nation)
     //call updatecityyield and updatecivyield to initialize
     this->totalCivYield = new Yield(0, 0, 0, 0, 0);
-    this->happiness=0;
     this->cityIndex = 0;
     this->totalGold = 0;
     this->totalScience = 0;
@@ -64,12 +63,24 @@ Civilization *Civilization::GetCivObject()
     return this;
 }
 
+/*
+ * UpdateCivYield is used to update how much
+ * of each yield type a civ generates per turn
+ */
 void Civilization::UpdateCivYield()
 {
-//    qDebug() << "   Civ controls" << currentCityList.size() << "cities";
+    //Reset the civs YPT
+    int oldGold = this->totalCivYield->GetGoldYield() * -1,
+            oldProd = this->totalCivYield->GetProductionYield() * -1,
+            oldSci = this->totalCivYield->GetScienceYield() * -1,
+            oldFood = this->totalCivYield->GetFoodYield() * -1,
+            oldCul = this->totalCivYield->GetCultureYield() * -1;
+
+    this->totalCivYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
 
     int newGold = 0, newProd = 0, newSci = 0, newFood = 0, newCul = 0;
 
+    //Recalculate the civs YPT.
     foreach(City *city, currentCityList)
     {
         newGold += city->getCityYield()->GetGoldYield();
@@ -85,11 +96,6 @@ void Civilization::UpdateCivYield()
 Yield *Civilization::getCivYield()
 {
     return this->totalCivYield;
-}
-
-int Civilization::getHappiness()
-{
-    return this->happiness;
 }
 
 int Civilization::GetTotalGold()
@@ -117,6 +123,14 @@ QVector<Unit *> Civilization::GetUnitList()
     return this->UnitList;
 }
 
+/*
+ * UpdateProgrss handles all the updating for
+ * every city a civ object controls. If a city
+ * has one, or multiple, of the events occur,
+ * then the flag is set in redraw Update_t struct
+ * which is returned to the GameManager once the
+ * is finished.
+ */
 Update_t Civilization::UpdateProgress()
 {
     static int turn = 0;
@@ -126,7 +140,7 @@ Update_t Civilization::UpdateProgress()
     this->totalScience += this->getCivYield()->GetScienceYield();
     this->totalCulture += this->getCivYield()->GetCultureYield();
 
-    Update_t redraw{false, false, false};
+    Update_t redraw{false, false, false, false};
     foreach(City* city, this->currentCityList)
     {
         Update_t cityProgress = city->UpdateProgress();
@@ -142,20 +156,17 @@ Update_t Civilization::UpdateProgress()
 
         if(cityProgress.updateCitizens)
         {
-//            qDebug() << "--------Updating citizens";
             this->UpdateCivYield();
             redraw.updateCitizens = true;
         }
 
         if(cityProgress.productionFinished)
         {
-//            qDebug() << "---------Production Finished";
             redraw.productionFinished = true;
         }
 
         if(cityProgress.cityHealed)
         {
-//            qDebug() << "---------City Healed";
             redraw.cityHealed = true;
         }
     }
@@ -166,12 +177,11 @@ Update_t Civilization::UpdateProgress()
      * m = mulitplier (1)
      * d = divisor (1)
      * g = game progress factor
-     *      g = currentTurn / endTurn
+     *      g = currentTurn / approx. endTurn
     */
     double gpf =  turn / 500.0;
 
     int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
-//    qDebug() << "   --Maintenance cost:" << pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
     this->totalGold -= maintenance;
 
@@ -221,24 +231,19 @@ void Civilization::loadTechs(QString filename)
        {
           QString line = in.readLine();
           QStringList techInfo = line.split(",");
-//          qDebug()<<"Tech Name: "<<techInfo[0];
           int x = techInfo[1].toInt();
           int y = techInfo[2].toInt();
-//          qDebug()<<"Tech Cost: "<<x;
 
           Technology* tech = new Technology(techInfo[0],x,y);
           techList.push_back(tech);
-//          qDebug()<<techList.at(0)->getName();
        }
        inputFile.close();
-//       qDebug()<<techList.at(1)->getName();
-    }else
+    }
+    else
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-//        qDebug()<<"File Not Found";
-
     }
 }
 
@@ -326,6 +331,10 @@ void Civilization::setNextTech(Technology *tech)
     nextTech = tech;
 }
 
+/*
+ * loadCities creates the list of city names that
+ * a civ will use as it founds new cities in the game
+ */
 void Civilization::loadCities(QString filename)
 {
     QFile inputFile(filename);
@@ -336,26 +345,24 @@ void Civilization::loadCities(QString filename)
        {
           QString line = in.readLine();
           QStringList cityInfo = line.split(",");
-//          qDebug()<<"City Name: "<<cityInfo[0];
 
           initialCityList.push_back(cityInfo[0]);
-//          qDebug()<<initialCityList.at(0);
 
        }
        inputFile.close();
-//       qDebug()<<initialCityList.at(1);
-//       qDebug()<<initialCityList.at(10);
-    }else
+    }
+    else
     {
         QMessageBox* mBox = new QMessageBox();
         mBox->setText("File Not Found");
         mBox->exec();
-//        qDebug()<<"File Not Found";
 
     }
 }
 
-
+/*
+ * The following threat related functions are for the AI's use.
+ */
 void Civilization::setLowThreats(QVector<Unit *> lowThreats)
 {
     this->lowThreats=lowThreats;
@@ -403,6 +410,16 @@ int Civilization::getCivIndex()
     return civIndex;
 }
 
+/*
+ * setCityFounding is used by the AI to alert the
+ * GameManager that it wants to found or conquer a
+ * city. The remainder of the logic is carried out
+ * by the GameManager. This function does not supply
+ * any feedback message to the AI. The AI always assumes
+ * the action was completed, and will not notice, nor
+ * interfere with it's logic should the manager not allow
+ * a particular request to be fully granted.
+ */
 void Civilization::setCityFounding(AIQueueData data)
 {
     this->cityFounding.enqueue(data);
@@ -413,14 +430,14 @@ QQueue<AIQueueData> Civilization::getCityFounding()
     return cityFounding;
 }
 
+/*
+ * dequeue, isEmpty, and queueSize are all functions
+ * used by GameManager to retrieve requests made by the
+ * AI or check if it needs to process any requests.
+ */
 AIQueueData Civilization::dequeue()
 {
     return this->cityFounding.dequeue();
-}
-
-bool Civilization::isAtWar()
-{
-    return this->atWar;
 }
 
 bool Civilization::isEmpty()
@@ -433,6 +450,11 @@ int Civilization::queueSize()
     return this->cityFounding.size();
 }
 
+bool Civilization::isAtWar()
+{
+    return this->atWar;
+}
+
 void Civilization::AddCity(City *city)
 {
     this->currentCityList.push_back(city);
@@ -443,6 +465,11 @@ void Civilization::AddUnit(Unit *unit)
     this->UnitList.push_back(unit);
 }
 
+/*
+ * RemoveCity is used when a civ has a
+ * city conquered. This is so all control
+ * is relinquished to the conquering civ.
+ */
 void Civilization::RemoveCity(int cityIndex)
 {
     this->currentCityList.removeAt(cityIndex);
@@ -462,6 +489,11 @@ void Civilization::RemoveCity(int cityIndex)
     }
 }
 
+/*
+ * This function is used when a unit is killed,
+ * when civ loses a city the unit is garrisoned in,
+ * or teh controlling civ is eliminated from the game.
+ */
 void Civilization::RemoveUnit(int unitIndex)
 {
     this->UnitList.removeAt(unitIndex);
@@ -471,40 +503,13 @@ void Civilization::RemoveUnit(int unitIndex)
     }
 }
 
-void Civilization::SetUnitList(QVector<Unit *> list)
-{
-    int i = 0;
-    foreach (Unit* unit, list)
-    {
-        this->UnitList.replace(i, unit);
-        i++;
-    }
-}
-
-void Civilization::SetCityList(QVector<City *> list)
-{
-    int i = 0;
-    foreach (City* city, list)
-    {
-        this->currentCityList.replace(i, city);
-        i++;
-    }
-}
-
+/*
+ * SetCityIndex is used to keep track of what the
+ * next city shall be called.
+ */
 void Civilization::SetCityIndex(int index)
 {
     this->cityIndex = index;
-}
-
-void Civilization::SetCivObj(Civilization *civ)
-{
-    SetCityList(civ->GetCityList());
-    SetUnitList(civ->GetUnitList());
-}
-
-void Civilization::SetHappiness(int happiness)
-{
-    this->happiness=happiness;
 }
 
 void Civilization::SetLeaderName(QString name)
@@ -526,7 +531,6 @@ City* Civilization::GetCityAt(int index)
     else
     {
         //If the index is too large, return the capital
-//        qDebug() << "CityList -- Index out of range";
         return this->currentCityList.at(0);
     }
 }
@@ -540,7 +544,8 @@ Unit* Civilization::GetUnitAt(int index)
     }
     else
     {
-//        qDebug() << "UnitList -- Index out of range";
+        //If the index is too large, return the first unit
+        // the civ owns.
         return this->UnitList.at(0);
     }
 }

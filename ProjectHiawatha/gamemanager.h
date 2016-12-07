@@ -192,7 +192,7 @@ public slots:
     void WarByInvasion();
     void OpenHelp();
 
-    void parseItem(QListWidgetItem *item);
+    void parseItem();
 };
 
 #endif // GAMEWINDOW_H

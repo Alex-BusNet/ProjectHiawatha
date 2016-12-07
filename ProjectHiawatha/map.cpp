@@ -13,8 +13,8 @@ Map::Map()
     //These will need to be changed once different map sizes are added.
     //These values represent the number of tiles on the map
     // not the number of tiles on screen.
-    mapSizeX = 64; //mapSizeX is doubled for map creation. i.e. a map size of 40 tiles will yield 80 columns.
-    mapSizeY = 80;
+    mapSizeX = 20; //mapSizeX is doubled for map creation. i.e. a map size of 20 tiles will yield 40 columns.
+    mapSizeY = 24;
 
     //Map Sizes according to Civ V:
     // Duel: 40x24 -- 2 Players
@@ -418,7 +418,7 @@ Tile *Map::GetTileFromCoord(TileID id)
 
 void Map::GenerateMap()
 {
-    int dbl;
+    int val;
 
     //These weights are used to tell the Mersenne Twister
     // how often to generate a particular number.
@@ -437,14 +437,14 @@ void Map::GenerateMap()
     qsrand(QTime::currentTime().msec());
     // Create a Mersenne Twister using the random_device
     std::mt19937 gen(qrand());
-    // Add the probability weigths to the Mersenne Twister
+    // Add the probability weights to the Mersenne Twister
     std::discrete_distribution<> d(std::begin(weights), std::end(weights));
 
     for(int i = 0; i < board.size(); i++)
     {
-        dbl = d(gen);
+        val = d(gen);
 
-        if(dbl == 0)
+        if(val == 0)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -454,7 +454,7 @@ void Map::GenerateMap()
                 board.at(i)->Walkable = true;
             }
         }
-        else if (dbl == 1)
+        else if (val == 1)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -464,7 +464,7 @@ void Map::GenerateMap()
                 board.at(i)->SetMoveCost(1);
             }
         }
-        else if (dbl == 2)
+        else if (val == 2)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -473,7 +473,7 @@ void Map::GenerateMap()
                 board.at(i)->SetMoveCost(1);
             }
         }
-        else if(dbl == 3)
+        else if(val == 3)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -482,7 +482,7 @@ void Map::GenerateMap()
                 board.at(i)->Walkable = false;
             }
         }
-        else if(dbl == 4)
+        else if(val == 4)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -491,7 +491,7 @@ void Map::GenerateMap()
                 board.at(i)->SetMoveCost(2);
             }
         }
-        else if(dbl == 5)
+        else if(val == 5)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -501,7 +501,7 @@ void Map::GenerateMap()
                 board.at(i)->SetMoveCost(2);
             }
         }
-        else if(dbl == 6)
+        else if(val == 6)
         {
             if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
             {
@@ -696,7 +696,7 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     City *city;
     Unit *unit;
     srand(time(0));
-    int index, lastIndex;
+    int index, lastIndex = 0;
 
     for(int i = 0; i < civs.size(); i++)
     {
@@ -710,6 +710,11 @@ newrand:
 
         if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
         {
+            if(lastIndex == index)
+            {
+                goto newrand;
+            }
+
             lastIndex = index;
 
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
