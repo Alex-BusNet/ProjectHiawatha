@@ -1028,7 +1028,7 @@ void GameManager::UpdateTileData()
 
             foreach(Tile* tile, neighbors)
             {
-                if(!tile->ContainsUnit && !tile->HasCity)
+                if(!tile->ContainsUnit && !tile->HasCity && tile->Walkable)
                 {
                     targetTile = tile;
                     break;
