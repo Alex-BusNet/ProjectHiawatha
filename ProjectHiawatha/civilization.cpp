@@ -492,7 +492,9 @@ void Civilization::RemoveCity(int cityIndex)
 /*
  * This function is used when a unit is killed,
  * when civ loses a city the unit is garrisoned in,
- * or teh controlling civ is eliminated from the game.
+ * or the controlling civ is eliminated from the game.
+ * This function also adjusts all of the UnitListIndex
+ * attirbutes of the remaining units.
  */
 void Civilization::RemoveUnit(int unitIndex)
 {

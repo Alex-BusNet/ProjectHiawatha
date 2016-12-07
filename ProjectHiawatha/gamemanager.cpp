@@ -1022,6 +1022,20 @@ void GameManager::UpdateTileData()
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
+        if(targetTile->ContainsUnit && processedData.relocateOrderGiven)
+        {
+            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
+
+            foreach(Tile* tile, neighbors)
+            {
+                if(!tile->ContainsUnit && !tile->HasCity)
+                {
+                    targetTile = tile;
+                    break;
+                }
+            }
+        }
+
         if((targetTile->ContainsUnit || targetTile->HasCity) && targetTile->GetControllingCivListIndex() != 0)
         {
             if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
