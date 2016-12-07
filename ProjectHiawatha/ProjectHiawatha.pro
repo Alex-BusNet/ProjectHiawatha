@@ -35,7 +35,6 @@ SOURCES += main.cpp\
     ai_controller.cpp \
     technology.cpp \
     techtree.cpp \
-    citylabel.cpp \
     heap.cpp \
     about.cpp \
     notificationsystem.cpp
@@ -68,7 +67,6 @@ HEADERS  += mainwindow.h \
     ai_controller.h \
     technology.h \
     techtree.h \
-    citylabel.h \
     unittype.h \
     heap.h \
     datatypes.h \

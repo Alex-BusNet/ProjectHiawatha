@@ -255,6 +255,9 @@ QString Tile::GetTileTypeString()
     case SNOW:
         return QString("Snow");
         break;
+    default:
+        return QString(" ");
+        break;
     }
 }
 

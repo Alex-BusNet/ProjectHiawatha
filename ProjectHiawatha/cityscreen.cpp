@@ -36,11 +36,6 @@ CityScreen::~CityScreen()
     delete ui;
 }
 
-void CityScreen::paintEvent(QPaintEvent *e)
-{
-
-}
-
 void CityScreen::loadBuildings(QString filename)
 {
     QFile inputFile(filename);

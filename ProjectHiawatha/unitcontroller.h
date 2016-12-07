@@ -19,7 +19,6 @@ public:
     void MoveUnit(Unit *unit, Map *map, int civListIndex);
 
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
-    void RangeAttack(Unit* attacker, Unit* target);
     void AttackCity(Unit* attacker, City* city);
 
     void FoundCity(Unit* unit, Tile* CurrentTile, Civilization* currentCiv);
@@ -28,8 +27,8 @@ public:
     void HealUnit(Unit* unit);
     bool AtPeaceWith(Tile* target, WarData wDat);
 
-    Unit *FindUnitAtTile(Tile* tile, Map *map, QVector<Unit *> unitList);
-    City *FindCityAtTile(Tile *tile, Map *map, QVector<City*> cityList);
+    Unit *FindUnitAtTile(Tile* tile, QVector<Unit *> unitList);
+    City *FindCityAtTile(Tile *tile, QVector<City*> cityList);
 
     int GetDistance(Tile* a, Tile *b);
 

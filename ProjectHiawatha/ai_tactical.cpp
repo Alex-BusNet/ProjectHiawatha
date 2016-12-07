@@ -13,7 +13,7 @@ Determines if unit is military or worker/settler type
 #include "ai_tactical.h"
 #include <QDebug>
 
-AI_Tactical::AI_Tactical(Civilization *civ, Civilization *player, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget)
+AI_Tactical::AI_Tactical(Civilization *civ, Map *map, QVector<Tile *> CityToBeFounded, City *cityTarget)
 {
     //qDebug()<<"             Tactical AI called";
     highThreatProcessing(civ, map);

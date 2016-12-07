@@ -29,17 +29,23 @@ public:
     void UpdateCivYield();
     void AddCity(City* city);
     void AddUnit(Unit* unit);
-
     void RemoveCity(int cityIndex);
     void RemoveUnit(int unitIndex);
-
-    void SetUnitList(QVector<Unit*> list);
-    void SetCityList(QVector<City*> list);
     void SetCityIndex(int index);
-    void SetCivObj(Civilization *civ);
-    void SetHappiness(int happiness);
+    void SetLeaderName(QString name);    
+    void loadTechs(QString filename);
+    void setAccumulatedScience(int science);
+    void resetAccumulatedScience();
+    void SetCaptialsControlled(int cc);
+    void IncrementCapitalsControlled();
+    void SetAtWar(Nation enemy, int enemyCivListIndex);
+    void setCurrentTech(Technology* tech);
+    void setTechIndex();
+    void setNextTech(Technology* tech);
+    void loadCities(QString filename);
+    void setCivIndex(int index);
+    void MakePeace();
 
-    void SetLeaderName(QString name);
     QString GetLeaderName();
 
     City *GetCityAt(int index);
@@ -48,94 +54,71 @@ public:
     Civilization* GetCivObject();
     Yield* getCivYield();
 
-    int getHappiness();
     int GetTotalGold();
     int GetTotalScience();
     int GetTotalCulture();
-
-    QVector<City*> GetCityList();
-    QVector<Unit*> GetUnitList();
-
-    Update_t UpdateProgress();
-
-    QVector<Technology*> GetTechList();
-
-    QVector<QString> GetInitialCityList();
-    QString GetNextCityName();
-
-    //AI stuff
-    void StartAITurn(int aiIndex, bool isPlayer);
-    bool isCivAI();
-
-//    void startTurn(int aiIndex);
-    void loadTechs(QString filename);
-    void setAccumulatedScience(int science);
-    void resetAccumulatedScience();
-    void SetCaptialsControlled(int cc);
-    void IncrementCapitalsControlled();
-    void SetAtWar(Nation enemy, int enemyCivListIndex);
-    void MakePeace();
-
     int getCityIndex();
     int getAccumulatedScience(void);
     int getTechIndex();
     int GetCapitalsControlled();
     int GetCivListIndexAtWar();
+    int getCivIndex();
+
+    QVector<City*> GetCityList();
+    QVector<Unit*> GetUnitList();
+    QVector<Technology*> GetTechList();
+    QVector<QString> GetInitialCityList();
+
+    Update_t UpdateProgress();
+    QString GetNextCityName();
+
     Nation GetNationAtWar();
 
     Technology* getCurrentTech();
     Technology *getNextTech();
 
-    void setCurrentTech(Technology* tech);
-    void setTechIndex();
-    void setNextTech(Technology* tech);
-    void loadCities(QString filename);
+    bool alive;
 
     //AI Funcs
+    void StartAITurn(int aiIndex, bool isPlayer);
     void setLowThreats(QVector<Unit *> lowThreats);
     void setMidThreats(QVector<Unit *> midThreats);
     void setHighThreats(QVector<Unit *> highThreats);
+    void setCityFounding(AIQueueData data);
     void clearThreats();
 
     QVector<Unit *> getLowThreats();
     QVector<Unit *> getMidThreats();
     QVector<Unit *> getHighThreats();
 
-
-    void setCivIndex(int index);
-    int getCivIndex();
-    void setCityFounding(AIQueueData data);
     QQueue<AIQueueData> getCityFounding();
-
     AIQueueData dequeue();
+
     bool isAtWar();
     bool isEmpty();
-    int queueSize();
+    bool isCivAI();
     bool cityFounded;
-    bool alive;
+
+    int queueSize();
 
 private:
     Nation name;
 
-    QVector<Unit*> UnitList; //Needs a Units object type
-    QVector<City*> currentCityList; //Needs a City object type
+    QVector<Unit*> UnitList;
+    QVector<City*> currentCityList;
     QVector<QString> initialCityList;
     QVector <Technology*> techList;
     QString LeaderName;
 
-
     int cityIndex;
 
     Yield* totalCivYield;
-        //Will contain the totals for the civ's yields (uses city->cityyield)
-
 
     void UpdateYield();
 
     Technology* currentTech;
     Technology* nextTech;
 
-    int happiness;
     //Keeps track of which tech in the list the civ is currently on
     int techIndex;
     int totalScience, totalGold, totalCulture;

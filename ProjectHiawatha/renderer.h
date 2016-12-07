@@ -27,10 +27,8 @@ public:
     void UpdateCityBorders(City* city, GameView *view, Nation owner);
 
     void DrawHexScene(Map map, GameView *scene);
-    void DrawGuiImages(QGraphicsScene *scene);
     void DrawCityBorders(City *city, GameView *view, Nation owner);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
-    void DrawCityHealthBars(QVector<City*> cities, GameView *scene);
 
     void LoadCities(QVector<City*> cities, GameView *view);
 
@@ -50,15 +48,9 @@ public:
     void RemoveCity(City* city, GameView *view);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
-    void DrawButtons(QWidget *obj, QVector<QGraphicsProxyWidget*> wVect, QGraphicsScene *view);
-
-    QString SetYieldDisplay(Map *map);
-    QString SetYieldDisplay(Civilization *player);
 
     void AddCityHealthBars(City* city, GameView *view);
 private:
-//    QVector<City*> cities;
-//    QVector<Unit*> units;
 
     QVector<QGraphicsPolygonItem*> tiles;
     QVector<QGraphicsPixmapItem*> tilePixmap;
@@ -72,8 +64,6 @@ private:
     QVector<QGraphicsPixmapItem*> tileImprovementIcons;
 
     QVector<QGraphicsPolygonItem*> cityBorders;
-    QVector<QGraphicsPolygonItem*> cityExpansionBorders;
-    QVector<QGraphicsPolygonItem*> citySettleDistances;
 
     QVector<QGraphicsPixmapItem*> cityPixmap;
     QVector<QGraphicsTextItem*> cityLabels;

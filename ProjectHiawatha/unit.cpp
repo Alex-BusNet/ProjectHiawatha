@@ -20,7 +20,6 @@ Unit::Unit()
     this->needsPath = false;
     this->unlocked = 0;
     this->isGarrisoned=false;
-//    this->unitIcon = new QPixmap("../ProjectHiawatha/Assets/Icons/TestUnit.png");
 }
 
 
@@ -612,12 +611,8 @@ void Unit::UpdatePath()
 
 void Unit::ClearPath()
 {
-//    qDebug() << "--Clearing unit path";
-
     while(!this->path.isEmpty())
     {
         this->path.removeFirst();
     }
-
-//    qDebug() << "--Done";
 }

@@ -157,7 +157,7 @@ GameOptions::~GameOptions()
     delete game;
 }
 
-void GameOptions::paintEvent(QPaintEvent *e)
+void GameOptions::paintEvent(QPaintEvent)
 {
 
 }

@@ -18,7 +18,7 @@ class GameOptions : public QWidget
 public:
     explicit GameOptions(QWidget *parent = 0,bool fullscreen = false);
     ~GameOptions();
-    void paintEvent(QPaintEvent*e);
+    void paintEvent(QPaintEvent);
 
 private slots:
     void on_pushButton_clicked();
