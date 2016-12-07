@@ -230,10 +230,7 @@ void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *curr
 {
     if(unit->isSettler() && (CurrentTile->GetTileType() == (WATER | MOUNTAIN | ICE)) )
     {
-       QVector <QString> tempCityList = currentCiv->GetInitialCityList();
-       int index = currentCiv->getCityIndex();
        City* newCity = new City();
-
        currentCiv->AddCity(newCity);
        CurrentTile->HasCity = true;
 
@@ -253,46 +250,37 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
     bool unitRemoved = false;
     switch (improvement) {
     case FARM:
-        food = 1;
+        food = 1;//FARM IMPROVES FOOD YIELD BY 1
         break;
     case ROAD:
-        break;
+        break;//ROAD SERVES NO PURPOSE AT THIS TIME
     case PLANTATION:
-        food = 1;
-        gold = 2;
+        food = 1;//PLANTATION INCREASES FOOD YIELD BY 1
+        gold = 2;//PLANTATION INCREASES GOLD YIELD BY 2
         break;
     case MINE:
-        production = 2;
+        production = 2;//MINE INCREASES PRODUCTION YIELD BY 2
         break;
     case TRADE_POST:
-        gold = 2;
+        gold = 2;//TRADING POST INCREASES GOLD YIELD BY 2
         break;
     default:
         break;
     }
-
+    //If current tile has no improvement then build the improvement
     if((currentTile->GetTileImprovement()) == NONE)
     {
-        currentTile->SetTileImprovement(improvement);
-        currentTile->SetYield(gold, production, science, food, culture);
-        unit->Use();
+        currentTile->SetTileImprovement(improvement);//set this tile to have the improvement specified
+        currentTile->SetYield(gold, production, science, food, culture);//update the yield to reflect new changes
+        unit->Use();//use up the unit
 
     }
 
     if(unit->GetRemainingUses() <= 0)
     {
-        int unitIndex = unit->GetUnitListIndex();
-        int unitIndexCopy = unitIndex;
-        if(currentCiv->GetUnitList().size() > unitIndex)
-        {
-            for(unitIndexCopy; unitIndexCopy < currentCiv->GetUnitList().size();unitIndexCopy++)
-            {
-                int oldIndex = currentCiv->GetUnitList().at(unitIndexCopy)->GetUnitListIndex();
-                currentCiv->GetUnitList().at(unitIndexCopy)->SetUnitListIndex(oldIndex-1);
-            }
-        }
-        currentCiv->RemoveUnit(unitIndex);
-        unitRemoved = true;
+        int unitIndex = unit->GetUnitListIndex();//get the correct unit index
+        currentCiv->RemoveUnit(unitIndex);//Remove the unit
+        unitRemoved = true;//set unit removed flag to true
 
     }
 

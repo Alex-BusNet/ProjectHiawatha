@@ -33,17 +33,17 @@ int Technology::getIndex()
     return index;
 }
 
-Technology::setName(QString str)
+void Technology::setName(QString str)
 {
     name = str;
 }
 
-Technology::setIndex(int techIndex)
+void Technology::setIndex(int techIndex)
 {
     index = techIndex;
 }
 
-Technology::setCost(int techCost)
+void Technology::setCost(int techCost)
 {
     cost = techCost;
 }

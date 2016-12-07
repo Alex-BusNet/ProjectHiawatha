@@ -2,7 +2,6 @@
 #define CITYSCREEN_H
 
 #include <QWidget>
-#include <QPainter>
 #include <building.h>
 #include "unit.h"
 #include "city.h"
@@ -21,7 +20,6 @@ class CityScreen : public QWidget
 public:
     explicit CityScreen(QWidget *parent = 0);
     ~CityScreen();
-    void    paintEvent(QPaintEvent*e);
     //Loads initial building and unit data in order to compare to the city's data
     void    loadBuildings(QString filename);
     void    loadUnits(QString filename);

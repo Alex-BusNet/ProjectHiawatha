@@ -32,7 +32,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     OptionsStyle += "QComboBox { background-color: white; }";
 
     this->setStyleSheet(OptionsStyle);
-
+    //Add the Civs to the list
     QListWidgetItem* item1 =new QListWidgetItem(tr("China"), ui->listWidget);
     QListWidgetItem* item2 =new QListWidgetItem(tr("Germany"), ui->listWidget);
     QListWidgetItem* item3 =new QListWidgetItem(tr("India"), ui->listWidget);
@@ -67,7 +67,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QIcon* icon14 = new QIcon();
     QIcon* icon15 = new QIcon();
     QIcon* icon16 = new QIcon();
-
+    //add the icon that correspond to the civ
     icon1->addFile("../ProjectHiawatha/Assets/Leaders/Icons/CHINA.png");
     icon2->addFile("../ProjectHiawatha/Assets/Leaders/Icons/GERMANY2.png");
     icon3->addFile("../ProjectHiawatha/Assets/Leaders/Icons/INDIA.png");
@@ -123,9 +123,10 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->comboBox->addItem("Small: 56x36 - 4 Players",0);
     ui->comboBox->addItem("Standard: 66x42 - 6 Players",0);
     ui->comboBox->addItem("Large: 80x52 - 8 Players",0);
+    //Larger maps will be added in future iterations of the software
 //    ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
 //    ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
-
+    //Initialize the pics that correpsond to the civs
     pic = QPixmap("../ProjectHiawatha/Assets/Leaders/Mao.jpg");
     pic2 = QPixmap("../ProjectHiawatha/Assets/Leaders/George_head.jpg");
     pic3 = QPixmap("../ProjectHiawatha/Assets/Leaders/bismark.jpg");
@@ -157,10 +158,7 @@ GameOptions::~GameOptions()
     delete game;
 }
 
-void GameOptions::paintEvent(QPaintEvent *e)
-{
 
-}
 
 void GameOptions::on_pushButton_clicked()
 {
@@ -188,6 +186,7 @@ void GameOptions::on_pushButton_clicked()
     case 3:
         numOfAI = 7;
         break;
+// These are for larger maps. will be added in future
 //    case 4:
 //        numOfAI = 9;
 //        break;
@@ -198,7 +197,7 @@ void GameOptions::on_pushButton_clicked()
         numOfAI = 3;
 
     }
-
+    //Parsing combo box strings to get the map size out of them
     QString str = ui->comboBox->currentText();
     QString tempStr = str.remove(0,(str.indexOf(':',0)+1));
     QString tempStr2 = tempStr.remove((tempStr.indexOf('x',0)),20);
@@ -212,7 +211,7 @@ void GameOptions::on_pushButton_clicked()
     {
         delete game;
     }
-//    qDebug()<<"Map Size: "<<info.mapDimension1;
+    //Set the player as the correct country
     switch(ui->listWidget->currentRow())
     {
     case 0:
@@ -266,15 +265,18 @@ void GameOptions::on_pushButton_clicked()
     default:player = India;
 
     }
+    //Play a notification
     QMediaPlayer *musicPlayer = new QMediaPlayer();
     musicPlayer->setMedia(QUrl::fromLocalFile("../ProjectHiawatha/Assets/Sound/notificationunitkilled.wav"));
     musicPlayer->setVolume(50);
     musicPlayer->play();
+    //Start new game
     game = new GameManager(0, FullScreen, info.mapDimension1, info.mapDimension2, player, numOfAI);
     this->close();
 
 }
 
+//This function updates the picture and text boxes to correpsond to currently selected civ
 void GameOptions::updateLeader()
 {
     switch(ui->listWidget->currentRow())
@@ -350,7 +352,7 @@ void GameOptions::updateLeader()
     }
 }
 
-
+//This calls the update functions when the item selecttion is changed
 void GameOptions::on_listWidget_itemSelectionChanged()
 {
     ui->pushButton->setFlat(false);

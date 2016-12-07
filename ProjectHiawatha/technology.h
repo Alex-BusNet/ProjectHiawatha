@@ -12,9 +12,9 @@ public:
     QString getName();
     int getCost();
     int getIndex();
-    setName(QString str);
-    setIndex(int techIndex);
-    setCost(int techCost);
+    void setName(QString str);
+    void setIndex(int techIndex);
+    void setCost(int techCost);
 
 private:
     QString name;
