@@ -620,7 +620,7 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     }
     else
     {
-        barSize = ceil(65 * (city->GetTurnsToNewCitizen() / (2 *(static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus())))));
+        barSize = 65 - ceil(65 * (city->GetTurnsToNewCitizen() / (2 *(static_cast<double>(city->GetFoodNeededToGrow() / city->GetFoodSurplus())))));
     }
 
     barSize = barSize <= 0 ? 1 : barSize;

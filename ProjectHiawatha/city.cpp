@@ -151,7 +151,6 @@ void City::SortTileQueue()
 
         if(!inMEB)
         {
-            qDebug() << "Tile" << tileQueue.at(k)->GetTileIDString() << "not in MEB; Removing";
             inMEB = true;
             tileQueue.remove(k);
         }
@@ -1119,7 +1118,6 @@ bool City::HasGarrisonUnit()
 
 bool City::MSDIntersects(QPolygon targetMSD)
 {
-//    qDebug() << "-----MSDINTERSECTS-----";
     QList<QPoint> t_MSD;
     QList<QPoint> c_MSD;
 
@@ -1137,7 +1135,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
     float c_slope, t_slope;
     bool lrtbValid = false, rltbValid = false, rlbtValid = false, lrbtValid = false;
 
-//    qDebug() << "   t_MSD size:" << t_MSD.size() << "c_MSD size" << c_MSD.size();
     foreach(QPoint pt, t_MSD)
     {
         lastX = c_MSD.at(c_MSD.size() - 1).x();
@@ -1169,8 +1166,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
-
                 if(t_slope > currentSlope)
                 {
                     lrbtValid = true;
@@ -1186,8 +1181,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
-
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
 
                 if(t_slope < currentSlope)
                 {
@@ -1205,8 +1198,6 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
-
                 if(t_slope > currentSlope)
                 {
                     rltbValid = true;
@@ -1223,16 +1214,12 @@ bool City::MSDIntersects(QPolygon targetMSD)
                 t_slope = fabs(t_slope);
                 currentSlope = fabs(currentSlope);
 
-//                qDebug() << "t_slope:" << t_slope << "currentSlope:" << currentSlope;
-
                 if(t_slope < currentSlope)
                 {
                     rlbtValid = true;
                 }
 
             }
-
-//            qDebug() << "rltb:" << rltbValid << "lrbt:" << lrbtValid << "lrtb:" << lrtbValid << "rlbt:" << rlbtValid;
 
             if((rltbValid || lrbtValid) || (lrtbValid || rlbtValid))
             {
@@ -1278,7 +1265,6 @@ void City::loadUnits(QString filename)
        {
           QString line = in.readLine();
           QStringList unitInfo = line.split(",");
-//          qDebug()<<"Unit Name: "<<unitInfo[0];
           int cost = unitInfo[1].toInt();
           int strength = unitInfo[2].toInt();
           int rangeStrength = unitInfo[3].toInt();
@@ -1298,7 +1284,6 @@ void City::loadUnits(QString filename)
           tempUnit->setUnlocked(unlocked);
           tempUnit->SetTechIndex(techIndex);
           tempUnit->setUnitType(type);
-//          qDebug()<<"TYPE: "<<type;
           tempUnit->SetUnitIcon(type);
           initialUnitList.push_back(tempUnit);
 

@@ -1271,6 +1271,12 @@ void GameManager::UpdateTileData()
         fortifyUnit->setEnabled(false);
     }
 
+    if(state == ATTACK_MELEE || state == ATTACK_RANGE)
+    {
+        state = IDLE;
+        ProcessAttackUnit();
+    }
+
     //City founding Logic. This operates nearly the same as
     // initial city spawning in the Map class
     if(state == FOUND_CITY || state == AI_FOUND_CITY)
@@ -1742,6 +1748,7 @@ void GameManager::ProcessAttackUnit()
 
     attackUnit->setEnabled(false);
     rangeAttack->setEnabled(false);
+
     if(map->GetTileAt(unitToMove->GetTileIndex())->GetTileType() == WATER)
         uc->Attack(unitToMove, targetUnit, true);
     else
@@ -1990,10 +1997,6 @@ void GameManager::updateTiles()
         showCity(NULL);
     }
 
-    //// FOR TESTING PURPOSES. I WANT TO MAKE SURE AI TURN PROCESSING ISN'T TAKING UP A LOT OF TIME
-    // -Sad new is, on bigger maps, it is taking up a lot of time. On Standard and higher, the updateTiles() misses
-    //  about 2-4 deadlines. Since this is the AI though, I am not concerned about it because it may
-    //  cause issues if the TurnController() is called while the AI is still processing it's turn.
     end = std::chrono::steady_clock::now();
     if(countTime == true)
     {
