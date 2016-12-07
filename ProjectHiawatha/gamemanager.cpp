@@ -38,7 +38,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     unitControlButtons = new QVBoxLayout();
     Yieldinfo = new QHBoxLayout();
 
-    cityScreen = new CityScreen(this);
+    cityScreen = new CityScreen();
     cityScreen->hide();
     techTree = new TechTree(this);
 
@@ -1026,18 +1026,62 @@ void GameManager::UpdateTileData()
         {
             if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
             {
-                warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
+                if(gameTurn == 1)
+                {
+                    statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
+                }
+                else
+                {
+                    warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
 
-                warbox->setWindowFlags(Qt::FramelessWindowHint);
+                    warbox->setWindowFlags(Qt::FramelessWindowHint);
 
-                connect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
-                connect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                    connect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                    connect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
 
-                warbox->exec();
+                    warbox->exec();
 
-                disconnect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
-                disconnect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                    disconnect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                    disconnect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                }
             }
+        }
+
+        if(!targetTile->ContainsUnit)
+        {
+            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
+
+            foreach(Tile* tile, neighbors)
+            {
+                if(tile->ContainsUnit && (state == ATTACK_MELEE || state == ATTACK_RANGE) && !tile->HasCity)
+                {
+                    if(tile->GetOccupyingCivListIndex() != currentTurn)
+                    {
+                        if(!uc->AtPeaceWith(tile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
+                        {
+                            targetTile = tile;
+                            break;
+                        }
+                    }
+                }
+                else if(tile->HasCity && state ==  ATTACK_CITY)
+                {
+                    if(tile->GetControllingCivListIndex() != currentTurn)
+                    {
+                        targetTile = tile;
+                        break;
+                    }
+                }
+                else
+                {
+                    state = IDLE;
+                }
+            }
+        }
+
+        if(state == ATTACK_CITY)
+        {
+            state = FIND_CITY;
         }
     }
 
@@ -1205,20 +1249,28 @@ void GameManager::UpdateTileData()
         if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()})
                 && unitToMove->GetOwner() != targetTile->GetControllingCiv())
         {
-            if(targetTile->GetOccupyingCivListIndex() == -1)
-                warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
+            if(gameTurn == 1)
+            {
+                statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
+                state = IDLE;
+            }
             else
-                warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetOccupyingCivListIndex())->GetLeaderName()));
+            {
+                if(targetTile->GetOccupyingCivListIndex() == -1)
+                    warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
+                else
+                    warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetOccupyingCivListIndex())->GetLeaderName()));
 
-            warbox->setWindowFlags(Qt::FramelessWindowHint);
+                warbox->setWindowFlags(Qt::FramelessWindowHint);
 
-            connect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
-            connect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                connect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
+                connect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
 
-            warbox->exec();
+                warbox->exec();
 
-            disconnect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
-            disconnect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+                disconnect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarByInvasion()));
+                disconnect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+            }
         }
         else
         {
