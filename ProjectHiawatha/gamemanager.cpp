@@ -1072,16 +1072,7 @@ void GameManager::UpdateTileData()
                         break;
                     }
                 }
-                else
-                {
-                    state = IDLE;
-                }
             }
-        }
-
-        if(state == ATTACK_CITY)
-        {
-            state = FIND_CITY;
         }
     }
 
