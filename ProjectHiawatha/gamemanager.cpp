@@ -1047,13 +1047,13 @@ void GameManager::UpdateTileData()
             }
         }
 
-        if(!targetTile->ContainsUnit)
+        if(!targetTile->ContainsUnit  && (state == ATTACK_MELEE || state == ATTACK_RANGE))
         {
             QList<Tile*> neighbors = map->GetNeighbors(targetTile);
 
             foreach(Tile* tile, neighbors)
             {
-                if(tile->ContainsUnit && (state == ATTACK_MELEE || state == ATTACK_RANGE) && !tile->HasCity)
+                if(tile->ContainsUnit && !tile->HasCity)
                 {
                     if(tile->GetOccupyingCivListIndex() != currentTurn)
                     {
@@ -1064,13 +1064,18 @@ void GameManager::UpdateTileData()
                         }
                     }
                 }
-                else if(tile->HasCity && state ==  ATTACK_CITY)
+            }
+        }
+        else if(!targetTile->HasCity && (state == ATTACK_CITY))
+        {
+            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
+
+            foreach(Tile* tile, neighbors)
+            {
+                if(tile->HasCity)
                 {
-                    if(tile->GetControllingCivListIndex() != currentTurn)
-                    {
-                        targetTile = tile;
-                        break;
-                    }
+                    targetTile = tile;
+                    break;
                 }
             }
         }
