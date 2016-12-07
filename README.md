@@ -2,25 +2,43 @@
 A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
 
 ##Contents:
-[Primary Goals](#primary-goals)
+[Main Features](#main-features)
 
-[Secondary Goals](#secondary-gaols)
+[Leaders and Civilizations](#leaders-and-civilizations)
+
+[Secondary Goals](#secondary-goals)
 
 [Software](#software)
 
-###Primary Goals
-1. Procedural/Random Map Generation <b>(Alex),</b>
-2. AI <b>(Sam)</b>
-3. Units <b>(Paul)</b>
-4. Buildings <b>(Paul)</b>
-5. Civs <b>(Paul)</b>
-6. Tech Tree <b>(et al)</b>
-7. Textures and Graphics
-8. GUIs <b>(early, functional UI: Alex)</b>
-9. Strategic and Luxury Resources <b>(et al)</b>
+###Main Features
+
+1. Random Map Generation
+2. AI
+3. Civs
+4. Tech Tree
+5. Strategic and Luxury Resources
+6. War
+
+####Leaders and Civilizations
+
+1. <b> Alexander the Great </b>(Greece)
+2. <b> Otto Von Bismark </b>(Germany)
+3. <b> Cyrus </b>(Persia)
+4. <b> Gandhi </b>(India)
+5. <b> George Washington </b>(United States of America)
+6. <b> Harun al-Rashid </b>(Arabia)
+7. <b> Hiawatha </b>(Iroquois)
+8. <b> Julius Caesar </b>(Roman Empire)
+9. <b> Ghengis Khan </b>(Mongolia)
+10. <b> Mao Zedong </b>(China)
+11. <b> Montezuma </b>(Aztecs)
+12. <b> Napoleon Bonaparte </b>(France)
+13. <b> Oda Nobunga </b>(Japan)
+14. <b> Queen Elizabeth I </b>(England)
+15. <b> Ramesses </b>(Egypt)
+16. <b> Josef Stalin </b>(Russia)
 
 ###Secondary Goals
-Note: These may not, and most likely will not, be in the final submission
 
 1. Multiplayer
 2. Diplomacy
@@ -29,5 +47,4 @@ Note: These may not, and most likely will not, be in the final submission
 5. More Civs
 
 ###Software
-1. [Qt 5.7.0](https://www.qt.io/download-open-source/)
-2. [Atlassian Source Tree](https://www.sourcetreeapp.com)
+Built with [Qt 5.7.0](https://www.qt.io/download-open-source/)
