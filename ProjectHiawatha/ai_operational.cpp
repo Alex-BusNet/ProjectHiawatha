@@ -16,7 +16,7 @@
 
 AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *civ, Civilization *player, Map *map){
     //qDebug()<<"         Operational AI Called";
-    threatScan(civ, player, map);
+    threatScan(civ, player);
     if(civ->isAtWar()){
         theaterAtWar(civ, player);
     }
@@ -27,7 +27,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
     //also passes the city founding vector and 3 vectors of threatening units
     //Pass position vector for military units
 
-void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *map){
+void AI_Operational::threatScan(Civilization *civ, Civilization *player){
     //qDebug()<<"Threatscan";
     //Clear threats each time, else they remain after the unit dies
     UnitController* unitCon = new UnitController();
