@@ -1,0 +1,36 @@
+build to deploy instead of debug.
+
+For windeployqt: 
+
+Run the program in QT using the release instead of debug mode
+
+Copy the .exe file from the most recent build (The release mode), inside the release folder,
+into an empty directory (if the folder is empty, then the wrong compile mode was used in QT)
+
+Run this cmd, using the new directory of the .exe
+"c:\program files\qt\5.7\mingw53_32\bin\windeployqt" --release C:\Users\Administrator\Desktop\SupercopGame\supercop.exe 
+
+(ALMOST) All dependencies will be inside the build folder. 
+
+Make sure to include supporting files (images, etc) in an accessible location on the deployable program.
+Basically, make sure it looks for image files in the exe directory, proper path,
+and that the files are actually there
+
+Add libgcc_s_dw2-1.dll, libstdc++6.dll, and libwinpthread-1.dll to the directory with the .exe
+(Can be found in QT_install_directory\Tools\mingw530_32\bin)
+
+
+Hiawatha
+"c:\program files\qt\5.7\mingw53_32\bin\windeployqt" --release C:\Users\Administrator\Desktop\Hiawatha\NotCiv.exe 
+
+
+
+
+
+MAC only
+
+macdeployqt is rather easy to use. Compile your app in release mode and call 
+(no idea if this can be done from a windows computer)
+c:\program files\qt\5.7\mingw53_32\bin\macdeployqt <path_to_your_bundle>/<bundle>.app. 
+
+After thats done, all Qt libraries are stored inside the <bundle>.app folder.
