@@ -1,5 +1,6 @@
 # Project Hiawatha
 A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
+For the latest features, use the Dev-Unstable branch. For the most stable version, use the master branch.
 
 ##Contents:
 [Main Features](#main-features)
