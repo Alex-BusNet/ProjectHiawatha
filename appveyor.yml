@@ -20,5 +20,11 @@ before_build:
 
 build_script:
   - qmake -v
+    on:
+     appveyor_repo_tag:true
   - qmake.exe ProjectHiawatha.pro -r -spec win32-g++ "CONFIG+=release"
+    on:
+     appveyor_repo_tag:true
   - mingw32-make
+    on:
+     appveyor_repo_tag:true
