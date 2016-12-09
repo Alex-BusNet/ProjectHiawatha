@@ -16,6 +16,7 @@ init:
 
 before_build:
  - set PATH=%MINGW%\bin;%QT5%\bin;%PATH%
+ - cd C:\projects\projecthiawatha\ProjectHiawatha
 
 build_script:
   - qmake -v
