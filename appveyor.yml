@@ -1,5 +1,5 @@
 version: 'B-1612.{build}'
-
+skip_non_tags: true
 environment:
  matrix:
   - QT5: C:\Qt\5.7\mingw53_32
