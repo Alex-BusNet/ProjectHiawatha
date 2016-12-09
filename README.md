@@ -1,4 +1,5 @@
-https://travis-ci.org/Alex-BusNet/ProjectHiawatha.svg?branch=master  https://travis-ci.org/Alex-BusNet/ProjectHiawatha.svg?branch=Dev-Unstable
+Master: ![](https://travis-ci.org/Alex-BusNet/ProjectHiawatha.svg?branch=master)
+Dev: ![](https://travis-ci.org/Alex-BusNet/ProjectHiawatha.svg?branch=Dev-Unstable)
 # Project Hiawatha
 A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
 For the latest features, use the Dev-Unstable branch. For the most stable version, use the master branch.
