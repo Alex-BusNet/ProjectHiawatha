@@ -3,8 +3,6 @@ sudo: required
 dist: trusty
 compiler: 
 - g++
-os:
-- windows
 
 env:
 #- QT_BASE=55
