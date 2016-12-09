@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/rtbp4acd1gwb92ht/branch/master?svg=true)](https://ci.appveyor.com/project/Alex-BusNet/projecthiawatha/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/rtbp4acd1gwb92ht/branch/master?svg=true)](https://ci.appveyor.com/project/Alex-BusNet/projecthiawatha/branch/Dev-Unstable)
 # Project Hiawatha
 A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
 
