@@ -1,5 +1,5 @@
 version: 'R-1612.{build}'
-
+skip_non_tags: true
 environment:
  matrix:
   - QT5: C:\Qt\5.7\mingw53_32
@@ -20,11 +20,5 @@ before_build:
 
 build_script:
   - qmake -v
-    on:
-     appveyor_repo_tag:true
   - qmake.exe ProjectHiawatha.pro -r -spec win32-g++ "CONFIG+=release"
-    on:
-     appveyor_repo_tag:true
   - mingw32-make
-    on:
-     appveyor_repo_tag:true
