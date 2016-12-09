@@ -1,9 +1,12 @@
 version: 'R-1612.{build}'
 
 environment:
- - QT5: C:\Qt\5.7\mingw53_32
-   MINGW: C:\Qt\Tools\mingw530_32
-
+ matrix:
+  - QT5: C:\Qt\5.7\mingw53_32
+    MINGW: C:\Qt\Tools\mingw530_32
+    
+matrix:
+ fast_finish: true
 branches:
  only:
    - master
