@@ -1,0 +1,24 @@
+version: 'B-1612.{build}'
+
+environment:
+ matrix:
+  - QT5: C:\Qt\5.7\mingw53_32
+    MINGW: C:\Qt\Tools\mingw530_32
+    
+matrix:
+ fast_finish: true
+branches:
+ only:
+   - Dev-Unstable
+   
+init:
+  - git config --global core.autocrlf input
+
+before_build:
+ - set PATH=%MINGW%\bin;%QT5%\bin;%PATH%
+ - cd C:\projects\projecthiawatha\ProjectHiawatha
+
+build_script:
+  - qmake -v
+  - qmake.exe ProjectHiawatha.pro -r -spec win32-g++ "CONFIG+=release"
+  - mingw32-make
