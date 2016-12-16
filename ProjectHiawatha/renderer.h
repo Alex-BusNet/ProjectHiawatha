@@ -59,7 +59,7 @@ private:
     QVector<QGraphicsEllipseItem*> tileCircles;
 
     QVector<QGraphicsPixmapItem*> tileWorked;
-    QVector<QGraphicsProxyWidget*> ordersIcon;
+    QVector<QGraphicsPixmapItem*> ordersIcon;
     QVector<QGraphicsPixmapItem*> fortifiedIcon;
     QVector<QGraphicsPixmapItem*> tileImprovementIcons;
 

@@ -27,14 +27,14 @@ Map::Map()
 
 Map::Map(int mapSizeX, int mapSizeY)
 {
-    this->mapSizeX = mapSizeX;
+    this->mapSizeX = mapSizeX * 2;
     this->mapSizeY = mapSizeY;
 
 
     // The Ocean scale factor is used to determine
     // how many columns should be created
     // at the center and edges of the map
-    switch(this->mapSizeX)
+    switch(mapSizeX)
     {
     case 20:
         this->oceanScaleFactor = 2;
