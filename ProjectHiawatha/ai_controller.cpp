@@ -3,9 +3,9 @@
 
 void AI_Controller::AddAIToList(AI_Strategic *ai)
 {
-    //qDebug() << "       Adding AI to Controller";
+    qDebug() << "       Adding AI to Controller";
     aiList.push_back(ai);
-    //qDebug() << "       Done.";
+    qDebug() << "       Done.";
 }
 
 void AI_Controller::turnStarted(Civilization *civ, Civilization *player, Map *map)

@@ -15,7 +15,7 @@
 #include <qdebug.h>
 
 AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *civ, Civilization *player, Map *map){
-    //qDebug()<<"         Operational AI Called";
+    qDebug()<<"         Operational AI Called";
     threatScan(civ, player);
     if(civ->isAtWar()){
         theaterAtWar(civ, player);
@@ -28,7 +28,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
     //Pass position vector for military units
 
 void AI_Operational::threatScan(Civilization *civ, Civilization *player){
-    //qDebug()<<"Threatscan";
+    qDebug()<<"Threatscan";
     //Clear threats each time, else they remain after the unit dies
     UnitController* unitCon = new UnitController();
     Unit* unit;
@@ -37,15 +37,15 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player){
              QVector<Tile*> borderingTiles=civ->GetCityAt(i)->tileQueue;
              for(int j=0; j<borderingTiles.length();j++){
                  if(0==borderingTiles.at(j)->GetOccupyingCivListIndex()){
-                    //qDebug()<<"Enemy Near";
+                    qDebug()<<"Enemy Near";
                     QVector<Unit*> tempVec = civ->getMidThreats();
                     unit = unitCon->FindUnitAtTile(borderingTiles.at(j),player->GetUnitList());
                     tempVec.push_back(unit);
                     civ->setMidThreats(tempVec);
-                    //qDebug()<<"Unit: "<<unit->GetTileIndex();
+                    qDebug()<<"Unit: "<<unit->GetTileIndex();
                  }
             }
-            //qDebug()<<"Enemy in adjacent tile check";
+            qDebug()<<"Enemy in adjacent tile check";
     //Using the Map::GetNeighbors(Tile *node) algorithm
         //search radially out from controlled tiles
             //Units within 1 of territory added to midThreats
@@ -66,7 +66,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player){
 //See Map::GetNeighbors(Tile *node) for scanning algorithm
 
 void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player){
-    //qDebug()<<"Theater At War";
+    qDebug()<<"Theater At War";
     int targetIndex=0, targetDistance=INT_MAX;
     UnitController *checkDist = new UnitController();
     for(int i =0; i< player->GetCityList().length();i++){
