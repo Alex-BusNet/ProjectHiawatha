@@ -29,6 +29,8 @@ public:
     void    getCityInfo(City* city);
     //Checks which buildings have been completed and adds them to the completed buildings list
     void    updateWidget();
+    //
+    void    getGold(int gold);
 private slots:
     void on_listWidget_itemSelectionChanged();
 
@@ -40,6 +42,8 @@ private slots:
 
     void on_listWidget_2_itemDoubleClicked(QListWidgetItem *item);
 
+    void on_purchase_clicked();
+
 private:
     Ui::CityScreen *ui;
     //Initial Building List
@@ -48,7 +52,8 @@ private:
     QVector<Unit*> initialUnitList;
     //Pointer to city object allows cityscreen to know what to display
     City* currentCity;
-
+    //
+    int totalGold;
 
 };
 

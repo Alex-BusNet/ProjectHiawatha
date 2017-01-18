@@ -614,7 +614,6 @@ void GameManager::StartTurn()
     int accumulatedScience = civList.at(currentTurn)->getAccumulatedScience();
 
     int techCost = civList.at(currentTurn)->getCurrentTech()->getCost();
-
     if(accumulatedScience >= techCost)
     {
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
@@ -1956,6 +1955,7 @@ void GameManager::showCity(City* city)
         cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
+        cityScreen->getGold(civList.at(0)->getCivYield()->GetGoldYield());
         cityScreen->updateList(city->getNumberOfBuildings());
         cityScreen->updateWidget();
 
