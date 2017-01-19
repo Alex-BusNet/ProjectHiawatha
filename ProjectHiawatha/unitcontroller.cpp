@@ -177,39 +177,51 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
  */
 void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 {
-    float waterPenalty = 0.0f, fortifyBonus = 0.0f;
-    float AtkBonus = 1.5f, a_melee, t_melee;
     float damageDealt, damageReceived;
 
-    if(attackFromWater == true)
-        waterPenalty = 0.8f;
-    else
-        waterPenalty = 1.0f; // No penalty
-
-    if(target->isFortified)
-        fortifyBonus = 0.4f;
-    else
-        fortifyBonus = 1.0f; // No bonus
-
-    if(attacker->isMelee)
+    float csr, mdr, percentReduced = 0.0;
+    if(attacker->GetStrength() > target->GetStrength())
     {
-        damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus * waterPenalty));
-        a_melee = 1.0f;
+        csr = attacker->GetStrength() / target->GetStrength();
     }
     else
     {
-        damageDealt = (((attacker->GetHealth() / attacker->GetRangeStrength())) * AtkBonus * waterPenalty);
-        a_melee = 0.0f;
+        csr = target->GetStrength() / attacker->GetStrength();
+    }
+
+    for(int i = 100 - attacker->GetHealth(); i > 0; i--)
+    {
+        percentReduced += 0.005f;
+    }
+
+    damageDealt = 6.66*pow(csr, 2) + 3.33*csr + 20;
+
+    if(percentReduced > 0.0f)
+    {
+        damageDealt -= (damageDealt * percentReduced);
+    }
+
+    if(target->isFortified)
+    {
+        damageDealt -= (damageDealt * 0.4);
+    }
+
+    if(attackFromWater)
+    {
+        damageDealt *= 0.8;
     }
 
     if(target->isMelee && attacker->isMelee)
-        t_melee = 1.0f;
+    {
+        mdr = 0.05*pow(csr, 3) - 0.49*pow(csr, 2) + 1.58*csr - 0.25;
+        damageReceived = damageDealt * mdr;
+    }
     else
-        t_melee = 0.0f;
+    {
+        damageReceived = 0.0f;
+    }
 
-    float damageSustained = ((target->GetHealth() / target->GetStrength()) + (target->GetStrength() * fortifyBonus));
-
-    damageReceived = (damageSustained) * (fortifyBonus / AtkBonus) * a_melee * t_melee;
+    qDebug() << "Damage dealt:" << damageDealt << "Damage received:" << damageReceived;
 
     target->DealDamage(damageDealt);
     attacker->DealDamage(damageReceived);
@@ -248,6 +260,8 @@ void UnitController::AttackCity(Unit *attacker, City *city)
 
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
     float damageSustained = (city->GetCityStrength() - damageDealt) * melee;
+
+    qDebug() << "Damage dealt to city:" << damageDealt << "damage sustained:" << damageSustained;
 
     city->SetCityHealth(city->GetCityHealth() - damageDealt);
     attacker->DealDamage(damageSustained);

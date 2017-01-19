@@ -62,6 +62,8 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
                 column--;
             }
 
+            qDebug() << "       Tile selected:" << column << "," << row;
+
             processedData.column = column;
             processedData.row = row;
             processedData.newData = true;
@@ -85,6 +87,8 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
             {
                 column--;
             }
+
+            qDebug() << "       Tile selected:" << column << "," << row;
 
             processedData.column = column;
             processedData.row = row;

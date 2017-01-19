@@ -161,6 +161,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
 //    renderer->DrawGuiText(map, stringData, gameView);
+//    gameView->addRect(0,0, 3560, 2376, QPen(Qt::red));
+    qDebug() << "Actual map size:" << gameView->GetScene()->sceneRect().size();
 
     zoomScale = 1;
 
@@ -1091,6 +1093,11 @@ void GameManager::UpdateTileData()
                     break;
                 }
             }
+        }
+
+        if(state == ATTACK_CITY)
+        {
+            state = FIND_CITY;
         }
     }
 
