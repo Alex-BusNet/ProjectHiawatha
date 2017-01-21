@@ -78,7 +78,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                         break;
                     }
                     qDebug()<<"Sent to tile: "<<targetNeighbor.at(k)->GetTileIndex();
-                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                     qDebug()<<"test2"<<unitlist.at(i)->GetTargetTileIndex();
                 }//Attempts to send melee units into attack range
                 if(civ->GetUnitAt(i)->RequiresOrders){
@@ -89,7 +89,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                             k++;
                             continue;
                         }//Check if tile is occupied
-                        UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                        UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                         qDebug()<<"Test3"<<unitlist.at(i)->GetTargetTileIndex();
                     }
                 }//Places units in 'On Deck' position if attack spots are occupied
@@ -120,7 +120,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                         k++;
                         continue;
                     }//Check if tile is occupied
-                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                     qDebug()<<"Ranged moving to "<<unitlist.at(i)->GetTargetTileIndex()<<unitlist.at(i)->GetPath().length();
                 }//Attempt to send ranged units into attack range
             }//Direct ranged units to appropriate tile
@@ -179,7 +179,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -255,7 +255,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -308,7 +308,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
                 {
                     qDebug()<<"Traveling Settler";
                     qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
-                    UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                    UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                 }
                 qDebug()<<"Path not empty";
             }
@@ -368,7 +368,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
                             //Send the unused worker to city
                             unitlist.at(i)->SetUnitTargetTile(civ->GetCityAt(j)->GetCityTile()->GetTileID().column, civ->GetCityAt(j)->GetCityTile()->GetTileID().row);
                             unitlist.at(i)->SetUnitTargetTileIndex(civ->GetCityAt(j)->GetCityTile()->GetTileIndex());
-                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i), WarData{civ->GetCivListIndexAtWar(), civ->GetNationAtWar()});
+                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                         }
                     }
                     else if(false==roadWorkerExists){

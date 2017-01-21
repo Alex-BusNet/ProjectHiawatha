@@ -32,7 +32,7 @@ public:
 
     int GetDistance(Tile* a, Tile *b);
 
-    QString NationName(Nation nation)
+    static QString NationName(Nation nation)
     {
         switch(nation)
         {

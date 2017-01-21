@@ -397,28 +397,49 @@ void UnitController::HealUnit(Unit *unit)
  */
 bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
 {
-    if(target->GetControllingCiv() != NO_NATION)
+    if(wDat.atWar)
     {
-        if(target->GetControllingCiv() != wDat.warringCiv)
+        if(!wDat.warringCivListIndex.isEmpty())
         {
-            return true;
-        }
-    }
-    else if(target->GetOccupyingCivListIndex() != -1)
-    {
-        if(target->GetOccupyingCivListIndex() != wDat.warCivIndex)
-        {
-            return true;
-        }
-        else if(target->GetControllingCivListIndex() != wDat.warCivIndex)
-        {
-            return true;
+            foreach(int i, wDat.warringCivListIndex)
+            {
+                if(i == target->GetOccupyingCivListIndex() || i == target->GetControllingCivListIndex())
+                {
+                    return false;
+                }
+            }
         }
     }
 
+    if(target->GetControllingCiv() == NO_NATION)
+    {
+        return false;
+    }
+
+    return true;
+
+//    if(target->GetControllingCiv() != NO_NATION)
+//    {
+//        if(target->GetControllingCiv() != wDat.warringCiv)
+//        {
+//            return true;
+//        }
+//    }
+//    else if(target->GetOccupyingCivListIndex() != -1)
+//    {
+//        if(target->GetOccupyingCivListIndex() != wDat.warCivIndex)
+//        {
+//            return true;
+//        }
+//        else if(target->GetControllingCivListIndex() != wDat.warCivIndex)
+//        {
+//            return true;
+//        }
+//    }
+
     // This should only return false for non-controlled tiles
     // i.e. NO_NATION, -1
-    return false;
+//    return false;
 }
 
 /*

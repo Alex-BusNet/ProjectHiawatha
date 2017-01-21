@@ -38,13 +38,13 @@ public:
     void resetAccumulatedScience();
     void SetCaptialsControlled(int cc);
     void IncrementCapitalsControlled();
-    void SetAtWar(Nation enemy, int enemyCivListIndex);
+    void SetAtWar(int enemyCivListIndex);
     void setCurrentTech(Technology* tech);
     void setTechIndex();
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
     void setCivIndex(int index);
-    void MakePeace();
+    void MakePeace(int enemyCivListIndex);
 
     QString GetLeaderName();
 
@@ -61,9 +61,9 @@ public:
     int getAccumulatedScience(void);
     int getTechIndex();
     int GetCapitalsControlled();
-    int GetCivListIndexAtWar();
     int getCivIndex();
 
+    QVector<int> GetCivListIndexAtWar();
     QVector<City*> GetCityList();
     QVector<Unit*> GetUnitList();
     QVector<Technology*> GetTechList();
@@ -71,8 +71,6 @@ public:
 
     Update_t UpdateProgress();
     QString GetNextCityName();
-
-    Nation GetNationAtWar();
 
     Technology* getCurrentTech();
     Technology *getNextTech();
@@ -125,9 +123,9 @@ private:
     int accumulatedScience;
     int capitalsControlled;
 
-    int atWarWithCivListIndex;
-    Nation atWarWithNation;
+    QVector<int> atWarWithCivListIndex;
     bool atWar;
+
 
     //AI stuff
     bool isAIPlayer;

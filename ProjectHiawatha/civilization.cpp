@@ -38,8 +38,6 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     this->cityFounded = false;
     this->alive = true;
     this->capitalsControlled = 1;
-    this->atWarWithNation = NO_NATION;
-    this->atWarWithCivListIndex = -1;
     this->atWar = false;
 
     if(isAI)
@@ -272,18 +270,27 @@ void Civilization::IncrementCapitalsControlled()
     this->capitalsControlled++;
 }
 
-void Civilization::SetAtWar(Nation enemy, int enemyCivListIndex)
+void Civilization::SetAtWar(int enemyCivListIndex)
 {
-    this->atWarWithCivListIndex = enemyCivListIndex;
-    this->atWarWithNation = enemy;
+    this->atWarWithCivListIndex.push_back(enemyCivListIndex);
     this->atWar = true;
 }
 
-void Civilization::MakePeace()
+void Civilization::MakePeace(int enemyCivListIndex)
 {
-    this->atWar = false;
-    this->atWarWithCivListIndex = -1;
-    this->atWarWithNation = NO_NATION;
+    for(int i = 0; i < this->atWarWithCivListIndex.size(); i++)
+    {
+        if(this->atWarWithCivListIndex[i] == enemyCivListIndex)
+        {
+            this->atWarWithCivListIndex.remove(i);
+            break;
+        }
+    }
+
+    if(this->atWarWithCivListIndex.isEmpty())
+    {
+        this->atWar = false;
+    }
 }
 
 int Civilization::getTechIndex()
@@ -296,14 +303,9 @@ int Civilization::GetCapitalsControlled()
     return this->capitalsControlled;
 }
 
-int Civilization::GetCivListIndexAtWar()
+QVector<int> Civilization::GetCivListIndexAtWar()
 {
     return this->atWarWithCivListIndex;
-}
-
-Nation Civilization::GetNationAtWar()
-{
-    return this->atWarWithNation;
 }
 
 void Civilization::setTechIndex()
