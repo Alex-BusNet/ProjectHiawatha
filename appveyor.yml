@@ -1,4 +1,4 @@
-version: 'B-1612.{build}'
+version: 'B-1701.{build}'
 skip_non_tags: true
 environment:
  matrix:
