@@ -26,14 +26,12 @@
 #include "diplomacy.h"
 #include <QDesktopWidget>
 
-class Diplomacy;
-
 class GameManager : public QWidget
 {
     Q_OBJECT
 public:
     explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42, Nation player = India, int numAI = 2);
-    void WarByDiplomacy(Nation nation);
+
 private:
 
     Renderer *renderer;
@@ -133,6 +131,7 @@ private:
     QString currentProductionName;
     bool cityScreenVisible;
     bool techTreeVisible;
+    bool diploVisible;
     bool relocateUnit, fortify;
     bool updateUnitPos;
     bool turnEnded, turnStarted;
@@ -159,6 +158,8 @@ private:
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();
     void ProcessPeace(int makePeaceWithIndex);
+
+    bool AcceptsPeace(Civilization* ai);
 
     TileData processedData;
 
@@ -196,6 +197,8 @@ public slots:
     void WarDeclared();
     void WarAvoided();
     void WarByInvasion();
+    void WarByDiplomacy();
+    void MakePeace();
     void OpenHelp();
 
     void parseItem();

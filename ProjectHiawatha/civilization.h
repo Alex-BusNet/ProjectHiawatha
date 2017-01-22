@@ -44,6 +44,7 @@ public:
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
     void setCivIndex(int index);
+    void SetMilitaryStrength(int milStr);
     void MakePeace(int enemyCivListIndex);
 
     QString GetLeaderName();
@@ -62,6 +63,7 @@ public:
     int getTechIndex();
     int GetCapitalsControlled();
     int getCivIndex();
+    int GetMilitaryStrength();
 
     QVector<int> GetCivListIndexAtWar();
     QVector<City*> GetCityList();
@@ -122,6 +124,7 @@ private:
     int totalScience, totalGold, totalCulture;
     int accumulatedScience;
     int capitalsControlled;
+    int militaryStrength;
 
     QVector<int> atWarWithCivListIndex;
     bool atWar;

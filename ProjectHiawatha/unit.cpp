@@ -499,6 +499,18 @@ int Unit::GetUnitListIndex()
     return this->unitListIndex;
 }
 
+int Unit::GetUnitPower()
+{
+    if(this->isMelee)
+    {
+        return ceil(pow(strength, 1.5) * pow(movementPoints, 0.3));
+    }
+    else
+    {
+        return ceil(pow(rangeStrength, 1.45) * pow(movementPoints, 0.3));
+    }
+}
+
 QString Unit::GetName()
 {
     return this->name;

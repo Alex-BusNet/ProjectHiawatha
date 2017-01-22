@@ -39,6 +39,7 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     this->alive = true;
     this->capitalsControlled = 1;
     this->atWar = false;
+    this->militaryStrength = 0;
 
     if(isAI)
     {
@@ -407,9 +408,19 @@ void Civilization::setCivIndex(int index)
     this->civIndex=index;
 }
 
+void Civilization::SetMilitaryStrength(int milStr)
+{
+    this->militaryStrength = milStr;
+}
+
 int Civilization::getCivIndex()
 {
     return civIndex;
+}
+
+int Civilization::GetMilitaryStrength()
+{
+    return this->militaryStrength;
 }
 
 /*

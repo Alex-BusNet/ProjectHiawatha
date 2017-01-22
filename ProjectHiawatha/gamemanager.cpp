@@ -10,6 +10,8 @@
 #include "unittype.h"
 #include "datatypes.h"
 #include <QDesktopWidget>
+#include <random>
+#include <QTime>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -59,6 +61,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     cityScreenVisible = false;
     techTreeVisible = false;
+    diploVisible = false;
     relocateUnit = false;
     turnEnded = false;
     turnStarted = true;
@@ -179,28 +182,28 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     year = -4040;
 
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
+    qsrand(QTime::currentTime().msec());
 
     playerInfoRect = new QRect(0, 0, this->width(), 20);
     gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
     statusMessage = " ";
 }
 
-void GameManager::WarByDiplomacy(Nation nation)
+void GameManager::WarByDiplomacy()
 {
-    int targetCivListIndex;
-    for(int i = 0; i < civList.size(); i++)
-    {
-        if(civList.at(i)->getCiv() == nation)
-        {
-            targetCivListIndex = i;
-            break;
-        }
-    }
+    int targetCivListIndex = diplo->GetIndex();
 
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetCivListIndex)->GetLeaderName())});
 
     civList.at(currentTurn)->SetAtWar(targetCivListIndex);
     civList.at(targetCivListIndex)->SetAtWar(currentTurn);
+    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), civList.at(currentTurn)->getCiv());
+    diplo->declareWar->setEnabled(false);
+}
+
+void GameManager::MakePeace()
+{
+    ProcessPeace(diplo->GetIndex());
 }
 
 void GameManager::InitCivs(Nation player, int numAI)
@@ -860,6 +863,7 @@ void GameManager::StartTurn()
 
         }
 
+        int civMilStr = 0;
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
         {
             if(!unit->RequiresOrders && unit->isPathEmpty() && !unit->isFortified)
@@ -875,7 +879,14 @@ void GameManager::StartTurn()
             {
                 renderer->SetUnitNeedsOrders(unit->GetTileIndex(), false);
             }
+
+            if(!unit->isNonCombat())
+                civMilStr += unit->GetUnitPower();
         }
+
+        qDebug() << "Military Strength for" << uc->NationName(civList.at(currentTurn)->getCiv()) << ": " <<civMilStr;
+        civList.at(currentTurn)->SetMilitaryStrength(civMilStr);
+
         //-----------------------------------------------------------------------
 
         //If a city took damage and has healed, alert the renderer of this change.
@@ -1544,7 +1555,7 @@ void GameManager::InitButtons()
     showTechTreeButton->setShortcut(QKeySequence(Qt::Key_T));
 
     showDiplomacy = new QPushButton("Diplomacy");
-    connect(showDiplomacy, SIGNAL(clicked(bool)), diplo, SLOT(show()));
+    connect(showDiplomacy, SIGNAL(clicked(bool)), this, SLOT(toggleDiplomacy()));
     showDiplomacy->setShortcut(QKeySequence(Qt::Key_V));
 
     moveUnit = new QPushButton("Move Unit");
@@ -1618,6 +1629,8 @@ void GameManager::InitButtons()
 
     connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem()));
     connect(ns, SIGNAL(itemClicked(QListWidgetItem*)), ns, SLOT(removeNotification(QListWidgetItem*)));
+    connect(diplo->makePeace, SIGNAL(clicked(bool)), this, SLOT(MakePeace()));
+    connect(diplo->declareWar, SIGNAL(clicked(bool)), this, SLOT(WarByDiplomacy()));
 
     clv->setMaximumWidth(100);
 
@@ -1904,70 +1917,20 @@ void GameManager::ProcessAttackUnit()
 
 void GameManager::ProcessPeace(int makePeaceWithIndex)
 {
-    civList.at(currentTurn)->MakePeace(makePeaceWithIndex);
-    civList.at(makePeaceWithIndex)->MakePeace(currentTurn);
-
-    // Move player units outside the enemy's borders
-    foreach(City* city, civList.at(makePeaceWithIndex)->GetCityList())
+    if(AcceptsPeace(civList.at(makePeaceWithIndex)))
     {
-        foreach(Tile* tile, city->GetControlledTiles())
+        civList.at(currentTurn)->MakePeace(makePeaceWithIndex);
+        civList.at(makePeaceWithIndex)->MakePeace(currentTurn);
+
+        // Move player units outside the enemy's borders
+        foreach(City* city, civList.at(makePeaceWithIndex)->GetCityList())
         {
-            if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == 0)
+            foreach(Tile* tile, city->GetControlledTiles())
             {
-                Unit *unit = uc->FindUnitAtTile(tile, civList.at(currentTurn)->GetUnitList());
-
-                foreach(Tile* outside, city->tileQueue)
+                if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == 0)
                 {
-                    if(!outside->ContainsUnit)
-                    {
-                        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
-                        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
+                    Unit *unit = uc->FindUnitAtTile(tile, civList.at(currentTurn)->GetUnitList());
 
-                        if(map->GetTileAt(unit->GetTileIndex())->Selected)
-                                map->GetTileAt(unit->GetTileIndex())->Selected = false;
-
-                        //update the unit's position
-                        unit->SetPositionIndex(outside->GetTileIndex());
-                        unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(currentTurn);
-
-                        // Set the data for the unit's new tile
-                        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
-
-                        unit->RequiresOrders = true;
-                        renderer->UpdateUnits(map, gameView, unit, true);
-                        renderer->SetUnitNeedsOrders(unit->GetTileIndex(), unit->RequiresOrders);
-                        break;
-                    }
-                }
-            }
-        }
-
-        foreach(Unit *aiUnit, civList.at(makePeaceWithIndex)->GetUnitList())
-        {
-            if(!aiUnit->isPathEmpty())
-            {
-                while(!aiUnit->isPathEmpty())
-                {
-                    aiUnit->UpdatePath();
-                }
-
-                aiUnit->RequiresOrders = true;
-            }
-        }
-    }
-
-    // Move enemy units outside the players borders
-    foreach(City* city, civList.at(currentTurn)->GetCityList())
-    {
-        foreach(Tile* tile, city->GetControlledTiles())
-        {
-            if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == makePeaceWithIndex)
-            {
-                Unit *unit = uc->FindUnitAtTile(tile, civList.at(makePeaceWithIndex)->GetUnitList());
-
-                if(unit->isPathEmpty())
-                {
                     foreach(Tile* outside, city->tileQueue)
                     {
                         if(!outside->ContainsUnit)
@@ -1981,28 +1944,152 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
                             //update the unit's position
                             unit->SetPositionIndex(outside->GetTileIndex());
                             unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                            map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(makePeaceWithIndex);
+                            map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(currentTurn);
 
                             // Set the data for the unit's new tile
                             map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
 
                             unit->RequiresOrders = true;
                             renderer->UpdateUnits(map, gameView, unit, true);
+                            renderer->SetUnitNeedsOrders(unit->GetTileIndex(), unit->RequiresOrders);
                             break;
                         }
                     }
                 }
-                else
+            }
+
+            foreach(Unit *aiUnit, civList.at(makePeaceWithIndex)->GetUnitList())
+            {
+                if(!aiUnit->isPathEmpty())
                 {
-                    uc->MoveUnit(unit, map, currentTurn);
-                    renderer->UpdateUnits(map, gameView, unit, true);
+                    while(!aiUnit->isPathEmpty())
+                    {
+                        aiUnit->UpdatePath();
+                    }
+
+                    aiUnit->RequiresOrders = true;
                 }
+            }
+        }
+
+        // Move enemy units outside the players borders
+        foreach(City* city, civList.at(currentTurn)->GetCityList())
+        {
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == makePeaceWithIndex)
+                {
+                    Unit *unit = uc->FindUnitAtTile(tile, civList.at(makePeaceWithIndex)->GetUnitList());
+
+                    if(unit->isPathEmpty())
+                    {
+                        foreach(Tile* outside, city->tileQueue)
+                        {
+                            if(!outside->ContainsUnit)
+                            {
+                                map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
+                                map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
+
+                                if(map->GetTileAt(unit->GetTileIndex())->Selected)
+                                        map->GetTileAt(unit->GetTileIndex())->Selected = false;
+
+                                //update the unit's position
+                                unit->SetPositionIndex(outside->GetTileIndex());
+                                unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
+                                map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(makePeaceWithIndex);
+
+                                // Set the data for the unit's new tile
+                                map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
+
+                                unit->RequiresOrders = true;
+                                renderer->UpdateUnits(map, gameView, unit, true);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        uc->MoveUnit(unit, map, currentTurn);
+                        renderer->UpdateUnits(map, gameView, unit, true);
+                    }
+                }
+            }
+        }
+
+        diplo->MakePeaceWith(civList.at(currentTurn)->getCiv(), civList.at(makePeaceWithIndex)->getCiv());
+
+        QMessageBox *mbox = new QMessageBox();
+        mbox->setText(QString("%1 has ACCEPTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+        mbox->exec();
+        delete mbox;
+
+        diplo->makePeace->setEnabled(false);
+
+        ns->PostNotification(Notification{6, QString("%1 has made peace with %2").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(makePeaceWithIndex)->GetLeaderName())});
+
+        this->redrawTile = true;
+    }
+    else
+    {
+        if(diplo->AtPermanentWar(civList.at(makePeaceWithIndex)->getCiv()))
+        {
+            QMessageBox *mbox = new QMessageBox();
+            mbox->setText(QString("%1 is tired of your lies about peace and friendship\nand has come to the conclusion that your differences are to be settled\nin a fight to the death.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+            mbox->exec();
+            delete mbox;
+        }
+        else
+        {
+            QMessageBox *mbox = new QMessageBox();
+            mbox->setText(QString("%1 has REJECTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+            mbox->exec();
+            delete mbox;
+            diplo->makePeace->setEnabled(false);
+        }
+    }
+}
+
+/*
+ * AcceptsPeace is used to deterine if the AI will accept a peace treaty.
+ * The passed param should be an AI Civ since peace can only be offered by
+ * the player (for now). This function returns false if the AI and player
+ * are at permanent war, or if the AI rejects the peace treaty.
+ */
+bool GameManager::AcceptsPeace(Civilization *ai)
+{
+    bool accepts = false;
+    int turnsAtWar = diplo->GetLengthOfWar(ai->getCiv());
+    int timesAtWar = diplo->GetNumberOfWars(ai->getCiv());
+
+    if(!diplo->AtPermanentWar(ai->getCiv()))
+    {
+        if((turnsAtWar - 10) >= 0)
+        {
+            double chanceToAccept = ((static_cast<double>(civList.at(0)->GetMilitaryStrength()) * (turnsAtWar - 10)) / (ai->GetMilitaryStrength() * (2 * timesAtWar)));
+
+            double weights[] =
+            {
+                (1.0 - chanceToAccept), // Will not accept Peace
+                (chanceToAccept)        // Will accept Peace
+            };
+
+            std::mt19937 gen(qrand());
+            std::discrete_distribution<> d(std::begin(weights), std::end(weights));
+
+            int chance = d(gen);
+
+            if(chance == 0)
+            {
+                accepts = false;
+            }
+            else if(chance == 1)
+            {
+                accepts = true;
             }
         }
     }
 
-
-    this->redrawTile = true;
+    return accepts;
 }
 
 void GameManager::closeGame()
@@ -2185,13 +2272,18 @@ void GameManager::showTechTree()
 
 void GameManager::toggleDiplomacy()
 {
-    if(diplo->isHidden())
+    if(!diploVisible)
     {
+        diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
         diplo->show();
+        diploVisible = true;
     }
     else
     {
         diplo->hide();
+        diplo->UpdateLeader();
+        gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+        diploVisible = false;
     }
 }
 
