@@ -1,4 +1,4 @@
-version: 'B-1701.{build}'
+version: 'R-1701.{build}'
 skip_non_tags: true
 environment:
  matrix:
@@ -9,7 +9,7 @@ matrix:
  fast_finish: true
 branches:
  only:
-   - Dev-Unstable
+   - master
    
 init:
   - git config --global core.autocrlf input
