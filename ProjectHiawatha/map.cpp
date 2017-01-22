@@ -59,7 +59,7 @@ Map::Map(int mapSizeX, int mapSizeY)
         break;
     }
 
-    qDebug() << "Estimated map size:" << this->mapSizeX * 89 << "px X" << mapSizeY * 99 << "px";
+    qDebug() << "Estimated map size:" << this->mapSizeX * 90 << "px X" << (mapSizeY * 74) + 24 << "px";
 }
 
 void Map::InitHexMap()
@@ -100,7 +100,7 @@ void Map::InitHexMap()
             //flat:
 //            posX += 74;
             //point:
-            posX += 44;
+            posX += 45;
 
             column += 2;
         }
@@ -109,7 +109,7 @@ void Map::InitHexMap()
         {
             //Flat: posX = 12 + offset
             //Point: posX = 22;
-            posX = 22; // + rowOffset;
+            posX = 23; // + rowOffset;
         }
         else
         {
@@ -123,8 +123,7 @@ void Map::InitHexMap()
         posY += 37;
     }
 
-    qDebug() << "Tile 0 size:" << this->GetTileAt(0)->GetTilePolygon().boundingRect().size();
-    qDebug() << "Last tile size:" << board.last()->GetTilePolygon().boundingRect().size();
+    qDebug() << "Tile size:" << this->GetTileAt(0)->GetTilePolygon().boundingRect().size();
 
     GenerateBiomes();
     GenerateMapEdge();

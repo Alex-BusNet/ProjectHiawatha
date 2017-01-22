@@ -80,6 +80,7 @@ Renderer::Renderer(int mapSizeX)
  */
 void Renderer::DrawHexScene(Map map, GameView *view)
 {
+    QPen circlePen(Qt::transparent);
     for(int i = 0; i < map.GetBoardSize(); i++)
     {
         map.GetTileAt(i)->SetTilePen(outlinePen);
@@ -88,7 +89,8 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         tiles.at(i)->setZValue(1);
         tiles.at(i)->setOpacity(50);
 
-        tileCircles.push_back(view->addEllipse(map.GetTileAt(i)->GetTileRect(), outlinePen));
+
+        tileCircles.push_back(view->addEllipse(map.GetTileAt(i)->GetTileRect(), circlePen));
         tileCircles.last()->setZValue(2);
 
         tilePixmap.push_back(view->addPixmap((*(map.GetTilePixmap(i)))));
@@ -285,7 +287,7 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         else if(!selDat.player && !selDat.target)
         {
             view->removeItem(tileCircles.at(index));
-            SetOutlinePen(NO_NATION);
+            outlinePen.setColor(Qt::transparent);
             outlinePen.setWidth(1);
             map->GetTileAt(index)->Selected = false;
         }
@@ -342,6 +344,44 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
         }
     }
 
+}
+
+void Renderer::DrawGridLines(GameView *view)
+{
+    int rowLines, colLines, width, height;
+
+    rowLines = view->GetScene()->height() / 74;
+    colLines = view->GetScene()->width() / 45;
+    QPen line(Qt::red);
+
+    width = view->GetScene()->sceneRect().width();
+    height = view->GetScene()->sceneRect().height();
+
+    qDebug() << "   Scene dimensions before grid:" << view->GetScene()->sceneRect().size();
+
+    for(int i = 0; i < rowLines + 1; i++)
+    {
+        gridLines.push_back(view->addLine(0, 74 * i, width, 74 * i, line));
+    }
+
+    for(int i = 0; i < colLines; i++)
+    {
+        gridLines.push_back(view->addLine(45 * i, 0, 45 * i, height, line));
+    }
+
+    for(int i = 0; i < rowLines; i++)
+    {
+        for(int j = 0; j < colLines; j++)
+        {
+            gridCoords.push_back(view->addText(QString("%1,%2").arg(j).arg(i)));
+            gridCoords.last()->setPos((45 * j) + 10, (74 * i) + 15);
+            gridCoords.last()->setZValue(7);
+            gridCoords.last()->setDefaultTextColor(Qt::red);
+            gridCoords.last()->setScale(0.5);
+        }
+    }
+
+    qDebug() << "   Scene dimensions after grid:" << view->GetScene()->sceneRect().size();
 }
 
 /*

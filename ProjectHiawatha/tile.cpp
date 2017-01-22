@@ -66,15 +66,15 @@ Tile::Tile(int _posX, int _posY)
 //    texturePoint = QPoint(_posX - (12 * drawScale), _posY + (0 * drawScale));
 
     //Pointtop:
-    points[0] = QPoint(_posX + (22 * drawScale), _posY - (12 * drawScale));
-    points[1] = QPoint(_posX + (44 * drawScale), _posY);
-    points[2] = QPoint(_posX + (44 * drawScale), _posY + (25 * drawScale));
-    points[3] = QPoint(_posX + (22 * drawScale), _posY + (37 * drawScale));
+    points[0] = QPoint(_posX + (22 * drawScale) + 1, _posY - (12 * drawScale));
+    points[1] = QPoint(_posX + (45 * drawScale), _posY);
+    points[2] = QPoint(_posX + (45 * drawScale), _posY + (25 * drawScale));
+    points[3] = QPoint(_posX + (22 * drawScale) + 1, _posY + (37 * drawScale));
     points[4] = QPoint(_posX, _posY + (25 * drawScale));
     points[5] = QPoint(_posX, _posY);
-    points[6] = QPoint(_posX + (22 * drawScale), _posY - (12 * drawScale));
+    points[6] = QPoint(_posX + (22 * drawScale) + 1, _posY - (12 * drawScale));
 
-    center = QPoint(_posX + (22 * drawScale), _posY + (12 * drawScale));
+    center = QPoint(_posX + (22 * drawScale) + 1, _posY + (12 * drawScale));
     textCenter = QPoint(_posX + (15 * drawScale), _posY + (10 * drawScale));
     texturePoint = QPointF(_posX, _posY - (12 * drawScale));
     itemTexturePoint = QPoint(_posX + (13 * drawScale), _posY - (3 * drawScale));

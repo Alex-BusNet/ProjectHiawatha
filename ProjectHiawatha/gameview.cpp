@@ -53,6 +53,11 @@ QGraphicsTextItem *GameView::addText(QString text)
     return this->game->addText(text);
 }
 
+QGraphicsLineItem *GameView::addLine(qreal x1, qreal y1, qreal x2, qreal y2, const QPen &pen)
+{
+    return this->game->addLine(x1, y1, x2, y2, pen);
+}
+
 void GameView::removeItem(QGraphicsItem *item)
 {
     this->game->removeItem(item);

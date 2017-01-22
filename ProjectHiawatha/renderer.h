@@ -48,6 +48,7 @@ public:
     void RemoveCity(City* city, GameView *view);
 
     void DrawGuiText(Map *map, QVector<QGraphicsTextItem *> tVect, GameView *view);
+    void DrawGridLines(GameView *view);
 
     void AddCityHealthBars(City* city, GameView *view);
 private:
@@ -76,6 +77,9 @@ private:
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsRectItem*> unitHealthBars;
+
+    QVector<QGraphicsLineItem*> gridLines;
+    QVector<QGraphicsTextItem*> gridCoords;
 
     QPolygon borders;
     CivColors *cc;

@@ -25,6 +25,7 @@ public:
     QGraphicsRectItem* addRect(QRect *rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsRectItem* addRect(int x, int y, int width, int height, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsTextItem* addText(QString text);
+    QGraphicsLineItem* addLine(qreal x1, qreal y1, qreal x2, qreal y2, const QPen &pen = QPen());
 
     void removeItem(QGraphicsItem* item);
     void removeRect(QGraphicsRectItem* rect);
