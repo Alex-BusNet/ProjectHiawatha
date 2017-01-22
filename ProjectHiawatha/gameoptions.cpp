@@ -120,12 +120,12 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->listWidget->addItem(item16);
 
     ui->comboBox->addItem("Duel: 40x24 - 2 Players",0);
-    ui->comboBox->addItem("Small: 56x36 - 4 Players",0);
-    ui->comboBox->addItem("Standard: 66x42 - 6 Players",0);
-    ui->comboBox->addItem("Large: 80x52 - 8 Players",0);
+    ui->comboBox->addItem("Tiny: 56x36 - 4 Players",0);
+    ui->comboBox->addItem("Small: 66x42 - 6 Players",0);
+    ui->comboBox->addItem("Standard: 80x52 - 8 Players",0);
     //Larger maps will be added in future iterations of the software
-//    ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
-//    ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
+    ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
+    ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
     //Initialize the pics that correpsond to the civs
     pic = QPixmap("Assets/Leaders/Mao.jpg");
     pic2 = QPixmap("Assets/Leaders/George_head.jpg");
@@ -187,12 +187,12 @@ void GameOptions::on_pushButton_clicked()
         numOfAI = 7;
         break;
 // These are for larger maps. will be added in future
-//    case 4:
-//        numOfAI = 9;
-//        break;
-//    case 5:
-//        numOfAI = 11;
-//        break;
+    case 4:
+        numOfAI = 9;
+        break;
+    case 5:
+        numOfAI = 11;
+        break;
     default:
         numOfAI = 3;
 

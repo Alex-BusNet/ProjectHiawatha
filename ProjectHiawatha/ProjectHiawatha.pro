@@ -37,7 +37,8 @@ SOURCES += main.cpp\
     techtree.cpp \
     heap.cpp \
     about.cpp \
-    notificationsystem.cpp
+    notificationsystem.cpp \
+    diplomacy.cpp
 
     gameoptions.cpp \
 
@@ -72,10 +73,12 @@ HEADERS  += mainwindow.h \
     datatypes.h \
     resources.h \
     about.h \
-    notificationsystem.h
+    notificationsystem.h \
+    diplomacy.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \
     cityscreen.ui \
     techtree.ui \
-    about.ui
+    about.ui \
+    diplomacy.ui

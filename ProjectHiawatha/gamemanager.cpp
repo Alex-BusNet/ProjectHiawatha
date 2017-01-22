@@ -10,6 +10,8 @@
 #include "unittype.h"
 #include "datatypes.h"
 #include <QDesktopWidget>
+#include <random>
+#include <QTime>
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -22,6 +24,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     clv = new QListWidget(this);
     ns = new NotificationSystem(this);
     about = new About();
+    diplo = new Diplomacy(this);
+    diplo->hide();
 
     warbox = new QMessageBox();
     warbox->addButton(QMessageBox::Cancel);
@@ -57,6 +61,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     cityScreenVisible = false;
     techTreeVisible = false;
+    diploVisible = false;
     relocateUnit = false;
     turnEnded = false;
     turnStarted = true;
@@ -161,6 +166,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
 //    renderer->DrawGuiText(map, stringData, gameView);
+//    gameView->addRect(0,0, 3560, 2376, QPen(Qt::red));
+    qDebug() << "Actual map size:" << gameView->GetScene()->sceneRect().size();
 
     zoomScale = 1;
 
@@ -175,10 +182,28 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     year = -4040;
 
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
+    qsrand(QTime::currentTime().msec());
 
     playerInfoRect = new QRect(0, 0, this->width(), 20);
     gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
     statusMessage = " ";
+}
+
+void GameManager::WarByDiplomacy()
+{
+    int targetCivListIndex = diplo->GetIndex();
+
+    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetCivListIndex)->GetLeaderName())});
+
+    civList.at(currentTurn)->SetAtWar(targetCivListIndex);
+    civList.at(targetCivListIndex)->SetAtWar(currentTurn);
+    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), civList.at(currentTurn)->getCiv());
+    diplo->declareWar->setEnabled(false);
+}
+
+void GameManager::MakePeace()
+{
+    ProcessPeace(diplo->GetIndex());
 }
 
 void GameManager::InitCivs(Nation player, int numAI)
@@ -189,6 +214,8 @@ void GameManager::InitCivs(Nation player, int numAI)
     civ->setNextTech(civ->GetTechList().at(1));
     civ->setCivIndex(0);
     techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
+    QPixmap pic;
+
     QString str = "Assets/CityLists/";
     QString str2;
     switch (player)
@@ -196,76 +223,93 @@ void GameManager::InitCivs(Nation player, int numAI)
     case America:
         str2 = "america.txt";
         civ->SetLeaderName(QString("Washington"));
+        pic = QPixmap("Assets/Leaders/George_head.jpg");
         break;
     case Germany:
         str2 = "germany.txt";
         civ->SetLeaderName(QString("Bismark"));
+        pic = QPixmap("Assets/Leaders/bismark.jpg");
         break;
     case India:
         str2 = "india.txt";
         civ->SetLeaderName(QString("Gandhi"));
+        pic = QPixmap("Assets/Leaders/gandhi.jpg");
         break;
     case China:
         str2 = "china.txt";
         civ->SetLeaderName(QString("Zedong"));
+        pic = QPixmap("Assets/Leaders/Mao.jpg");
         break;
     case Mongolia:
         str2 = "mongolia.txt";
         civ->SetLeaderName(QString("Genghis Khan"));
+        pic = QPixmap("Assets/Leaders/khan.jpg");
         break;
     case Aztec:
         str2 = "aztec.txt";
         civ->SetLeaderName(QString("Montezuma"));
+        pic = QPixmap("Assets/Leaders/montezuma.jpg");
         break;
     case France:
         str2 = "france.txt";
         civ->SetLeaderName(QString("Napoleon"));
+        pic = QPixmap("Assets/Leaders/napoleon.jpg");
         break;
     case Iroquois:
         str2 = "iroquois.txt";
         civ->SetLeaderName(QString("Hiawatha"));
+        pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
         break;
     case Greece:
         str2 = "greece.txt";
         civ->SetLeaderName(QString("Alexander"));
+        pic = QPixmap("Assets/Leaders/Alexander.jpg");
         break;
     case Rome:
         str2 = "rome.txt";
         civ->SetLeaderName(QString("Ceasar"));
+        pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
         break;
     case England:
         str2 = "england.txt";
         civ->SetLeaderName(QString("Elizabeth"));
+        pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
         break;
     case Arabia:
         str2 = "arabia.txt";
         civ->SetLeaderName(QString("al-Rashid"));
+        pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
         break;
     case Persia:
         str2 = "persia.txt";
         civ->SetLeaderName(QString("Cyrus"));
+        pic = QPixmap("Assets/Leaders/Cyrus.jpg");
         break;
     case Russia:
         str2 = "russia.txt";
         civ->SetLeaderName(QString("Stalin"));
+        pic = QPixmap("Assets/Leaders/stalin.jpg");
         break;
     case Japan:
         str2 = "japan.txt";
         civ->SetLeaderName(QString("Nobunga"));
+        pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
         break;
     case Egypt:
         str2= "egypt.txt";
         civ->SetLeaderName(QString("Ramesses"));
+        pic = QPixmap("Assets/Leaders/Ramseses.jpg");
         break;
     default:
         str2 = "india.txt";
         civ->SetLeaderName(QString("Gandhi"));
+        pic = QPixmap("Assets/Leaders/gandhi.jpg");
         break;
     }
     str = str + str2;
     civ->loadCities(str);
     civList.push_back(civ);
-
+    diplo->AddLeader(civ->GetLeaderName(), pic, player, true);
     srand(time(0));
     int civNum;
     bool found;
@@ -297,87 +341,104 @@ newCivRand:
             case America:
                 civ = new Civilization(America, true, "Washington");
                 civ->loadCities("Assets/CityLists/america.txt");
+                pic = QPixmap("Assets/Leaders/George_head.jpg");
                 selNat.push_back(civNum);
                 break;
             case Germany:
                 civ = new Civilization(Germany, true, "Bismark");
                 civ->loadCities("Assets/CityLists/germany.txt");
+                pic = QPixmap("Assets/Leaders/bismark.jpg");
                 selNat.push_back(civNum);
                 break;
             case India:
                 civ = new Civilization(India, true, "Gandhi");
                 civ->loadCities("Assets/CityLists/india.txt");
+                pic = QPixmap("Assets/Leaders/gandhi.jpg");
                 selNat.push_back(civNum);
                 break;
             case China:
                 civ = new Civilization(China, true, "Zedong");
                 civ->loadCities("Assets/CityLists/china.txt");
+                pic = QPixmap("Assets/Leaders/Mao.jpg");
                 selNat.push_back(civNum);
                 break;
             case Mongolia:
                 civ = new Civilization(Mongolia, true, "Genghis Khan");
                 civ->loadCities("Assets/CityLists/mongolia.txt");
+                pic = QPixmap("Assets/Leaders/khan.jpg");
                 selNat.push_back(civNum);
                 break;
             case Aztec:
                 civ = new Civilization(Aztec, true, "Montezuma");
                 civ->loadCities("Assets/CityLists/aztec.txt");
+                pic = QPixmap("Assets/Leaders/montezuma.jpg");
                 selNat.push_back(civNum);
                 break;
             case France:
                 civ = new Civilization(France, true, "Napoleon");
                 civ->loadCities("Assets/CityLists/france.txt");
+                pic = QPixmap("Assets/Leaders/napoleon.jpg");
                 selNat.push_back(civNum);
                 break;
             case Iroquois:
                 civ = new Civilization(Iroquois, true, "Hiawatha");
                 civ->loadCities("Assets/CityLists/iroquois.txt");
+                pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
                 selNat.push_back(Iroquois);
                 break;
             case Greece:
                 civ = new Civilization(Greece, true, "Alexander");
                 civ->loadCities("Assets/CityLists/greece.txt");
+                pic = QPixmap("Assets/Leaders/Alexander.jpg");
                 selNat.push_back(civNum);
                 break;
             case Rome:
                 civ = new Civilization(Rome, true, "Ceasar");
                 civ->loadCities("Assets/CityLists/rome.txt");
+                pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
                 selNat.push_back(civNum);
                 break;
             case England:
                 civ = new Civilization(England, true, "Elizabeth");
                 civ->loadCities("Assets/CityLists/england.txt");
+                pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
                 selNat.push_back(civNum);
                 break;
             case Arabia:
                 civ = new Civilization(Arabia, true, "al-Rashid");
                 civ->loadCities("Assets/CityLists/arabia.txt");
+                pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
                 selNat.push_back(civNum);
                 break;
             case Persia:
                 civ = new Civilization(Persia, true, "Cyrus");
                 civ->loadCities("Assets/CityLists/persia.txt");
+                pic = QPixmap("Assets/Leaders/Cyrus.jpg");
                 selNat.push_back(civNum);
                 break;
             case Russia:
                 civ = new Civilization(Russia, true, "Stalin");
                 civ->loadCities("Assets/CityLists/russia.txt");
+                pic = QPixmap("Assets/Leaders/stalin.jpg");
                 selNat.push_back(civNum);
                 break;
             case Japan:
                 civ = new Civilization(Japan, true, "Nobunga");
                 civ->loadCities("Assets/CityLists/japan.txt");
+                pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
                 selNat.push_back(civNum);
                 break;
             case Egypt:
                 civ = new Civilization(Egypt, true, "Ramesses");
                 civ->loadCities("Assets/CityLists/egypt.txt");
+                pic = QPixmap("Assets/Leaders/Ramseses.jpg");
                 selNat.push_back(civNum);
                 break;
             default:
                 //Always default to Ghandi.
                 civ = new Civilization(India, true, "Gandhi");
                 civ->loadCities("Assets/CityLists/india.txt");
+                pic = QPixmap("Assets/Leaders/gandhi.jpg");
                 selNat.push_back(civNum);
                 break;
             }
@@ -390,6 +451,7 @@ newCivRand:
                 civ->setNextTech(civ->GetTechList().at(1));
                 civ->setCivIndex(i+1);
                 civList.push_back(civ);
+                diplo->AddLeader(civ->GetLeaderName(), pic, (Nation)civNum, false);
             }
             // Otherwise, delete it and try again.
             else
@@ -561,6 +623,7 @@ void GameManager::StartTurn()
     {
         statusMessage = " ";
         gameTurn++;
+        diplo->UpdateTurn();
 
         //Set the number of years to pass per turn.
         //  This is based on the standard game pace in Civ V
@@ -614,7 +677,6 @@ void GameManager::StartTurn()
     int accumulatedScience = civList.at(currentTurn)->getAccumulatedScience();
 
     int techCost = civList.at(currentTurn)->getCurrentTech()->getCost();
-
     if(accumulatedScience >= techCost)
     {
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
@@ -801,6 +863,7 @@ void GameManager::StartTurn()
 
         }
 
+        int civMilStr = 0;
         foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
         {
             if(!unit->RequiresOrders && unit->isPathEmpty() && !unit->isFortified)
@@ -816,7 +879,14 @@ void GameManager::StartTurn()
             {
                 renderer->SetUnitNeedsOrders(unit->GetTileIndex(), false);
             }
+
+            if(!unit->isNonCombat())
+                civMilStr += unit->GetUnitPower();
         }
+
+        qDebug() << "Military Strength for" << uc->NationName(civList.at(currentTurn)->getCiv()) << ": " <<civMilStr;
+        civList.at(currentTurn)->SetMilitaryStrength(civMilStr);
+
         //-----------------------------------------------------------------------
 
         //If a city took damage and has healed, alert the renderer of this change.
@@ -1036,13 +1106,14 @@ void GameManager::UpdateTileData()
             }
         }
 
-        if((targetTile->ContainsUnit || targetTile->HasCity) && targetTile->GetControllingCivListIndex() != 0)
+        if((targetTile->ContainsUnit || targetTile->HasCity) && (targetTile->GetControllingCivListIndex() != 0) && (targetTile->GetControllingCivListIndex() != -1))
         {
-            if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
+            if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
             {
                 if(gameTurn == 1)
                 {
                     statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
+                    state = IDLE;
                 }
                 else
                 {
@@ -1071,7 +1142,7 @@ void GameManager::UpdateTileData()
                 {
                     if(tile->GetOccupyingCivListIndex() != currentTurn)
                     {
-                        if(!uc->AtPeaceWith(tile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()}))
+                        if(!uc->AtPeaceWith(tile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
                         {
                             targetTile = tile;
                             break;
@@ -1093,6 +1164,11 @@ void GameManager::UpdateTileData()
                 }
             }
         }
+
+        if(state == ATTACK_CITY)
+        {
+            state = FIND_CITY;
+        }
     }
 
     if(state == FIND_UNIT)
@@ -1109,8 +1185,14 @@ void GameManager::UpdateTileData()
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
         tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
-        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && unitToMove->RequiresOrders)
+        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (unitToMove->RequiresOrders || unitToMove->isFortified))
         {
+            if(unitToMove->isFortified)
+            {
+                renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+                unitToMove->isFortified = false;
+            }
+
             map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
             moveUnit->setEnabled(true);
             this->redrawTile = true;
@@ -1216,7 +1298,7 @@ void GameManager::UpdateTileData()
             attackCity->setEnabled(false);
         }
 
-        if(targetTile->GetControllingCivListIndex() == civList.at(currentTurn)->GetCivListIndexAtWar())
+        if(!uc->AtPeaceWith(targetCity->GetCityTile(), WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
         {
             uc->AttackCity(unitToMove, targetCity);
 
@@ -1256,7 +1338,7 @@ void GameManager::UpdateTileData()
 
     if(processedData.relocateOrderGiven && state == MOVE_UNIT)
     {
-        if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()})
+        if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()})
                 && unitToMove->GetOwner() != targetTile->GetControllingCiv())
         {
             if(gameTurn == 1)
@@ -1310,7 +1392,7 @@ void GameManager::UpdateTileData()
                 renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
             }
 
-            uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->GetCivListIndexAtWar(), civList.at(currentTurn)->GetNationAtWar()});
+            uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()});
 
             relocateUnit = false;
             processedData.relocateOrderGiven = false;
@@ -1472,6 +1554,10 @@ void GameManager::InitButtons()
     connect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
     showTechTreeButton->setShortcut(QKeySequence(Qt::Key_T));
 
+    showDiplomacy = new QPushButton("Diplomacy");
+    connect(showDiplomacy, SIGNAL(clicked(bool)), this, SLOT(toggleDiplomacy()));
+    showDiplomacy->setShortcut(QKeySequence(Qt::Key_V));
+
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
     moveUnit->setEnabled(false);
@@ -1543,6 +1629,8 @@ void GameManager::InitButtons()
 
     connect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem()));
     connect(ns, SIGNAL(itemClicked(QListWidgetItem*)), ns, SLOT(removeNotification(QListWidgetItem*)));
+    connect(diplo->makePeace, SIGNAL(clicked(bool)), this, SLOT(MakePeace()));
+    connect(diplo->declareWar, SIGNAL(clicked(bool)), this, SLOT(WarByDiplomacy()));
 
     clv->setMaximumWidth(100);
 
@@ -1573,6 +1661,7 @@ void GameManager::InitLayouts()
     vLayout->setMargin(2);
 
     unitControlButtons->addWidget(showTechTreeButton);
+    unitControlButtons->addWidget(showDiplomacy);
     unitControlButtons->addSpacing(widget.screenGeometry(widget.primaryScreen()).height() / 1.8f);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
@@ -1591,8 +1680,10 @@ void GameManager::InitLayouts()
 //    gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
+//    gameLayout->addWidget(diplo);
     gameLayout->addWidget(ns);
     gameLayout->setGeometry(QRect(100, 20, this->width(), this->height()));
+    diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
 
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::HLine);
@@ -1824,74 +1915,22 @@ void GameManager::ProcessAttackUnit()
     this->redrawTile = true;
 }
 
-void GameManager::ProcessPeace()
+void GameManager::ProcessPeace(int makePeaceWithIndex)
 {
-    int indexAtWar = civList.at(currentTurn)->GetCivListIndexAtWar();
-
-    civList.at(currentTurn)->MakePeace();
-    civList.at(indexAtWar)->MakePeace();
-
-    // Move player units outside the enemy's borders
-    foreach(City* city, civList.at(indexAtWar)->GetCityList())
+    if(AcceptsPeace(civList.at(makePeaceWithIndex)))
     {
-        foreach(Tile* tile, city->GetControlledTiles())
+        civList.at(currentTurn)->MakePeace(makePeaceWithIndex);
+        civList.at(makePeaceWithIndex)->MakePeace(currentTurn);
+
+        // Move player units outside the enemy's borders
+        foreach(City* city, civList.at(makePeaceWithIndex)->GetCityList())
         {
-            if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == 0)
+            foreach(Tile* tile, city->GetControlledTiles())
             {
-                Unit *unit = uc->FindUnitAtTile(tile, civList.at(currentTurn)->GetUnitList());
-
-                foreach(Tile* outside, city->tileQueue)
+                if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == 0)
                 {
-                    if(!outside->ContainsUnit)
-                    {
-                        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
-                        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
+                    Unit *unit = uc->FindUnitAtTile(tile, civList.at(currentTurn)->GetUnitList());
 
-                        if(map->GetTileAt(unit->GetTileIndex())->Selected)
-                                map->GetTileAt(unit->GetTileIndex())->Selected = false;
-
-                        //update the unit's position
-                        unit->SetPositionIndex(outside->GetTileIndex());
-                        unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(currentTurn);
-
-                        // Set the data for the unit's new tile
-                        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
-
-                        unit->RequiresOrders = true;
-                        renderer->UpdateUnits(map, gameView, unit, true);
-                        renderer->SetUnitNeedsOrders(unit->GetTileIndex(), unit->RequiresOrders);
-                        break;
-                    }
-                }
-            }
-        }
-
-        foreach(Unit *aiUnit, civList.at(indexAtWar)->GetUnitList())
-        {
-            if(!aiUnit->isPathEmpty())
-            {
-                while(!aiUnit->isPathEmpty())
-                {
-                    aiUnit->UpdatePath();
-                }
-
-                aiUnit->RequiresOrders = true;
-            }
-        }
-    }
-
-    // Move enemy units outside the players borders
-    foreach(City* city, civList.at(currentTurn)->GetCityList())
-    {
-        foreach(Tile* tile, city->GetControlledTiles())
-        {
-            if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == indexAtWar)
-            {
-                Unit *unit = uc->FindUnitAtTile(tile, civList.at(indexAtWar)->GetUnitList());
-
-                if(unit->isPathEmpty())
-                {
                     foreach(Tile* outside, city->tileQueue)
                     {
                         if(!outside->ContainsUnit)
@@ -1905,28 +1944,152 @@ void GameManager::ProcessPeace()
                             //update the unit's position
                             unit->SetPositionIndex(outside->GetTileIndex());
                             unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                            map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(indexAtWar);
+                            map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(currentTurn);
 
                             // Set the data for the unit's new tile
                             map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
 
                             unit->RequiresOrders = true;
                             renderer->UpdateUnits(map, gameView, unit, true);
+                            renderer->SetUnitNeedsOrders(unit->GetTileIndex(), unit->RequiresOrders);
                             break;
                         }
                     }
                 }
-                else
+            }
+
+            foreach(Unit *aiUnit, civList.at(makePeaceWithIndex)->GetUnitList())
+            {
+                if(!aiUnit->isPathEmpty())
                 {
-                    uc->MoveUnit(unit, map, currentTurn);
-                    renderer->UpdateUnits(map, gameView, unit, true);
+                    while(!aiUnit->isPathEmpty())
+                    {
+                        aiUnit->UpdatePath();
+                    }
+
+                    aiUnit->RequiresOrders = true;
                 }
+            }
+        }
+
+        // Move enemy units outside the players borders
+        foreach(City* city, civList.at(currentTurn)->GetCityList())
+        {
+            foreach(Tile* tile, city->GetControlledTiles())
+            {
+                if(tile->ContainsUnit && tile->GetOccupyingCivListIndex() == makePeaceWithIndex)
+                {
+                    Unit *unit = uc->FindUnitAtTile(tile, civList.at(makePeaceWithIndex)->GetUnitList());
+
+                    if(unit->isPathEmpty())
+                    {
+                        foreach(Tile* outside, city->tileQueue)
+                        {
+                            if(!outside->ContainsUnit)
+                            {
+                                map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
+                                map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
+
+                                if(map->GetTileAt(unit->GetTileIndex())->Selected)
+                                        map->GetTileAt(unit->GetTileIndex())->Selected = false;
+
+                                //update the unit's position
+                                unit->SetPositionIndex(outside->GetTileIndex());
+                                unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
+                                map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(makePeaceWithIndex);
+
+                                // Set the data for the unit's new tile
+                                map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
+
+                                unit->RequiresOrders = true;
+                                renderer->UpdateUnits(map, gameView, unit, true);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        uc->MoveUnit(unit, map, currentTurn);
+                        renderer->UpdateUnits(map, gameView, unit, true);
+                    }
+                }
+            }
+        }
+
+        diplo->MakePeaceWith(civList.at(currentTurn)->getCiv(), civList.at(makePeaceWithIndex)->getCiv());
+
+        QMessageBox *mbox = new QMessageBox();
+        mbox->setText(QString("%1 has ACCEPTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+        mbox->exec();
+        delete mbox;
+
+        diplo->makePeace->setEnabled(false);
+
+        ns->PostNotification(Notification{6, QString("%1 has made peace with %2").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(makePeaceWithIndex)->GetLeaderName())});
+
+        this->redrawTile = true;
+    }
+    else
+    {
+        if(diplo->AtPermanentWar(civList.at(makePeaceWithIndex)->getCiv()))
+        {
+            QMessageBox *mbox = new QMessageBox();
+            mbox->setText(QString("%1 is tired of your lies about peace and friendship\nand has come to the conclusion that your differences are to be settled\nin a fight to the death.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+            mbox->exec();
+            delete mbox;
+        }
+        else
+        {
+            QMessageBox *mbox = new QMessageBox();
+            mbox->setText(QString("%1 has REJECTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+            mbox->exec();
+            delete mbox;
+            diplo->makePeace->setEnabled(false);
+        }
+    }
+}
+
+/*
+ * AcceptsPeace is used to deterine if the AI will accept a peace treaty.
+ * The passed param should be an AI Civ since peace can only be offered by
+ * the player (for now). This function returns false if the AI and player
+ * are at permanent war, or if the AI rejects the peace treaty.
+ */
+bool GameManager::AcceptsPeace(Civilization *ai)
+{
+    bool accepts = false;
+    int turnsAtWar = diplo->GetLengthOfWar(ai->getCiv());
+    int timesAtWar = diplo->GetNumberOfWars(ai->getCiv());
+
+    if(!diplo->AtPermanentWar(ai->getCiv()))
+    {
+        if((turnsAtWar - 10) >= 0)
+        {
+            double chanceToAccept = ((static_cast<double>(civList.at(0)->GetMilitaryStrength()) * (turnsAtWar - 10)) / (ai->GetMilitaryStrength() * (2 * timesAtWar)));
+
+            double weights[] =
+            {
+                (1.0 - chanceToAccept), // Will not accept Peace
+                (chanceToAccept)        // Will accept Peace
+            };
+
+            std::mt19937 gen(qrand());
+            std::discrete_distribution<> d(std::begin(weights), std::end(weights));
+
+            int chance = d(gen);
+
+            if(chance == 0)
+            {
+                accepts = false;
+            }
+            else if(chance == 1)
+            {
+                accepts = true;
             }
         }
     }
 
-
-    this->redrawTile = true;
+    return accepts;
 }
 
 void GameManager::closeGame()
@@ -1956,6 +2119,7 @@ void GameManager::showCity(City* city)
         cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
+        cityScreen->getGold(civList.at(0)->getCivYield()->GetGoldYield());
         cityScreen->updateList(city->getNumberOfBuildings());
         cityScreen->updateWidget();
 
@@ -2106,6 +2270,23 @@ void GameManager::showTechTree()
     }
 }
 
+void GameManager::toggleDiplomacy()
+{
+    if(!diploVisible)
+    {
+        diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
+        diplo->show();
+        diploVisible = true;
+    }
+    else
+    {
+        diplo->hide();
+        diplo->UpdateLeader();
+        gameView->setDragMode(QGraphicsView::ScrollHandDrag);
+        diploVisible = false;
+    }
+}
+
 void GameManager::foundNewCity()
 {
     state = FOUND_CITY;
@@ -2237,12 +2418,6 @@ void GameManager::WarDeclared()
 {
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
 
-    if(civList.at(currentTurn)->isAtWar())
-    {
-        ns->PostNotification(Notification{6, QString("%1 has made peace with %2.").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(civList.at(currentTurn)->GetCivListIndexAtWar())->GetLeaderName())});
-        ProcessPeace();
-    }
-
     if(targetTile->HasCity)
     {
         state = FIND_CITY;
@@ -2253,8 +2428,10 @@ void GameManager::WarDeclared()
         ProcessAttackUnit();
     }
 
-    civList.at(currentTurn)->SetAtWar(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex());
-    civList.at(targetTile->GetOccupyingCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
+    civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
+    civList.at(targetTile->GetOccupyingCivListIndex())->SetAtWar(currentTurn);
+
+    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), civList.at(0)->getCiv());
 }
 
 void GameManager::WarAvoided()
@@ -2271,15 +2448,11 @@ void GameManager::WarByInvasion()
 {
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
 
-    if(civList.at(currentTurn)->isAtWar())
-    {
-        ns->PostNotification(Notification{6, QString("%1 has made peace with %2.").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(civList.at(currentTurn)->GetCivListIndexAtWar())->GetLeaderName())});
-        ProcessPeace();
-    }
-
     state = INVADE;
-    civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCiv(), targetTile->GetControllingCivListIndex());
-    civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(civList.at(currentTurn)->getCiv(), currentTurn);
+    civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
+    civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(currentTurn);
+
+    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), civList.at(0)->getCiv());
 }
 
 void GameManager::OpenHelp()

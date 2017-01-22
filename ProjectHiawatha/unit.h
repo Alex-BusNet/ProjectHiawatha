@@ -63,6 +63,7 @@ public:
     int GetTechIndex();
     int GetPixmapIndex();
     int GetUnitListIndex();
+    int GetUnitPower();
 
     QString GetName();
     QList<Tile*> GetPath();

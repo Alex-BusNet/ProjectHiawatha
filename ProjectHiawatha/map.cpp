@@ -27,14 +27,14 @@ Map::Map()
 
 Map::Map(int mapSizeX, int mapSizeY)
 {
-    this->mapSizeX = mapSizeX;
+    this->mapSizeX = mapSizeX * 2;
     this->mapSizeY = mapSizeY;
 
 
     // The Ocean scale factor is used to determine
     // how many columns should be created
     // at the center and edges of the map
-    switch(this->mapSizeX)
+    switch(mapSizeX)
     {
     case 20:
         this->oceanScaleFactor = 2;
@@ -58,6 +58,8 @@ Map::Map(int mapSizeX, int mapSizeY)
         this->oceanScaleFactor = 3;
         break;
     }
+
+    qDebug() << "Estimated map size:" << this->mapSizeX * 89 << "px X" << mapSizeY * 99 << "px";
 }
 
 void Map::InitHexMap()
@@ -84,6 +86,7 @@ void Map::InitHexMap()
             odd = false;
             column = 0;
         }
+
 
         for(int j = 0; j < (mapSizeX); j++)
         {
@@ -119,6 +122,9 @@ void Map::InitHexMap()
         //Point: posY += 37;
         posY += 37;
     }
+
+    qDebug() << "Tile 0 size:" << this->GetTileAt(0)->GetTilePolygon().boundingRect().size();
+    qDebug() << "Last tile size:" << board.last()->GetTilePolygon().boundingRect().size();
 
     GenerateBiomes();
     GenerateMapEdge();

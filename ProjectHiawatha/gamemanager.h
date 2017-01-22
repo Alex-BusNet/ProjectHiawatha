@@ -23,6 +23,7 @@
 #include "notificationsystem.h"
 #include <chrono>
 #include "about.h"
+#include "diplomacy.h"
 #include <QDesktopWidget>
 
 class GameManager : public QWidget
@@ -39,6 +40,7 @@ private:
     QListWidget *clv;
     NotificationSystem *ns;
     About *about;
+    Diplomacy *diplo;
     QDesktopWidget widget;
 
     QTimer *updateTimer;
@@ -61,6 +63,7 @@ private:
     QPushButton *endTurn;
     QPushButton *moveUnit;
     QPushButton *showTechTreeButton;
+    QPushButton *showDiplomacy;
     QPushButton *buildFarm;
     QPushButton *buildMine;
     QPushButton *buildTradePost;
@@ -128,6 +131,7 @@ private:
     QString currentProductionName;
     bool cityScreenVisible;
     bool techTreeVisible;
+    bool diploVisible;
     bool relocateUnit, fortify;
     bool updateUnitPos;
     bool turnEnded, turnStarted;
@@ -153,7 +157,9 @@ private:
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();
-    void ProcessPeace();
+    void ProcessPeace(int makePeaceWithIndex);
+
+    bool AcceptsPeace(Civilization* ai);
 
     TileData processedData;
 
@@ -172,6 +178,7 @@ public slots:
     void moveUnitTo();
     void nextTurn();
     void showTechTree();
+    void toggleDiplomacy();
     void foundNewCity();
     void buildNewRoad();
     void buildNewFarm();
@@ -190,6 +197,8 @@ public slots:
     void WarDeclared();
     void WarAvoided();
     void WarByInvasion();
+    void WarByDiplomacy();
+    void MakePeace();
     void OpenHelp();
 
     void parseItem();

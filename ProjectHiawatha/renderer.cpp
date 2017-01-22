@@ -225,12 +225,11 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         // The requires orders icon and fortified icons are turned on and off by changing
         // their opacity levels when told to do so by the manager.
 
-        QLabel *orders = new QLabel("!");
-        orders->setStyleSheet("QLabel { color: red; background-color: transparent; font-size: 14px; font-weight: bold; }");
-        orders->setGeometry(map.GetTileAt(i)->GetItemTexturePoint().x() + 30, map.GetTileAt(i)->GetItemTexturePoint().y(), 6, 14);
-        ordersIcon.push_back(view->addWidget(orders));
+        QPixmap *orders = new QPixmap("Assets/Icons/requiresOrders.png");
+        ordersIcon.push_back(view->addPixmap(*orders));
         ordersIcon.last()->setOpacity(0);
         ordersIcon.last()->setZValue(8);
+        ordersIcon.last()->setPos(map.GetTileAt(i)->GetItemTexturePoint().x() + 30, map.GetTileAt(i)->GetItemTexturePoint().y());
 
         fortifiedIcon.push_back(view->addPixmap(*fortified));
         fortifiedIcon.last()->setScale(0.3f);

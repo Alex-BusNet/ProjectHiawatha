@@ -176,6 +176,11 @@ void CityScreen::updateWidget()
 
 }
 
+void CityScreen::getGold(int gold)
+{
+    this->totalGold = gold;
+}
+
 
 void CityScreen::on_listWidget_itemSelectionChanged()
 {
@@ -281,4 +286,26 @@ void CityScreen::on_listWidget_2_itemDoubleClicked(QListWidgetItem *item)
     currentCity->setIsUnit(true);
     ui->progressBar->setValue(currentCity->getAccumulatedProduction());
     update();
+}
+
+void CityScreen::on_purchase_clicked()
+{
+    if(ui->tabWidget->currentIndex() == 0)
+    {
+        if(totalGold > buildings.at(ui->listWidget->currentRow())->getProductionCost())
+        {
+
+        }
+    }else if(ui->tabWidget->currentIndex() == 1)
+    {
+        if(totalGold > initialUnitList.at(ui->listWidget_2->currentRow())->GetCost())
+        {
+
+        }
+    }
+
+    //CHECK FOR SUFFICIENT FUNDS
+    //IF ENOUGH FUNDS
+    //THEN BUILD UNIT/BUILDING
+    //ADD TO CITYS LIST
 }

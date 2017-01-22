@@ -16,6 +16,6 @@ typedef struct {int index; bool player, target; } SelectData;
 typedef struct {int gold, production, research, food, culture;} YieldStruct;
 
 typedef struct{int IconIndex; QString ToolTipMessage;} Notification;
-typedef struct{int warCivIndex; Nation warringCiv;} WarData;
+typedef struct{bool atWar; QVector<int> warringCivListIndex;} WarData;
 
 #endif // DATATYPES_H
