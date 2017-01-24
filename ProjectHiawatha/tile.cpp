@@ -1,4 +1,5 @@
 #include "tile.h"
+#include <QBitmap>
 #include <QDebug>
 #include <qmath.h>
 
@@ -66,15 +67,15 @@ Tile::Tile(int _posX, int _posY)
 //    texturePoint = QPoint(_posX - (12 * drawScale), _posY + (0 * drawScale));
 
     //Pointtop:
-    points[0] = QPoint(_posX + (22 * drawScale) + 1, _posY - (12 * drawScale));
-    points[1] = QPoint(_posX + (45 * drawScale), _posY);
-    points[2] = QPoint(_posX + (45 * drawScale), _posY + (25 * drawScale));
-    points[3] = QPoint(_posX + (22 * drawScale) + 1, _posY + (37 * drawScale));
+    points[0] = QPoint(_posX + (22 * drawScale), _posY - (12 * drawScale));
+    points[1] = QPoint(_posX + (44 * drawScale), _posY);
+    points[2] = QPoint(_posX + (44 * drawScale), _posY + (25 * drawScale));
+    points[3] = QPoint(_posX + (22 * drawScale), _posY + (37 * drawScale));
     points[4] = QPoint(_posX, _posY + (25 * drawScale));
     points[5] = QPoint(_posX, _posY);
-    points[6] = QPoint(_posX + (22 * drawScale) + 1, _posY - (12 * drawScale));
+    points[6] = QPoint(_posX + (22 * drawScale), _posY - (12 * drawScale));
 
-    center = QPoint(_posX + (22 * drawScale) + 1, _posY + (12 * drawScale));
+    center = QPoint(_posX + (22 * drawScale), _posY + (12 * drawScale));
     textCenter = QPoint(_posX + (15 * drawScale), _posY + (10 * drawScale));
     texturePoint = QPointF(_posX, _posY - (12 * drawScale));
     itemTexturePoint = QPoint(_posX + (13 * drawScale), _posY - (3 * drawScale));
@@ -336,35 +337,35 @@ void Tile::SetTileTexture(TileType type)
     switch(type)
     {
     case WATER:
-        this->tileTexture = QPixmap("Assets/Textures/water.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
         break;
     case GRASS:
-        this->tileTexture = QPixmap("Assets/Textures/grass.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/grass.png");
         break;
     case DESERT:
-        this->tileTexture = QPixmap("Assets/Textures/desert.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/desert.png");
         break;
     case MOUNTAIN:
-         this->tileTexture = QPixmap("Assets/Textures/mountain_alt.png");
+         this->tileTexture = QPixmap("Assets/Textures/Scaled/mountain.png");
         break;
     case ICE:
-        this->tileTexture = QPixmap("Assets/Textures/snow.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/snow.png");
         break;
     case COAST:
         //This may or may not be added.
         //It is going to require some logic to get the right texture.
         break;
     case HILL:
-        this->tileTexture = QPixmap("Assets/Textures/hill.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/hills.png");
         break;
     case FOREST:
-         this->tileTexture = QPixmap("Assets/Textures/forest.png");
+         this->tileTexture = QPixmap("Assets/Textures/Scaled/forest.png");
         break;
     case SNOW:
-        this->tileTexture = QPixmap("Assets/Textures/snow.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/snow.png");
         break;
     case PLAINS_TILE:
-        this->tileTexture = QPixmap("Assets/Textures/plains.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/plains.png");
         break;
     default:
         this->tileTexture = QPixmap("Assets/Textures/water_flat.png");
@@ -383,7 +384,7 @@ void Tile::SetHexPos(int x, int y)
     y *= 10;
     this->points[0] = QPoint(x, y);
     this->points[1] = QPoint((x + (25 * drawScale)), y);
-    this->points[2] = QPoint((x + 370), (y + (22 * drawScale)));
+    this->points[2] = QPoint((x + 37), (y + (22 * drawScale)));
     this->points[3] = QPoint((x + (25 * drawScale)), (y + (44 * drawScale)));
     this->points[4] = QPoint(x, (y + (44 * drawScale)));
     this->points[5] = QPoint((x - (12 * drawScale)), (y + (22 * drawScale)));

@@ -50,7 +50,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
         else if((mpScreenPos != lastScreenPos) && (mpScenePos != lastScenePos) && unitAwaitingRelocation)
         {
             // Move unit command Issued
-            column = (mrScenePos.x() / 45);
+            column = (mrScenePos.x() / 44);
             row = (mrScenePos.y() / 75);
 
             qDebug() << "       Tile selected before adjust:" << column << "," << row;
@@ -78,7 +78,7 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
         {
             // Tile was Selected
 
-            column = (mrScenePos.x() / 45);
+            column = (mrScenePos.x() / 44);
             row = (mrScenePos.y() / 74);
 
              qDebug() << "       Tile selected before adjust:" << column << "," << row;

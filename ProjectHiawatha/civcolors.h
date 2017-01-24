@@ -8,6 +8,7 @@ class CivColors
 {
 public:
     QColor NO_NATION_PRIMARY;
+    QColor NO_NATION_SECONDARY;
     QColor AMERICA_PRIMARY;
     QColor GERMANY_PRIMARY;
     QColor INDIA_PRIMARY;
@@ -28,6 +29,7 @@ public:
     CivColors()
     {
         this->NO_NATION_PRIMARY.setRgb(255, 255, 255, 0);
+        this->NO_NATION_SECONDARY.setRgb(200, 200, 200, 0);
         this->AMERICA_PRIMARY.setRgb(0, 0, 255, 255);
         this->GERMANY_PRIMARY.setRgb(70, 70, 70, 255);
         this->INDIA_PRIMARY.setRgb(0, 213, 0, 255);

@@ -100,7 +100,7 @@ void Map::InitHexMap()
             //flat:
 //            posX += 74;
             //point:
-            posX += 45;
+            posX += 44;
 
             column += 2;
         }
@@ -109,7 +109,7 @@ void Map::InitHexMap()
         {
             //Flat: posX = 12 + offset
             //Point: posX = 22;
-            posX = 23; // + rowOffset;
+            posX = 22; // + rowOffset;
         }
         else
         {
@@ -647,6 +647,96 @@ void Map::GetTileQueue(City *city)
     }
 }
 
+void Map::DefineCityBordersNew(City *city)
+{
+    QVector<QLine*> lines;
+
+    //Search run GetNeighbors on the tileQueue to find where the city's border tiles are
+    foreach(Tile* tile, city->tileQueue)
+    {
+        foreach(Tile* neighbor, GetNeighbors(tile))
+        {
+            if(neighbor->GetControllingCiv() == city->GetControllingCiv())
+            {
+                //Generate a new line that is the bordering edge of the tileQueue and controlled tile
+                QLine* l = new QLine();
+                bool first = true, done = false;
+                foreach(QPoint pt, tile->GetTilePolygon())
+                {
+                    foreach(QPoint nPt, neighbor->GetTilePolygon())
+                    {
+                        if((pt == nPt) && first)
+                        {
+                            l->setP1(nPt);
+                            first = false;
+                        }
+                        else if((pt == nPt) && !first && (nPt != l->p1()))
+                        {
+                            l->setP2(nPt);
+                            done = true;
+                            break;
+                        }
+                    }
+
+                    if(done)
+                    {
+                        first = true;
+                        break;
+                    }
+                }
+                lines.push_back(l);
+            }
+        }
+    }
+
+    foreach(QLine* line, lines)
+    {
+        qDebug() << "   " << line->p1() << line->p2();
+    }
+
+    QLine* f = lines.first();
+    QPolygon* newBorders = new QPolygon();
+    QPoint lPt = f->p2();
+    QLine l = *(lines.first());
+
+    bool done = false, found = false;
+    do
+    {
+        for(int i = 0; i < lines.size(); i++)
+        {
+            if(lines.at(i)->p1() == lPt)
+            {
+                newBorders->push_back(lines.at(i)->p1());
+                lines.at(i)->setP1(QPoint(0,0));
+                l = *(lines.at(i));
+                lPt = lines.at(i)->p2();
+                found = true;
+            }
+            else if(lines.at(i)->p2() == lPt)
+            {
+                newBorders->push_back(lines.at(i)->p2());
+                lines.at(i)->setP2(QPoint(0,0));
+                l = *(lines.at(i));
+                lPt = lines.at(i)->p1();
+                found = true;
+            }
+
+            if(found)
+            {
+                found = false;
+                if((l.p1() == QPoint(0,0)) && (l.p2() == QPoint(0,0)))
+                {
+                    done = true;
+                    break;
+                }
+            }
+        }
+    }
+    while(!done);
+
+    city->SetCityBorders(*newBorders);
+}
+
 /*
  * CreateCity() is the function that actually generates the city object that
  * is added to each civ upon its initial spawn and every city founding thereafter
@@ -724,7 +814,14 @@ newrand:
 
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
 
-            city = this->CreateCity(index, civs.at(i), true);
+            if(i == 0)
+            {
+                city = this->CreateCity(GetTileFromCoord(12, 6)->GetTileIndex(), civs.at(i), true);
+            }
+            else
+            {
+                city = this->CreateCity(index, civs.at(i), true);
+            }
 
             if(!city->IsInitialized())
             {

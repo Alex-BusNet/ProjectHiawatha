@@ -167,7 +167,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     /// in the debugging process. -Port
 //    renderer->DrawGridLines(gameView);
 //    renderer->DrawGuiText(map, stringData, gameView);
-//    gameView->addRect(0,0, 3560, 2376, QPen(Qt::red));
     qDebug() << "Actual map size:" << gameView->GetScene()->sceneRect().size();
 
     zoomScale = 1;
@@ -580,6 +579,7 @@ void GameManager::StartTurn()
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             map->GetTileQueue(city);
+            map->DefineCityBordersNew(city);
             city->SortTileQueue();
             renderer->UpdateCityBorders(city, gameView, civList.at(currentTurn)->getCiv());
 

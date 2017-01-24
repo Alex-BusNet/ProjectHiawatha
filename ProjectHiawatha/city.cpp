@@ -251,6 +251,7 @@ Update_t City::UpdateProgress()
 
     if(turnsToBorderGrowth == 0 && !fullyExpanded)
     {
+        qDebug() << "       Update City Borders" << this->GetName();
         //Gets the first available tile from the tile queue, and adds it to cityControlledTiles.
         foreach(Tile* tile, this->tileQueue)
         {
@@ -274,7 +275,7 @@ Update_t City::UpdateProgress()
         }
 
         //Redefine the city's borders
-        this->DefineCityBorders(true);
+//        this->DefineCityBorders(true);
 
         //Calculate the number of turns until a new tile is grabbed by the city.
         this->turnsToBorderGrowth = floor((20 + (pow(10*(this->cityControlledTiles.size() - 1), 1.1))) / this->cityTotalYield->GetCultureYield());
@@ -578,8 +579,6 @@ void City::FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint
         cityBorder.push_back(point);
 
     }
-
-
 }
 
 //Accessor and Mutators
@@ -689,10 +688,10 @@ void City::SetCityRenderIndex(int index)
 
 void City::SetCityBorders(QPolygon borders)
 {
-    foreach(QPoint pt, borders)
-    {
-        this->cityBorder.push_back(pt);
-    }
+    if(!this->cityBorder.isEmpty())
+        this->cityBorder.clear();
+
+    this->cityBorder = borders;
 }
 
 void City::SetCityHealth(float health)
@@ -775,6 +774,7 @@ void City::SetMaximumExpansionBorderTiles(QList<Tile *> tileVect)
 
 void City::DefineCityBorders(bool redefine)
 {
+
     if(redefine)
     {
         cityBorder.clear();
@@ -810,11 +810,8 @@ void City::DefineCityBorders(bool redefine)
 
     int p = l, q;
 
-//    qDebug() << "------Leftmost point at:" << l << points[l];
-
     //This uses the Jarvis March / Gift-wrapping method for finding the convex hull
     // that encompasses all points in the set
-//    qDebug() << "     Finding convex hull";
 
     do
     {
@@ -854,8 +851,6 @@ void City::DefineCityBorders(bool redefine)
             dstX = currentX - lastX;
             dstY = currentY - lastY;
 
-//            qDebug() << "   currentX:" << currentX << "lastX:" << lastX  << "dstX:" << dstX << "currentY:" << currentY << "lastY:" << lastY << "dstY:" << dstY;
-
             if(((abs(dstX) >= 88) || (abs(dstY) >= 50)))
             {
                 if((currentX > lastX) && (currentY > lastY))
@@ -893,12 +888,10 @@ void City::DefineCityBorders(bool redefine)
                 {
                     if(lastY > currentY)
                     {
-//                        qDebug() << "     --Vertically aligned, left side";
                         FindPoints(lastX - 50, currentY, currentX, lastY, points, LRBT);
                     }
                     else if(lastY < currentY)
                     {
-//                        qDebug() << "     --Vertically aligned, right side";
                         FindPoints(lastX - 50, lastY, currentX, currentY, points, RLTB);
                     }
                 }
@@ -908,12 +901,6 @@ void City::DefineCityBorders(bool redefine)
         this->cityBorder.push_back(hull[i]);
     }
 
-//    qDebug() << "------------CityBorder points";
-//    foreach(QPoint point, cityBorder)
-//    {
-//        qDebug() << "           " << point;
-//    }
-
     if(!redefine)
     {
         this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
@@ -921,10 +908,7 @@ void City::DefineCityBorders(bool redefine)
         this->growthCost = floor(15 + 6*(this->citizens - 1) + pow(this->citizens - 1, 1.8));
         this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
     }
-
-//    qDebug() << "       Done";
 }
-
 
 QString City::GetName()
 {

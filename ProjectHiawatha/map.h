@@ -37,6 +37,8 @@ public:
     void SpawnCivs(QVector<Civilization*> civs);
     void GetTileQueue(City *city);
 
+    void DefineCityBordersNew(City* city);
+
     City *CreateCity(int cityTileIndex, Civilization *founder, bool isCapital);
 
 private:

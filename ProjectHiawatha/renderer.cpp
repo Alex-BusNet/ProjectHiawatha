@@ -83,7 +83,14 @@ void Renderer::DrawHexScene(Map map, GameView *view)
     QPen circlePen(Qt::transparent);
     for(int i = 0; i < map.GetBoardSize(); i++)
     {
-        map.GetTileAt(i)->SetTilePen(outlinePen);
+        if(map.GetTileAt(i)->GetTileID().row % 2 != 0)
+        {
+            map.GetTileAt(i)->SetTilePen(QPen(cc->NO_NATION_SECONDARY));
+        }
+        else
+        {
+            map.GetTileAt(i)->SetTilePen(outlinePen);
+        }
         tiles.push_back(view->addPolygon(map.GetTileAt(i)->GetTilePolygon()));
         tiles.at(i)->setPen(map.GetTileAt(i)->GetTilePen());
         tiles.at(i)->setZValue(1);
@@ -94,7 +101,7 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         tileCircles.last()->setZValue(2);
 
         tilePixmap.push_back(view->addPixmap((*(map.GetTilePixmap(i)))));
-        tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
+//        tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
         tilePixmap.at(i)->setPos(map.GetTileAt(i)->GetTexturePoint());
 
         if(map.GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
@@ -351,7 +358,7 @@ void Renderer::DrawGridLines(GameView *view)
     int rowLines, colLines, width, height;
 
     rowLines = view->GetScene()->height() / 74;
-    colLines = view->GetScene()->width() / 45;
+    colLines = view->GetScene()->width() / 44;
     QPen line(Qt::red);
 
     width = view->GetScene()->sceneRect().width();
@@ -366,7 +373,7 @@ void Renderer::DrawGridLines(GameView *view)
 
     for(int i = 0; i < colLines; i++)
     {
-        gridLines.push_back(view->addLine(45 * i, 0, 45 * i, height, line));
+        gridLines.push_back(view->addLine(44 * i, 0, 44 * i, height, line));
     }
 
     for(int i = 0; i < rowLines; i++)
@@ -374,7 +381,7 @@ void Renderer::DrawGridLines(GameView *view)
         for(int j = 0; j < colLines; j++)
         {
             gridCoords.push_back(view->addText(QString("%1,%2").arg(j).arg(i)));
-            gridCoords.last()->setPos((45 * j) + 10, (74 * i) + 15);
+            gridCoords.last()->setPos((44 * j) + 10, (74 * i) + 15);
             gridCoords.last()->setZValue(7);
             gridCoords.last()->setDefaultTextColor(Qt::red);
             gridCoords.last()->setScale(0.5);
