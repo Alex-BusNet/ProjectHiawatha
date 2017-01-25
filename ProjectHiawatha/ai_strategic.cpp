@@ -15,7 +15,7 @@
 #include "yield.h"
 #include "ai_controller.h"
 #include <QDebug>
-//#define DEBUG
+#define DEBUG
 
 AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
 #ifdef DEBUG
@@ -24,7 +24,7 @@ AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
     cityLocation(civ, map);
     civ->clearThreats();
     invasionCheck(civ,player,map);
-    cityProduction(civ);
+    cityProduction(civ, player);
     aiOp = new AI_Operational(cityLocations, civ, player, map);
     //****************Operational AI called**************
     //Operational AI will control military strategy and city founding
@@ -42,7 +42,7 @@ AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
 #endif
 }
 
-void AI_Strategic::cityProduction(Civilization *civ){
+void AI_Strategic::cityProduction(Civilization *civ,Civilization *player){
 #ifdef DEBUG
      qDebug()<<"City Production";
 #endif
@@ -85,6 +85,17 @@ void AI_Strategic::cityProduction(Civilization *civ){
             combatUnits++;
         }
     }//Tallies various unit types
+    if(30<=combatUnits&&!civ->isAtWar()){
+#ifdef DEBUG
+     qDebug()<<"30 units! Declare War!";
+#endif
+        //Needs to use the official logic, or else the war is a surprise!
+
+        //Should declare war!
+        //Mostly just gets triggered if the AI has completed all buildings and has amassed a large army
+        //Also makes it difficult to make peace with powerful civs once you've declared war
+    }
+
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
             if((!civ->isAtWar()||civ->GetCityList().length()<2)&&(22>civ->GetCityAt(i)->getNumberOfBuildings())){//Settle more cities, builds workers and buildings

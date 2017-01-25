@@ -13,7 +13,7 @@ class AI_Strategic
 public:
     AI_Strategic(Civilization *civ, Civilization *player, Map *map);//Probably use default constructor
 private:
-    void cityProduction(Civilization *civ);
+    void cityProduction(Civilization *civ, Civilization *player);
     void invasionCheck(Civilization *civ, Civilization *player, Map *map);
     AI_Operational *aiOp;
     void cityLocation(Civilization *civ, Map *map);
