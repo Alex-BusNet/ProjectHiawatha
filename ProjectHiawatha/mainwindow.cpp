@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     options = NULL;
     about = NULL;
     fullscreen = false;
-    QPixmap *bkgnd = new QPixmap("/Assets/Menu/Background/dom_hiawatha.png");
+    QPixmap *bkgnd = new QPixmap("Assets/Menu/Background/dom_hiawatha.png");
     QPixmap *buttonBorder = new QPixmap("Assets/Menu/mainMenuBackground.png");
     ui->mainBackground->setPixmap(*bkgnd);
     ui->menuButtonBorder->setPixmap(*buttonBorder);
