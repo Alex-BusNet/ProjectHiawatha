@@ -18,7 +18,7 @@
 //#define DEBUG
 
 AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
-    #ifdef DEBUG
+#ifdef DEBUG
      qDebug()<<"     Strategic AI Called";
 #endif
     cityLocation(civ, map);
@@ -37,13 +37,13 @@ AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
         civ->cityFounded = false;
         cityLocations.removeFirst();
     }
-    #ifdef DEBUG
+#ifdef DEBUG
      qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
 #endif
 }
 
 void AI_Strategic::cityProduction(Civilization *civ){
-    #ifdef DEBUG
+#ifdef DEBUG
      qDebug()<<"City Production";
 #endif
     bool activeSettler = false;
@@ -87,13 +87,9 @@ void AI_Strategic::cityProduction(Civilization *civ){
     }//Tallies various unit types
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
-            if(!civ->isAtWar()||civ->GetCityList().length()<2){//Settle more cities, builds workers and buildings
-#ifdef DEBUG
-     qDebug()<<"produce stuff";
-#endif
+            if((!civ->isAtWar()||civ->GetCityList().length()<2)&&(22>civ->GetCityAt(i)->getNumberOfBuildings())){//Settle more cities, builds workers and buildings
                 if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
-                    ///For debugging purposes, Settler production has been set to 10. This will need to be reset to 100.
                     civ->GetCityAt(i)->setCurrentProductionCost(100);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Settler");
@@ -101,18 +97,12 @@ void AI_Strategic::cityProduction(Civilization *civ){
                     //Set city to build settler
                 }
                 else if((!civ->GetCityAt(i)->getHasWorker())&&(1<civ->GetCityList().length())&&(workers<civ->GetCityList().length())){
-#ifdef DEBUG
-     qDebug()<<"City: "<<civ->GetCityAt(i)->GetName();
-#endif
                     civ->GetCityAt(i)->setCurrentProductionCost(70);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Worker");
                     civ->GetCityAt(i)->setProductionIndex(6);
                 }
                 else{
-#ifdef DEBUG
-     qDebug()<<" Buildings";
-#endif
                     int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
                     //Buildings are a linear progression, which simulates tech progress
                     if(0==numBuildings){
@@ -252,9 +242,6 @@ void AI_Strategic::cityProduction(Civilization *civ){
             else {
                 int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
                 //Unit capabilities are based on what buildings exist (linear progression)
-#ifdef DEBUG
- qDebug()<<"Provoked Construction at tech level "<<numBuildings;
-#endif
                 if(4>=numBuildings){
                     //Tech level 1 (Arch-warrior)
                     if(meleeUnits<5){
@@ -622,7 +609,7 @@ void AI_Strategic::cityProduction(Civilization *civ){
                         civ->GetCityAt(i)->setProductionIndex(27);
                     }
                 }
-                else if(21>=numBuildings){
+                else if(20<=numBuildings){
                     //tech 14 stealthbomb
                     if(meleeUnits<2){
                         civ->GetCityAt(i)->setCurrentProductionCost(380);
@@ -662,11 +649,11 @@ void AI_Strategic::cityProduction(Civilization *civ){
                     }
                 }
             }
-            qDebug()<<"City now producing "<<civ->GetCityAt(i)->getProductionName();
+            qDebug()<<civ->GetCityAt(i)->GetName()<<" now producing "<<civ->GetCityAt(i)->getProductionName();
         }
         else{
 #ifdef DEBUG
-     qDebug()<<"City already producing "<<civ->GetCityAt(i)->getProductionName();
+     qDebug()<<civ->GetCityAt(i)->GetName()<<" already producing "<<civ->GetCityAt(i)->getProductionName();
 #endif
         }
     }
@@ -713,7 +700,7 @@ void AI_Strategic::cityLocation(Civilization *civ, Map *map){
 #ifdef DEBUG
      qDebug()<<"City Locations";
 #endif
-        for(int i=0; i<(14-civ->GetCityList().length());i++){
+        for(int i=0; i<(24-civ->GetCityList().length());i++){
             int cityIndex = civ->GetCityAt(0)->GetCityTile()->GetTileIndex(), indexToSettle;
             if(cityIndex + (15 * (i+1)) < map->GetBoardSize())
             {
