@@ -1514,6 +1514,7 @@ void GameManager::UpdateTileData()
         city->FilterMEBList();
 
         map->GetTileQueue(city);
+        map->DefineCityBordersNew(city);
         city->SortTileQueue();
 
         city->SortControlledTiles();

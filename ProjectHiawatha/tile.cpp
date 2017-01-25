@@ -99,7 +99,7 @@ Tile::Tile(int _posX, int _posY)
 
     Checked = false;
     owner = NO_NATION;
-    city = new City();
+    this->governingCity = -1;
     outlinePen.setColor(QColor(255, 255, 255, 0));
     occupyingCivListIndex = -1;
     controllingCivListIndex = -1;
@@ -149,16 +149,21 @@ void Tile::SetControllingCiv(Nation civ, int civListIndex)
 {
     this->owner = civ;
     this->controllingCivListIndex = civListIndex;
+
+    if(civListIndex == -1)
+    {
+        this->governingCity = -1;
+    }
 }
 
-City* Tile::GetGoverningCity()
+int Tile::GetGoverningCity()
 {
-    return this->city;
+    return this->governingCity;
 }
 
-void Tile::SetGoverningCity(City *city)
+void Tile::SetGoverningCity(int cityID)
 {
-    this->city = city;
+    this->governingCity = cityID;
 }
 
 void Tile::SetTilePen(QPen pen)

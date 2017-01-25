@@ -35,6 +35,7 @@ public:
     bool Walkable; // Map Gen path finding flag
     bool DiscoveredByPlayer; // Fog of War flag
     bool IsSeenByPlayer; // Fog of War and Line of Sight flag
+
     TileType GetTileType();
     Yield* GetYield();
     TileImprovement GetTileImprovement();
@@ -47,8 +48,8 @@ public:
     Nation GetControllingCiv();
     void SetControllingCiv(Nation civ, int civListIndex);
 
-    City *GetGoverningCity();
-    void SetGoverningCity(City *city);
+    int GetGoverningCity();
+    void SetGoverningCity(int cityID);
 
     void SetTilePen(QPen pen);
     QPen GetTilePen();
@@ -116,7 +117,7 @@ private:
     Nation owner;
     //Resource resource;
     QPen outlinePen;
-    City *city;
+    int governingCity;
 
     int moveCost;
     int occupyingCivListIndex;

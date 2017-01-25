@@ -35,6 +35,7 @@ public:
     void UpdateCityStatus();
 
     void SetCityRenderIndex(int index);
+    void SetCityID(int ID);
     void SetCityBorders(QPolygon borders);
     void SetCityHealth(float health);
     void SetCityMaxHealth(int health);
@@ -50,7 +51,6 @@ public:
 
     void AddControlledTile(Tile* tile);
     void SetMaximumExpansionBorderTiles(QList<Tile*> tileVect);
-    void DefineCityBorders(bool redefine);
     void setCapitolConnection(bool flag);
 
     void SetCitizenCount(int count);
@@ -111,6 +111,7 @@ public:
 
     int GetCityIndex();
     int GetCityRenderIndex();
+    int GetCityID();
     int GetCityHealth();
     int GetMaxHealth();
     int GetCityStrength();
@@ -141,7 +142,6 @@ public:
     ~City();
 
 private:
-    enum SortOrder {LRBT, LRTB, RLTB, RLBT};
 
     QVector<Tile*> cityControlledTiles;
     Unit* StationedWorkers;
@@ -177,6 +177,7 @@ private:
 
     int cityIndex;
     int cityRenderIndex;
+    int cityID;
 
     int growthCost;
     int foodSurplus;
@@ -196,7 +197,6 @@ private:
 
     int orientation(QPoint p, QPoint q, QPoint r);
 
-    void FindPoints(int lowX, int lowY, int upperX, int upperY, QVector<QPoint> ptVect, SortOrder sortOrder);
     QPolygon cityBorder, maximumExpansionBorder, minimumSettleDistance;
 
 };

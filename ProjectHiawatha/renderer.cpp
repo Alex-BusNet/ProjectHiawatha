@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QProgressBar>
 #include "resources.h"
-#include <math.h>
 
 
 //======================================
@@ -344,6 +343,7 @@ void Renderer::DiscoverTile(int index, GameView *view)
 {
     view->removeItem(fogOfWar.at(index));
     fogOfWar.insert(index, view->addPixmap(*hidden));
+    fogOfWar.at(index)->setPixmap(*hidden);
     fogOfWar.at(index)->setOpacity(0);
 }
 

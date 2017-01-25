@@ -37,22 +37,22 @@ Map::Map(int mapSizeX, int mapSizeY)
     switch(mapSizeX)
     {
     case 20:
-        this->oceanScaleFactor = 2;
-        break;
-    case 28:
         this->oceanScaleFactor = 3;
         break;
-    case 33:
+    case 28:
         this->oceanScaleFactor = 4;
         break;
-    case 40:
+    case 33:
         this->oceanScaleFactor = 5;
         break;
-    case 52:
+    case 40:
         this->oceanScaleFactor = 6;
         break;
-    case 64:
+    case 52:
         this->oceanScaleFactor = 7;
+        break;
+    case 64:
+        this->oceanScaleFactor = 8;
         break;
     default:
         this->oceanScaleFactor = 3;
@@ -613,6 +613,9 @@ void Map::GetTileQueue(City *city)
 {
     QList<Tile*> surroundingTiles;
 
+    if(!city->borderQueue.isEmpty())
+        city->borderQueue.clear();
+
     foreach(Tile* tile, city->GetControlledTiles())
     {
         surroundingTiles = GetNeighbors(tile);
@@ -621,14 +624,30 @@ void Map::GetTileQueue(City *city)
 
         foreach(Tile* tile, surroundingTiles)
         {
+            if(!city->GetControlledTiles().contains(tile))
+            {
+                if(city->borderQueue.size() > 1)
+                {
+                    if(!city->borderQueue.contains(tile))
+                    {
+                        city->borderQueue.push_back(tile);
+                    }
+                }
+                else
+                {
+                    city->borderQueue.push_back(tile);
+                }
+            }
+
             if((tile->GetControllingCiv() != NO_NATION) ||
                     ((tile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
-                     (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)) || (tile->GetTileType() == ICE))
+                     (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)) ||
+                    (tile->GetTileType() == ICE))
             {
                 surroundingTiles.removeAt(surroundCount);
             }
             else
-            {
+            {                
                 if(city->tileQueue.size() > 1)
                 {
                     if(!city->tileQueue.contains(tile))
@@ -652,11 +671,11 @@ void Map::DefineCityBordersNew(City *city)
     QVector<QLine*> lines;
 
     //Search run GetNeighbors on the tileQueue to find where the city's border tiles are
-    foreach(Tile* tile, city->tileQueue)
+    foreach(Tile* tile, city->borderQueue)
     {
         foreach(Tile* neighbor, GetNeighbors(tile))
         {
-            if(neighbor->GetControllingCiv() == city->GetControllingCiv())
+            if(neighbor->GetGoverningCity() == city->GetCityID())
             {
                 //Generate a new line that is the bordering edge of the tileQueue and controlled tile
                 QLine* l = new QLine();
@@ -687,11 +706,6 @@ void Map::DefineCityBordersNew(City *city)
                 lines.push_back(l);
             }
         }
-    }
-
-    foreach(QLine* line, lines)
-    {
-        qDebug() << "   " << line->p1() << line->p2();
     }
 
     QLine* f = lines.first();
@@ -765,16 +779,16 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     city->SetControllingCiv(founder->getCiv());
     city->GetCityTile()->SetYield(5,5,5,5,5);
 
-    foreach(Tile* tile, initialTiles)
-    {
-        city->AddControlledTile(tile);
-    }
-
     city->UpdateCityYield();
     city->SetCityIndex(founder->GetCityList().size());
     city->SetName(founder->GetNextCityName());
     city->SetCitizenCount(1);
-    city->DefineCityBorders(false);
+    city->SetCityID(100*founder->getCivIndex() + founder->GetCityList().size());
+
+    foreach(Tile* tile, initialTiles)
+    {
+        city->AddControlledTile(tile);
+    }
 
     city->InitializeCity();
 
@@ -827,6 +841,7 @@ newrand:
             {
                 //since this function only runs when spawning civs for the first time,
                 // we can get away with only checking the city at index 0.
+                //  This may change when Save/Load is added
                 if(city->GetMaximumExpansionBorder().boundingRect().intersects(civs.at(j)->GetCityAt(0)->GetMaximumExpansionBorder().boundingRect()))
                 {
                     civs.at(i)->SetCityIndex(0);
@@ -851,7 +866,6 @@ newrand:
                 {
                     if(city->GetMinimumSettleDistance().boundingRect().intersects(board.at(k)->GetTilePolygon().boundingRect()))
                     {
-                        delete city;
                         civs.at(i)->SetCityIndex(0);
                         foreach(Tile* tile, city->GetControlledTiles())
                         {
@@ -861,6 +875,8 @@ newrand:
                                 tile->IsWorked = false;
                             }
                         }
+
+                        delete city;
                         board.at(index)->SetControllingCiv(NO_NATION, -1);
                         goto newrand;
                     }
@@ -870,13 +886,14 @@ newrand:
             board.at(index)->SetControllingCivListIndex(i);
             board.at(index)->HasCity = true;
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
-            board.at(index)->SetGoverningCity(city);
+            board.at(index)->SetGoverningCity(city->GetCityID());
 
             QList<Tile*> cityMEB = this->GetNeighborsRange(board.at(index), 4);
             city->SetMaximumExpansionBorderTiles(cityMEB);
             city->FilterMEBList();
 
             this->GetTileQueue(city);
+            this->DefineCityBordersNew(city);
             city->SortTileQueue();
 
             city->SortControlledTiles();
