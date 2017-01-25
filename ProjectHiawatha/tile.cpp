@@ -43,6 +43,8 @@ Tile::Tile(int _posX, int _posY)
     HasCity = false;
     ContainsUnit = false;
     Selected = false;
+    DiscoveredByPlayer = false;
+    IsSeenByPlayer = false;
 
     //Size of Hex tiles in px
 

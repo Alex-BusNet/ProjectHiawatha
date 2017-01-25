@@ -905,7 +905,6 @@ void GameManager::StartTurn()
 
     if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
     {
-
         QString cityList;
         for(int j = 0;j<20;j++)
         {
@@ -948,6 +947,8 @@ void GameManager::EndTurn()
 {
     countTime = true;
     state = IDLE;
+    processedData.relocateOrderGiven = false;
+    processedData.newData = false;
     //This is for debugging purposes.
     begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
@@ -1075,6 +1076,7 @@ void GameManager::UpdateTileData()
 {
     if(!processedData.relocateOrderGiven && state == IDLE)
     {
+        qDebug() << "Searching First tile selected";
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
         if(unitTile->Selected)
@@ -1086,6 +1088,7 @@ void GameManager::UpdateTileData()
 
         if(unitTile->ContainsUnit)
         {
+            qDebug() << "Tile contains unit";
             state = FIND_UNIT;
         }
     }
@@ -1113,6 +1116,7 @@ void GameManager::UpdateTileData()
             {
                 if(gameTurn == 1)
                 {
+                    qDebug() << "Tile has non-player controlled entity";
                     statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
                     state = IDLE;
                 }
@@ -1174,6 +1178,7 @@ void GameManager::UpdateTileData()
 
     if(state == FIND_UNIT)
     {
+        qDebug() << "Find Unit";
         state = IDLE;
 
         if(unitToMove != NULL)
@@ -1344,8 +1349,10 @@ void GameManager::UpdateTileData()
         {
             if(gameTurn == 1)
             {
+                qDebug() << "Relocation into enemy controlled zone";
                 statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
                 state = IDLE;
+                relocateUnit = false;
             }
             else
             {
@@ -1367,7 +1374,13 @@ void GameManager::UpdateTileData()
         }
         else
         {
-            if(targetTile->ContainsUnit)
+            if(gameTurn == 1)
+            {
+                qDebug() << "Safety war check";
+                statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
+                state = IDLE;
+            }
+            else if(targetTile->ContainsUnit)
             {
                 statusMessage = "--------<< You cannot move there >>--------";
                 state = IDLE;
@@ -1509,7 +1522,7 @@ void GameManager::UpdateTileData()
         }
     }
 
-    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && state != AI_FOUND_CITY)
+    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && state != AI_FOUND_CITY && state != IDLE)
     {
         if(unitToMove != NULL)
         {

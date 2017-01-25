@@ -26,6 +26,9 @@ public:
     void UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved);
     void UpdateCityBorders(City* city, GameView *view, Nation owner);
 
+    void DiscoverTile(int index, GameView *view);
+    void SetTileVisibility(int index, GameView *view);
+
     void DrawHexScene(Map map, GameView *scene);
     void DrawCityBorders(City *city, GameView *view, Nation owner);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
@@ -55,6 +58,7 @@ private:
 
     QVector<QGraphicsPolygonItem*> tiles;
     QVector<QGraphicsPixmapItem*> tilePixmap;
+    QVector<QGraphicsPixmapItem*> fogOfWar;
     QVector<QGraphicsPolygonItem*> mapBorders;
     QVector<QGraphicsPixmapItem*> resourcePixmap;
     QVector<QGraphicsEllipseItem*> tileCircles;
@@ -96,6 +100,7 @@ private:
     QPixmap *incencePix, *winePix, *silverPix, *fursPix, *sheepPix;
     QPixmap *tileWorkedIcon, *tileUnworked, *fortified;
     QPixmap *mine, *tradePost, *plantation, *farm, *none;
+    QPixmap *clouds, *hidden;
 
 };
 

@@ -30,6 +30,10 @@ Renderer::Renderer(int mapSizeX)
     cc = new CivColors();
     outlinePen.setColor(cc->NO_NATION_PRIMARY);
 
+    //Fog of War Images
+    clouds = new QPixmap("Assets/Textures/Scaled/clouds.png");
+    hidden = new QPixmap("Assets/Textures/Scales/fogOfWar.png");
+
     //Strategic Resource Images
     ironPix = new QPixmap("Assets/Resources/iron.png");
     horsePix = new QPixmap("Assets/Resources/horses.png");
@@ -96,13 +100,14 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         tiles.at(i)->setZValue(1);
         tiles.at(i)->setOpacity(50);
 
-
         tileCircles.push_back(view->addEllipse(map.GetTileAt(i)->GetTileRect(), circlePen));
         tileCircles.last()->setZValue(2);
 
         tilePixmap.push_back(view->addPixmap((*(map.GetTilePixmap(i)))));
-//        tilePixmap.at(i)->setScale(0.64f); //textureScale = 0.32f * drawScale
         tilePixmap.at(i)->setPos(map.GetTileAt(i)->GetTexturePoint());
+
+//        fogOfWar.push_back(view->addPixmap(clouds));
+//        fogOfWar.at(i)->setPos(map.GetTileAt(i)->GetTexturePoint());
 
         if(map.GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
         {
@@ -332,6 +337,25 @@ void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 
     view->removeItem(cityBorders.at(city->GetCityRenderIndex()));
     cityBorders.replace(city->GetCityRenderIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
+}
+
+void Renderer::DiscoverTile(int index, GameView *view)
+{
+    view->removeItem(fogOfWar.at(index));
+    fogOfWar.insert(index, view->addPixmap(*hidden));
+    fogOfWar.at(index)->setOpacity(0);
+}
+
+void Renderer::SetTileVisibility(int index, GameView *view)
+{
+    if(fogOfWar.at(index)->opacity() == 0)
+    {
+        fogOfWar.at(index)->setOpacity(75);
+    }
+    else
+    {
+        fogOfWar.at(index)->setOpacity(0);
+    }
 }
 
 void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView *view)

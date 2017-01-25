@@ -30,11 +30,11 @@ public:
     bool IsWorked; // Yield calculation flag
     bool ContainsUnit; // Civ spawning flag
     bool HasCity; // Civ spawning flag
-    bool DiscoveredByPlayer; // Fog of War flag
     bool Checked; // Map Gen Flag
     bool Selected; // Unit selection Render flag
     bool Walkable; // Map Gen path finding flag
-
+    bool DiscoveredByPlayer; // Fog of War flag
+    bool IsSeenByPlayer; // Fog of War and Line of Sight flag
     TileType GetTileType();
     Yield* GetYield();
     TileImprovement GetTileImprovement();
@@ -117,6 +117,7 @@ private:
     //Resource resource;
     QPen outlinePen;
     City *city;
+
     int moveCost;
     int occupyingCivListIndex;
     int controllingCivListIndex;
