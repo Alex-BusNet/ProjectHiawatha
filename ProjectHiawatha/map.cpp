@@ -814,14 +814,7 @@ newrand:
 
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
 
-            if(i == 0)
-            {
-                city = this->CreateCity(GetTileFromCoord(12, 6)->GetTileIndex(), civs.at(i), true);
-            }
-            else
-            {
-                city = this->CreateCity(index, civs.at(i), true);
-            }
+            city = this->CreateCity(index, civs.at(i), true);
 
             if(!city->IsInitialized())
             {
