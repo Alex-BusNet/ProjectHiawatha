@@ -90,7 +90,7 @@ void AI_Strategic::cityProduction(Civilization *civ,Civilization *player){
      qDebug()<<"30 units! Declare War!";
 #endif
         //Needs to use the official logic, or else the war is a surprise!
-
+        civ->setCityFounding(AIQueueData{AI_DECLARE_WAR,unitlist.at(0)});
         //Should declare war!
         //Mostly just gets triggered if the AI has completed all buildings and has amassed a large army
         //Also makes it difficult to make peace with powerful civs once you've declared war
