@@ -197,7 +197,7 @@ void GameManager::WarByDiplomacy()
 
     civList.at(currentTurn)->SetAtWar(targetCivListIndex);
     civList.at(targetCivListIndex)->SetAtWar(currentTurn);
-    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), civList.at(currentTurn)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), targetCivListIndex, civList.at(currentTurn)->getCiv());
     diplo->declareWar->setEnabled(false);
 }
 
@@ -1349,7 +1349,6 @@ void GameManager::UpdateTileData()
         {
             if(gameTurn == 1)
             {
-                qDebug() << "Relocation into enemy controlled zone";
                 statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
                 state = IDLE;
                 relocateUnit = false;
@@ -1376,7 +1375,6 @@ void GameManager::UpdateTileData()
         {
             if(gameTurn == 1)
             {
-                qDebug() << "Safety war check";
                 statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
                 state = IDLE;
             }
@@ -1519,6 +1517,7 @@ void GameManager::UpdateTileData()
         {
             clv->addItem(city->GetName());
             selectedTileQueue->enqueue(SelectData{foundCityIndex, false, false});
+            foundCity->setEnabled(false);
         }
     }
 
@@ -2030,7 +2029,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
             }
         }
 
-        diplo->MakePeaceWith(civList.at(currentTurn)->getCiv(), civList.at(makePeaceWithIndex)->getCiv());
+        diplo->MakePeaceWith(civList.at(currentTurn)->getCiv(), makePeaceWithIndex, civList.at(makePeaceWithIndex)->getCiv());
 
         QMessageBox *mbox = new QMessageBox();
         mbox->setText(QString("%1 has ACCEPTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
@@ -2445,7 +2444,7 @@ void GameManager::WarDeclared()
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetOccupyingCivListIndex())->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), civList.at(0)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), targetTile->GetOccupyingCivListIndex(), civList.at(0)->getCiv());
 }
 
 void GameManager::WarAvoided()
@@ -2466,7 +2465,7 @@ void GameManager::WarByInvasion()
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), civList.at(0)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex(), civList.at(0)->getCiv());
 }
 
 void GameManager::OpenHelp()

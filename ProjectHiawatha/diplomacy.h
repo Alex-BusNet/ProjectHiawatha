@@ -18,7 +18,7 @@ public:
 
     void AddLeader(QString _name, QPixmap _image, Nation _nation, bool isPlayer);
     void RemoveLeader(Nation nation);
-    void DeclareWarOn(Nation target, Nation aggressor);
+    void DeclareWarOn(Nation target, int targetIndex, Nation aggressor);
     void UpdateTurn();
     void UpdateLeader();
 
@@ -26,7 +26,7 @@ public:
     int GetNumberOfWars(Nation ai);
     int GetIndex();
 
-    bool MakePeaceWith(Nation player, Nation ai);
+    bool MakePeaceWith(Nation player, int targetIndex, Nation ai);
     bool AtPermanentWar(Nation ai);
 
     QPushButton *declareWar;
