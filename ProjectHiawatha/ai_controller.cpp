@@ -1,11 +1,15 @@
 #include "ai_controller.h"
 #include <QDebug>
-
+//#define DEBUG
 void AI_Controller::AddAIToList(AI_Strategic *ai)
 {
-    qDebug() << "       Adding AI to Controller";
+#ifdef DEBUG
+     qDebug() << "       Adding AI to Controller";
+#endif
     aiList.push_back(ai);
-    qDebug() << "       Done.";
+#ifdef DEBUG
+     qDebug() << "       Done.";
+#endif
 }
 
 void AI_Controller::turnStarted(Civilization *civ, Civilization *player, Map *map)
