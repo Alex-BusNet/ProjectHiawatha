@@ -15,9 +15,12 @@
 #include "yield.h"
 #include "ai_controller.h"
 #include <QDebug>
+//#define DEBUG
 
 AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
-    qDebug()<<"     Strategic AI Called";
+    #ifdef DEBUG
+     qDebug()<<"     Strategic AI Called";
+#endif
     cityLocation(civ, map);
     civ->clearThreats();
     invasionCheck(civ,player,map);
@@ -28,15 +31,21 @@ AI_Strategic::AI_Strategic(Civilization *civ, Civilization *player, Map *map){
     //Pass it whether or not civ is preparing for / at war (midgoal)
     //Pass it number of cities currently founded (can be got from civ)
     if(civ->cityFounded){
-        qDebug() << "New city founded. Removing location from list.";
+#ifdef DEBUG
+     qDebug() << "New city founded. Removing location from list.";
+#endif
         civ->cityFounded = false;
         cityLocations.removeFirst();
     }
-    qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
+    #ifdef DEBUG
+     qDebug()<<"                 AI Turn Complete for "<<civ->getCiv();
+#endif
 }
 
 void AI_Strategic::cityProduction(Civilization *civ){
-    qDebug()<<"City Production";
+    #ifdef DEBUG
+     qDebug()<<"City Production";
+#endif
     bool activeSettler = false;
     int workers=0, combatUnits=0, meleeUnits=0, rangedUnits=0, siegeUnits=0, mountedUnits=0, antiMoutedUnits=0, fighters=0, bombers=0;
     for(int i = 0;i< civ->GetUnitList().length();i++){
@@ -79,7 +88,9 @@ void AI_Strategic::cityProduction(Civilization *civ){
     for(int i =0;i < civ->GetCityList().length(); i++){
         if("No Current Production"==civ->GetCityAt(i)->getProductionName()){//Determine if city is currently building something
             if(!civ->isAtWar()||civ->GetCityList().length()<2){//Settle more cities
-                qDebug()<<"produce stuff";
+#ifdef DEBUG
+     qDebug()<<"produce stuff";
+#endif
                 if((0==i)&&(!activeSettler)&&(11>civ->GetCityList().length()&&(1<=cityLocations.length()))){//Only first city builds settlers - logistical parameter
                     //Logic to only build 1 settler at a time
                     ///For debugging purposes, Settler production has been set to 10. This will need to be reset to 100.
@@ -87,19 +98,21 @@ void AI_Strategic::cityProduction(Civilization *civ){
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Settler");
                     civ->GetCityAt(i)->setProductionIndex(3);
-                    qDebug()<<"     Settler";
                     //Set city to build settler
                 }
                 else if((!civ->GetCityAt(i)->getHasWorker())&&(1<civ->GetCityList().length())&&(workers<civ->GetCityList().length())){
-                    qDebug()<<"City: "<<civ->GetCityAt(i)->GetName();
+#ifdef DEBUG
+     qDebug()<<"City: "<<civ->GetCityAt(i)->GetName();
+#endif
                     civ->GetCityAt(i)->setCurrentProductionCost(70);
                     civ->GetCityAt(i)->setIsUnit(true);
                     civ->GetCityAt(i)->setProductionName("Worker");
                     civ->GetCityAt(i)->setProductionIndex(6);
-                    qDebug()<<"     Worker";
                 }
                 else{
-                    qDebug()<<" Buildings";
+#ifdef DEBUG
+     qDebug()<<" Buildings";
+#endif
                     int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
                     //Buildings are a linear progression, which simulates tech progress
                     if(0==numBuildings){
@@ -107,154 +120,132 @@ void AI_Strategic::cityProduction(Civilization *civ){
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Walls");
                         civ->GetCityAt(i)->setProductionIndex(0);
-                        qDebug()<<"walls";
                     }
                     else if(1==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(50);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Granary");
                         civ->GetCityAt(i)->setProductionIndex(5);
-                        qDebug()<<"Granary";
                     }
                     else if(2==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(70);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("LightHouse");
                         civ->GetCityAt(i)->setProductionIndex(9);
-                        qDebug()<<"Lighthouse";
                     }
                     else if(3==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(125);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Barracks");
                         civ->GetCityAt(i)->setProductionIndex(3);
-                        qDebug()<<"Barracks";
                     }
                     else if(4==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(100);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Library");
                         civ->GetCityAt(i)->setProductionIndex(1);
-                        qDebug()<<"Library";
                     }
                     else if(5==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(100);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Colosseum");
                         civ->GetCityAt(i)->setProductionIndex(7);
-                        qDebug()<<"Colosseum";
                     }
                     else if(6==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(110);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Temple");
                         civ->GetCityAt(i)->setProductionIndex(12);
-                        qDebug()<<"Temple";
                     }
                     else if(7==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(120);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Courthouse");
                         civ->GetCityAt(i)->setProductionIndex(8);
-                        qDebug()<<"Courthouse";
                     }
                     else if(8==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(130);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Forge");
                         civ->GetCityAt(i)->setProductionIndex(16);
-                        qDebug()<<"Forge";
                     }
                     else if(9==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(115);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Aqueduct");
                         civ->GetCityAt(i)->setProductionIndex(13);
-                        qDebug()<<"Aqueduct";
                     }
                     else if(10==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(130);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Monastery");
                         civ->GetCityAt(i)->setProductionIndex(20);
-                        qDebug()<<"Monastery";
                     }
                     else if(11==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(150);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Market");
                         civ->GetCityAt(i)->setProductionIndex(19);
-                        qDebug()<<"Market";
                     }
                     else if(12==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(175);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Castle");
                         civ->GetCityAt(i)->setProductionIndex(15);
-                        qDebug()<<"Castle";
                     }
                     else if(13==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(180);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("University");
                         civ->GetCityAt(i)->setProductionIndex(21);
-                        qDebug()<<"University";
                     }
                     else if(14==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(220);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Observatory");
                         civ->GetCityAt(i)->setProductionIndex(2);
-                        qDebug()<<"Observatory";
                     }
                     else if(15==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(200);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Theatre");
                         civ->GetCityAt(i)->setProductionIndex(6);
-                        qDebug()<<"Theatre";
                     }
                     else if(16==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(300);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Bank");
                         civ->GetCityAt(i)->setProductionIndex(4);
-                        qDebug()<<"Bank";
                     }
                     else if(17==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(365);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Factory");
                         civ->GetCityAt(i)->setProductionIndex(10);
-                        qDebug()<<"Factory";
                     }
                     else if(18==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(365);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Hospital");
                         civ->GetCityAt(i)->setProductionIndex(11);
-                        qDebug()<<"Hospital";
                     }
                     else if(19==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(500);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Harbor");
                         civ->GetCityAt(i)->setProductionIndex(18);
-                        qDebug()<<"Harbor";
                     }
                     else if(20==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(425);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Hydro Plant");
                         civ->GetCityAt(i)->setProductionIndex(14);
-                        qDebug()<<"Hydro Plant";
                     }
                     else if(21==numBuildings){
                         civ->GetCityAt(i)->setCurrentProductionCost(500);
                         civ->GetCityAt(i)->setIsUnit(false);
                         civ->GetCityAt(i)->setProductionName("Nuclear Plant");
                         civ->GetCityAt(i)->setProductionIndex(17);
-                        qDebug()<<"Nuclear Plant";
                     }
                 }
             }
@@ -262,7 +253,9 @@ void AI_Strategic::cityProduction(Civilization *civ){
                 if(combatUnits<15){
                     int numBuildings=civ->GetCityAt(i)->getNumberOfBuildings();
                     //Unit capabilities are based on what buildings exist (linear progression)
-                    qDebug()<<"Provoked Construction at tech level "<<numBuildings;
+#ifdef DEBUG
+     qDebug()<<"Provoked Construction at tech level "<<numBuildings;
+#endif
                     if(4>=numBuildings){
                         //Tech level 1 (Arch-warrior)
                         if(meleeUnits<5){
@@ -270,14 +263,12 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Warrior");
                             civ->GetCityAt(i)->setProductionIndex(5);
-                            qDebug()<<"Warrior";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(50);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Archer");
                             civ->GetCityAt(i)->setProductionIndex(0);
-                            qDebug()<<"Archer";
                         }
                     }
                     else if(7>=numBuildings){
@@ -287,21 +278,18 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Warrior");
                             civ->GetCityAt(i)->setProductionIndex(5);
-                            qDebug()<<"Warrior";
                         }
                         else if(rangedUnits<9){
                             civ->GetCityAt(i)->setCurrentProductionCost(50);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Archer");
                             civ->GetCityAt(i)->setProductionIndex(0);
-                            qDebug()<<"Archer";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(60);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Spearman");
                             civ->GetCityAt(i)->setProductionIndex(4);
-                            qDebug()<<"Spearman";
                         }
                     }
                     else if(11>=numBuildings){
@@ -312,28 +300,24 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Swordsman");
                             civ->GetCityAt(i)->setProductionIndex(8);
-                            qDebug()<<"Swordsman";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(50);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Archer");
                             civ->GetCityAt(i)->setProductionIndex(0);
-                            qDebug()<<"Archer";
                         }
                         else if(antiMoutedUnits<2){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(80);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Catapult");
                             civ->GetCityAt(i)->setProductionIndex(7);
-                            qDebug()<<"Catapult";
                         }
                     }
                     else if(12>=numBuildings){
@@ -343,35 +327,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Swordsman");
                             civ->GetCityAt(i)->setProductionIndex(8);
-                            qDebug()<<"Swordsman";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else if(mountedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Knight");
                             civ->GetCityAt(i)->setProductionIndex(10);
-                            qDebug()<<"Knight";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(80);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Catapult");
                             civ->GetCityAt(i)->setProductionIndex(7);
-                            qDebug()<<"Catapult";
                         }
                     }
                     else if(13>=numBuildings){
@@ -381,35 +360,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Musketman");
                             civ->GetCityAt(i)->setProductionIndex(16);
-                            qDebug()<<"Musketman";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else if(mountedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Knight");
                             civ->GetCityAt(i)->setProductionIndex(10);
-                            qDebug()<<"Knight";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(80);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Catapult");
                             civ->GetCityAt(i)->setProductionIndex(7);
-                            qDebug()<<"Catapult";
                         }
                     }
                     else if(14>=numBuildings){
@@ -419,35 +393,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Musketman");
                             civ->GetCityAt(i)->setProductionIndex(16);
-                            qDebug()<<"Musketman";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else if(mountedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Knight");
                             civ->GetCityAt(i)->setProductionIndex(10);
-                            qDebug()<<"Knight";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(190);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cannon");
                             civ->GetCityAt(i)->setProductionIndex(12);
-                            qDebug()<<"Cannon";
                         }
                     }
                     else if(15>=numBuildings){
@@ -457,35 +426,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Rifleman");
                             civ->GetCityAt(i)->setProductionIndex(17);
-                            qDebug()<<"Rifleman";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else if(mountedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(225);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cavalry");
                             civ->GetCityAt(i)->setProductionIndex(14);
-                            qDebug()<<"Cavalry";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(190);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cannon");
                             civ->GetCityAt(i)->setProductionIndex(12);
-                            qDebug()<<"Cannon";
                         }
                     }
                     else if(16>=numBuildings){
@@ -495,35 +459,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Rifleman");
                             civ->GetCityAt(i)->setProductionIndex(17);
-                            qDebug()<<"Rifleman";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else if(mountedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(225);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cavalry");
                             civ->GetCityAt(i)->setProductionIndex(14);
-                            qDebug()<<"Cavalry";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(190);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cannon");
                             civ->GetCityAt(i)->setProductionIndex(12);
-                            qDebug()<<"Cannon";
                         }
                     }
                     else if(17>=numBuildings){
@@ -533,35 +492,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Infantry");
                             civ->GetCityAt(i)->setProductionIndex(23);
-                            qDebug()<<"Infantry";
                         }
                         else if(rangedUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(90);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Pikeman");
                             civ->GetCityAt(i)->setProductionIndex(11);
-                            qDebug()<<"Pikeman";
                         }
                         else if(mountedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(225);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Cavalry");
                             civ->GetCityAt(i)->setProductionIndex(14);
-                            qDebug()<<"Cavalry";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(330);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Artillery");
                             civ->GetCityAt(i)->setProductionIndex(18);
-                            qDebug()<<"Artillery";
                         }
                     }
                     else if(18>=numBuildings){
@@ -571,35 +525,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Infantry");
                             civ->GetCityAt(i)->setProductionIndex(23);
-                            qDebug()<<"Infantry";
                         }
                         else if(rangedUnits<2){
                             civ->GetCityAt(i)->setCurrentProductionCost(125);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Crossbowman");
                             civ->GetCityAt(i)->setProductionIndex(9);
-                            qDebug()<<"Crossbowman";
                         }
                         else if(mountedUnits<3){
                             civ->GetCityAt(i)->setCurrentProductionCost(375);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Tank");
                             civ->GetCityAt(i)->setProductionIndex(26);
-                            qDebug()<<"Tank";
                         }
                         else if(siegeUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(330);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Artillery");
                             civ->GetCityAt(i)->setProductionIndex(18);
-                            qDebug()<<"Artillery";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(380);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Fighter");
                             civ->GetCityAt(i)->setProductionIndex(22);
-                            qDebug()<<"Fighter";
                         }
                     }
                     else if(19>=numBuildings){
@@ -609,35 +558,30 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Mechanized Infantry");
                             civ->GetCityAt(i)->setProductionIndex(30);
-                            qDebug()<<"Mechanized Infantry";
                         }
                         else if(mountedUnits<3){
                             civ->GetCityAt(i)->setCurrentProductionCost(375);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Tank");
                             civ->GetCityAt(i)->setProductionIndex(26);
-                            qDebug()<<"Tank";
                         }
                         else if(siegeUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(330);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Artillery");
                             civ->GetCityAt(i)->setProductionIndex(18);
-                            qDebug()<<"Artillery";
                         }
                         else if(fighters<3){
                             civ->GetCityAt(i)->setCurrentProductionCost(380);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Fighter");
                             civ->GetCityAt(i)->setProductionIndex(22);
-                            qDebug()<<"Fighter";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(375);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Bomber");
                             civ->GetCityAt(i)->setProductionIndex(27);
-                            qDebug()<<"Bomber";
                         }
                     }
                     else if(20>=numBuildings){
@@ -647,42 +591,36 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Mechanized Infantry");
                             civ->GetCityAt(i)->setProductionIndex(30);
-                            qDebug()<<"Mechanized Infantry";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Helicopter Gunship");
                             civ->GetCityAt(i)->setProductionIndex(28);
-                            qDebug()<<"Helicopter Gunship";
                         }
                         else if(mountedUnits<2){
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Modern Armor");
                             civ->GetCityAt(i)->setProductionIndex(31);
-                            qDebug()<<"Modern Armor";
                         }
                         else if(siegeUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(330);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Artillery");
                             civ->GetCityAt(i)->setProductionIndex(18);
-                            qDebug()<<"Artillery";
                         }
                         else if(fighters<3){
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Jet Fighter");
                             civ->GetCityAt(i)->setProductionIndex(29);
-                            qDebug()<<"Jet Fighter";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(375);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Bomber");
                             civ->GetCityAt(i)->setProductionIndex(27);
-                            qDebug()<<"Bomber";
                         }
                     }
                     else if(21>=numBuildings){
@@ -692,49 +630,46 @@ void AI_Strategic::cityProduction(Civilization *civ){
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Mechanized Infantry");
                             civ->GetCityAt(i)->setProductionIndex(30);
-                            qDebug()<<"Mechanized Infantry";
                         }
                         else if(antiMoutedUnits<1){
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Helicopter Gunship");
                             civ->GetCityAt(i)->setProductionIndex(28);
-                            qDebug()<<"Helicopter Gunship";
                         }
                         else if(mountedUnits<2){
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Modern Armor");
                             civ->GetCityAt(i)->setProductionIndex(31);
-                            qDebug()<<"Modern Armor";
                         }
                         else if(siegeUnits<5){
                             civ->GetCityAt(i)->setCurrentProductionCost(330);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Artillery");
                             civ->GetCityAt(i)->setProductionIndex(18);
-                            qDebug()<<"Artillery";
                         }
                         else if(fighters<3){
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Jet Fighter");
                             civ->GetCityAt(i)->setProductionIndex(29);
-                            qDebug()<<"Jet Fighter";
                         }
                         else{
                             civ->GetCityAt(i)->setCurrentProductionCost(425);
                             civ->GetCityAt(i)->setIsUnit(true);
                             civ->GetCityAt(i)->setProductionName("Stealth Bomber");
                             civ->GetCityAt(i)->setProductionIndex(32);
-                            qDebug()<<"Stealth Bomber";
                         }
                     }
                 }
             }
+            qDebug()<<"City now producing "<<civ->GetCityAt(i)->getProductionName();
         }
         else{
-            qDebug()<<"City already producing "<<civ->GetCityAt(i)->getProductionName();
+#ifdef DEBUG
+     qDebug()<<"City already producing "<<civ->GetCityAt(i)->getProductionName();
+#endif
         }
     }
 }
@@ -766,7 +701,9 @@ void AI_Strategic::cityProduction(Civilization *civ){
 void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *map){
     for(int i = 0; i<player->GetUnitList().length(); i++){
         if(map->GetTileAt(player->GetUnitAt(i)->GetTileIndex())->GetControllingCiv()==civ->getCiv()){
-            qDebug()<<"Invasion";
+#ifdef DEBUG
+     qDebug()<<"Invasion";
+#endif
             QVector<Unit*> tempVec = civ->getHighThreats();
             tempVec.push_back(player->GetUnitAt(i));
             civ->setHighThreats(tempVec);
@@ -775,7 +712,9 @@ void AI_Strategic::invasionCheck(Civilization *civ, Civilization *player, Map *m
 }
 
 void AI_Strategic::cityLocation(Civilization *civ, Map *map){
-        qDebug()<<"City Locations";
+#ifdef DEBUG
+     qDebug()<<"City Locations";
+#endif
         for(int i=0; i<(14-civ->GetCityList().length());i++){
             int cityIndex = civ->GetCityAt(0)->GetCityTile()->GetTileIndex(), indexToSettle;
             if(cityIndex + (15 * (i+1)) < map->GetBoardSize())
@@ -788,7 +727,9 @@ void AI_Strategic::cityLocation(Civilization *civ, Map *map){
             }
             else
             {
-                qDebug()<<"City invalid";
+#ifdef DEBUG
+     qDebug()<<"City invalid";
+#endif
                 indexToSettle = 255;
             }
             if(map->GetTileAt(indexToSettle)->Walkable
@@ -803,11 +744,15 @@ void AI_Strategic::cityLocation(Civilization *civ, Map *map){
                     }
                 }
                 if(goodTile){
-                    qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;
+#ifdef DEBUG
+     qDebug()<<"Adding tile to list of potential locations"<<indexToSettle;
+#endif
                     cityLocations.push_back(map->GetTileAt(indexToSettle));
                 }
                 else{
-                    qDebug()<<map->GetTileAt(indexToSettle)->GetTileIndex()<<" is bad tile";
+#ifdef DEBUG
+     qDebug()<<map->GetTileAt(indexToSettle)->GetTileIndex()<<" is bad tile";
+#endif
                 }
             }
             //Locates appropriate number of city sites
