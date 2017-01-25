@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QFile>
+#include <math.h>
 
 City::City()
 {

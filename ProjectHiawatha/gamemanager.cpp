@@ -13,6 +13,7 @@
 #include <random>
 #include <QTime>
 
+
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  background-color: #4899C8; border: 2px solid #f6b300; border-radius: 3px; font: 10px; min-width: 70px; } QPushButton#Cancel { background-color: #f53252 } QPushButton:pressed { background-color: #77adcb; }";
@@ -102,9 +103,13 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     renderer = new Renderer(mapSizeX);
 
     map = new Map(mapSizeX, mapSizeY);
+#ifdef __APPLE__
+    this->map->InitHexMap();
+    this->InitCivs(player, numAI);
+#else
     mapInit = QtConcurrent::run(this->map, Map::InitHexMap);
-
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
+#endif
     civInit.waitForFinished();
 
     this->playersAliveCount = civList.size();
@@ -511,10 +516,30 @@ void GameManager::TurnController()
         //Cycle through the AI turns.
         statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
         StartTurn();
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
 
-        //While the AI is taking its turn, check the Queue
-        // if the AI is trying to settle a city or conquer one
+#ifdef __APPLE__
+        this->ac->turnStarted(civList.at(currentTurn),civList.at(0),this->map);
+        while(!civList.at(currentTurn)->isEmpty())
+        {
+            AIQueueData data = civList.at(currentTurn)->dequeue();
+            state = data.action;
+
+            if(state == AI_FOUND_CITY)
+            {
+                unitToMove = data.unit;
+            }
+            else if(state == CONQUER)
+            {
+                state = FIND_CITY;
+                unitToMove = data.unit;
+                targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
+            }
+            this->UpdateTileData();
+        }
+        //This is just for extra precautions so that we don't try to end the AI's
+        // turn and move on before the AI thread has completly finished.
+#else
+        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
         while(future.isRunning())
         {
             if(!civList.at(currentTurn)->isEmpty())
@@ -538,6 +563,10 @@ void GameManager::TurnController()
         //This is just for extra precautions so that we don't try to end the AI's
         // turn and move on before the AI thread has completly finished.
         future.waitForFinished();
+#endif
+        //While the AI is taking its turn, check the Queue
+        // if the AI is trying to settle a city or conquer one
+
         EndTurn();
     }
 

@@ -9,6 +9,7 @@
 #include <QStringList>
 #include <QDebug>
 #include <QListWidgetItem>
+#include <math.h>
 
 
 CityScreen::CityScreen(QWidget *parent) :

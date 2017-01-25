@@ -1,5 +1,6 @@
 #include "unit.h"
 #include <QDebug>
+#include <math.h>
 
 Unit::Unit()
 {

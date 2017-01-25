@@ -15,6 +15,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QStringList>
+#include <math.h>
 
 Civilization::Civilization()
 {

@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QProgressBar>
 #include "resources.h"
+#include <math.h>
 
 
 //======================================

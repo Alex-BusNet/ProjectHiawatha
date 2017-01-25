@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <ctime>
 #include <QTime>
+#include <math.h>
+using namespace std;
 UnitController::UnitController()
 {
 
@@ -454,7 +456,7 @@ int UnitController::GetDistance(Tile *a, Tile *b)
 
     if(std::signbit(dstX) == std::signbit(dstY))
     {
-        return std::max(std::abs(dstX), std::abs(dstY));
+        return max(abs(dstX), abs(dstY));
     }
     else
     {
