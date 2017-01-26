@@ -8,6 +8,9 @@
 #include <QVector>
 #include <QString>
 #include <QListWidgetItem>
+#include "map.h"
+#include "gameview.h"
+#include "renderer.h"
 
 namespace Ui {
 class CityScreen;
@@ -27,6 +30,10 @@ public:
     void    updateList(int currentBuildingCount);
     //Gets info about the city so it knows what to display
     void    getCityInfo(City* city);
+    void    getCivInfo(Civilization* civ);
+    void    getMapInfo(Map* m);
+    void    getGameView(GameView* gv);
+    void    getRenderer(Renderer* render);
     //Checks which buildings have been completed and adds them to the completed buildings list
     void    updateWidget();
     //
@@ -53,6 +60,10 @@ private:
     //Pointer to city object allows cityscreen to know what to display
     City* currentCity;
     //
+    Civilization* playerCiv;
+    Map* map;
+    GameView* view;
+    Renderer* renderer;
     int totalGold;
 
 };

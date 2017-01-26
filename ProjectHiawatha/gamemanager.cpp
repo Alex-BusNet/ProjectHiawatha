@@ -2172,7 +2172,11 @@ void GameManager::showCity(City* city)
         cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
         cityScreen->loadUnits("Assets/Units/UnitList.txt");
         cityScreen->getCityInfo(city);
-        cityScreen->getGold(civList.at(0)->getCivYield()->GetGoldYield());
+        cityScreen->getCivInfo(civList.at(0));
+        cityScreen->getGameView(gameView);
+        cityScreen->getMapInfo(map);
+        cityScreen->getRenderer(renderer);
+        cityScreen->getGold(civList.at(0)->GetTotalGold());
         cityScreen->updateList(city->getNumberOfBuildings());
         cityScreen->updateWidget();
 

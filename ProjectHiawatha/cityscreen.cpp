@@ -160,6 +160,26 @@ void CityScreen::getCityInfo(City *city)
     ui->borderGrowth->setText(QString("%1").arg(city->GetTurnsToBorderGrowth()));
 }
 
+void CityScreen::getCivInfo(Civilization *civ)
+{
+    playerCiv = civ;
+}
+
+void CityScreen::getMapInfo(Map *m)
+{
+    map = m;
+}
+
+void CityScreen::getGameView(GameView *gv)
+{
+    view = gv;
+}
+
+void CityScreen::getRenderer(Renderer *render)
+{
+    renderer = render;
+}
+
 void CityScreen::updateWidget()
 {
     ui->current_production_name->setText(currentCity->getProductionName());
@@ -291,17 +311,72 @@ void CityScreen::on_listWidget_2_itemDoubleClicked(QListWidgetItem *item)
 
 void CityScreen::on_purchase_clicked()
 {
+    qDebug()<<"TOTAL GOLD: "<<totalGold;
     if(ui->tabWidget->currentIndex() == 0)
     {
         if(totalGold > buildings.at(ui->listWidget->currentRow())->getProductionCost())
         {
+            currentCity->addBuilding(buildings.at(ui->listWidget->currentRow()));
 
+        }else
+        {
+            QMessageBox* mBox = new QMessageBox();
+            mBox->setText("Insufficient Funds");
+            mBox->exec();
         }
     }else if(ui->tabWidget->currentIndex() == 1)
     {
         if(totalGold > initialUnitList.at(ui->listWidget_2->currentRow())->GetCost())
         {
+            Unit* unit = new Unit(0);
+            Unit* unitData = initialUnitList.at(ui->listWidget_2->currentRow());
+            unit->setUnitType(unitData->GetUnitType());
+            unit->SetName(unitData->GetName());
+            unit->SetCost(unitData->GetCost());
+            unit->SetMovementPoints(unitData->GetMovementPoints());
+            unit->SetStrength(unitData->GetStrength());
+            unit->SetRange(unitData->GetRange());
+            unit->SetRangeStrength(unitData->GetRangeStrength());
+            unit->SetUnitIcon(unitData->GetUnitType());
+            unit->SetOwner(playerCiv->getCiv());
+            unit->SetUnitListIndex(playerCiv->GetUnitList().size());
 
+            for(int j = 0; j < currentCity->GetControlledTiles().size();j++)
+            {
+                int tileIndex = currentCity->GetControlledTiles().at(j)->GetTileIndex();
+                if(unit->isNaval())
+                {
+                    if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
+                    else
+                    {
+
+                            unit->SetPositionIndex(tileIndex);
+                            map->GetTileAt(tileIndex)->ContainsUnit = true;
+                            break;
+
+                    }
+                }
+                else
+                {
+                    if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
+                    else
+                    {
+
+                            unit->SetPositionIndex(tileIndex);
+                            map->GetTileAt(tileIndex)->ContainsUnit = true;
+                            break;
+
+                    }
+                }
+            }
+
+
+
+        }else
+        {
+            QMessageBox* mBox = new QMessageBox();
+            mBox->setText("Insufficient Funds");
+            mBox->exec();
         }
     }
 
