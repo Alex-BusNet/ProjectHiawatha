@@ -171,8 +171,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
 //    renderer->DrawGridLines(gameView);
-    renderer->DrawGuiText(map, stringData, gameView);
-    qDebug() << "Actual map size:" << gameView->GetScene()->sceneRect().size();
+//    renderer->DrawGuiText(map, stringData, gameView);
 
     zoomScale = 1;
 
@@ -588,6 +587,7 @@ void GameManager::StartTurn()
     {
         if(i == 0)
         {
+            delete endGameText;
             endGameText = new QString("Capitals Controlled:");
             endGameText->append(QString("\nYou      %1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
         }
@@ -971,7 +971,7 @@ void GameManager::StartTurn()
     //Update the yield status bar for the player.
     if(currentTurn == 0)
     {
-        goldText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->getCivYield()->GetGoldYield()));
+        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg((civList.at(0)->getCivYield()->GetGoldYield() > 0) ? "+" : "-").arg(civList.at(0)->getCivYield()->GetGoldYield()));
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));

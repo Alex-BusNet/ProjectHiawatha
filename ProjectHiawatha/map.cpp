@@ -613,13 +613,7 @@ void Map::GetTileQueue(City *city)
 {
     QList<Tile*> surroundingTiles;
 
-    qDebug() << "Is borderQueue empty:" << city->borderQueue.isEmpty();
-//    for(int i = 0; i < city->borderQueue.size(); i++)
-//    {
-//        city->borderQueue.removeAt(i);
-//    }
     city->borderQueue.clear();
-    qDebug() << "Is borderQueue empty; post clear:" << city->borderQueue.isEmpty();
 
     foreach(Tile* tile, city->GetControlledTiles())
     {
@@ -631,7 +625,6 @@ void Map::GetTileQueue(City *city)
         {
             if(sTile->GetGoverningCity() != city->GetCityID())
             {
-                qDebug() << "-----Adding" << sTile->GetTileIDString() << "to borderQueue";
                 if(city->borderQueue.size() > 1)
                 {
                     if(!city->borderQueue.contains(sTile))
@@ -680,7 +673,6 @@ void Map::DefineCityBordersNew(City *city)
     //Search run GetNeighbors on the tileQueue to find where the city's border tiles are
     foreach(Tile* tile, city->borderQueue)
     {
-        qDebug() << "-Checking neighbors of" << tile->GetTileIDString();
         foreach(Tile* neighbor, GetNeighbors(tile))
         {
             //A city will never be on the edge of its borders.
@@ -691,8 +683,6 @@ void Map::DefineCityBordersNew(City *city)
 
             if(neighbor->GetGoverningCity() == city->GetCityID())
             {
-                qDebug() << "--Found controlled tile:" << neighbor->GetTileIDString();
-
                 //Generate a new line that is the bordering edge of the tileQueue and controlled tile
                 QLine* l = new QLine();
                 bool first = true, done = false;
@@ -756,7 +746,6 @@ void Map::DefineCityBordersNew(City *city)
     {
         for(int i = 0; i < lines.size(); i++)
         {
-//            qDebug() << "       lines[" << i << "]" << lines.at(i)->p1() << lines.at(i)->p2() << "  lPt" << lPt;
             if(lines.at(i)->p1() == lPt)
             {
                 newBorders->push_back(lines.at(i)->p1());

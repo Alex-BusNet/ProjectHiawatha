@@ -12,8 +12,7 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
     DiploStyle += "QScrollBar:vertical { border: 2px sold black; background: #77adcb; width: 15px; margin: 12px 0 12px 0;} QScrollBar::handle:vertical { background: #4899C8; min-height: 10px; }";
     DiploStyle += "QScrollBar::add-line:vertical { border: 1px solid black; background: #dedede; height: 10px; subcontrol-position: bottom; subcontrol-origin: margin; }  QScrollBar::sub-line:vertical { border: 1px solid black; height: 10px; background: #dedede; subcontrol-position: top; subcontrol-origin: margin; }";
     DiploStyle += "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { border: 1px solid black; width: 3px; height: 3px; background: purple; } QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }";
-    DiploStyle += "QListView { background-color: grey; font-size: 24; color: black; border: 5px inset #f6b300; show-decoration-selected: 1; } QLabel{ border: 2px inset #f6b300; background: #dedede; color: black; font: bold; max-height: 15px; min-width: 150px; image-position: center;  text-align: center; }";
-    //DiploStyle += "QLabel#atWarWith { border: 2px inset #f6b300; background: #dedede; color: red; font: bold; max-height: 15px; min-width: 150px; }";
+    DiploStyle += "QListView { background-color: grey; font-size: 24; color: black; border: 5px inset #f6b300; show-decoration-selected: 1; } QLabel{ border: 2px inset #f6b300; background: #dedede; color: black; font: bold; max-height: 15px; min-width: 150px; text-align: center; }";
 
     this->setStyleSheet(DiploStyle);
     leaderListArea = new QListWidget(this);
@@ -28,6 +27,7 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
     warStatus = new QLabel(" ");
     nationName = new QLabel(" ");
     atWarWith = new QLabel(" ");
+    atWarWith->setStyleSheet("QLabel{ border: 2px inset #f6b300; background: #dedede; color: red; font: bold; min-height: 50px; max-height: 100px; min-width: 150px; }");
     turn = 0;
 
     makePeace = new QPushButton("Make Peace");
@@ -47,7 +47,6 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
 
     QVBoxLayout *overview = new QVBoxLayout();
     overview->addWidget(leaderImage);
-    overview->addSpacing(50);
     overview->addLayout(civInfo);
     overview->addWidget(atWarWith);
 
@@ -259,11 +258,11 @@ void Diplomacy::selectLeader(QListWidgetItem *item)
         {
             if(first)
             {
-                war.append("At war with:\n ");
+                war.append("At war with:\n\t");
                 first = false;
             }
             war.append(UnitController::NationName(wh.nation));
-            war.append("\n ");
+            war.append("\n\t");
         }
     }
     atWarWith->setText(war);
