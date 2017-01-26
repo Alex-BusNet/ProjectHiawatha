@@ -171,7 +171,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
 //    renderer->DrawGridLines(gameView);
-//    renderer->DrawGuiText(map, stringData, gameView);
+    renderer->DrawGuiText(map, stringData, gameView);
     qDebug() << "Actual map size:" << gameView->GetScene()->sceneRect().size();
 
     zoomScale = 1;
@@ -534,6 +534,11 @@ void GameManager::TurnController()
                 unitToMove = data.unit;
                 targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
             }
+            else if(state == AI_DECLARE_WAR)
+            {
+                WarByDiplomacy();
+            }
+
             this->UpdateTileData();
         }
         //This is just for extra precautions so that we don't try to end the AI's
@@ -557,6 +562,11 @@ void GameManager::TurnController()
                     unitToMove = data.unit;
                     targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
                 }
+                else if(state == AI_DECLARE_WAR)
+                {
+                    WarByDiplomacy();
+                }
+
                 this->UpdateTileData();
             }
         }

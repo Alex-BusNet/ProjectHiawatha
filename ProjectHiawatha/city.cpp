@@ -508,11 +508,11 @@ void City::SetCityBorders(QPolygon borders)
 
     this->cityBorder = borders;
 
-    qDebug() << this->name << "new borders:";
-    foreach(QPoint pt, cityBorder.toList())
-    {
-        qDebug() << "       " << pt;
-    }
+//    qDebug() << this->name << "new borders:";
+//    foreach(QPoint pt, cityBorder.toList())
+//    {
+//        qDebug() << "       " << pt;
+//    }
 }
 
 void City::SetCityHealth(float health)
@@ -580,7 +580,7 @@ void City::RemoveGarrisonMilitary()
 
 void City::AddControlledTile(Tile *tile)
 {
-    tile->SetControllingCiv(controllingCiv, this->cityTile->GetControllingCivListIndex());
+    tile->SetControllingCiv(this->controllingCiv, this->cityTile->GetControllingCivListIndex());
     tile->SetGoverningCity(this->cityID);
     this->cityControlledTiles.push_back(tile);
 }

@@ -613,8 +613,13 @@ void Map::GetTileQueue(City *city)
 {
     QList<Tile*> surroundingTiles;
 
-    if(!city->borderQueue.isEmpty())
-        city->borderQueue.clear();
+    qDebug() << "Is borderQueue empty:" << city->borderQueue.isEmpty();
+//    for(int i = 0; i < city->borderQueue.size(); i++)
+//    {
+//        city->borderQueue.removeAt(i);
+//    }
+    city->borderQueue.clear();
+    qDebug() << "Is borderQueue empty; post clear:" << city->borderQueue.isEmpty();
 
     foreach(Tile* tile, city->GetControlledTiles())
     {
@@ -622,27 +627,28 @@ void Map::GetTileQueue(City *city)
 
         int surroundCount = 0;
 
-        foreach(Tile* tile, surroundingTiles)
+        foreach(Tile* sTile, surroundingTiles)
         {
-            if(!city->GetControlledTiles().contains(tile))
+            if(sTile->GetGoverningCity() != city->GetCityID())
             {
+                qDebug() << "-----Adding" << sTile->GetTileIDString() << "to borderQueue";
                 if(city->borderQueue.size() > 1)
                 {
-                    if(!city->borderQueue.contains(tile))
+                    if(!city->borderQueue.contains(sTile))
                     {
-                        city->borderQueue.push_back(tile);
+                        city->borderQueue.push_back(sTile);
                     }
                 }
                 else
                 {
-                    city->borderQueue.push_back(tile);
+                    city->borderQueue.push_back(sTile);
                 }
             }
 
-            if((tile->GetControllingCiv() != NO_NATION) ||
-                    ((tile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
-                     (tile->GetTileID().row == city->GetCityTile()->GetTileID().row)) ||
-                    (tile->GetTileType() == ICE))
+            if((sTile->GetControllingCiv() != NO_NATION) ||
+                    ((sTile->GetTileID().column == city->GetCityTile()->GetTileID().column) &&
+                     (sTile->GetTileID().row == city->GetCityTile()->GetTileID().row)) ||
+                    (sTile->GetTileType() == ICE))
             {
                 surroundingTiles.removeAt(surroundCount);
             }
@@ -650,14 +656,14 @@ void Map::GetTileQueue(City *city)
             {                
                 if(city->tileQueue.size() > 1)
                 {
-                    if(!city->tileQueue.contains(tile))
+                    if(!city->tileQueue.contains(sTile))
                     {
-                        city->tileQueue.push_back(tile);
+                        city->tileQueue.push_back(sTile);
                     }
                 }
                 else
                 {
-                    city->tileQueue.push_back(tile);
+                    city->tileQueue.push_back(sTile);
                 }
             }
 
@@ -669,14 +675,24 @@ void Map::GetTileQueue(City *city)
 void Map::DefineCityBordersNew(City *city)
 {
     QVector<QLine*> lines;
+    QVector<Tile*> checked;
 
     //Search run GetNeighbors on the tileQueue to find where the city's border tiles are
     foreach(Tile* tile, city->borderQueue)
     {
+        qDebug() << "-Checking neighbors of" << tile->GetTileIDString();
         foreach(Tile* neighbor, GetNeighbors(tile))
         {
+            //A city will never be on the edge of its borders.
+            if(neighbor->HasCity)
+            {
+                continue;
+            }
+
             if(neighbor->GetGoverningCity() == city->GetCityID())
             {
+                qDebug() << "--Found controlled tile:" << neighbor->GetTileIDString();
+
                 //Generate a new line that is the bordering edge of the tileQueue and controlled tile
                 QLine* l = new QLine();
                 bool first = true, done = false;
@@ -709,6 +725,28 @@ void Map::DefineCityBordersNew(City *city)
     }
 
     QLine* f = lines.first();
+
+    //Look for the left most point
+    foreach(QLine* line, lines)
+    {
+        if(line->p1().x() < f->p1().x())
+        {
+            f = line;
+        }
+        else if(line->p2().x() < f->p1().x())
+        {
+            f = line;
+        }
+        else if(line->p1().x() < f->p2().x())
+        {
+            f = line;
+        }
+        else if(line->p2().x() < f->p2().x())
+        {
+            f = line;
+        }
+    }
+
     QPolygon* newBorders = new QPolygon();
     QPoint lPt = f->p2();
     QLine l = *(lines.first());
@@ -718,6 +756,7 @@ void Map::DefineCityBordersNew(City *city)
     {
         for(int i = 0; i < lines.size(); i++)
         {
+//            qDebug() << "       lines[" << i << "]" << lines.at(i)->p1() << lines.at(i)->p2() << "  lPt" << lPt;
             if(lines.at(i)->p1() == lPt)
             {
                 newBorders->push_back(lines.at(i)->p1());
