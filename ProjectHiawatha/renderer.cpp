@@ -14,9 +14,9 @@
 // Layer 2: Cities / Tile Improvements
 // Layer 3: Tile Outlines (Game View)
 // Layer 4: Units
-// Layer 5: Fog of War
-// Layer 6: GUI Images
-// Layer 7: Gui Text
+// Layer 5: GUI Images
+// Layer 6: Gui Text
+// Layer 7: Fog of War
 //
 // Use setZValue() to change each item's render layer.
 //=======================================
@@ -32,7 +32,7 @@ Renderer::Renderer(int mapSizeX)
 
     //Fog of War Images
     clouds = new QPixmap("Assets/Textures/Scaled/clouds.png");
-    hidden = new QPixmap("Assets/Textures/Scales/fogOfWar.png");
+    hidden = new QPixmap("Assets/Textures/Scaled/fogOfWar.png");
 
     //Strategic Resource Images
     ironPix = new QPixmap("Assets/Resources/iron.png");
@@ -78,40 +78,222 @@ Renderer::Renderer(int mapSizeX)
     none = new QPixmap("Assets/Resources/noImprovement.png");
 }
 
+Renderer::~Renderer()
+{
+    qDebug() << "   Renderer Dec'tor called";
+    foreach(QGraphicsPolygonItem* t, tiles)
+    {
+        if(t != NULL)
+            delete t;
+    }
+
+    foreach(QGraphicsPixmapItem* p, tilePixmap)
+    {
+        if(p != NULL)
+            delete p;
+    }
+
+    foreach(QGraphicsPixmapItem* p, fogOfWar)
+    {
+        if(p != NULL)
+            delete p;
+    }
+
+    foreach(QGraphicsPolygonItem* mb, mapBorders)
+    {
+        if(mb != NULL)
+            delete mb;
+    }
+
+    foreach(QGraphicsPixmapItem* p, resourcePixmap)
+    {
+        if(p != NULL)
+            delete p;
+    }
+
+    foreach(QGraphicsEllipseItem* e, tileCircles)
+    {
+        if(e != NULL)
+            delete e;
+    }
+
+    foreach(QGraphicsPixmapItem* tw, tileWorked)
+    {
+        if(tw != NULL)
+            delete tw;
+    }
+
+    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
+    {
+        if(fi != NULL)
+            delete fi;
+    }
+
+    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
+    {
+        if(tii != NULL)
+            delete tii;
+    }
+
+    foreach(QGraphicsPolygonItem* cb, cityBorders)
+    {
+        if(cb != NULL)
+            delete cb;
+    }
+
+    foreach(QGraphicsPixmapItem* cp, cityPixmap)
+    {
+        if(cp != NULL)
+            delete cp;
+    }
+
+    foreach(QGraphicsTextItem* cl, cityLabels)
+    {
+        if(cl != NULL)
+            delete cl;
+    }
+
+    foreach(QGraphicsRectItem* chb, cityHealthBars)
+    {
+        if(chb != NULL)
+            delete chb;
+    }
+
+    foreach(QGraphicsRectItem* cpb, cityProductionBars)
+    {
+        if(cpb != NULL)
+            delete cpb;
+    }
+
+    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
+    {
+        if(cgb != NULL)
+            delete cgb;
+    }
+
+    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
+    {
+        if(cbo != NULL)
+            delete cbo;
+    }
+
+    foreach(QGraphicsProxyWidget* cpl, cityPopulationLabels)
+    {
+        if(cpl != NULL)
+            delete cpl;
+    }
+
+    foreach(QGraphicsPixmapItem* up, unitPixmap)
+    {
+        if(up != NULL)
+            delete up;
+    }
+
+    foreach(QGraphicsRectItem* uhb, unitHealthBars)
+    {
+        if(uhb != NULL)
+            delete uhb;
+    }
+
+    foreach(QGraphicsLineItem* gl, gridLines)
+    {
+        delete gl;
+    }
+
+    foreach(QGraphicsTextItem* gc, gridCoords)
+    {
+        if(gc != NULL)
+            delete gc;
+    }
+
+    qDebug() << "       Renderer, Delete CC";
+    if(cc != NULL)
+        delete cc;
+
+    qDebug() << "       Renderer, Delete YieldDisplay";
+    if(YieldDisplay != NULL)
+        delete YieldDisplay;
+
+    qDebug() << "       Renderer, Delete images";
+    delete ironPix;
+    delete horsePix;
+    delete uraniumPix;
+    delete aluminumPix;
+    delete coalPix;
+    delete oilPix;
+    delete wheatPix;
+    delete cattlePix;
+    delete deerPix;
+    delete fishPix;
+    delete whalePix;
+    delete bananaPix;
+    delete goldResourcePix;
+    delete gemsPix;
+    delete marblePix;
+    delete ivoryPix;
+    delete dyesPix;
+    delete spicesPix;
+    delete silkPix;
+    delete sugarPix;
+    delete cottonPix;
+    delete pearlsPix;
+    delete incencePix;
+    delete winePix;
+    delete silverPix;
+    delete fursPix;
+    delete sheepPix;
+    delete tileWorkedIcon;
+    delete tileUnworked;
+    delete fortified;
+    delete mine;
+    delete tradePost;
+    delete plantation;
+    delete farm;
+    delete none;
+    delete clouds;
+    delete hidden;
+
+    qDebug() << "   --Renderer Deconstructed";
+}
+
 /*
  * DrawHexScene runs during init and is used to set up the
  * rendered version of the data map in the GameView
  */
-void Renderer::DrawHexScene(Map map, GameView *view)
+void Renderer::DrawHexScene(Map *map, GameView *view)
 {
     QPen circlePen(Qt::transparent);
-    for(int i = 0; i < map.GetBoardSize(); i++)
+    for(int i = 0; i < map->GetBoardSize(); i++)
     {
-        if(map.GetTileAt(i)->GetTileID().row % 2 != 0)
+        if(map->GetTileAt(i)->GetTileID().row % 2 != 0)
         {
-            map.GetTileAt(i)->SetTilePen(QPen(cc->NO_NATION_SECONDARY));
+            map->GetTileAt(i)->SetTilePen(QPen(cc->NO_NATION_SECONDARY));
         }
         else
         {
-            map.GetTileAt(i)->SetTilePen(outlinePen);
+            map->GetTileAt(i)->SetTilePen(outlinePen);
         }
-        tiles.push_back(view->addPolygon(map.GetTileAt(i)->GetTilePolygon()));
-        tiles.at(i)->setPen(map.GetTileAt(i)->GetTilePen());
-        tiles.at(i)->setZValue(1);
-        tiles.at(i)->setOpacity(50);
 
-        tileCircles.push_back(view->addEllipse(map.GetTileAt(i)->GetTileRect(), circlePen));
-        tileCircles.last()->setZValue(2);
+        tiles.push_back(view->addPolygon(map->GetTileAt(i)->GetTilePolygon()));
+        tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
+        tiles.at(i)->setZValue(2);
+        tiles.at(i)->setOpacity(0.5);
 
-        tilePixmap.push_back(view->addPixmap((*(map.GetTilePixmap(i)))));
-        tilePixmap.at(i)->setPos(map.GetTileAt(i)->GetTexturePoint());
+        tileCircles.push_back(view->addEllipse(map->GetTileAt(i)->GetTileRect(), circlePen));
+        tileCircles.last()->setZValue(0);
+        tileCircles.last()->setOpacity(0.7);
 
-//        fogOfWar.push_back(view->addPixmap(clouds));
-//        fogOfWar.at(i)->setPos(map.GetTileAt(i)->GetTexturePoint());
+        tilePixmap.push_back(view->addPixmap((*(map->GetTilePixmap(i)))));
+        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+        tilePixmap.at(i)->setZValue(-1);
 
-        if(map.GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
+        fogOfWar.push_back(view->addPixmap(*clouds));
+        fogOfWar.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+        fogOfWar.at(i)->setZValue(6);
+
+        if(map->GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
         {
-            switch(map.GetTileAt(i)->GetStratResource())
+            switch(map->GetTileAt(i)->GetStratResource())
             {
             case IRON:
                 resourcePixmap.push_back(view->addPixmap(*ironPix));
@@ -134,12 +316,12 @@ void Renderer::DrawHexScene(Map map, GameView *view)
             }
 
             resourcePixmap.last()->setScale(0.5f);
-            resourcePixmap.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint());
-            resourcePixmap.last()->setZValue(3);
+            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setZValue(1);
         }
-        else if(map.GetTileAt(i)->GetLuxResource() != NO_LUXURY)
+        else if(map->GetTileAt(i)->GetLuxResource() != NO_LUXURY)
         {
-            switch(map.GetTileAt(i)->GetLuxResource())
+            switch(map->GetTileAt(i)->GetLuxResource())
             {
             case WHEAT:
                 resourcePixmap.push_back(view->addPixmap(*wheatPix));
@@ -207,13 +389,13 @@ void Renderer::DrawHexScene(Map map, GameView *view)
             }
 
             resourcePixmap.last()->setScale(0.5f);
-            resourcePixmap.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint());
-            resourcePixmap.last()->setZValue(3);
+            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setZValue(1);
         }
 
-        if(map.GetTileAt(i)->GetControllingCivListIndex() == 0)
+        if(map->GetTileAt(i)->GetControllingCivListIndex() == 0)
         {
-            if(map.GetTileAt(i)->IsWorked)
+            if(map->GetTileAt(i)->IsWorked)
             {
                 tileWorked.push_back(view->addPixmap(*tileWorkedIcon));
             }
@@ -223,14 +405,14 @@ void Renderer::DrawHexScene(Map map, GameView *view)
             }
 
             tileWorked.last()->setScale(0.6f);
-            tileWorked.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 23, map.GetTileAt(i)->GetResourceIconPoint().y() + 10);
-            tileWorked.last()->setZValue(3);
+            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+            tileWorked.last()->setZValue(2);
         }
         else
         {
             tileWorked.push_back(view->addPixmap(*tileUnworked));
             tileWorked.last()->setOpacity(0);
-            tileWorked.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 23, map.GetTileAt(i)->GetResourceIconPoint().y() + 10);
+            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
 
         // Every tile created has a requires orders icon, fortified icon
@@ -242,21 +424,24 @@ void Renderer::DrawHexScene(Map map, GameView *view)
         QPixmap *orders = new QPixmap("Assets/Icons/requiresOrders.png");
         ordersIcon.push_back(view->addPixmap(*orders));
         ordersIcon.last()->setOpacity(0);
-        ordersIcon.last()->setZValue(8);
-        ordersIcon.last()->setPos(map.GetTileAt(i)->GetItemTexturePoint().x() + 30, map.GetTileAt(i)->GetItemTexturePoint().y());
+        ordersIcon.last()->setZValue(3);
+        ordersIcon.last()->setPos(map->GetTileAt(i)->GetItemTexturePoint().x() + 30, map->GetTileAt(i)->GetItemTexturePoint().y());
 
         fortifiedIcon.push_back(view->addPixmap(*fortified));
         fortifiedIcon.last()->setScale(0.3f);
         fortifiedIcon.last()->setOpacity(0);
-        fortifiedIcon.last()->setZValue(8);
-        fortifiedIcon.last()->setPos(map.GetTileAt(i)->GetItemTexturePoint().x(), map.GetTileAt(i)->GetItemTexturePoint().y());
+        fortifiedIcon.last()->setZValue(3);
+        fortifiedIcon.last()->setPos(map->GetTileAt(i)->GetItemTexturePoint().x(), map->GetTileAt(i)->GetItemTexturePoint().y());
 
         tileImprovementIcons.push_back(view->addPixmap(*none));
         tileImprovementIcons.last()->setScale(0.5f);
         tileImprovementIcons.last()->setOpacity(0);
-        tileImprovementIcons.last()->setZValue(4);
-        tileImprovementIcons.last()->setPos(map.GetTileAt(i)->GetResourceIconPoint().x() + 43, map.GetTileAt(i)->GetResourceIconPoint().y());
+        tileImprovementIcons.last()->setZValue(2);
+        tileImprovementIcons.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 43, map->GetTileAt(i)->GetResourceIconPoint().y());
+
     }
+
+    qDebug() << "DrawHexScene finished";
 }
 
 void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
@@ -308,12 +493,15 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // new circle information.
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(outlinePen);
+        tileCircles.at(index)->setZValue(0);
+        tileCircles.at(index)->setOpacity(0.7);
     }
 }
 
 void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
 {
     unitPixmap.at(unit->GetPixmapIndex())->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
+    unitPixmap.at(unit->GetPixmapIndex())->setZValue(3);
 
     // If the unit has moved, or their health has changed,
     // update the unit's health bar.
@@ -324,7 +512,7 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
         unitHealthBars.replace(unit->GetHealthBarIndex(), view->addRect(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().x(),
                                                                         map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint().y() + unit->GetUnitIcon()->height() + 1,
                                                                         ceil(35 * (static_cast<double>(unit->GetHealth()) / unit->GetMaxHealth())), 5, QPen(QColor(Qt::black)), QBrush(QColor(Qt::green))));
-        unitHealthBars.at(unit->GetHealthBarIndex())->setZValue(6);
+        unitHealthBars.at(unit->GetHealthBarIndex())->setZValue(5);
     }
 }
 
@@ -337,25 +525,57 @@ void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 
     view->removeItem(cityBorders.at(city->GetCityRenderIndex()));
     cityBorders.replace(city->GetCityRenderIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
+    cityBorders.at(city->GetCityRenderIndex())->setZValue(2);
+}
+
+void Renderer::UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view)
+{
+    qDebug() << "UpdateTileVisibility";
+    if(data->isEmpty())
+        return;
+
+    ViewData i;
+    while(!data->isEmpty())
+    {
+        i = data->dequeue();
+
+        switch(i.state)
+        {
+        case DISCOVERED:
+            this->DiscoverTile(i.index, view);
+            break;
+        case VISIBLE:
+            this->SetTileVisibility(i.index, true, view);
+            break;
+        case HIDDEN:
+            this->SetTileVisibility(i.index, false, view);
+            break;
+        default:
+            break;
+        }
+    }
+    qDebug() << "UpdateTileVisibility Complete";
 }
 
 void Renderer::DiscoverTile(int index, GameView *view)
 {
+    QPointF pos = fogOfWar.at(index)->pos();
     view->removeItem(fogOfWar.at(index));
-    fogOfWar.insert(index, view->addPixmap(*hidden));
-    fogOfWar.at(index)->setPixmap(*hidden);
+    fogOfWar.replace(index, view->addPixmap(*hidden));
+    fogOfWar.at(index)->setPos(pos);
     fogOfWar.at(index)->setOpacity(0);
+    fogOfWar.at(index)->setZValue(6);
 }
 
-void Renderer::SetTileVisibility(int index, GameView *view)
+void Renderer::SetTileVisibility(int index, bool viewable, GameView *view)
 {
-    if(fogOfWar.at(index)->opacity() == 0)
+    if(viewable)
     {
-        fogOfWar.at(index)->setOpacity(75);
+        fogOfWar.at(index)->setOpacity(0);
     }
     else
     {
-        fogOfWar.at(index)->setOpacity(0);
+        fogOfWar.at(index)->setOpacity(0.5);
     }
 }
 
@@ -365,7 +585,7 @@ void Renderer::DrawGuiText(Map *map, QVector<QGraphicsTextItem*> tVect, GameView
     {
         tVect.push_back(view->addText(QString("%1,%2\n%3").arg(map->GetTileAt(i)->GetTileID().column).arg(map->GetTileAt(i)->GetTileID().row).arg(i)));
         tVect.at(i)->setPos(map->GetTileAt(i)->GetTextCenter());
-        tVect.at(i)->setZValue(7);
+        tVect.at(i)->setZValue(5);
         if(map->GetTileAt(i)->GetTileType() == ICE)
         {
             tVect.at(i)->setDefaultTextColor(Qt::red);
@@ -389,8 +609,6 @@ void Renderer::DrawGridLines(GameView *view)
     width = view->GetScene()->sceneRect().width();
     height = view->GetScene()->sceneRect().height();
 
-    qDebug() << "   Scene dimensions before grid:" << view->GetScene()->sceneRect().size();
-
     for(int i = 0; i < rowLines + 1; i++)
     {
         gridLines.push_back(view->addLine(0, 74 * i, width, 74 * i, line));
@@ -407,13 +625,11 @@ void Renderer::DrawGridLines(GameView *view)
         {
             gridCoords.push_back(view->addText(QString("%1,%2").arg(j).arg(i)));
             gridCoords.last()->setPos((44 * j) + 10, (74 * i) + 15);
-            gridCoords.last()->setZValue(7);
+            gridCoords.last()->setZValue(6);
             gridCoords.last()->setDefaultTextColor(Qt::red);
             gridCoords.last()->setScale(0.5);
         }
     }
-
-    qDebug() << "   Scene dimensions after grid:" << view->GetScene()->sceneRect().size();
 }
 
 /*
@@ -515,7 +731,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     QPixmap *cityOutlines = new QPixmap("Assets/UI/CityStatusBarOutline.png");
 
     cityBarOutlines.push_back(view->addPixmap(*cityOutlines));
-    cityBarOutlines.last()->setZValue(7);
+    cityBarOutlines.last()->setZValue(5);
     cityBarOutlines.last()->setPos(city->GetCityTile()->GetItemTexturePoint().x() - 23,
                                    city->GetCityTile()->GetCityLabelPoint().y() + 13);
 
@@ -524,7 +740,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
                               65, 5);
 
     cityHealthBars.push_back(view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
-    cityHealthBars.last()->setZValue(6);
+    cityHealthBars.last()->setZValue(4);
 
     //--------------------------------------------------------------------------------
     QRect *growth = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
@@ -532,7 +748,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
                               1, 2);
 
     cityGrowthBars.push_back(view->addRect(growth, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::cyan))));
-    cityGrowthBars.last()->setZValue(6);
+    cityGrowthBars.last()->setZValue(4);
 
     //-------------------------------------------------------------------------------
     QRect *production = new QRect(city->GetCityTile()->GetItemTexturePoint().x() - 13,
@@ -540,7 +756,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
                                   1, 2);
 
     cityProductionBars.push_back(view->addRect(production, QPen(QColor(Qt::transparent)), QBrush(QColor(255, 113, 0, 255))));
-    cityProductionBars.last()->setZValue(6);
+    cityProductionBars.last()->setZValue(4);
 
     //---------------------------------------------------------------------------------
     QLabel *population = new QLabel();
@@ -554,7 +770,7 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     population->setText(QString(" %1 ").arg(city->GetCitizenCount()));
 
     cityPopulationLabels.push_back(view->addWidget(population));
-    cityPopulationLabels.last()->setZValue(6);
+    cityPopulationLabels.last()->setZValue(4);
     //--------------------------------------------------------------------------------
 }
 
@@ -567,6 +783,7 @@ void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
+    cityBorders.last()->setZValue(3);
 }
 
 /*
@@ -602,7 +819,7 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
 
     tileWorked.at(index)->setScale(0.6f);
     tileWorked.at(index)->setPos(tile->GetResourceIconPoint().x() + 23, tile->GetResourceIconPoint().y() + 10);
-    tileWorked.at(index)->setZValue(3);
+    tileWorked.at(index)->setZValue(2);
 }
 
 /*
@@ -668,7 +885,7 @@ void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view
         tileImprovementIcons.at(index)->setOpacity(0);
     }
 
-    tileImprovementIcons.at(index)->setZValue(4);
+    tileImprovementIcons.at(index)->setZValue(3);
     tileImprovementIcons.at(index)->setScale(0.5f);
     tileImprovementIcons.at(index)->setPos(tile->GetResourceIconPoint().x() + 43, tile->GetResourceIconPoint().y());
 }
@@ -701,7 +918,7 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
                               barSize, 2);
 
     cityGrowthBars.replace(index, view->addRect(growth, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::cyan))));
-    cityGrowthBars.at(index)->setZValue(6);
+    cityGrowthBars.at(index)->setZValue(4);
 
     view->removeItem(cityPopulationLabels.at(index));
 
@@ -718,7 +935,7 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
                                       "margin-right: 1px; }"));
 
     cityPopulationLabels.replace(index, view->addWidget(population));
-    cityPopulationLabels.at(index)->setZValue(7);
+    cityPopulationLabels.at(index)->setZValue(5);
 }
 
 /*
@@ -747,7 +964,7 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
                                   barSize, 2);
 
     cityProductionBars.replace(index, view->addRect(prod, QPen(QColor(Qt::transparent)), QBrush(QColor(255, 113, 0, 255))));
-    cityProductionBars.at(index)->setZValue(6);
+    cityProductionBars.at(index)->setZValue(4);
 
     cityLabels.at(index)->setPlainText(QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength()));
 }
@@ -770,7 +987,7 @@ void Renderer::UpdateCityHealthBar(City *city, GameView *view)
                               barSize, 5);
 
     cityHealthBars.replace(index, view->addRect(health, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::green))));
-    cityHealthBars.last()->setZValue(6);
+    cityHealthBars.last()->setZValue(4);
 }
 /*
  * AddCityLabel is part of city creation and
@@ -783,7 +1000,7 @@ void Renderer::AddCityLabel(City* city, GameView *view)
 
     cityLabels.push_back(view->addText(label));
     cityLabels.last()->setDefaultTextColor(Qt::white);
-    cityLabels.last()->setZValue(7);
+    cityLabels.last()->setZValue(6);
     cityLabels.last()->setFont(QFont("Helvetica", 8, QFont::Normal));
     cityLabels.last()->font().setStretch(QFont::ExtraCondensed);
 
@@ -802,7 +1019,7 @@ void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
     QPixmap *cityImage = new QPixmap("Assets/Icons/CityIcon4944_alt.png");
     cityPixmap.push_back(view->addPixmap(*cityImage));
-    cityPixmap.last()->setZValue(2);
+    cityPixmap.last()->setZValue(1);
     cityPixmap.last()->setScale(1.0f);
     cityPixmap.last()->setPos(city->GetCityTile()->GetTexturePoint().x() + 22, city->GetCityTile()->GetTexturePoint().y() + 24);
 
@@ -847,7 +1064,7 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
     unit->SetUnitImage(unitImage);
     unitPix = new QPixmap(unitPix->fromImage(*unitImage));
     unitPixmap.push_back(view->addPixmap(*unitPix));
-    unitPixmap.last()->setZValue(2);
+    unitPixmap.last()->setZValue(3);
     unitPixmap.last()->setScale(1.0f);
     unit->SetPixmapIndex(unitPixmap.size() - 1);
     unitPixmap.last()->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());

@@ -62,6 +62,31 @@ Map::Map(int mapSizeX, int mapSizeY)
     qDebug() << "Estimated map size:" << this->mapSizeX * 90 << "px X" << (mapSizeY * 74) + 24 << "px";
 }
 
+Map::~Map()
+{
+    qDebug() << "   Map Dec'tor called";
+    if(!terrain.isEmpty())
+    {
+        qDebug() << "   --Deleting terrain";
+        foreach(QPixmap* p, terrain)
+        {
+            if(p != NULL)
+                delete p;
+        }
+    }
+
+    if(!board.isEmpty())
+    {
+        qDebug() << "   --Deleting Board";
+        foreach(Tile* t, board)
+        {
+            if(t != NULL)
+                delete t;
+        }
+    }
+    qDebug() << "   --Map Deconstructed";
+}
+
 void Map::InitHexMap()
 {
     Tile *tile;
@@ -131,6 +156,8 @@ void Map::InitHexMap()
     GenerateResources();
     CleanMap();
     InitTerrain();
+
+    qDebug() << "Map Gen finished";
 }
 
 void Map::InitTerrain()
@@ -856,7 +883,9 @@ newrand:
 
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
 
+            qDebug() << "   Generating Capital";
             city = this->CreateCity(index, civs.at(i), true);
+            qDebug() << "   Done";
 
             if(!city->IsInitialized())
             {
@@ -864,7 +893,7 @@ newrand:
                     board.at(index)->SetControllingCiv(NO_NATION, -1);
                 goto newrand;
             }
-
+            qDebug() << city->GetName() << "is initialized";
             for(int j = 0; j < i; j++)
             {
                 //since this function only runs when spawning civs for the first time,
@@ -979,6 +1008,8 @@ newrand:
             civs.at(i)->UpdateCivYield();
         }
     }
+
+    qDebug() << "SpawnCivs complete";
 }
 
 void Map::GenerateBiomes()

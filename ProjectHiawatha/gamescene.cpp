@@ -17,6 +17,11 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
     processedData.relocateOrderGiven = false;
 }
 
+GameScene::~GameScene()
+{
+
+}
+
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
     mpScenePos = e->scenePos();

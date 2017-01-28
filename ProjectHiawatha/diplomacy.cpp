@@ -66,6 +66,26 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
     this->setLayout(window);
 }
 
+Diplomacy::~Diplomacy()
+{
+
+    foreach(DiplomacyItem* di, diploItemList)
+    {
+        delete di;
+    }
+
+    delete closeDiplo;
+    delete leaderImage;
+    delete leaderName;
+    delete warStatus;
+    delete nationName;
+    delete atWarWith;
+    delete leaderListArea;
+
+    delete declareWar;
+    delete makePeace;
+}
+
 void Diplomacy::UpdateTurn()
 {
     turn++;

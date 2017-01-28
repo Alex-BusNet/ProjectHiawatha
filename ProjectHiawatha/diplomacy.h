@@ -14,7 +14,7 @@ class Diplomacy : public QWidget
     Q_OBJECT
 public:
     explicit Diplomacy(QWidget *parent = 0);
-//    ~Diplomacy();
+    ~Diplomacy();
 
     void AddLeader(QString _name, QPixmap _image, Nation _nation, bool isPlayer);
     void RemoveLeader(Nation nation);

@@ -13,6 +13,7 @@ class Map
 public:
     Map();
     Map(int mapSizeX, int mapSizeY);
+    ~Map();
 
     void InitHexMap();
     void InitTerrain();
@@ -44,7 +45,6 @@ public:
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;
-    QVector<Yield*> tileYield;
 
     //May be changed later
     int mapSizeX;

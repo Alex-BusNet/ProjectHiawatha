@@ -29,12 +29,59 @@ City::City()
     this->fullyExpanded = false;
     this->hasWorker=false;
     this->cityID = -1;
+
+    this->StationedMilitary = NULL;
+    this->StationedWorkers = NULL;
+    this->producedUnit = NULL;
 }
 
 
 City::~City()
 {
+    qDebug() << "   City Dec'tor called for" << this->name;
+    foreach(Unit* unit, initialUnitList)
+    {
+        if(unit != NULL)
+            delete unit;
+    }
 
+    foreach(Building* b, initialBuildingList)
+    {
+        if(b != NULL)
+            delete b;
+    }
+
+    if(!cityControlledTiles.isEmpty())
+        cityControlledTiles.clear();
+
+    if(!producedBuildings.isEmpty())
+        producedBuildings.clear();
+
+    if(!maximumExpansionBorderTiles.isEmpty())
+        maximumExpansionBorderTiles.clear();
+
+    if(!borderTiles.isEmpty())
+        borderTiles.clear();
+
+    if(!tileQueue.isEmpty())
+        tileQueue.clear();
+
+    if(!borderQueue.isEmpty())
+        borderQueue.clear();
+
+    if(StationedMilitary != NULL)
+        delete StationedMilitary;
+
+    if(StationedWorkers != NULL)
+        delete StationedWorkers;
+
+    if(producedUnit != NULL)
+        delete producedUnit;
+
+    if(cityTotalYield != NULL)
+        delete cityTotalYield;
+
+    qDebug() << "   --City Deconstructed";
 }
 
 QVector<Unit *> City::getInitialUnitList()
@@ -405,6 +452,7 @@ void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
     tile->SetGoverningCity(this->cityID);
+    tile->CanAlwaysBeSeen = true;
 
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
     this->minimumSettleDistance << QPoint(x - 88, y - 147)
@@ -507,12 +555,6 @@ void City::SetCityBorders(QPolygon borders)
         this->cityBorder.clear();
 
     this->cityBorder = borders;
-
-//    qDebug() << this->name << "new borders:";
-//    foreach(QPoint pt, cityBorder.toList())
-//    {
-//        qDebug() << "       " << pt;
-//    }
 }
 
 void City::SetCityHealth(float health)
@@ -583,6 +625,7 @@ void City::AddControlledTile(Tile *tile)
     tile->SetControllingCiv(this->controllingCiv, this->cityTile->GetControllingCivListIndex());
     tile->SetGoverningCity(this->cityID);
     this->cityControlledTiles.push_back(tile);
+    tile->CanAlwaysBeSeen = true;
 }
 
 void City::SetMaximumExpansionBorderTiles(QList<Tile *> tileVect)

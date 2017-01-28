@@ -45,6 +45,7 @@ Tile::Tile(int _posX, int _posY)
     Selected = false;
     DiscoveredByPlayer = false;
     IsSeenByPlayer = false;
+    CanAlwaysBeSeen = false;
 
     //Size of Hex tiles in px
 

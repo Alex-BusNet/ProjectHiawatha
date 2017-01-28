@@ -13,6 +13,11 @@ GameView::GameView(QWidget *parent) : QGraphicsView(parent)
     zoomScale = 1;
 }
 
+GameView::~GameView()
+{
+    delete game;
+}
+
 QGraphicsPolygonItem *GameView::addPolygon(const QPolygonF &polygon)
 {
     return this->game->addPolygon(polygon);
@@ -99,7 +104,8 @@ void GameView::wheelEvent(QWheelEvent *e)
 
 void GameView::closeGame()
 {
-    this->gameView.hide();
+//    this->gameView.hide();
+    this->hide();
 }
 
 void GameView::zoomIn()

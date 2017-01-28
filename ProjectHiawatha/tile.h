@@ -35,6 +35,7 @@ public:
     bool Walkable; // Map Gen path finding flag
     bool DiscoveredByPlayer; // Fog of War flag
     bool IsSeenByPlayer; // Fog of War and Line of Sight flag
+    bool CanAlwaysBeSeen;
 
     TileType GetTileType();
     Yield* GetYield();

@@ -35,6 +35,14 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
     this->setStyleSheet(nsStyle);
 }
 
+NotificationSystem::~NotificationSystem()
+{
+    qDebug() << " Notification System Dec'tor called";
+
+
+    qDebug() << "   --Notification System Deconstructed";
+}
+
 void NotificationSystem::PostNotification(Notification n)
 {
     this->notificationsToBePosted.enqueue(n);
@@ -61,6 +69,7 @@ bool NotificationSystem::HasNotificationsWaiting()
 
 void NotificationSystem::removeNotification(QListWidgetItem* item)
 {
-    this->takeItem(this->currentRow());
+    item = this->takeItem(this->currentRow());
+    delete item;
 }
 

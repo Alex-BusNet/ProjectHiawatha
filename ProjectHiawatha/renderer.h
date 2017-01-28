@@ -21,15 +21,17 @@ public:
     enum ItemGroup {MAP, TERRAIN, CITY_IMPROVEMENTS, OUTLINES, UNITS, FOG_OF_WAR, GUI_IMAGES, GUI_TEXT };
 
     Renderer(int mapSizeX);
+    ~Renderer();
 
     void UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data);
     void UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved);
     void UpdateCityBorders(City* city, GameView *view, Nation owner);
+    void UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view);
 
     void DiscoverTile(int index, GameView *view);
-    void SetTileVisibility(int index, GameView *view);
+    void SetTileVisibility(int index, bool viewable, GameView *view);
 
-    void DrawHexScene(Map map, GameView *scene);
+    void DrawHexScene(Map *map, GameView *scene);
     void DrawCityBorders(City *city, GameView *view, Nation owner);
     void DrawUnits(QVector<Unit*> units, Map *map, GameView *view);
 
@@ -79,7 +81,6 @@ private:
     QVector<QGraphicsProxyWidget*> cityPopulationLabels;
 
     QVector<QGraphicsPixmapItem*> unitPixmap;
-    QVector<QGraphicsLineItem*> unitGraphicsPath;
     QVector<QGraphicsRectItem*> unitHealthBars;
 
     QVector<QGraphicsLineItem*> gridLines;

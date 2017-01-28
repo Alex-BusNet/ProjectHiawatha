@@ -16,6 +16,7 @@ class GameView : public QGraphicsView
 
 public:
     GameView(QWidget *parent = 0);
+    ~GameView();
 
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon);
     QGraphicsPolygonItem* addPolygon(const QPolygonF &polygon, const QPen &pen);
@@ -36,10 +37,8 @@ public:
     virtual void wheelEvent(QWheelEvent *e);
 
 private:
-    QGraphicsView gameView;
+//    QGraphicsView gameView;
     GameScene *game;
-
-    Map *map;
 
     QPointF clickedPos;
 

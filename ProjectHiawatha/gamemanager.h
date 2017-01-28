@@ -31,7 +31,7 @@ class GameManager : public QWidget
     Q_OBJECT
 public:
     explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42, Nation player = India, int numAI = 2);
-
+    ~GameManager();
 private:
 
     Renderer *renderer;
@@ -46,18 +46,11 @@ private:
     QTimer *updateTimer;
 
     AI_Controller *ac;
-    Civilization* currentCiv;
     GameView *gameView;
 
-    QVector<QGraphicsPolygonItem*> tile;
-    QVector<QGraphicsRectItem*> guiRects;
     QVector<QGraphicsTextItem*> stringData;
-    QVector<QGraphicsProxyWidget*> proxy;
 
     QVector<Civilization*> civList;
-
-    QVector<Unit*> currentUnitList;
-    QVector<City*> currentCityList;
 
     QPushButton *exitGame;
     QPushButton *endTurn;
@@ -78,17 +71,11 @@ private:
 
     QFuture<void> civInit, mapInit;
 
-    //=============
-    //Dev Buttons
-    QPushButton *renderPlusOne;
-    QPushButton *renderMinusOne;
-    QPushButton *showDummyCityScreen;
     QPushButton *goldFocus;
     QPushButton *productionFocus;
     QPushButton *scienceFocus;
     QPushButton *foodFocus;
     QPushButton *cultureFocus;
-    //=============
 
     CityScreen *cityScreen;
     TechTree *techTree;
@@ -119,6 +106,7 @@ private:
     QString *YieldDisplay, statusMessage;
 
     QQueue<SelectData> *selectedTileQueue, *tileModifiedQueue;
+    QQueue<ViewData> *viewUpdateTiles;
 
     Tile *unitTile, *targetTile;
 

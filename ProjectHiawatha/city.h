@@ -100,11 +100,12 @@ public:
 
     QVector<Tile*> GetControlledTiles();
     QList<Tile *> GetMaximumExpansionBorderTiles();
-    QVector<Tile*> tileQueue;
-    QVector<Tile*> borderQueue;
     QVector<Unit*> getInitialUnitList();
     QVector<Building*> getInitialBuildingList();
     QVector<Building*> getCurrentBuildingList();
+
+    QVector<Tile*> tileQueue;
+    QVector<Tile*> borderQueue;
 
     Update_t UpdateProgress();
     Focus GetCityFocus();

@@ -11,6 +11,7 @@
 class AI_Controller
 {
 public:
+    ~AI_Controller();
     void AddAIToList(AI_Strategic *ai);
     void turnStarted(Civilization *civ, Civilization *player, Map *map);
 private:

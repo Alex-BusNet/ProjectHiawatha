@@ -13,6 +13,7 @@ class NotificationSystem : public QListWidget
     Q_OBJECT
 public:
     explicit NotificationSystem(QWidget *parent = 0);
+    ~NotificationSystem();
 
     void PostNotification(Notification n);
     void ShowNotifications();
@@ -20,12 +21,9 @@ public:
 
 private:
     QQueue<Notification> notificationsToBePosted;
-    QVector<QLabel*> notificationsPosted;
 
     QVector<QIcon> IconArray;
     bool notificationWaiting;
-
-//    QListWidget *notifView;
 signals:
 
 public slots:
