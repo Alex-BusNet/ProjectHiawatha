@@ -69,7 +69,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     turnStarted = true;
     countTime = false;
     citySelected = false;
-
+    updateFoW = false;
     focusChanged = false;
     fortify = false;
 
@@ -622,8 +622,6 @@ newCivRand:
 
 void GameManager::paintEvent(QPaintEvent *event)
 {
-    QWidget::paintEvent(event);
-
     QPainter paint(this);
 
     paint.fillRect(*playerInfoRect, QBrush(Qt::black));

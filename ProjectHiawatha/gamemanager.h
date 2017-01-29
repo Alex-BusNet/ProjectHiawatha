@@ -124,7 +124,7 @@ private:
     bool updateUnitPos;
     bool turnEnded, turnStarted;
     bool countTime;
-    bool citySelected, redrawTile, isTileSelected, cityTileSelected;
+    bool citySelected, redrawTile, isTileSelected, cityTileSelected, updateFoW;
     bool focusChanged;
 
     Nation playerCiv;

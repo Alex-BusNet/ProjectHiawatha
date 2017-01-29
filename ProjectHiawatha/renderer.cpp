@@ -281,7 +281,6 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
 
         tileCircles.push_back(view->addEllipse(map->GetTileAt(i)->GetTileRect(), circlePen));
         tileCircles.last()->setZValue(0);
-        tileCircles.last()->setOpacity(0.7);
 
         tilePixmap.push_back(view->addPixmap((*(map->GetTilePixmap(i)))));
         tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
@@ -494,7 +493,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(outlinePen);
         tileCircles.at(index)->setZValue(0);
-        tileCircles.at(index)->setOpacity(0.7);
     }
 }
 

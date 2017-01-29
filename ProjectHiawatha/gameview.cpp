@@ -104,7 +104,6 @@ void GameView::wheelEvent(QWheelEvent *e)
 
 void GameView::closeGame()
 {
-//    this->gameView.hide();
     this->hide();
 }
 
