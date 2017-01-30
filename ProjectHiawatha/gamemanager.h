@@ -68,6 +68,7 @@ private:
     QPushButton *rangeAttack;
     QPushButton *fortifyUnit;
     QPushButton *help;
+    QPushButton *toggleFoW;
 
     QFuture<void> civInit, mapInit;
 
@@ -126,6 +127,7 @@ private:
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected, updateFoW;
     bool focusChanged;
+    bool toggleOn;
 
     Nation playerCiv;
     ActionState state;
@@ -190,6 +192,7 @@ public slots:
     void OpenHelp();
 
     void parseItem();
+    void toggleFog();
 };
 
 #endif // GAMEWINDOW_H

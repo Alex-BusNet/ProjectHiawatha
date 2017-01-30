@@ -29,7 +29,7 @@ public:
     void UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view);
 
     void DiscoverTile(int index, GameView *view);
-    void SetTileVisibility(int index, bool viewable, GameView *view);
+    void SetTileVisibility(int index, bool viewable, bool toggle);
 
     void DrawHexScene(Map *map, GameView *scene);
     void DrawCityBorders(City *city, GameView *view, Nation owner);
@@ -88,8 +88,6 @@ private:
 
     QPolygon borders;
     CivColors *cc;
-
-    QGraphicsRectItem *YieldDisplay;
 
     void SetOutlinePen(Nation owner);
     void AddUnitHealthBars(Unit *unit, Map *map, GameView *view);

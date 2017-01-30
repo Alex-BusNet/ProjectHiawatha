@@ -210,10 +210,6 @@ Renderer::~Renderer()
     if(cc != NULL)
         delete cc;
 
-    qDebug() << "       Renderer, Delete YieldDisplay";
-    if(YieldDisplay != NULL)
-        delete YieldDisplay;
-
     qDebug() << "       Renderer, Delete images";
     delete ironPix;
     delete horsePix;
@@ -543,10 +539,10 @@ void Renderer::UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view)
             this->DiscoverTile(i.index, view);
             break;
         case VISIBLE:
-            this->SetTileVisibility(i.index, true, view);
+            this->SetTileVisibility(i.index, true, false);
             break;
         case HIDDEN:
-            this->SetTileVisibility(i.index, false, view);
+            this->SetTileVisibility(i.index, false, false);
             break;
         default:
             break;
@@ -565,11 +561,15 @@ void Renderer::DiscoverTile(int index, GameView *view)
     fogOfWar.at(index)->setZValue(6);
 }
 
-void Renderer::SetTileVisibility(int index, bool viewable, GameView *view)
+void Renderer::SetTileVisibility(int index, bool viewable, bool toggle)
 {
     if(viewable)
     {
         fogOfWar.at(index)->setOpacity(0);
+    }
+    else if(toggle)
+    {
+        fogOfWar.at(index)->setOpacity(1);
     }
     else
     {

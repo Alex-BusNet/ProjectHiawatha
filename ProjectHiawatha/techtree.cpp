@@ -20,7 +20,15 @@ TechTree::TechTree(QWidget *parent) :
 
 TechTree::~TechTree()
 {
+    qDebug() << "   TechTree Dec'tor called";
+    foreach(Technology* t, techListCopy)
+    {
+        if(t != NULL)
+            delete t;
+    }
+
     delete ui;
+    qDebug() << "   --TechTree Deconstructed";
 }
 
 void TechTree::loadData(Technology *currentTech, Technology *nextTech, int currentProgress)

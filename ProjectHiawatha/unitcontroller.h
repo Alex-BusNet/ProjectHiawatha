@@ -14,6 +14,7 @@ class UnitController
 {
 public:
     UnitController();
+    ~UnitController();
 
     void FindPath(Tile *startTile, Tile* endTile, Map *map, Unit *unit, WarData wDat);
     void MoveUnit(Unit *unit, Map *map, int civListIndex);

@@ -68,10 +68,11 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
 
 Diplomacy::~Diplomacy()
 {
-
+    qDebug() << "   Diplomacy Dec'tor called";
     foreach(DiplomacyItem* di, diploItemList)
     {
-        delete di;
+        if(di != NULL)
+            delete di;
     }
 
     delete closeDiplo;
@@ -84,6 +85,8 @@ Diplomacy::~Diplomacy()
 
     delete declareWar;
     delete makePeace;
+
+    qDebug() << "   --Diplomacy Deconstructed";
 }
 
 void Diplomacy::UpdateTurn()
@@ -93,7 +96,7 @@ void Diplomacy::UpdateTurn()
 
 void Diplomacy::UpdateLeader()
 {
-    selectLeader(leaderListArea->currentItem());
+    selectLeader(leaderListArea->item(0));
 }
 
 int Diplomacy::GetLengthOfWar(Nation ai)

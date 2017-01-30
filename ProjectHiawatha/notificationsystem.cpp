@@ -37,7 +37,7 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
 
 NotificationSystem::~NotificationSystem()
 {
-    qDebug() << " Notification System Dec'tor called";
+    qDebug() << "   Notification System Dec'tor called";
 
 
     qDebug() << "   --Notification System Deconstructed";

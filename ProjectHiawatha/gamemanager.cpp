@@ -64,6 +64,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     cityScreenVisible = false;
     techTreeVisible = false;
     diploVisible = false;
+    toggleOn = false;
     relocateUnit = false;
     turnEnded = false;
     turnStarted = true;
@@ -193,6 +194,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         zoomIn();
     }
 
+    diplo->show();
+//    diplo->UpdateLeader();
+    diplo->hide();
+
     currentTurn = 0;
     gameTurn = 0;
     //Start at 4000 BC. The game increments the turn to 1, and subsequently the in game year by 40 years, upon game start.
@@ -241,14 +246,18 @@ GameManager::~GameManager()
     if(uc != NULL)
         delete uc;
 
-    if(clv != NULL)
-        delete clv;
-
+    qDebug() << "       uc done";
     if(ns != NULL)
         delete ns;
 
     if(about != NULL)
         delete about;
+
+    if(cityScreen != NULL)
+        delete cityScreen;
+
+    if(techTree != NULL)
+        delete techTree;
 
     if(ac != NULL)
         delete ac;
@@ -269,15 +278,13 @@ GameManager::~GameManager()
     delete rangeAttack;
     delete fortifyUnit;
     delete help;
+    delete toggleFoW;
 
     delete goldFocus;
     delete productionFocus;
     delete scienceFocus;
     delete foodFocus;
     delete cultureFocus;
-
-    delete cityScreen;
-    delete techTree;
 
     delete goldLabel;
     delete goldText;
@@ -307,15 +314,29 @@ GameManager::~GameManager()
     delete targetCity;
     delete YieldDisplay;
 
-    selectedTileQueue->clear();
-    delete selectedTileQueue;
-    tileModifiedQueue->clear();
-    delete tileModifiedQueue;
-    viewUpdateTiles->clear();
-    delete viewUpdateTiles;
+    if(!selectedTileQueue->isEmpty())
+        selectedTileQueue->clear();
 
-    delete unitTile;
-    delete targetTile;
+    if(selectedTileQueue != NULL)
+        delete selectedTileQueue;
+
+    if(!tileModifiedQueue->isEmpty())
+        tileModifiedQueue->clear();
+
+    if(tileModifiedQueue != NULL)
+        delete tileModifiedQueue;
+
+    if(!viewUpdateTiles->isEmpty())
+        viewUpdateTiles->clear();
+
+    if(viewUpdateTiles != NULL)
+        delete viewUpdateTiles;
+
+    if(unitTile != NULL)
+        delete unitTile;
+
+    if(targetTile != NULL)
+        delete targetTile;
 
     updateTimer->stop();
     delete updateTimer;
@@ -1882,6 +1903,9 @@ void GameManager::InitButtons()
     connect(help, SIGNAL(clicked(bool)), this, SLOT(OpenHelp()));
     help->setShortcut(QKeySequence(Qt::Key_Z));
 
+    toggleFoW = new QPushButton("Toggle FoW");
+    connect(toggleFoW, SIGNAL(clicked(bool)), this, SLOT(toggleFog()));
+
 }
 
 void GameManager::InitLayouts()
@@ -1890,6 +1914,7 @@ void GameManager::InitLayouts()
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addWidget(showDiplomacy);
+    unitControlButtons->addWidget(toggleFoW);
     unitControlButtons->addSpacing(widget.screenGeometry(widget.primaryScreen()).height() / 1.8f);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
@@ -2712,5 +2737,32 @@ void GameManager::parseItem()
 
     this->showTechTreeButton->setEnabled(false);
     this->showCity(civList[0]->GetCityAt(clv->currentRow()));
+}
+
+void GameManager::toggleFog()
+{
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        if(!toggleOn)
+        {
+            renderer->SetTileVisibility(i, true, false);
+        }
+        else
+        {
+            if(map->GetTileAt(i)->DiscoveredByPlayer)
+            {
+                if(!map->GetTileAt(i)->IsSeenByPlayer)
+                {
+                    renderer->SetTileVisibility(i, false, false);
+                }
+            }
+            else
+            {
+                renderer->SetTileVisibility(i, false, true);
+            }
+        }
+    }
+
+    toggleOn = !toggleOn;
 }
 

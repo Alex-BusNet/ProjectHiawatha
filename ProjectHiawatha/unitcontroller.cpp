@@ -12,6 +12,14 @@ UnitController::UnitController()
 
 }
 
+UnitController::~UnitController()
+{
+    qDebug() << "   UnitController Dec'tor called";
+
+
+    qDebug() << "   --UnitController Deconstructed";
+}
+
 /*
  * FindPath, in conjunction with GetNeighbors, GetDistance,
  * and RetracePath, uses the A* pathfinding algorithm to determine the
