@@ -370,8 +370,9 @@ Update_t City::UpdateProgress()
                     break;
                 }
             }
-            this->UpdateCityYield();
         }
+
+        this->UpdateCityYield();
     }
 
     if(this->currentProductionCost > 0)
@@ -386,9 +387,6 @@ Update_t City::UpdateProgress()
         this->currentProductionCost = 0;
         update.productionFinished = true;
         this->productionFinished = true;
-
-        if(!this->productionUnit)
-            this->UpdateCityYield();
     }
 
     if(this->cityHealth < this->maxHealth)
@@ -416,6 +414,7 @@ void City::SetCityFocus(City::Focus focus)
 
     this->SortTileQueue();
     this->SortControlledTiles();
+    this->UpdateCityYield();
     /// Need function to reassign worked tiles.
 }
 
@@ -482,6 +481,8 @@ void City::SetCityIndex(int index)
 
 void City::UpdateCityYield()
 {
+
+    qDebug() << "Current Yield:" << this->cityTotalYield->GetGoldYield() << this->cityTotalYield->GetProductionYield() << this->cityTotalYield->GetFoodYield() << this->cityTotalYield->GetScienceYield() << this->cityTotalYield->GetCultureYield();
     //Clear the current YPT
     int oldGold = this->cityTotalYield->GetGoldYield() * -1,
             oldProd = this->cityTotalYield->GetProductionYield() * -1,
@@ -490,6 +491,8 @@ void City::UpdateCityYield()
             oldCul = this->cityTotalYield->GetCultureYield() * -1;
 
     this->cityTotalYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
+
+    qDebug() << "Current Yield:" << this->cityTotalYield->GetGoldYield() << this->cityTotalYield->GetProductionYield() << this->cityTotalYield->GetFoodYield() << this->cityTotalYield->GetScienceYield() << this->cityTotalYield->GetCultureYield();
 
     //Recalculate the city's YPT
     int newGold = cityTile->GetYield()->GetGoldYield(),
@@ -516,6 +519,8 @@ void City::UpdateCityYield()
     }
 
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
+
+    qDebug() << "Current Yield:" << this->cityTotalYield->GetGoldYield() << this->cityTotalYield->GetProductionYield() << this->cityTotalYield->GetFoodYield() << this->cityTotalYield->GetScienceYield() << this->cityTotalYield->GetCultureYield();
 }
 
 void City::UpdateCityStatus()

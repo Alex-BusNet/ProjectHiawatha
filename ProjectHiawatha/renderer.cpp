@@ -177,7 +177,7 @@ Renderer::~Renderer()
             delete cbo;
     }
 
-    foreach(QGraphicsProxyWidget* cpl, cityPopulationLabels)
+    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
     {
         if(cpl != NULL)
             delete cpl;
@@ -206,11 +206,9 @@ Renderer::~Renderer()
             delete gc;
     }
 
-    qDebug() << "       Renderer, Delete CC";
     if(cc != NULL)
         delete cc;
 
-    qDebug() << "       Renderer, Delete images";
     delete ironPix;
     delete horsePix;
     delete uraniumPix;
@@ -524,7 +522,6 @@ void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 
 void Renderer::UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view)
 {
-    qDebug() << "UpdateTileVisibility";
     if(data->isEmpty())
         return;
 
@@ -548,7 +545,6 @@ void Renderer::UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view)
             break;
         }
     }
-    qDebug() << "UpdateTileVisibility Complete";
 }
 
 void Renderer::DiscoverTile(int index, GameView *view)
@@ -757,18 +753,15 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityProductionBars.last()->setZValue(4);
 
     //---------------------------------------------------------------------------------
-    QLabel *population = new QLabel();
-    population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
-                            city->GetCityTile()->GetCityLabelPoint().y() + 13,
-                            9, 9);
-    population->setStyleSheet(QString("QLabel { color: white; "
-                                      "background-color: transparent; "
-                                      "text-align: right; font-size: 8px; "
-                                      "margin-right: 1px; }"));
-    population->setText(QString(" %1 ").arg(city->GetCitizenCount()));
+    QString population = QString("%1").arg(city->GetCitizenCount());
+    cityPopulationLabels.push_back(view->addText(population));
 
-    cityPopulationLabels.push_back(view->addWidget(population));
+    cityPopulationLabels.last()->setDefaultTextColor(Qt::white);
     cityPopulationLabels.last()->setZValue(4);
+    cityPopulationLabels.last()->setFont(QFont("Helvetica", 7, QFont::Normal));
+    cityPopulationLabels.last()->font().setStretch(QFont::ExtraCondensed);
+    cityPopulationLabels.last()->setPos(city->GetCityTile()->GetItemTexturePoint().x() - 25,
+                            city->GetCityTile()->GetCityLabelPoint().y() + 8);
     //--------------------------------------------------------------------------------
 }
 
@@ -918,22 +911,12 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     cityGrowthBars.replace(index, view->addRect(growth, QPen(QColor(Qt::transparent)), QBrush(QColor(Qt::cyan))));
     cityGrowthBars.at(index)->setZValue(4);
 
-    view->removeItem(cityPopulationLabels.at(index));
-
-    QLabel *population = new QLabel();
-    population->setText(QString("%1").arg(city->GetCitizenCount()));
-    population->setGeometry(city->GetCityTile()->GetItemTexturePoint().x() - 23,
-                            city->GetCityTile()->GetCityLabelPoint().y() + 13,
-                            9, 9);
-
-    population->setAlignment(Qt::AlignRight);
-    population->setStyleSheet(QString("QLabel { color: white; "
-                                      "background-color: transparent; "
-                                      "text-align: right; font-size: 8px; "
-                                      "margin-right: 1px; }"));
-
-    cityPopulationLabels.replace(index, view->addWidget(population));
-    cityPopulationLabels.at(index)->setZValue(5);
+    cityPopulationLabels.at(index)->setPlainText(QString("%1").arg(city->GetCitizenCount()));
+    if(city->GetCitizenCount() > 9)
+    {
+        cityPopulationLabels.at(index)->setFont(QFont("Helvetica", 6, QFont::Normal));
+        cityPopulationLabels.at(index)->moveBy(-2, 0);
+    }
 }
 
 /*

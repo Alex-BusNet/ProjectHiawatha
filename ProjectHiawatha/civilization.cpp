@@ -136,10 +136,6 @@ Update_t Civilization::UpdateProgress()
     static int turn = 0;
     turn++;
 
-    this->totalGold += this->getCivYield()->GetGoldYield();
-    this->totalScience += this->getCivYield()->GetScienceYield();
-    this->totalCulture += this->getCivYield()->GetCultureYield();
-
     Update_t redraw{false, false, false, false};
     foreach(City* city, this->currentCityList)
     {
@@ -156,7 +152,6 @@ Update_t Civilization::UpdateProgress()
 
         if(cityProgress.updateCitizens)
         {
-            this->UpdateCivYield();
             redraw.updateCitizens = true;
         }
 
@@ -171,19 +166,37 @@ Update_t Civilization::UpdateProgress()
         }
     }
 
-    /*cost = (n * b*(1 + g*m)/100)^(1 + g / d)
+    this->UpdateCivYield();
+
+    this->totalScience += this->getCivYield()->GetScienceYield();
+    this->totalCulture += this->getCivYield()->GetCultureYield();
+
+    /*
+     * cost = (n * b*(1 + g*m)/100)^(1 + g / d)
      * n = number of units
      * b = base cost of units
      * m = mulitplier (1)
      * d = divisor (1)
      * g = game progress factor
      *      g = currentTurn / approx. endTurn
-    */
+     */
     double gpf =  turn / 500.0;
 
     int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
-    this->totalGold -= maintenance;
+    this->totalCivYield->ChangeYield(Yield::GOLD, maintenance * -1);
+    this->totalGold += this->getCivYield()->GetGoldYield();
+//    this->totalGold -= maintenance;
+
+    if(this->totalGold < 0)
+    {
+        losingGold = true;
+    }
+    else
+    {
+        losingGold = false;
+    }
+
 
     return redraw;
 }

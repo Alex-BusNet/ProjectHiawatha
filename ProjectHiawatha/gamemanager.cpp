@@ -246,7 +246,6 @@ GameManager::~GameManager()
     if(uc != NULL)
         delete uc;
 
-    qDebug() << "       uc done";
     if(ns != NULL)
         delete ns;
 
@@ -699,10 +698,10 @@ void GameManager::TurnController()
 
             this->UpdateTileData();
         }
-        //This is just for extra precautions so that we don't try to end the AI's
-        // turn and move on before the AI thread has completly finished.
 #else
         QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
+        //While the AI is taking its turn, check the Queue
+        // if the AI is trying to settle a city or conquer one
         while(future.isRunning())
         {
             if(!civList.at(currentTurn)->isEmpty())
@@ -732,9 +731,6 @@ void GameManager::TurnController()
         // turn and move on before the AI thread has completly finished.
         future.waitForFinished();
 #endif
-        //While the AI is taking its turn, check the Queue
-        // if the AI is trying to settle a city or conquer one
-
         EndTurn();
     }
 
@@ -809,7 +805,7 @@ void GameManager::StartTurn()
 
     if(update.updateCitizens || this->focusChanged)
     {
-        if(this->focusChanged == true)
+        if(this->focusChanged)
         {
             this->focusChanged = false;
         }
@@ -1063,7 +1059,9 @@ void GameManager::StartTurn()
                     {
                          culture = building->getBonusValue();
                     }
-                    if(0==currentTurn){
+
+                    if(0==currentTurn)
+                    {
                         civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
                     }
 
@@ -1085,6 +1083,10 @@ void GameManager::StartTurn()
         {
             renderer->UpdateCityHealthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         }
+
+        civList.at(currentTurn)->GetCityAt(i)->UpdateCityYield();
+
+        civList.at(currentTurn)->UpdateCivYield();
 
         //Update the production and population growth bars for the city.
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
@@ -1144,7 +1146,7 @@ void GameManager::StartTurn()
     //Update the yield status bar for the player.
     if(currentTurn == 0)
     {
-        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg((civList.at(0)->getCivYield()->GetGoldYield() > 0) ? "+" : "-").arg(civList.at(0)->getCivYield()->GetGoldYield()));
+        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->losingGold ? "-" : "+").arg(civList.at(0)->getCivYield()->GetGoldYield()));
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
@@ -2751,14 +2753,25 @@ void GameManager::toggleFog()
         {
             if(map->GetTileAt(i)->DiscoveredByPlayer)
             {
-                if(!map->GetTileAt(i)->IsSeenByPlayer)
+                if(map->GetTileAt(i)->CanAlwaysBeSeen)
+                {
+                    renderer->SetTileVisibility(i, true, false);
+                }
+                else if(!map->GetTileAt(i)->IsSeenByPlayer)
                 {
                     renderer->SetTileVisibility(i, false, false);
                 }
             }
             else
             {
-                renderer->SetTileVisibility(i, false, true);
+                if(map->GetTileAt(i)->CanAlwaysBeSeen)
+                {
+                    renderer->SetTileVisibility(i, true, false);
+                }
+                else
+                {
+                    renderer->SetTileVisibility(i, false, true);
+                }
             }
         }
     }

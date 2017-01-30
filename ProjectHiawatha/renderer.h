@@ -78,7 +78,7 @@ private:
     QVector<QGraphicsRectItem*> cityProductionBars;
     QVector<QGraphicsRectItem*> cityGrowthBars;
     QVector<QGraphicsPixmapItem*> cityBarOutlines;
-    QVector<QGraphicsProxyWidget*> cityPopulationLabels;
+    QVector<QGraphicsTextItem*> cityPopulationLabels;
 
     QVector<QGraphicsPixmapItem*> unitPixmap;
     QVector<QGraphicsRectItem*> unitHealthBars;

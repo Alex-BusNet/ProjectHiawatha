@@ -98,6 +98,7 @@ public:
     bool isEmpty();
     bool isCivAI();
     bool cityFounded;
+    bool losingGold;
 
     int queueSize();
 
