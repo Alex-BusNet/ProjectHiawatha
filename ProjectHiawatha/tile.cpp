@@ -113,7 +113,11 @@ Tile::Tile(int _posX, int _posY)
 
 Tile::~Tile()
 {
+    qDebug() << "   Tile Dec'tor called";
+    if(yield != NULL)
+        delete yield;
 
+    qDebug() << "   Tile Deconstructed";
 }
 
 TileType Tile::GetTileType()

@@ -251,7 +251,7 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
     {
         for(; yMin <= yMax; yMin++)
         {
-            if((((xMin % 2 == -1) || (xMin % 2 == 1)) && (abs(yMin) != yMax)) || ((xMin % 2 == 0) && (abs(yMin) == yMax)))
+            if((((xMin % 2 == -1) || (xMin % 2 == 1)) && (abs(yMin) != yMax)) || ((xMin % 2 == 0) && (abs(yMin) > yMax)))
             {
                 continue;
             }

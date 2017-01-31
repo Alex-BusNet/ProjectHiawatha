@@ -259,8 +259,8 @@ GameManager::~GameManager()
     if(techTree != NULL)
         delete techTree;
 
-    if(ac != NULL)
-        delete ac;
+//    if(ac != NULL)
+//        delete ac;
 
     qDebug() << "       Deleting GameManager Buttons";
     delete exitGame;
@@ -348,6 +348,7 @@ GameManager::~GameManager()
     if(viewUpdateTiles != NULL)
         delete viewUpdateTiles;
 
+    qDebug() << "       Deleting unitTile and targetTile";
     if(unitTile != NULL)
         delete unitTile;
 
@@ -1252,7 +1253,7 @@ void GameManager::EndTurn()
                             }
                         }
 
-                        renderer->SetTileTooltip(ti->GetTileIndex(), ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
+                        renderer->SetTileTooltip(ti->GetTileIndex(), *ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
                     }
                 }
             }

@@ -49,7 +49,7 @@ CityScreen::~CityScreen()
 
     delete ui;
 
-    qDebug() << "   CityScreen Deconstructed";
+    qDebug() << "   --CityScreen Deconstructed";
 }
 
 
