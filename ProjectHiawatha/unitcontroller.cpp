@@ -326,7 +326,7 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
         break;
     }
     //If current tile has no improvement then build the improvement
-    if((currentTile->GetTileImprovement()) == NONE)
+    if(currentTile->GetTileImprovement() == NONE)
     {
         currentTile->SetTileImprovement(improvement);//set this tile to have the improvement specified
         currentTile->SetYield(gold, production, science, food, culture);//update the yield to reflect new changes
@@ -339,11 +339,9 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
         int unitIndex = unit->GetUnitListIndex();//get the correct unit index
         currentCiv->RemoveUnit(unitIndex);//Remove the unit
         unitRemoved = true;//set unit removed flag to true
-
     }
 
     return unitRemoved;
-
 }
 
 /*

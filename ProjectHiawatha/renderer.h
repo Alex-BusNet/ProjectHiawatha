@@ -38,9 +38,11 @@ public:
     void LoadCities(QVector<City*> cities, GameView *view);
 
     void SetTileWorkedIcon(Tile* tile, GameView *view);
-    void SetUnitNeedsOrders(int tile, bool needsOrders);
-    void SetFortifyIcon(int tile, bool unfortify);
     void SetTileImprovement(TileImprovement ti, Tile *tile, GameView *view);
+    void SetTileTooltip(int index, Yield tileYield, Nation owner, QString tileID);
+    void SetFortifyIcon(int tile, bool unfortify);
+    void SetUnitNeedsOrders(int tile, bool needsOrders);
+
     void UpdateCityGrowthBar(City* city, GameView *view);
     void UpdateCityProductionBar(City* city, GameView *view);
     void UpdateCityHealthBar(City* city, GameView *view);

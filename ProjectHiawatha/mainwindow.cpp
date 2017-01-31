@@ -13,8 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     options = NULL;
     about = NULL;
     fullscreen = false;
-    QPixmap *bkgnd = new QPixmap("Assets/Menu/Background/dom_hiawatha.png");
-    QPixmap *buttonBorder = new QPixmap("Assets/Menu/mainMenuBackground.png");
+    bkgnd = new QPixmap("Assets/Menu/Background/dom_hiawatha.png");
+    buttonBorder = new QPixmap("Assets/Menu/mainMenuBackground.png");
     ui->mainBackground->setPixmap(*bkgnd);
     ui->menuButtonBorder->setPixmap(*buttonBorder);
     this->setStyleSheet(MainStyle);
@@ -22,9 +22,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete game;
-    delete options;
+    if(game != NULL)
+        delete game;
+
+    if(bkgnd != NULL)
+        delete bkgnd;
+
+    if(buttonBorder != NULL)
+        delete buttonBorder;
+
+    if(ui != NULL)
+        delete ui;
+
+    if(options != NULL)
+        delete options;
+
+    if(about != NULL)
+        delete about;
 }
 
 void MainWindow::on_newMap_clicked()

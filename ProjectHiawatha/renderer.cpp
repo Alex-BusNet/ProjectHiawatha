@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QProgressBar>
 #include "resources.h"
-
+#include "unitcontroller.h"
 
 //======================================
 //  Render Layers
@@ -879,6 +879,18 @@ void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view
     tileImprovementIcons.at(index)->setZValue(3);
     tileImprovementIcons.at(index)->setScale(0.5f);
     tileImprovementIcons.at(index)->setPos(tile->GetResourceIconPoint().x() + 43, tile->GetResourceIconPoint().y());
+}
+
+void Renderer::SetTileTooltip(int index, Yield tileYield, Nation owner, QString tileID)
+{
+    tiles.at(index)->setToolTip(QString("Tile Owned by: %1\nGold: %2\nProd: %3\nScience: %4\nFood: %5\nCulture: %6\n%7")
+                            .arg(UnitController::NationName(owner))
+                            .arg(tileYield.GetGoldYield())
+                            .arg(tileYield.GetProductionYield())
+                            .arg(tileYield.GetScienceYield())
+                            .arg(tileYield.GetFoodYield())
+                            .arg(tileYield.GetCultureYield())
+                            .arg(tileID));
 }
 
 /*

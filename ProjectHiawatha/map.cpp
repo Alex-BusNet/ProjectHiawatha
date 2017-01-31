@@ -834,7 +834,9 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     city->SetControllingCiv(founder->getCiv());
     city->GetCityTile()->SetYield(5,5,5,5,5);
 
-    city->UpdateCityYield();
+    if(founder->isCivAI())
+        city->GetCityTile()->CanAlwaysBeSeen = false;
+
     city->SetCityIndex(founder->GetCityList().size());
     city->SetName(founder->GetNextCityName());
     city->SetCitizenCount(1);
@@ -844,6 +846,8 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     {
         city->AddControlledTile(tile);
     }
+
+    city->UpdateCityYield();
 
     city->InitializeCity();
 

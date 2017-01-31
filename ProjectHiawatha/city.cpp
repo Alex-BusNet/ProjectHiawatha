@@ -14,7 +14,7 @@ City::City()
     this->productionUnit = false;
     this->currentProductionName = "No Current Production";
     this->numberofBuildings = 0;
-    this->cityFocus = GOLD_FOCUS;
+    this->cityFocus = Yield::GOLD;
     this->controllingCiv = NO_NATION;
     this->cityHealth = 200;
     this->maxHealth = 200;
@@ -105,50 +105,11 @@ void City::SortControlledTiles()
     {
         for(int j = i + 1; j < cityControlledTiles.size(); j++)
         {
-            if(this->cityFocus == GOLD_FOCUS)
+            if(cityControlledTiles[j]->GetYield()->GetYield(cityFocus) > cityControlledTiles[i]->GetYield()->GetYield(cityFocus))
             {
-                if(cityControlledTiles[j]->GetYield()->GetGoldYield() > cityControlledTiles[i]->GetYield()->GetGoldYield())
-                {
-                    Tile* temp = cityControlledTiles[i];
-                    cityControlledTiles[i] = cityControlledTiles[j];
-                    cityControlledTiles[j] = temp;
-                }
-            }
-            else if(this->cityFocus == PRODUCTION_FOCUS)
-            {
-                if(cityControlledTiles[j]->GetYield()->GetProductionYield() > cityControlledTiles[i]->GetYield()->GetProductionYield())
-                {
-                    Tile* temp = tileQueue[i];
-                    tileQueue[i] = tileQueue[j];
-                    tileQueue[j] = temp;
-                }
-            }
-            else if(this->cityFocus == SCIENCE_FOCUS)
-            {
-                if(cityControlledTiles[j]->GetYield()->GetScienceYield() > cityControlledTiles[i]->GetYield()->GetScienceYield())
-                {
-                    Tile* temp = cityControlledTiles[i];
-                    tileQueue[i] = cityControlledTiles[j];
-                    cityControlledTiles[j] = temp;
-                }
-            }
-            else if(this->cityFocus == FOOD_FOCUS)
-            {
-                if(cityControlledTiles[j]->GetYield()->GetFoodYield() > cityControlledTiles[i]->GetYield()->GetFoodYield())
-                {
-                    Tile* temp = cityControlledTiles[i];
-                    cityControlledTiles[i] = cityControlledTiles[j];
-                    cityControlledTiles[j] = temp;
-                }
-            }
-            else if(this->cityFocus == CULTURE_FOCUS)
-            {
-                if(cityControlledTiles[j]->GetYield()->GetCultureYield() > cityControlledTiles[i]->GetYield()->GetCultureYield())
-                {
-                    Tile* temp = cityControlledTiles[i];
-                    cityControlledTiles[i] = cityControlledTiles[j];
-                    cityControlledTiles[j] = temp;
-                }
+                Tile* temp = cityControlledTiles[i];
+                cityControlledTiles[i] = cityControlledTiles[j];
+                cityControlledTiles[j] = temp;
             }
         }
     }
@@ -216,50 +177,11 @@ void City::SortTileQueue()
     {
         for(int j = i + 1; j < tileQueue.size(); j++)
         {
-            if(this->cityFocus == GOLD_FOCUS)
+            if(tileQueue[j]->GetYield()->GetYield(cityFocus) > tileQueue[i]->GetYield()->GetYield(cityFocus))
             {
-                if(tileQueue[j]->GetYield()->GetGoldYield() > tileQueue[i]->GetYield()->GetGoldYield())
-                {
-                    Tile* temp = tileQueue[i];
-                    tileQueue[i] = tileQueue[j];
-                    tileQueue[j] = temp;
-                }
-            }
-            else if(this->cityFocus == PRODUCTION_FOCUS)
-            {
-                if(tileQueue[j]->GetYield()->GetProductionYield() > tileQueue[i]->GetYield()->GetProductionYield())
-                {
-                    Tile* temp = tileQueue[i];
-                    tileQueue[i] = tileQueue[j];
-                    tileQueue[j] = temp;
-                }
-            }
-            else if(this->cityFocus == SCIENCE_FOCUS)
-            {
-                if(tileQueue[j]->GetYield()->GetScienceYield() > tileQueue[i]->GetYield()->GetScienceYield())
-                {
-                    Tile* temp = tileQueue[i];
-                    tileQueue[i] = tileQueue[j];
-                    tileQueue[j] = temp;
-                }
-            }
-            else if(this->cityFocus == FOOD_FOCUS)
-            {
-                if(tileQueue[j]->GetYield()->GetFoodYield() > tileQueue[i]->GetYield()->GetFoodYield())
-                {
-                    Tile* temp = tileQueue[i];
-                    tileQueue[i] = tileQueue[j];
-                    tileQueue[j] = temp;
-                }
-            }
-            else if(this->cityFocus == CULTURE_FOCUS)
-            {
-                if(tileQueue[j]->GetYield()->GetCultureYield() > tileQueue[i]->GetYield()->GetCultureYield())
-                {
-                    Tile* temp = tileQueue[i];
-                    tileQueue[i] = tileQueue[j];
-                    tileQueue[j] = temp;
-                }
+                Tile* temp = tileQueue[i];
+                tileQueue[i] = tileQueue[j];
+                tileQueue[j] = temp;
             }
         }
     }
@@ -404,8 +326,9 @@ Update_t City::UpdateProgress()
     return update;
 }
 
-void City::SetCityFocus(City::Focus focus)
+void City::SetCityFocus(Yield::YIELD focus)
 {
+    qDebug() << "------Focus Changed";
     this->cityFocus = focus;
     foreach(Tile* tile, cityControlledTiles)
     {
@@ -415,10 +338,9 @@ void City::SetCityFocus(City::Focus focus)
     this->SortTileQueue();
     this->SortControlledTiles();
     this->UpdateCityYield();
-    /// Need function to reassign worked tiles.
 }
 
-City::Focus City::GetCityFocus()
+Yield::YIELD City::GetCityFocus()
 {
     return this->cityFocus;
 }
@@ -630,7 +552,6 @@ void City::AddControlledTile(Tile *tile)
     tile->SetControllingCiv(this->controllingCiv, this->cityTile->GetControllingCivListIndex());
     tile->SetGoverningCity(this->cityID);
     this->cityControlledTiles.push_back(tile);
-    tile->CanAlwaysBeSeen = true;
 }
 
 void City::SetMaximumExpansionBorderTiles(QList<Tile *> tileVect)

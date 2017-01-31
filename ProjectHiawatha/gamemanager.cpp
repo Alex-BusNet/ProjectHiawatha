@@ -93,7 +93,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     updateTimer = new QTimer();
     updateTimer->setInterval(50);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
-    updateTimer->start();
 
     this->InitButtons();
     this->InitLayouts();
@@ -140,6 +139,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                 foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
                 {
                     renderer->SetTileWorkedIcon(tile, gameView);
+                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), civList.at(i)->getCiv(), tile->GetTileIDString());
                 }
             }
 
@@ -157,6 +157,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
                     n->DiscoveredByPlayer = true;
                     n->CanAlwaysBeSeen = true;
                     viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
+                    renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
                 }
 
                 if(!n->IsSeenByPlayer)
@@ -194,10 +195,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
         zoomIn();
     }
 
-    diplo->show();
-//    diplo->UpdateLeader();
-    diplo->hide();
-
     currentTurn = 0;
     gameTurn = 0;
     //Start at 4000 BC. The game increments the turn to 1, and subsequently the in game year by 40 years, upon game start.
@@ -209,11 +206,15 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     playerInfoRect = new QRect(0, 0, this->width(), 20);
     gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
     statusMessage = " ";
+
+    updateTimer->start();
 }
 
 GameManager::~GameManager()
 {
     qDebug() << "   GameManager Dec'tor called";
+    updateTimer->stop();
+
     foreach(Civilization* c, civList)
     {
         foreach(Unit* unit, c->GetUnitList())
@@ -261,6 +262,7 @@ GameManager::~GameManager()
     if(ac != NULL)
         delete ac;
 
+    qDebug() << "       Deleting GameManager Buttons";
     delete exitGame;
     delete endTurn;
     delete moveUnit;
@@ -279,12 +281,14 @@ GameManager::~GameManager()
     delete help;
     delete toggleFoW;
 
+    qDebug() << "       Deleting city focus buttons";
     delete goldFocus;
     delete productionFocus;
     delete scienceFocus;
     delete foodFocus;
     delete cultureFocus;
 
+    qDebug() << "       Deleting YieldDisplay, tech progress, and endGame";
     delete goldLabel;
     delete goldText;
     delete prodLabel;
@@ -301,11 +305,23 @@ GameManager::~GameManager()
     delete endGameText;
     delete warbox;
 
-    delete goldPix;
-    delete prodPix;
-    delete sciPix;
-    delete foodPix;
-    delete culPix;
+    qDebug() << "       Deleting yield pixmaps";
+    if(goldPix != NULL)
+        delete goldPix;
+
+    if(prodPix != NULL)
+        delete prodPix;
+
+    if(sciPix != NULL)
+        delete sciPix;
+
+    if(foodPix != NULL)
+        delete foodPix;
+
+    if(culPix != NULL)
+        delete culPix;
+
+    qDebug() << "       Deleting misc pointers";
     delete playerInfoRect;
     delete gameStatusRect;
     delete unitToMove;
@@ -313,6 +329,7 @@ GameManager::~GameManager()
     delete targetCity;
     delete YieldDisplay;
 
+    qDebug() << "       Deleting Queues";
     if(!selectedTileQueue->isEmpty())
         selectedTileQueue->clear();
 
@@ -337,9 +354,10 @@ GameManager::~GameManager()
     if(targetTile != NULL)
         delete targetTile;
 
-    updateTimer->stop();
+    qDebug() << "       Deleting UpdateTimer";
     delete updateTimer;
 
+    qDebug() << "       Deleting gameView";
     delete gameView;
 
     qDebug() << "   Game Manager Deconstructed";
@@ -364,7 +382,6 @@ void GameManager::MakePeace()
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
-    qDebug() << "Adding Player";
     Civilization* civ = new Civilization(player, false, " ");
     civ->loadTechs("Assets/Techs/Technology.txt");
     civ->setCurrentTech(civ->GetTechList().at(0));
@@ -373,7 +390,6 @@ void GameManager::InitCivs(Nation player, int numAI)
     techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
     QPixmap pic;
 
-    qDebug() << "Setting leader name and City list";
     QString str = "Assets/CityLists/";
     QString str2;
     switch (player)
@@ -474,8 +490,6 @@ void GameManager::InitCivs(Nation player, int numAI)
     QVector<int> selNat;
 
     selNat.push_back(player);
-
-    qDebug() << "Selecting AI";
 
     for(int i = 0; i < numAI; i++)
     {
@@ -620,7 +634,6 @@ newCivRand:
                 delete civ;
                 goto newCivRand;
             }
-
         }
         else
         {
@@ -634,10 +647,8 @@ newCivRand:
     {
         mapInit.waitForFinished();
     }
-    qDebug() << "Spawning civs";
-    map->SpawnCivs(civList);
 
-    qDebug() << "Civ init finished";
+    map->SpawnCivs(civList);
 }
 
 void GameManager::paintEvent(QPaintEvent *event)
@@ -782,6 +793,7 @@ void GameManager::StartTurn()
                 foreach(Tile* tile, city->GetControlledTiles())
                 {
                     renderer->SetTileWorkedIcon(tile, gameView);
+                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), tile->GetControllingCiv(), tile->GetTileIDString());
 
                     foreach(Tile* n, map->GetNeighborsRange(tile, 2))
                     {
@@ -791,6 +803,7 @@ void GameManager::StartTurn()
                         if(!n->DiscoveredByPlayer)
                         {
                             viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
+                            renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
                         }
 
                         if(!n->IsSeenByPlayer)
@@ -803,13 +816,8 @@ void GameManager::StartTurn()
         }
     }
 
-    if(update.updateCitizens || this->focusChanged)
+    if(update.updateCitizens)
     {
-        if(this->focusChanged)
-        {
-            this->focusChanged = false;
-        }
-
         foreach(City* city, civList.at(currentTurn)->GetCityList())
         {
             if(currentTurn == 0)
@@ -817,6 +825,7 @@ void GameManager::StartTurn()
                 foreach(Tile* tile, city->GetControlledTiles())
                 {
                     renderer->SetTileWorkedIcon(tile, gameView);
+                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), tile->GetControllingCiv(), tile->GetTileIDString());
                 }
 
                 if(update.updateCitizens)
@@ -1202,13 +1211,16 @@ void GameManager::EndTurn()
             {
                 renderer->SetUnitNeedsOrders(civList.at(0)->GetUnitAt(i)->GetTileIndex(), false);
 
-                t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
-                foreach(Tile* ti, t)
+                if(!toggleOn)
                 {
-                    if(ti->IsSeenByPlayer && !(ti->CanAlwaysBeSeen))
+                    t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
+                    foreach(Tile* ti, t)
                     {
-                        ti->IsSeenByPlayer = false;
-                        viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), HIDDEN});
+                        if(ti->IsSeenByPlayer && !ti->CanAlwaysBeSeen)
+                        {
+                            ti->IsSeenByPlayer = false;
+                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), HIDDEN});
+                        }
                     }
                 }
             }
@@ -1218,23 +1230,29 @@ void GameManager::EndTurn()
             if(currentTurn == 0)
             {
                 tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-                t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
 
-                foreach(Tile* ti, t)
+                if(!toggleOn)
                 {
-                    if(!ti->CanAlwaysBeSeen)
+                    t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
+
+                    foreach(Tile* ti, t)
                     {
-                        if(!ti->DiscoveredByPlayer)
+                        if(!ti->CanAlwaysBeSeen)
                         {
-                            ti->DiscoveredByPlayer = true;
-                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
+                            if(!ti->DiscoveredByPlayer)
+                            {
+                                ti->DiscoveredByPlayer = true;
+                                viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
+                            }
+
+                            if(!ti->IsSeenByPlayer)
+                            {
+                                ti->IsSeenByPlayer = true;
+                                viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), VISIBLE});
+                            }
                         }
 
-                        if(!ti->IsSeenByPlayer)
-                        {
-                            ti->IsSeenByPlayer = true;
-                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), VISIBLE});
-                        }
+                        renderer->SetTileTooltip(ti->GetTileIndex(), ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
                     }
                 }
             }
@@ -1245,7 +1263,7 @@ void GameManager::EndTurn()
         if(civList.at(currentTurn)->GetUnitAt(i)->GetHealth() < 0)
         {
             if(currentTurn == 0)
-                ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(civList.at(0)->GetUnitAt(i)->GetName())});
+                ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(civList.at(currentTurn)->GetUnitAt(i)->GetName())});
 
             if(civList.at(currentTurn)->getCiv() == civList.at(0)->getCiv())
             {
@@ -1274,12 +1292,12 @@ void GameManager::EndTurn()
 
             if(currentTurn == 0)
             {
-                if(civList.at(0)->GetUnitAt(i)->isPathEmpty() && !civList.at(0)->GetUnitAt(i)->isFortified)
-                    civList.at(0)->GetUnitAt(i)->RequiresOrders = true;
+                if(civList.at(currentTurn)->GetUnitAt(i)->isPathEmpty() && !civList.at(currentTurn)->GetUnitAt(i)->isFortified)
+                    civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders = true;
 
-                if(civList.at(0)->GetUnitAt(i)->RequiresOrders)
+                if(civList.at(currentTurn)->GetUnitAt(i)->RequiresOrders)
                 {
-                    renderer->SetUnitNeedsOrders(civList.at(0)->GetUnitAt(i)->GetTileIndex(), true);
+                    renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
                 }
             }
 
@@ -2039,7 +2057,7 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     city->SetBaseCityStrength(tCity->GetBaseStrength());
     city->SetControllingCiv(aCiv->getCiv());
     city->SetCityHealth(100);
-    city->SetCityFocus(City::GOLD_FOCUS);
+    city->SetCityFocus(Yield::GOLD);
     city->SetCitizenCount(tCity->GetCitizenCount() / 2);
 
     if(city->GetCitizenCount() < 1)
@@ -2275,6 +2293,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
 
         QMessageBox *mbox = new QMessageBox();
         mbox->setText(QString("%1 has ACCEPTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+        mbox->setStyleSheet(warStyle);
         mbox->exec();
         delete mbox;
 
@@ -2290,6 +2309,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
         {
             QMessageBox *mbox = new QMessageBox();
             mbox->setText(QString("%1 is tired of your lies about peace and friendship\nand has come to the conclusion that your differences are to be settled\nin a fight to the death.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+            mbox->setStyleSheet(warStyle);
             mbox->exec();
             delete mbox;
         }
@@ -2297,6 +2317,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
         {
             QMessageBox *mbox = new QMessageBox();
             mbox->setText(QString("%1 has REJECTED your offerings of peace of friendship.").arg(civList.at(makePeaceWithIndex)->GetLeaderName()));
+            mbox->setStyleSheet(warStyle);
             mbox->exec();
             delete mbox;
             diplo->makePeace->setEnabled(false);
@@ -2384,7 +2405,7 @@ void GameManager::showCity(City* city)
 
         gameView->centerOn(city->GetCityTile()->GetCenter());
 
-        cityScreen->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
+        cityScreen->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, gameView->width(), gameView->height());
 
         gameView->setDragMode(QGraphicsView::NoDrag);
 
@@ -2560,6 +2581,7 @@ void GameManager::buildNewRoad()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),ROAD))
     {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
     }
@@ -2571,6 +2593,7 @@ void GameManager::buildNewFarm()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),FARM))
     {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(FARM, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
@@ -2584,6 +2607,7 @@ void GameManager::buildNewPlantation()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),PLANTATION))
     {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(PLANTATION, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
@@ -2597,6 +2621,7 @@ void GameManager::buildNewTradePost()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),TRADE_POST))
     {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(TRADE_POST, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
@@ -2609,6 +2634,7 @@ void GameManager::buildNewMine()
 {
     if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),MINE))
     {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(MINE, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
@@ -2625,36 +2651,66 @@ void GameManager::attackMelee()
 
 void GameManager::SetGoldFocus()
 {
-    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::GOLD_FOCUS);
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(Yield::GOLD);
     statusMessage = QString("--------<< You have changed %1's focus to gold >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+
+    foreach(Tile* t, civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetControlledTiles())
+    {
+        renderer->SetTileWorkedIcon(t, gameView);
+    }
+
     this->focusChanged = true;
 }
 
 void GameManager::SetProdFocus()
 {
-    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::PRODUCTION_FOCUS);
-     statusMessage = QString("--------<< You have changed %1's focus to production >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(Yield::PRODUCTION);
+    statusMessage = QString("--------<< You have changed %1's focus to production >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+
+    foreach(Tile* t, civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetControlledTiles())
+    {
+        renderer->SetTileWorkedIcon(t, gameView);
+    }
+
     this->focusChanged = true;
 }
 
 void GameManager::SetScienceFocus()
 {
-    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::SCIENCE_FOCUS);
-     statusMessage = QString("--------<< You have changed %1's focus to science >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(Yield::RESEARCH);
+    statusMessage = QString("--------<< You have changed %1's focus to science >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+
+    foreach(Tile* t, civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetControlledTiles())
+    {
+        renderer->SetTileWorkedIcon(t, gameView);
+    }
+
     this->focusChanged = true;
 }
 
 void GameManager::SetFoodFocus()
 {
-    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::FOOD_FOCUS);
-     statusMessage = QString("--------<< You have changed %1's focus to food >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(Yield::FOOD);
+    statusMessage = QString("--------<< You have changed %1's focus to food >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+
+    foreach(Tile* t, civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetControlledTiles())
+    {
+        renderer->SetTileWorkedIcon(t, gameView);
+    }
+
     this->focusChanged = true;
 }
 
 void GameManager::SetCultureFocus()
 {
-    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(City::CULTURE_FOCUS);
-     statusMessage = QString("--------<< You have changed %1's focus to culture >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+    this->civList.at(currentTurn)->GetCityAt(clv->currentRow())->SetCityFocus(Yield::CULTURE);
+    statusMessage = QString("--------<< You have changed %1's focus to culture >>--------").arg(civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetName());
+
+    foreach(Tile* t, civList.at(currentTurn)->GetCityAt(clv->currentRow())->GetControlledTiles())
+    {
+        renderer->SetTileWorkedIcon(t, gameView);
+    }
+
     this->focusChanged = true;
 }
 

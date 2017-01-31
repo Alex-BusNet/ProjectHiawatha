@@ -34,6 +34,7 @@ private:
     GameOptions *options;
     About *about;
     bool fullscreen;
+    QPixmap *bkgnd, *buttonBorder;
 };
 
 #endif // MAINWINDOW_H

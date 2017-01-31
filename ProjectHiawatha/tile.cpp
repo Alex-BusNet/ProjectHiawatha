@@ -150,9 +150,14 @@ void Tile::SetControllingCiv(Nation civ, int civListIndex)
 {
     this->owner = civ;
     this->controllingCivListIndex = civListIndex;
+    if(controllingCivListIndex == 0)
+        CanAlwaysBeSeen = true;
 
     if(civListIndex == -1)
     {
+        this->CanAlwaysBeSeen = false;
+        this->DiscoveredByPlayer = false;
+        this->IsSeenByPlayer = false;
         this->governingCity = -1;
     }
 }

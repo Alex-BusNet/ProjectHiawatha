@@ -79,7 +79,7 @@ public:
     void SortTileQueue();
     void FilterMEBList();
 
-    void SetCityFocus(Focus focus);
+    void SetCityFocus(Yield::YIELD focus);
     void InitializeCity();
 
     QString GetName();
@@ -108,7 +108,7 @@ public:
     QVector<Tile*> borderQueue;
 
     Update_t UpdateProgress();
-    Focus GetCityFocus();
+    Yield::YIELD GetCityFocus();
 
     int GetCityIndex();
     int GetCityRenderIndex();
@@ -156,7 +156,7 @@ private:
     QString currentProductionName;
     Nation controllingCiv;
     Tile *cityTile;
-    Focus cityFocus;
+    Yield::YIELD cityFocus;
 
     QVector<Tile*> borderTiles;
 
