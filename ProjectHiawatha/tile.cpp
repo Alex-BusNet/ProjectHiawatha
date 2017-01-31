@@ -113,11 +113,8 @@ Tile::Tile(int _posX, int _posY)
 
 Tile::~Tile()
 {
-    qDebug() << "   Tile Dec'tor called";
     if(yield != NULL)
         delete yield;
-
-    qDebug() << "   Tile Deconstructed";
 }
 
 TileType Tile::GetTileType()
@@ -251,7 +248,7 @@ QString Tile::GetTileTypeString()
         return QString("Desert");
         break;
     case MOUNTAIN:
-         return QString("Mountain");
+        return QString("Mountain");
         break;
     case ICE:
         return QString("Ice");
