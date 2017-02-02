@@ -94,7 +94,7 @@ Tile::Tile(int _posX, int _posY)
             << this->points[5]
             << this->points[6];
 
-    this->tileTexture = QPixmap("Assets/Textures/grass.png");
+    this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
 
     this->cirlceRect = QRect(_posX + (2 * drawScale), _posY - (8 * drawScale), 80, 80);
 
@@ -104,6 +104,8 @@ Tile::Tile(int _posX, int _posY)
     outlinePen.setColor(QColor(255, 255, 255, 0));
     occupyingCivListIndex = -1;
     controllingCivListIndex = -1;
+    continent = 0;
+    container = 0;
 
     gCost = 0;
     hCost = 0;
@@ -207,6 +209,26 @@ void Tile::SetTileID(int row, int column, Tile *tile)
 void Tile::SetTileID(TileID id)
 {
     this->tileID = id;
+}
+
+void Tile::SetContainer(int container)
+{
+    this->container = container;
+}
+
+void Tile::SetContinent(int continent)
+{
+    this->continent = continent;
+}
+
+int Tile::GetContainer()
+{
+    return this->container;
+}
+
+int Tile::GetContinent()
+{
+    return this->continent;
 }
 
 void Tile::SetMoveCost(int cost)
@@ -382,7 +404,7 @@ void Tile::SetTileTexture(TileType type)
         this->tileTexture = QPixmap("Assets/Textures/Scaled/plains.png");
         break;
     default:
-        this->tileTexture = QPixmap("Assets/Textures/water_flat.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
         break;
     }
 }

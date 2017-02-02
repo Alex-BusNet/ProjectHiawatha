@@ -62,6 +62,10 @@ public:
     void SetTileID(int x, int column, Tile *tile);
     void SetTileID(TileID id);
 
+    void SetContainer(int container);
+    void SetContinent(int continent);
+    int GetContainer();
+    int GetContinent();
     void SetMoveCost(int cost);
     int GetMoveCost();
 
@@ -119,6 +123,7 @@ private:
     //Resource resource;
     QPen outlinePen;
     int governingCity;
+    int continent, container;
 
     int moveCost;
     int occupyingCivListIndex;

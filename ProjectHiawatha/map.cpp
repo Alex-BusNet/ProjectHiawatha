@@ -58,8 +58,6 @@ Map::Map(int mapSizeX, int mapSizeY)
         this->oceanScaleFactor = 3;
         break;
     }
-
-    qDebug() << "Estimated map size:" << this->mapSizeX * 90 << "px X" << (mapSizeY * 74) + 24 << "px";
 }
 
 Map::~Map()
@@ -147,8 +145,6 @@ void Map::InitHexMap()
         //Point: posY += 37;
         posY += 37;
     }
-
-    qDebug() << "Tile size:" << this->GetTileAt(0)->GetTilePolygon().boundingRect().size();
 
     GenerateBiomes();
     GenerateMapEdge();
@@ -475,10 +471,9 @@ void Map::GenerateMap()
     for(int i = 0; i < board.size(); i++)
     {
         val = d(gen);
-
         if(val == 0)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() == 0))
             {
                 board.at(i)->SetTileType(WATER);
                 board.at(i)->SetTileTexture(WATER);
@@ -488,7 +483,7 @@ void Map::GenerateMap()
         }
         else if (val == 1)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
             {
                 board.at(i)->SetTileType(GRASS);
                 board.at(i)->SetTileTexture(GRASS);
@@ -498,7 +493,7 @@ void Map::GenerateMap()
         }
         else if (val == 2)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
             {
                 board.at(i)->SetTileType(DESERT);
                 board.at(i)->SetTileTexture(DESERT);
@@ -507,7 +502,7 @@ void Map::GenerateMap()
         }
         else if(val == 3)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
             {
                 board.at(i)->SetTileType(MOUNTAIN);
                 board.at(i)->SetTileTexture(MOUNTAIN);
@@ -516,7 +511,7 @@ void Map::GenerateMap()
         }
         else if(val == 4)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
             {
                 board.at(i)->SetTileType(HILL);
                 board.at(i)->SetTileTexture(HILL);
@@ -525,7 +520,7 @@ void Map::GenerateMap()
         }
         else if(val == 5)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
             {
                 board.at(i)->SetTileType(FOREST);
                 board.at(i)->SetTileTexture(FOREST);
@@ -535,7 +530,7 @@ void Map::GenerateMap()
         }
         else if(val == 6)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
             {
                 board.at(i)->SetTileType(PLAINS_TILE);
                 board.at(i)->SetTileTexture(PLAINS_TILE);
@@ -584,49 +579,30 @@ void Map::CleanMap()
     // Step 8) Set Player and AI spawns.
     //=====================
 
-//    qDebug() << "Cleaning map";
-    Tile* adjacentTiles[3]; // { SW, S, SE }
+    qDebug() << "\"Cleaning map\"";
 
-    for(int i = 0; i < board.size(); i++)
+    srand(time(0));
+    int index ;
+    for(int i  = 0; i < this->oceanScaleFactor; i++)
     {
-        if(board.at(i)->GetTileType() == DESERT && !(board.at(i)->Checked))
+newloc:
+        index = rand() % board.size();
+        qDebug() << "   clean index:" << index;
+
+        if(board.at(index)->GetTileType() == WATER)
         {
-            //Get the tiles surrounding the selected tile
-            TileID selectedID = board.at(i)->GetTileID();
-
-            // We only need to check the tiles to the SW, S, and SE of the selected tile
-            // because the rows above it have already been checked. Also need to use to Checked flag
-            // so we don't turn the whole map into a desolate land.
-            adjacentTiles[0] = GetTileFromCoord(selectedID.column - 1, selectedID.row + 1); //SW
-            adjacentTiles[1] = GetTileFromCoord(selectedID.column, selectedID.row + 2);     //S
-            adjacentTiles[2] = GetTileFromCoord(selectedID.column + 1, selectedID.row + 1); //SE
-
-            for(int j = 0; j < 3; j++)
+            foreach(Tile* t, GetNeighborsRange(board.at(index), this->oceanScaleFactor / 2))
             {
-                if(adjacentTiles[j]->GetTileType() == DESERT)
+                if((t->GetTileType() == WATER))
                 {
-                    if(j == 0)
-                    {
-                        //build down and left
-                        break;
-
-                    }
-                    else if(j == 1)
-                    {
-                        //build down, centered on selected
-                        break;
-                    }
-                    else if(j == 2)
-                    {
-                        //build down and right
-                        break;
-                    }
+                    t->SetContinent(3);
                 }
-
-                adjacentTiles[j]->Checked = true;
             }
         }
+        else
+            goto newloc;
     }
+
 
 }
 
@@ -870,7 +846,6 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     {
 newrand:
         index = (static_cast<double>(rand()) / RAND_MAX) * (board.size());
-
         if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN || board.at(index)->ContainsUnit)
         {
             goto newrand;
@@ -887,9 +862,7 @@ newrand:
 
             board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
 
-            qDebug() << "   Generating Capital";
             city = this->CreateCity(index, civs.at(i), true);
-            qDebug() << "   Done";
 
             if(!city->IsInitialized())
             {
@@ -897,7 +870,7 @@ newrand:
                     board.at(index)->SetControllingCiv(NO_NATION, -1);
                 goto newrand;
             }
-            qDebug() << city->GetName() << "is initialized";
+
             for(int j = 0; j < i; j++)
             {
                 //since this function only runs when spawning civs for the first time,
@@ -1024,10 +997,12 @@ void Map::GenerateBiomes()
         if(board.at(i)->GetTileID().row <= 1)
         {
             board.at(i)->SetTileBiome(Biome::POLE);
+            board.at(i)->SetContinent(0);
         }
         else if(board.at(i)->GetTileID().row >= mapSizeY - 2)
         {
             board.at(i)->SetTileBiome(Biome::POLE);
+            board.at(i)->SetContinent(0);
         }
     }
 
@@ -1039,6 +1014,7 @@ void Map::GenerateBiomes()
             if(board.at(i)->GetTileBiome() != POLE)
             {
                 board.at(i)->SetTileBiome(OCEAN);
+                board.at(i)->SetContinent(0);
             }
         }
         else if((board.at(i)->GetTileID().column > (mapSizeX) - this->oceanScaleFactor) && (board.at(i)->GetTileID().column < (mapSizeX) + this->oceanScaleFactor))
@@ -1046,6 +1022,7 @@ void Map::GenerateBiomes()
             if(board.at(i)->GetTileBiome() != POLE)
             {
                 board.at(i)->SetTileBiome(OCEAN);
+                board.at(i)->SetContinent(0);
             }
         }
         else if(board.at(i)->GetTileID().column >= (mapSizeX * 2) - this->oceanScaleFactor)
@@ -1053,6 +1030,187 @@ void Map::GenerateBiomes()
             if(board.at(i)->GetTileBiome() != POLE)
             {
                 board.at(i)->SetTileBiome(OCEAN);
+                board.at(i)->SetContinent(0);
+            }
+        }
+
+        if((board.at(i)->GetTileID().column > this->oceanScaleFactor) && (board.at(i)->GetTileID().column < (mapSizeX - this->oceanScaleFactor)))
+        {
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+                board.at(i)->SetContainer(1);
+        }
+        else if((board.at(i)->GetTileID().column > (mapSizeX + this->oceanScaleFactor)) && (board.at(i)->GetTileID().column < (mapSizeX * 2) - this->oceanScaleFactor))
+        {
+            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
+                board.at(i)->SetContainer(2);
+        }
+        else
+            board.at(i)->SetContainer(0);
+    }
+
+    //Set up continents
+    srand(time(0));
+    int col1, col2;
+    int row1, row2;
+    int oldCol1 = 0, oldCol2 = 0;
+    bool selectCol = true, selectFirst = true;
+
+newpoints:
+    for(int j = 1; j < 3; j++)
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            if(selectCol)
+            {
+                if(selectFirst)
+                {
+newcol1:
+                    if(j == 1)
+                        col1 = rand() % mapSizeX;
+                    else
+                        col1 = (rand() % mapSizeX) + mapSizeX;
+
+                    if(GetTileFromCoord(col1, 3)->GetContainer() != j)
+                    {
+                        goto newcol1;
+                    }
+                    else
+                    {
+                        qDebug() << "   col1:" << col1;
+                        selectFirst = false;
+                    }
+                }
+                else
+                {
+newcol2:
+                    if(j == 1)
+                        col2 = rand() % mapSizeX;
+                    else
+                        col2 = (rand() % mapSizeX) + mapSizeX;
+
+                    if((col2 == col1) || (abs(col2 - col1) < 15) /*|| (GetTileFromCoord(col2, 3)->GetContainer() != j)*/)
+                    {
+                        goto newcol2;
+                    }
+                    else
+                    {
+                        qDebug() << "   col2:" << col2;
+                        selectCol = false;
+                        selectFirst = true;
+                    }
+                }
+            }
+            else
+            {
+                if(selectFirst)
+                {
+newRow1:
+                    row1 = rand() % mapSizeY;
+                    if((GetTileFromCoord(col1, row1)->GetContainer() != j))
+                    {
+                        goto newRow1;
+                    }
+                    else
+                    {
+                        qDebug() << "   row1:" << row1;
+                        selectFirst = false;
+                    }
+                }
+                else
+                {
+newRow2:
+                    row2 = rand() % mapSizeY;
+
+                    if((row2 == row1) || (abs(row2 - row1) < (mapSizeY / 4)) || (GetTileFromCoord(col2, row2)->GetContainer() != j))
+                    {
+                        goto newRow2;
+                    }
+                    else
+                    {
+                        qDebug() << "   row2:" << row2;
+                        selectCol = true;
+                        selectFirst = true;
+                    }
+                }
+            }
+        }
+
+        if(oldCol1 != 0 && oldCol2 != 0)
+        {
+            if(col1 >= oldCol1 && col1 <= oldCol2)
+            {
+                goto newpoints;
+            }
+            else if(col1 >= oldCol2 && col1 <= oldCol1)
+            {
+                goto newpoints;
+            }
+            else if(col2 >= oldCol1 && col2 <= oldCol2)
+            {
+                goto newpoints;
+            }
+            else if(col2 >= oldCol2 && col2 <= oldCol1)
+            {
+                goto newpoints;
+            }
+            else
+            {
+                oldCol1 = col1;
+                oldCol2 = col2;
+            }
+        }
+        else
+        {
+            oldCol1 = col1;
+            oldCol2 = col2;
+        }
+
+        if(col1 > col2)
+        {
+            int c = col2;
+            col2 = col1;
+            col1 = c;
+        }
+
+        if(row1 > row2)
+        {
+            int r = row2;
+            row2 = row1;
+            row1 = r;
+        }
+
+        if(row2 == mapSizeY - 3)
+        {
+            row1 -= 3;
+            row2 -= 3;
+        }
+
+        if(row1 == 2)
+        {
+            row1 += 3;
+            row2 += 3;
+        }
+
+        for(int k = 0; k < board.size(); k++)
+        {
+            Tile* t = board.at(k);
+
+            if((t->GetTileID().column >= col1) && (t->GetTileID().column <= col2))
+            {
+                if((t->GetTileID().row >= row1) && (t->GetTileID().row <= row2))
+                {
+                    t->SetContinent(j);
+                }
+                else
+                {
+                    if(t->GetContinent() != 1)
+                        t->SetContinent(0);
+                }
+            }
+            else
+            {
+                if(t->GetContinent() != 1)
+                    t->SetContinent(0);
             }
         }
     }
@@ -1107,9 +1265,9 @@ void Map::GenerateResources()
 
     for(int i = 0; i < board.size(); i++)
     {
-        resource = d(gen);
-        if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST))
+        if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST) && (board.at(i)->GetContinent() != 0))
         {
+            resource = d(gen);
             switch(resource)
             {
             case NO_STRATEGIC:

@@ -186,7 +186,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
 //    renderer->DrawGridLines(gameView);
-//    renderer->DrawGuiText(map, stringData, gameView);
+    renderer->DrawGuiText(map, stringData, gameView);
 
     zoomScale = 1;
 
@@ -324,10 +324,17 @@ GameManager::~GameManager()
     qDebug() << "       Deleting misc pointers";
     delete playerInfoRect;
     delete gameStatusRect;
-    delete unitToMove;
-    delete targetUnit;
-    delete targetCity;
-    delete YieldDisplay;
+    if(unitToMove != NULL)
+        delete unitToMove;
+
+    if(targetUnit != NULL)
+        delete targetUnit;
+
+    if(targetCity != NULL)
+        delete targetCity;
+
+    if(YieldDisplay !=  NULL)
+        delete YieldDisplay;
 
     qDebug() << "       Deleting Queues";
     if(!selectedTileQueue->isEmpty())
@@ -649,6 +656,7 @@ newCivRand:
         mapInit.waitForFinished();
     }
 
+    qDebug() << "Spawn Civs";
     map->SpawnCivs(civList);
 }
 
