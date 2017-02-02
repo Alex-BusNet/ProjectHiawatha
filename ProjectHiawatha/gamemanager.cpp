@@ -59,6 +59,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     unitToMove = NULL;
     targetUnit = NULL;
     targetCity = NULL;
+    unitTile = NULL;
+    targetTile = NULL;
     state = IDLE;
 
     cityScreenVisible = false;
@@ -322,43 +324,53 @@ GameManager::~GameManager()
         delete culPix;
 
     qDebug() << "       Deleting misc pointers";
-    delete playerInfoRect;
-    delete gameStatusRect;
+    qDebug() << "           playerInfoRect";
+    if(playerInfoRect != NULL)
+        delete playerInfoRect;
+
+    qDebug() << "           gameStatusRect";
+    if(gameStatusRect != NULL)
+        delete gameStatusRect;
+
+    qDebug() << "           unitToMove";
     if(unitToMove != NULL)
         delete unitToMove;
 
+    qDebug() << "           targetUnit";
     if(targetUnit != NULL)
         delete targetUnit;
 
+    qDebug() << "           targetCity";
     if(targetCity != NULL)
         delete targetCity;
 
-    if(YieldDisplay !=  NULL)
-        delete YieldDisplay;
-
     qDebug() << "       Deleting Queues";
+    qDebug() << "           selectedTileQueue";
     if(!selectedTileQueue->isEmpty())
         selectedTileQueue->clear();
 
     if(selectedTileQueue != NULL)
         delete selectedTileQueue;
 
+    qDebug() << "           tileModifiedQueue";
     if(!tileModifiedQueue->isEmpty())
         tileModifiedQueue->clear();
 
     if(tileModifiedQueue != NULL)
         delete tileModifiedQueue;
 
+    qDebug() << "           viewUpdateTiles";
     if(!viewUpdateTiles->isEmpty())
         viewUpdateTiles->clear();
 
     if(viewUpdateTiles != NULL)
         delete viewUpdateTiles;
 
-    qDebug() << "       Deleting unitTile and targetTile";
+    qDebug() << "       Deleting unitTile";
     if(unitTile != NULL)
         delete unitTile;
 
+    qDebug() << "       Deleting targetTile";
     if(targetTile != NULL)
         delete targetTile;
 
@@ -656,7 +668,6 @@ newCivRand:
         mapInit.waitForFinished();
     }
 
-    qDebug() << "Spawn Civs";
     map->SpawnCivs(civList);
 }
 

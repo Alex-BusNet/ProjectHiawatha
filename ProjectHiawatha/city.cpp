@@ -328,7 +328,6 @@ Update_t City::UpdateProgress()
 
 void City::SetCityFocus(Yield::YIELD focus)
 {
-    qDebug() << "------Focus Changed";
     this->cityFocus = focus;
     foreach(Tile* tile, cityControlledTiles)
     {
@@ -403,8 +402,6 @@ void City::SetCityIndex(int index)
 
 void City::UpdateCityYield()
 {
-
-    qDebug() << "Current Yield:" << this->cityTotalYield->GetGoldYield() << this->cityTotalYield->GetProductionYield() << this->cityTotalYield->GetFoodYield() << this->cityTotalYield->GetScienceYield() << this->cityTotalYield->GetCultureYield();
     //Clear the current YPT
     int oldGold = this->cityTotalYield->GetGoldYield() * -1,
             oldProd = this->cityTotalYield->GetProductionYield() * -1,
@@ -413,8 +410,6 @@ void City::UpdateCityYield()
             oldCul = this->cityTotalYield->GetCultureYield() * -1;
 
     this->cityTotalYield->ChangeYield(oldGold, oldProd, oldSci, oldFood, oldCul);
-
-    qDebug() << "Current Yield:" << this->cityTotalYield->GetGoldYield() << this->cityTotalYield->GetProductionYield() << this->cityTotalYield->GetFoodYield() << this->cityTotalYield->GetScienceYield() << this->cityTotalYield->GetCultureYield();
 
     //Recalculate the city's YPT
     int newGold = cityTile->GetYield()->GetGoldYield(),
@@ -441,8 +436,6 @@ void City::UpdateCityYield()
     }
 
     this->cityTotalYield->ChangeYield(newGold, newProd, newSci, newFood, newCul);
-
-    qDebug() << "Current Yield:" << this->cityTotalYield->GetGoldYield() << this->cityTotalYield->GetProductionYield() << this->cityTotalYield->GetFoodYield() << this->cityTotalYield->GetScienceYield() << this->cityTotalYield->GetCultureYield();
 }
 
 void City::UpdateCityStatus()

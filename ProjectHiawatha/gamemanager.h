@@ -104,7 +104,7 @@ private:
     Unit* unitToMove, *targetUnit;
     City* targetCity;
 
-    QString *YieldDisplay, statusMessage;
+    QString statusMessage;
 
     QQueue<SelectData> *selectedTileQueue, *tileModifiedQueue;
     QQueue<ViewData> *viewUpdateTiles;

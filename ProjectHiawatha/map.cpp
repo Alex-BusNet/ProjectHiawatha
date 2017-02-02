@@ -152,8 +152,6 @@ void Map::InitHexMap()
     GenerateResources();
     CleanMap();
     InitTerrain();
-
-    qDebug() << "Map Gen finished";
 }
 
 void Map::InitTerrain()
@@ -563,31 +561,19 @@ void Map::GenerateMapEdge()
     }
 }
 
+/*
+ * The CleanMap function is used to generate a few small islands
+ * around the map to give the map a more 'random' feel instead of
+ * two landmasses generated within well defined bounds.
+ */
 void Map::CleanMap()
 {
-    //=====================
-    // Step 1) Search map for isolated desert tiles and change to grass tiles
-    // Step 2) Search map for clusters of desert tiles and fill them in to create a desert that is
-    //          a minimum of 5 columns by 3 rows in size
-    // Step 3) Search map for plains biomes and determine locations to place hills or forests
-    // Step 4) Place one hill or forest at indicated location, determine a random direction and place a hill or forest there,
-    //          Repeat until max size of hill or forest biome has been reached
-    // Step 5) Search map and determine proximity of hills, forests, and deserts to make sure no two biomes
-    //          of the same type are too close to each other.
-    // Step 6) Change continent edges to water to reduce blocky-ness of continents.
-    // Step 7) Populate tiles with proper yields and resources.
-    // Step 8) Set Player and AI spawns.
-    //=====================
-
-    qDebug() << "\"Cleaning map\"";
-
     srand(time(0));
     int index ;
     for(int i  = 0; i < this->oceanScaleFactor; i++)
     {
 newloc:
         index = rand() % board.size();
-        qDebug() << "   clean index:" << index;
 
         if(board.at(index)->GetTileType() == WATER)
         {
@@ -1050,167 +1036,26 @@ void Map::GenerateBiomes()
 
     //Set up continents
     srand(time(0));
-    int col1, col2;
-    int row1, row2;
-    int oldCol1 = 0, oldCol2 = 0;
-    bool selectCol = true, selectFirst = true;
+    int index, range;
 
-newpoints:
     for(int j = 1; j < 3; j++)
     {
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < oceanScaleFactor; i++)
         {
-            if(selectCol)
+newindex:
+            index = rand() % board.size();
+
+            if(board.at(index)->GetContainer() == j)
             {
-                if(selectFirst)
-                {
-newcol1:
-                    if(j == 1)
-                        col1 = rand() % mapSizeX;
-                    else
-                        col1 = (rand() % mapSizeX) + mapSizeX;
-
-                    if(GetTileFromCoord(col1, 3)->GetContainer() != j)
-                    {
-                        goto newcol1;
-                    }
-                    else
-                    {
-                        qDebug() << "   col1:" << col1;
-                        selectFirst = false;
-                    }
-                }
-                else
-                {
-newcol2:
-                    if(j == 1)
-                        col2 = rand() % mapSizeX;
-                    else
-                        col2 = (rand() % mapSizeX) + mapSizeX;
-
-                    if((col2 == col1) || (abs(col2 - col1) < 15) /*|| (GetTileFromCoord(col2, 3)->GetContainer() != j)*/)
-                    {
-                        goto newcol2;
-                    }
-                    else
-                    {
-                        qDebug() << "   col2:" << col2;
-                        selectCol = false;
-                        selectFirst = true;
-                    }
-                }
-            }
-            else
-            {
-                if(selectFirst)
-                {
-newRow1:
-                    row1 = rand() % mapSizeY;
-                    if((GetTileFromCoord(col1, row1)->GetContainer() != j))
-                    {
-                        goto newRow1;
-                    }
-                    else
-                    {
-                        qDebug() << "   row1:" << row1;
-                        selectFirst = false;
-                    }
-                }
-                else
-                {
-newRow2:
-                    row2 = rand() % mapSizeY;
-
-                    if((row2 == row1) || (abs(row2 - row1) < (mapSizeY / 4)) || (GetTileFromCoord(col2, row2)->GetContainer() != j))
-                    {
-                        goto newRow2;
-                    }
-                    else
-                    {
-                        qDebug() << "   row2:" << row2;
-                        selectCol = true;
-                        selectFirst = true;
-                    }
-                }
-            }
-        }
-
-        if(oldCol1 != 0 && oldCol2 != 0)
-        {
-            if(col1 >= oldCol1 && col1 <= oldCol2)
-            {
-                goto newpoints;
-            }
-            else if(col1 >= oldCol2 && col1 <= oldCol1)
-            {
-                goto newpoints;
-            }
-            else if(col2 >= oldCol1 && col2 <= oldCol2)
-            {
-                goto newpoints;
-            }
-            else if(col2 >= oldCol2 && col2 <= oldCol1)
-            {
-                goto newpoints;
-            }
-            else
-            {
-                oldCol1 = col1;
-                oldCol2 = col2;
-            }
-        }
-        else
-        {
-            oldCol1 = col1;
-            oldCol2 = col2;
-        }
-
-        if(col1 > col2)
-        {
-            int c = col2;
-            col2 = col1;
-            col1 = c;
-        }
-
-        if(row1 > row2)
-        {
-            int r = row2;
-            row2 = row1;
-            row1 = r;
-        }
-
-        if(row2 == mapSizeY - 3)
-        {
-            row1 -= 3;
-            row2 -= 3;
-        }
-
-        if(row1 == 2)
-        {
-            row1 += 3;
-            row2 += 3;
-        }
-
-        for(int k = 0; k < board.size(); k++)
-        {
-            Tile* t = board.at(k);
-
-            if((t->GetTileID().column >= col1) && (t->GetTileID().column <= col2))
-            {
-                if((t->GetTileID().row >= row1) && (t->GetTileID().row <= row2))
+                range = ((rand() % oceanScaleFactor) + 1) * 2;
+                foreach(Tile* t, GetNeighborsRange(board.at(index), range))
                 {
                     t->SetContinent(j);
                 }
-                else
-                {
-                    if(t->GetContinent() != 1)
-                        t->SetContinent(0);
-                }
             }
             else
             {
-                if(t->GetContinent() != 1)
-                    t->SetContinent(0);
+                goto newindex;
             }
         }
     }
