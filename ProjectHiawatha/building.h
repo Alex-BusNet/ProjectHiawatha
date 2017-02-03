@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <string.h>
 #include <QString>
+#include <QJsonObject>
 
 class Building
 {
@@ -21,6 +22,8 @@ public:
     int isUnlocked();
     int getTechIndex();
     void setUnlocked(int unlock);
+
+    void WriteBuildingSaveData(QJsonObject &obj) const;
 private:
     QString name;
     QString description;

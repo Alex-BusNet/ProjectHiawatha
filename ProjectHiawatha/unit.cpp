@@ -21,6 +21,7 @@ Unit::Unit()
     this->needsPath = false;
     this->unlocked = 0;
     this->isGarrisoned=false;
+
 }
 
 
@@ -408,6 +409,24 @@ QImage *Unit::GetUnitIcon()
 Nation Unit::GetOwner()
 {
     return this->belongsTo;
+}
+
+void Unit::WriteUnitSaveData(QJsonObject &obj) const
+{
+    obj["name"] = name;
+    obj["type"] = type;
+    obj["str"] = strength;
+    obj["hp"] = health;
+    obj["maxhp"] = maxHealth;
+    obj["range"] = range;
+    obj["rangestr"] = rangeStrength;
+    obj["belongsto"] = belongsTo;
+    obj["movepoints"] = movementPoints;
+    obj["datamaploc"] = dataMapIndex;
+    obj["fortified"] = isFortified;
+    obj["healthbarindex"] = healthBarIndex;
+    obj["pixmapindex"] = pixmapIndex;
+    obj["unitlistindex"] = unitListIndex;
 }
 
 int Unit::GetTileIndex()

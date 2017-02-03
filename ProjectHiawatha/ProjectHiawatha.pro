@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     heap.cpp \
     about.cpp \
     notificationsystem.cpp \
-    diplomacy.cpp
+    diplomacy.cpp \
+    savecontroller.cpp
 
     gameoptions.cpp \
 
@@ -74,7 +75,8 @@ HEADERS  += mainwindow.h \
     resources.h \
     about.h \
     notificationsystem.h \
-    diplomacy.h
+    diplomacy.h \
+    savecontroller.h
 
 FORMS    += mainwindow.ui \
     gameoptions.ui \

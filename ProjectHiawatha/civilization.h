@@ -47,6 +47,8 @@ public:
     void SetMilitaryStrength(int milStr);
     void MakePeace(int enemyCivListIndex);
 
+    void WriteData(QJsonObject &obj) const;
+
     QString GetLeaderName();
 
     City *GetCityAt(int index);

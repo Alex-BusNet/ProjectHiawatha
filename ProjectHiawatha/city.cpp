@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <math.h>
+#include <QJsonArray>
 
 City::City()
 {
@@ -614,6 +615,59 @@ void City::InitializeCity()
     this->turnsToNewCitizen = this->growthCost / this->foodSurplus;
 
     this->initialized = true;
+}
+
+void City::WriteCitySaveData(QJsonObject &obj) const
+{
+    obj["name"] = name;
+    obj["citytileindex"] = cityTile->GetTileIndex();
+    obj["cityid"] = cityID;
+    obj["population"] = citizens;
+    obj["controlledby"] = controllingCiv;
+    obj["turnstobordergrowth"] = turnsToBorderGrowth;
+    obj["turnstonewcitizen"] = turnsToNewCitizen;
+    obj["hp"] = cityHealth;
+    obj["maxhp"] = maxHealth;
+    obj["focus"] = cityFocus;
+    obj["iscapital"] = isCaptial;
+    obj["isoriginalcapital"] = isOriginalCapital;
+    obj["stagnant"] = stagnant;
+    obj["fullyexpanded"] = fullyExpanded;
+    obj["renderindex"] = cityRenderIndex;
+    obj["currentproductionname"] = currentProductionName;
+    obj["currentproductioncost"] = currentProductionCost;
+    obj["accumulatedproduction"] = accumulatedProduction;
+    obj["productionindex"] = productionIndex;
+    obj["productionyield"] = productionYield;
+
+    QJsonArray buildingArray;
+    foreach(Building *b, producedBuildings)
+    {
+        QJsonObject bo;
+        b->WriteBuildingSaveData(bo);
+        buildingArray.append(bo);
+    }
+
+    obj["completedbuildings"] = buildingArray;
+    obj["buildingstrength"] = buildingStrength;
+    obj["basestrength"] = baseStrength;
+    obj["citystrength"] = cityStrength;
+
+    QJsonArray controlledArray;
+    foreach(Tile* t, cityControlledTiles)
+    {
+        QJsonObject to;
+        to["tileindex"] = t->GetTileIndex();
+        controlledArray.append(to);
+    }
+
+    obj["controlledtiles"] = controlledArray;
+
+    obj["goldyield"] = goldYield;
+    obj["productionyield"] = productionYield;
+    obj["scienceyield"] = scienceYield;
+    obj["growthcost"] = growthCost;
+    obj["foodsurplus"] = foodSurplus;
 }
 
 void City::SetCitizenCount(int count)

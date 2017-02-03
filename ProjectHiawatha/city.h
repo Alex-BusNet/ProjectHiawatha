@@ -82,6 +82,8 @@ public:
     void SetCityFocus(Yield::YIELD focus);
     void InitializeCity();
 
+    void WriteCitySaveData(QJsonObject &obj) const;
+
     QString GetName();
     QString getProductionName();
 

@@ -3,6 +3,7 @@
 
 #include <QImage>
 #include <QList>
+#include <QJsonObject>
 #include "nation.h"
 #include "unittype.h"
 #include "tile.h"
@@ -71,6 +72,8 @@ public:
     UnitType GetUnitType();
     QImage* GetUnitIcon();
     Nation GetOwner();
+
+    void WriteUnitSaveData(QJsonObject &obj) const;
 
     int  isUnlocked();
     bool isPathEmpty();

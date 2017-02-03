@@ -76,3 +76,15 @@ void Building::setUnlocked(int unlock)
     this->unlocked = unlock;
 }
 
+void Building::WriteBuildingSaveData(QJsonObject &obj) const
+{
+    obj["name"] = name;
+    obj["techindex"] = techIndex;
+    obj["unlocked"] = unlocked;
+    obj["buildingmaintenancecost"] = buildingMaintenanceCost;
+    obj["description"] = description;
+    obj["bonustype"] = bonusType;
+    obj["bonus"] = bonus;
+    obj["productioncost"] = productionCost;
+}
+

@@ -42,6 +42,8 @@ public:
 
     City *CreateCity(int cityTileIndex, Civilization *founder, bool isCapital);
 
+    void WriteMapSaveData(QJsonObject &obj) const;
+
 private:
     QVector<Tile*> board;
     QVector<QPixmap*> terrain;

@@ -1,6 +1,8 @@
 #ifndef YIELD_H
 #define YIELD_H
 #include "datatypes.h"
+
+#include <QJsonObject>
 /*
  *
  * This class is used to provide the total yield output for tiles.
@@ -30,6 +32,7 @@ public:
     int GetFoodYield();
     int GetCultureYield();
 
+    void WriteYieldSaveData(QJsonObject &obj) const;
 
 private:
 

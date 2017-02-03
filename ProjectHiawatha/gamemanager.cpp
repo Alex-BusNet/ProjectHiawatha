@@ -188,7 +188,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
 //    renderer->DrawGridLines(gameView);
-    renderer->DrawGuiText(map, stringData, gameView);
+//    renderer->DrawGuiText(map, stringData, gameView);
 
     zoomScale = 1;
 
@@ -2390,6 +2390,34 @@ bool GameManager::AcceptsPeace(Civilization *ai)
 
 void GameManager::closeGame()
 {
+    QFile saveFile("Saves/latest.json");
+    if(!saveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open save file");
+        this->close();
+        return;
+    }
+
+    QJsonDocument doc;
+    QJsonArray civArray;
+    for(int i = 0; i < civList.size(); i++)
+    {
+        QJsonObject civObject;
+        civList.at(i)->WriteData(civObject);
+        civArray.push_back(civObject);
+    }
+
+    doc.setArray(civArray);
+    saveFile.write(doc.toJson());
+
+    QJsonObject mapObject;
+    map->WriteMapSaveData(mapObject);
+    doc.setObject(mapObject);
+
+    saveFile.write(doc.toJson());
+
+    saveFile.flush();
+    saveFile.close();
     this->close();
 }
 

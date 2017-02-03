@@ -1,6 +1,7 @@
 #ifndef TECHNOLOGY_H
 #define TECHNOLOGY_H
 
+#include <QJsonObject>
 #include <QString>
 
 class Technology
@@ -15,6 +16,8 @@ public:
     void setName(QString str);
     void setIndex(int techIndex);
     void setCost(int techCost);
+
+    void WriteTechSaveData(QJsonObject &obj) const;
 
 private:
     QString name;

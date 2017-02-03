@@ -6,6 +6,7 @@
 #include <ctime>
 #include "biome.h"
 #include "unittype.h"
+#include <QJsonArray>
 #include <queue>
 
 Map::Map()
@@ -814,6 +815,23 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     city->InitializeCity();
 
     return city;
+}
+
+void Map::WriteMapSaveData(QJsonObject &obj) const
+{
+    obj["mapsizex"] = mapSizeX;
+    obj["mapsizey"] = mapSizeY;
+    obj["oceanscalefactor"] = oceanScaleFactor;
+
+    QJsonArray tileArray;
+    foreach(Tile* t, board)
+    {
+        QJsonObject tileObj;
+        t->WriteTileSaveData(tileObj);
+        tileArray.append(tileObj);
+    }
+
+    obj["tiledata"] = tileArray;
 }
 
 /*

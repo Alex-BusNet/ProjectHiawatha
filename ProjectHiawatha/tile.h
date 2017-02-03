@@ -112,6 +112,8 @@ public:
     int GetStratResource();
     int GetLuxResource();
 
+    void WriteTileSaveData(QJsonObject &obj) const;
+
 private:
     TileType type;
     Yield* yield;

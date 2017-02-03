@@ -48,6 +48,13 @@ void Technology::setCost(int techCost)
     cost = techCost;
 }
 
+void Technology::WriteTechSaveData(QJsonObject &obj) const
+{
+    obj["name"] = name;
+    obj["cost"] = cost;
+    obj["index"] = index;
+}
+
 
 
 

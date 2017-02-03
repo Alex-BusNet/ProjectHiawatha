@@ -130,3 +130,12 @@ int Yield::GetCultureYield()
 {
     return this->totalYield.culture;
 }
+
+void Yield::WriteYieldSaveData(QJsonObject &obj) const
+{
+    obj["gold"] = totalYield.gold;
+    obj["production"] = totalYield.production;
+    obj["science"] = totalYield.research;
+    obj["food"] = totalYield.food;
+    obj["culture"] = totalYield.culture;
+}

@@ -497,4 +497,30 @@ int Tile::GetLuxResource()
     return this->luxResource;
 }
 
+void Tile::WriteTileSaveData(QJsonObject &obj) const
+{
+    obj["tileIndex"] = tileIndex;
+    obj["biome"] = biome;
+    obj["container"] = container;
+    obj["continent"] = continent;
+    obj["strategicresource"] = stratResource;
+    obj["luxuryresource"] = luxResource;
+
+    QJsonObject yo;
+    yield->WriteYieldSaveData(yo);
+
+    obj["yield"] = yo;
+    obj["tileworked"] = IsWorked;
+    obj["improvement"] = improvement;
+    obj["hascity"] = HasCity;
+    obj["containsunit"] = ContainsUnit;
+    obj["occupyingcivlistindex"] = occupyingCivListIndex;
+    obj["controllingcivlistindex"] = controllingCivListIndex;
+    obj["governedby"] = governingCity;
+    obj["movecost"] = moveCost;
+    obj["canalwaysbeseen"] = CanAlwaysBeSeen;
+    obj["isseenbyplayer"] = IsSeenByPlayer;
+    obj["discoveredbyplayer"] = DiscoveredByPlayer;
+}
+
 

@@ -16,6 +16,7 @@
 #include <QTextStream>
 #include <QStringList>
 #include <math.h>
+#include <QJsonArray>
 
 Civilization::Civilization()
 {
@@ -305,6 +306,98 @@ void Civilization::MakePeace(int enemyCivListIndex)
     if(this->atWarWithCivListIndex.isEmpty())
     {
         this->atWar = false;
+    }
+}
+
+void Civilization::WriteData(QJsonObject &obj) const
+{
+    obj["nation"] = name;
+    obj["leader"] = LeaderName;
+    obj["civindex"] = civIndex;
+
+    QJsonObject yo;
+    totalCivYield->WriteYieldSaveData(yo);
+    obj["totalcivyield"] = yo;
+
+    obj["totalgold"] = totalGold;
+    obj["losinggold"] = losingGold;
+    obj["totalscience"] = totalScience;
+    obj["totalculture"] = totalCulture;
+    obj["accumulatedscience"] = accumulatedScience;
+    obj["capitalscontrolled"] = capitalsControlled;
+    obj["militarystrength"] = militaryStrength;
+
+    obj["atwar"] = atWar;
+
+    QJsonArray units;
+    foreach(Unit* u, this->UnitList)
+    {
+        QJsonObject unitObject;
+        u->WriteUnitSaveData(unitObject);
+        units.push_back(unitObject);
+    }
+    obj["units"] = units;
+
+    QJsonArray cityArray;
+    foreach(City *c, this->currentCityList)
+    {
+        QJsonObject cityJson;
+        c->WriteCitySaveData(cityJson);
+        cityArray.push_back(cityJson);
+    }
+
+    obj["cities"] = cityArray;
+
+    obj["isaiplayer"] = isAIPlayer;
+    QJsonObject curTech;
+    currentTech->WriteTechSaveData(curTech);
+    obj["currenttech"] = curTech;
+
+    QJsonObject nTech;
+    nextTech->WriteTechSaveData(nTech);
+    obj["nexttech"] = nTech;
+
+    QJsonArray techArray;
+    foreach(Technology *t, techList)
+    {
+        QJsonObject to;
+        t->WriteTechSaveData(to);
+        techArray.push_back(to);
+    }
+
+    obj["techlist"] = techArray;
+
+    if(isAIPlayer)
+    {
+        QJsonArray lowThreatArray;
+        foreach(Unit* u, lowThreats)
+        {
+            QJsonObject ltu;
+            u->WriteUnitSaveData(ltu);
+            lowThreatArray.push_back(ltu);
+        }
+
+        obj["lowthreats"] = lowThreatArray;
+
+        QJsonArray midThreatArray;
+        foreach(Unit* u, midThreats)
+        {
+            QJsonObject mtu;
+            u->WriteUnitSaveData(mtu);
+            lowThreatArray.push_back(mtu);
+        }
+
+        obj["lowthreats"] = midThreatArray;
+
+        QJsonArray highThreatArray;
+        foreach(Unit* u, highThreats)
+        {
+            QJsonObject htu;
+            u->WriteUnitSaveData(htu);
+            lowThreatArray.push_back(htu);
+        }
+
+        obj["lowthreats"] = highThreatArray;
     }
 }
 
