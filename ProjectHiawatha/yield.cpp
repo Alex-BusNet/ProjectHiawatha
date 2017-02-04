@@ -139,3 +139,12 @@ void Yield::WriteYieldSaveData(QJsonObject &obj) const
     obj["food"] = totalYield.food;
     obj["culture"] = totalYield.culture;
 }
+
+void Yield::ReadYieldSaveData(const QJsonObject &obj)
+{
+    totalYield.gold = obj["gold"].toInt();
+    totalYield.production = obj["production"].toInt();
+    totalYield.research = obj["science"].toInt();
+    totalYield.food = obj["food"].toInt();
+    totalYield.culture = obj["culture"].toInt();
+}

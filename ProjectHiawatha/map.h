@@ -43,6 +43,7 @@ public:
     City *CreateCity(int cityTileIndex, Civilization *founder, bool isCapital);
 
     void WriteMapSaveData(QJsonObject &obj) const;
+    void ReadMapSaveData(QJsonObject &obj);
 
 private:
     QVector<Tile*> board;
@@ -53,6 +54,7 @@ private:
     int mapSizeY;
     int oceanScaleFactor;
 
+    void GenerateTiles();
     void GenerateMap();
     void GenerateMapEdge();
     void GenerateBiomes();

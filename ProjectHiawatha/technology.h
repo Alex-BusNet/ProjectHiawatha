@@ -18,6 +18,7 @@ public:
     void setCost(int techCost);
 
     void WriteTechSaveData(QJsonObject &obj) const;
+    void ReadTechSaveData(const QJsonObject &obj);
 
 private:
     QString name;

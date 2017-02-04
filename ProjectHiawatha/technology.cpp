@@ -55,6 +55,13 @@ void Technology::WriteTechSaveData(QJsonObject &obj) const
     obj["index"] = index;
 }
 
+void Technology::ReadTechSaveData(const QJsonObject &obj)
+{
+    name = obj["name"].toString();
+    cost = obj["cost"].toInt();
+    index = obj["index"].toInt();
+}
+
 
 
 

@@ -14,7 +14,7 @@ class Unit
 {
 public:
     Unit();
-    Unit(Nation owner = India, UnitType type = WORKER);
+    Unit(Nation owner, UnitType type);
     Unit(int index);
     ~Unit();
 
@@ -74,6 +74,7 @@ public:
     Nation GetOwner();
 
     void WriteUnitSaveData(QJsonObject &obj) const;
+    void ReadUnitSaveData(const QJsonObject &obj);
 
     int  isUnlocked();
     bool isPathEmpty();

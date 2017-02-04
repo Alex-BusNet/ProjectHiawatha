@@ -3,6 +3,7 @@
 
 #include <QMessageBox>
 #include <QDebug>
+#include <QJsonArray>
 
 Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
 {
@@ -97,6 +98,64 @@ void Diplomacy::UpdateTurn()
 void Diplomacy::UpdateLeader()
 {
     selectLeader(leaderListArea->item(0));
+}
+
+void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
+{
+    QJsonArray dArray;
+
+    foreach(DiplomacyItem *di, diploItemList)
+    {
+        QJsonObject dio;
+        dio["nation"] = di->nation;
+        dio["leader"] = di->leaderName;
+        dio["displaystring"] = di->displayString;
+
+        QJsonArray whArray;
+        foreach(WarHistory wh, di->warChart)
+        {
+            QJsonObject who;
+            who["targetnation"] = wh.nation;
+            who["timesatwarwith"] = wh.timesAtWarWith;
+            who["warstartedon"] = wh.warStartedOn;
+            who["warstatus"] = wh.warStat;
+            whArray.append(who);
+        }
+
+        dio["warchart"] = whArray;
+        dArray.append(dio);
+    }
+
+    obj["diplomacyitems"] = dArray;
+}
+
+void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
+{
+    QJsonArray dArray = obj["diplomacyitems"].toArray();
+
+    for(int i = 0; i < dArray.size(); i++)
+    {
+        QJsonObject dio = dArray.at(i).toObject();
+        DiplomacyItem *di = new DiplomacyItem();
+        di->nation = static_cast<Nation>(dio["nation"].toInt());
+        di->leaderName = dio["leadername"].toString();
+        di->displayString = dio["displaystring"].toString();
+
+        QJsonArray whArray = dio["warchart"].toArray();
+        for(int j = 0; j < whArray.size(); j++)
+        {
+            QJsonObject who = whArray.at(i).toObject();
+            WarHistory wh;
+            wh.nation = static_cast<Nation>(who["targetnation"].toInt());
+            wh.timesAtWarWith = who["timesatwarwith"].toInt();
+            wh.warStartedOn = who["warstartedon"].toInt();
+            wh.warStat = static_cast<WarStatus>(who["warstatus"].toInt());
+
+            di->warChart.push_back(wh);
+        }
+
+        diploItemList.push_back(di);
+    }
 }
 
 int Diplomacy::GetLengthOfWar(Nation ai)

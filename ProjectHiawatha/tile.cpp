@@ -500,6 +500,7 @@ int Tile::GetLuxResource()
 void Tile::WriteTileSaveData(QJsonObject &obj) const
 {
     obj["tileIndex"] = tileIndex;
+    obj["type"] = type;
     obj["biome"] = biome;
     obj["container"] = container;
     obj["continent"] = continent;
@@ -517,10 +518,41 @@ void Tile::WriteTileSaveData(QJsonObject &obj) const
     obj["occupyingcivlistindex"] = occupyingCivListIndex;
     obj["controllingcivlistindex"] = controllingCivListIndex;
     obj["governedby"] = governingCity;
+    obj["owner"] = owner;
     obj["movecost"] = moveCost;
     obj["canalwaysbeseen"] = CanAlwaysBeSeen;
     obj["isseenbyplayer"] = IsSeenByPlayer;
     obj["discoveredbyplayer"] = DiscoveredByPlayer;
+    obj["walkable"] = Walkable;
+}
+
+void Tile::ReadTileSaveData(const QJsonObject &obj)
+{
+    type = static_cast<TileType>(obj["type"].toInt());
+    biome = static_cast<Biome>(obj["biome"].toInt());
+    container = obj["container"].toInt();
+    continent = obj["continent"].toInt();
+    stratResource = static_cast<Strategic>(obj["strategicresource"].toInt());
+    luxResource = static_cast<Luxury>(obj["luxuryresource"].toInt());
+
+    QJsonObject yo = obj["yield"].toObject();
+    yield->ReadYieldSaveData(yo);
+
+    IsWorked = obj["tileworked"].toBool();
+    improvement = static_cast<TileImprovement>(obj["improvement"].toInt());
+    HasCity = obj["hascity"].toBool();
+    ContainsUnit = obj["containsunit"].toBool();
+    occupyingCivListIndex = obj["occupyingcivlistindex"].toInt();
+    controllingCivListIndex = obj["controllingcivlistindex"].toInt();
+    governingCity = obj["governingCity"].toInt();
+    owner = static_cast<Nation>(obj["owner"].toInt());
+    moveCost = obj["movecost"].toInt();
+    CanAlwaysBeSeen = obj["canalwaysbeseen"].toBool();
+    DiscoveredByPlayer = obj["canalwaysbeseen"].toBool();
+
+    Walkable = obj["walkable"].toBool();
+
+    this->SetTileTexture(type);
 }
 
 

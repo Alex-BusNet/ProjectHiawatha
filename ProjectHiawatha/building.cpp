@@ -88,3 +88,15 @@ void Building::WriteBuildingSaveData(QJsonObject &obj) const
     obj["productioncost"] = productionCost;
 }
 
+void Building::ReadBuildingSaveData(const QJsonObject &obj)
+{
+    name = obj["name"].toString();
+    techIndex = obj["techIndex"].toInt();
+    unlocked = obj["unlocked"].toBool();
+    buildingMaintenanceCost = obj["buildingmaintenancecost"].toInt();
+    description = obj["description"].toString();
+    bonusType = obj["bonustype"].toInt();
+    bonus = obj["bonus"].toInt();
+    productionCost = obj["productionCost"].toInt();
+}
+

@@ -429,6 +429,24 @@ void Unit::WriteUnitSaveData(QJsonObject &obj) const
     obj["unitlistindex"] = unitListIndex;
 }
 
+void Unit::ReadUnitSaveData(const QJsonObject &obj)
+{
+    name = obj["name"].toString();
+    type = static_cast<UnitType>(obj["type"].toInt());
+    strength = obj["str"].toInt();
+    health = obj["hp"].toInt();
+    maxHealth = obj["maxhp"].toInt();
+    range = obj["range"].toInt();
+    rangeStrength = obj["rangestr"].toInt();
+    belongsTo = static_cast<Nation>(obj["belongsto"].toInt());
+    movementPoints = obj["movepoints"].toInt();
+    dataMapIndex = obj["datamaploc"].toInt();
+    isFortified = obj["fortified"].toBool();
+    healthBarIndex = obj["healthBarIndex"].toInt();
+    pixmapIndex = obj["pixmapindex"].toInt();
+    unitListIndex = obj["unitlistindex"].toInt();
+}
+
 int Unit::GetTileIndex()
 {
     return this->dataMapIndex;

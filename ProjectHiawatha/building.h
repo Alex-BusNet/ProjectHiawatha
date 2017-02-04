@@ -24,6 +24,7 @@ public:
     void setUnlocked(int unlock);
 
     void WriteBuildingSaveData(QJsonObject &obj) const;
+    void ReadBuildingSaveData(const QJsonObject &obj);
 private:
     QString name;
     QString description;

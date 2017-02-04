@@ -656,9 +656,7 @@ void City::WriteCitySaveData(QJsonObject &obj) const
     QJsonArray controlledArray;
     foreach(Tile* t, cityControlledTiles)
     {
-        QJsonObject to;
-        to["tileindex"] = t->GetTileIndex();
-        controlledArray.append(to);
+        controlledArray.append(t->GetTileIndex());
     }
 
     obj["controlledtiles"] = controlledArray;
@@ -668,6 +666,49 @@ void City::WriteCitySaveData(QJsonObject &obj) const
     obj["scienceyield"] = scienceYield;
     obj["growthcost"] = growthCost;
     obj["foodsurplus"] = foodSurplus;
+}
+
+void City::ReadCitySaveData(const QJsonObject &obj)
+{
+    name = obj["name"].toString();
+    cityID = obj["cityid"].toInt();
+    citizens = obj["population"].toInt();
+    controllingCiv = static_cast<Nation>(obj["controlledby"].toInt());
+    turnsToBorderGrowth = obj["turnstobordergrowth"].toInt();
+    turnsToNewCitizen = obj["turnstonewcitizen"].toInt();
+    cityHealth = obj["hp"].toDouble();
+    maxHealth = obj["maxhp"].toDouble();
+    cityFocus = static_cast<Yield::YIELD>(obj["focus"].toInt());
+    isCaptial = obj["iscapital"].toBool();
+    isOriginalCapital = obj["isoriginalcapital"].toBool();
+    stagnant = obj["stagnant"].toBool();
+    fullyExpanded = obj["fullyexpanded"].toBool();
+    cityRenderIndex = obj["renderindex"].toInt();
+    currentProductionName = obj["currentproductionname"].toString();
+    currentProductionCost = obj["currentproductioncost"].toInt();
+    accumulatedProduction = obj["accumulatedproduction"].toInt();
+    productionIndex = obj["productionindex"].toInt();
+    productionYield = obj["productionyield"].toInt();
+
+
+    QJsonArray bArray = obj["completedbuildings"].toArray();
+    for(int i = 0; i < bArray.size(); i++)
+    {
+        Building* b = new Building();
+        b->ReadBuildingSaveData(bArray.at(i).toObject());
+        producedBuildings.push_back(b);
+    }
+
+    buildingStrength = obj["buildingStrength"].toInt();
+    baseStrength = obj["basestrength"].toInt();
+    cityStrength = obj["citystrength"].toInt();
+
+    goldYield = obj["goldyield"].toInt();
+    productionYield = obj["productionyield"].toInt();
+    scienceYield = obj["scienceyield"].toInt();
+    growthCost = obj["growthcost"].toInt();
+    foodSurplus = obj["foodsurplus"].toInt();
+
 }
 
 void City::SetCitizenCount(int count)

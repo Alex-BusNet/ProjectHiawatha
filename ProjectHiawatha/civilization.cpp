@@ -357,15 +357,15 @@ void Civilization::WriteData(QJsonObject &obj) const
     nextTech->WriteTechSaveData(nTech);
     obj["nexttech"] = nTech;
 
-    QJsonArray techArray;
-    foreach(Technology *t, techList)
-    {
-        QJsonObject to;
-        t->WriteTechSaveData(to);
-        techArray.push_back(to);
-    }
+//    QJsonArray techArray;
+//    foreach(Technology *t, techList)
+//    {
+//        QJsonObject to;
+//        t->WriteTechSaveData(to);
+//        techArray.push_back(to);
+//    }
 
-    obj["techlist"] = techArray;
+//    obj["techlist"] = techArray;
 
     if(isAIPlayer)
     {
@@ -387,7 +387,7 @@ void Civilization::WriteData(QJsonObject &obj) const
             lowThreatArray.push_back(mtu);
         }
 
-        obj["lowthreats"] = midThreatArray;
+        obj["midthreats"] = midThreatArray;
 
         QJsonArray highThreatArray;
         foreach(Unit* u, highThreats)
@@ -397,7 +397,52 @@ void Civilization::WriteData(QJsonObject &obj) const
             lowThreatArray.push_back(htu);
         }
 
-        obj["lowthreats"] = highThreatArray;
+        obj["highthreats"] = highThreatArray;
+    }
+}
+
+void Civilization::ReadData(const QJsonObject &obj)
+{
+    name = static_cast<Nation>(obj["nation"].toInt());
+    LeaderName = obj["leader"].toString();
+    civIndex = obj["civindex"].toInt();
+
+    totalCivYield->ReadYieldSaveData(obj["totalcivyield"].toObject());
+
+    totalGold = obj["totalgold"].toInt();
+    totalScience = obj["totalscience"].toInt();
+    totalCulture = obj["totalculture"].toInt();
+    accumulatedScience = obj["accumulatedscience"].toInt();
+    capitalsControlled = obj["capitalscontrolled"].toInt();
+    militaryStrength = obj["militarystrength"].toInt();
+    atWar = obj["atwar"].toBool();
+
+    QJsonArray uArray = obj["units"].toArray();
+    for(int i = 0; i < uArray.size(); i++)
+    {
+        Unit* unit = new Unit();
+        unit->ReadUnitSaveData(uArray.at(i).toObject());
+
+        UnitList.push_back(unit);
+    }
+
+    QJsonArray cArray = obj["cities"].toArray();
+    for(int i = 0; i < cArray.size(); i++)
+    {
+        City* city = new City();
+        city->ReadCitySaveData(cArray.at(i).toObject());
+    }
+
+    currentTech->ReadTechSaveData(obj["currenttech"].toObject());
+    nextTech->ReadTechSaveData(obj["nexttech"].toObject());
+
+    isAIPlayer = obj["isaiplayer"].toBool();
+
+    if(isAIPlayer)
+    {
+//        QJsonArray ltArray = obj["lowthreats"].toArray();
+        //Load threat vectors as vector<int> and process later to find
+        //proper unit. the stored int should be the units currentTile.
     }
 }
 

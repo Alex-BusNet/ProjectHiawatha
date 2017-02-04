@@ -33,6 +33,7 @@ public:
     int GetCultureYield();
 
     void WriteYieldSaveData(QJsonObject &obj) const;
+    void ReadYieldSaveData(const QJsonObject &obj);
 
 private:
 

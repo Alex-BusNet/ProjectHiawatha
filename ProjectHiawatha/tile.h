@@ -113,6 +113,7 @@ public:
     int GetLuxResource();
 
     void WriteTileSaveData(QJsonObject &obj) const;
+    void ReadTileSaveData(const QJsonObject &obj);
 
 private:
     TileType type;

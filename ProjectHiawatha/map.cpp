@@ -88,65 +88,7 @@ Map::~Map()
 
 void Map::InitHexMap()
 {
-    Tile *tile;
-    //Flattop: x = 12, y =0;
-    //Pointtop: x = 0, y = 12;
-    int posX = 0;
-    int posY = 12;
-//    float rowOffset = 37;
-    bool odd = false;
-    int column = 0, row = 0;
-
-
-    for(int i = 0; i < (mapSizeY); i++)
-    {
-        if((i % 2) != 0)
-        {
-            odd = true;
-            column = 1;
-        }
-        else
-        {
-            odd = false;
-            column = 0;
-        }
-
-
-        for(int j = 0; j < (mapSizeX); j++)
-        {
-            tile = new Tile(posX, posY);
-
-            tile->SetTileID(row, column, tile);
-            tile->SetTileIndex(board.size());
-
-            board.push_back(tile);
-
-            //flat:
-//            posX += 74;
-            //point:
-            posX += 44;
-
-            column += 2;
-        }
-
-        if(!odd)
-        {
-            //Flat: posX = 12 + offset
-            //Point: posX = 22;
-            posX = 22; // + rowOffset;
-        }
-        else
-        {
-            //Flat: posX = 12;
-            //point: posX = 0;
-            posX = 0;
-        }
-        row++;
-        //Flat: posY += 22;
-        //Point: posY += 37;
-        posY += 37;
-    }
-
+    GenerateTiles();
     GenerateBiomes();
     GenerateMapEdge();
     GenerateMap();
@@ -832,6 +774,85 @@ void Map::WriteMapSaveData(QJsonObject &obj) const
     }
 
     obj["tiledata"] = tileArray;
+}
+
+void Map::ReadMapSaveData(QJsonObject &obj)
+{
+    mapSizeX = obj["mapsizex"].toInt();
+    mapSizeY = obj["mapsizey"].toInt();
+    oceanScaleFactor = obj["oceanscalefactor"].toInt();
+
+    GenerateTiles();
+
+    QJsonArray tArray = obj["tiledata"].toArray();
+    for(int i = 0; i < board.size(); i++)
+    {
+        board.at(i)->ReadTileSaveData(tArray.at(i).toObject());
+    }
+
+    InitTerrain();
+}
+
+void Map::GenerateTiles()
+{
+    Tile *tile;
+    //Flattop: x = 12, y =0;
+    //Pointtop: x = 0, y = 12;
+    int posX = 0;
+    int posY = 12;
+//    float rowOffset = 37;
+    bool odd = false;
+    int column = 0, row = 0;
+
+
+    for(int i = 0; i < (mapSizeY); i++)
+    {
+        if((i % 2) != 0)
+        {
+            odd = true;
+            column = 1;
+        }
+        else
+        {
+            odd = false;
+            column = 0;
+        }
+
+
+        for(int j = 0; j < (mapSizeX); j++)
+        {
+            tile = new Tile(posX, posY);
+
+            tile->SetTileID(row, column, tile);
+            tile->SetTileIndex(board.size());
+
+            board.push_back(tile);
+
+            //flat:
+//            posX += 74;
+            //point:
+            posX += 44;
+
+            column += 2;
+        }
+
+        if(!odd)
+        {
+            //Flat: posX = 12 + offset
+            //Point: posX = 22;
+            posX = 22; // + rowOffset;
+        }
+        else
+        {
+            //Flat: posX = 12;
+            //point: posX = 0;
+            posX = 0;
+        }
+        row++;
+        //Flat: posY += 22;
+        //Point: posY += 37;
+        posY += 37;
+    }
 }
 
 /*

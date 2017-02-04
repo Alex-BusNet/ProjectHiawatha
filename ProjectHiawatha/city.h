@@ -83,6 +83,7 @@ public:
     void InitializeCity();
 
     void WriteCitySaveData(QJsonObject &obj) const;
+    void ReadCitySaveData(const QJsonObject &obj);
 
     QString GetName();
     QString getProductionName();

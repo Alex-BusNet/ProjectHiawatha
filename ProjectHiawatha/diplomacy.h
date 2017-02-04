@@ -1,6 +1,7 @@
 #ifndef DIPLOMACY_H
 #define DIPLOMACY_H
 
+#include <QJsonObject>
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
@@ -21,6 +22,9 @@ public:
     void DeclareWarOn(Nation target, int targetIndex, Nation aggressor);
     void UpdateTurn();
     void UpdateLeader();
+
+    void WriteDiploSaveData(QJsonObject &obj) const;
+    void ReadDiploSaveData(const QJsonObject &obj);
 
     int GetLengthOfWar(Nation ai);
     int GetNumberOfWars(Nation ai);

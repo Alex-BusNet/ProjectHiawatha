@@ -261,9 +261,6 @@ GameManager::~GameManager()
     if(techTree != NULL)
         delete techTree;
 
-//    if(ac != NULL)
-//        delete ac;
-
     qDebug() << "       Deleting GameManager Buttons";
     delete exitGame;
     delete endTurn;
@@ -324,60 +321,48 @@ GameManager::~GameManager()
         delete culPix;
 
     qDebug() << "       Deleting misc pointers";
-    qDebug() << "           playerInfoRect";
     if(playerInfoRect != NULL)
         delete playerInfoRect;
 
-    qDebug() << "           gameStatusRect";
     if(gameStatusRect != NULL)
         delete gameStatusRect;
 
-    qDebug() << "           unitToMove";
     if(unitToMove != NULL)
         delete unitToMove;
 
-    qDebug() << "           targetUnit";
     if(targetUnit != NULL)
         delete targetUnit;
 
-    qDebug() << "           targetCity";
     if(targetCity != NULL)
         delete targetCity;
 
     qDebug() << "       Deleting Queues";
-    qDebug() << "           selectedTileQueue";
     if(!selectedTileQueue->isEmpty())
         selectedTileQueue->clear();
 
     if(selectedTileQueue != NULL)
         delete selectedTileQueue;
 
-    qDebug() << "           tileModifiedQueue";
     if(!tileModifiedQueue->isEmpty())
         tileModifiedQueue->clear();
 
     if(tileModifiedQueue != NULL)
         delete tileModifiedQueue;
 
-    qDebug() << "           viewUpdateTiles";
     if(!viewUpdateTiles->isEmpty())
         viewUpdateTiles->clear();
 
     if(viewUpdateTiles != NULL)
         delete viewUpdateTiles;
 
-    qDebug() << "       Deleting unitTile";
     if(unitTile != NULL)
         delete unitTile;
 
-    qDebug() << "       Deleting targetTile";
     if(targetTile != NULL)
         delete targetTile;
 
-    qDebug() << "       Deleting UpdateTimer";
     delete updateTimer;
 
-    qDebug() << "       Deleting gameView";
     delete gameView;
 
     qDebug() << "   Game Manager Deconstructed";
@@ -2390,15 +2375,16 @@ bool GameManager::AcceptsPeace(Civilization *ai)
 
 void GameManager::closeGame()
 {
-    QFile saveFile("Saves/latest.json");
-    if(!saveFile.open(QIODevice::WriteOnly))
+    QFile civSaveFile("Saves/latest_civs.json");
+    if(!civSaveFile.open(QIODevice::WriteOnly))
     {
-        qWarning("Couldn't open save file");
+        qWarning("Couldn't open civ save file");
         this->close();
         return;
     }
 
     QJsonDocument doc;
+    QJsonObject civs;
     QJsonArray civArray;
     for(int i = 0; i < civList.size(); i++)
     {
@@ -2407,17 +2393,62 @@ void GameManager::closeGame()
         civArray.push_back(civObject);
     }
 
-    doc.setArray(civArray);
-    saveFile.write(doc.toJson());
+    civs["civilizations"] = civArray;
+    doc.setObject(civs);
+    civSaveFile.write(doc.toJson());
+    civSaveFile.flush();
+    civSaveFile.close();
+
+    QFile mapSaveFile("Saves/latest_map.json");
+    if(!mapSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open map save file");
+        this->close();
+        return;
+    }
 
     QJsonObject mapObject;
     map->WriteMapSaveData(mapObject);
     doc.setObject(mapObject);
 
-    saveFile.write(doc.toJson());
+    mapSaveFile.write(doc.toJson());
+    mapSaveFile.flush();
+    mapSaveFile.close();
 
-    saveFile.flush();
-    saveFile.close();
+    QFile diploSaveFile("Saves/latest_diplo.json");
+    if(!diploSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open map save file");
+        this->close();
+        return;
+    }
+
+    QJsonObject diploObj;
+    diplo->WriteDiploSaveData(diploObj);
+    doc.setObject(diploObj);
+
+    diploSaveFile.write(doc.toJson());
+    diploSaveFile.flush();
+    diploSaveFile.close();
+
+    QFile managerSaveFile("Saves/latest_manager.json");
+    if(!managerSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open manager save file");
+        this->close();
+        return;
+    }
+
+    QJsonObject gmObj;
+    gmObj["currentturn"] = currentTurn;
+    gmObj["gameturn"] = gameTurn;
+    gmObj["state"] = state;
+
+    doc.setObject(gmObj);
+    managerSaveFile.write(doc.toJson());
+    managerSaveFile.flush();
+    managerSaveFile.close();
+
     this->close();
 }
 
