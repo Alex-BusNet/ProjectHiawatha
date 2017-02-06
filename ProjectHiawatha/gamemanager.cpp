@@ -2613,6 +2613,11 @@ bool GameManager::AcceptsPeace(Civilization *ai)
 
 void GameManager::closeGame()
 {
+    if(!QDir("Saves").exists())
+    {
+        QDir().mkdir("Saves");
+    }
+
     QFile civSaveFile("Saves/latest_civs.json");
     if(!civSaveFile.open(QIODevice::WriteOnly))
     {
