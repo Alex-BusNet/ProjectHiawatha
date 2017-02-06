@@ -20,9 +20,10 @@ public:
     void AddLeader(QString _name, QPixmap _image, Nation _nation, bool isPlayer);
     void RemoveLeader(Nation nation);
     void DeclareWarOn(Nation target, int targetIndex, Nation aggressor);
+
     void UpdateTurn();
     void UpdateLeader();
-
+    void SetLeaderImage(int index, QPixmap &image);
     void WriteDiploSaveData(QJsonObject &obj) const;
     void ReadDiploSaveData(const QJsonObject &obj);
 

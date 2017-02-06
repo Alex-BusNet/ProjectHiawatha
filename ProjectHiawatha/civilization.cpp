@@ -20,7 +20,7 @@
 
 Civilization::Civilization()
 {
-
+    this->totalCivYield = new Yield(0, 0, 0, 0, 0);
 }
 
 Civilization::Civilization(Nation name, bool isAI, QString leaderName)
@@ -314,6 +314,7 @@ void Civilization::WriteData(QJsonObject &obj) const
     obj["nation"] = name;
     obj["leader"] = LeaderName;
     obj["civindex"] = civIndex;
+    obj["alive"] = alive;
 
     QJsonObject yo;
     totalCivYield->WriteYieldSaveData(yo);
@@ -348,33 +349,23 @@ void Civilization::WriteData(QJsonObject &obj) const
 
     obj["cities"] = cityArray;
 
+    QJsonArray cityNameArray;
+    foreach(QString s, this->initialCityList)
+    {
+        cityNameArray.push_back(s);
+    }
+
+    obj["citynames"] = cityNameArray;
     obj["isaiplayer"] = isAIPlayer;
-    QJsonObject curTech;
-    currentTech->WriteTechSaveData(curTech);
-    obj["currenttech"] = curTech;
-
-    QJsonObject nTech;
-    nextTech->WriteTechSaveData(nTech);
-    obj["nexttech"] = nTech;
-
-//    QJsonArray techArray;
-//    foreach(Technology *t, techList)
-//    {
-//        QJsonObject to;
-//        t->WriteTechSaveData(to);
-//        techArray.push_back(to);
-//    }
-
-//    obj["techlist"] = techArray;
+    obj["currenttech"] = currentTech->getIndex();
+    obj["nexttech"] = nextTech->getIndex();
 
     if(isAIPlayer)
     {
         QJsonArray lowThreatArray;
         foreach(Unit* u, lowThreats)
         {
-            QJsonObject ltu;
-            u->WriteUnitSaveData(ltu);
-            lowThreatArray.push_back(ltu);
+            lowThreatArray.push_back(u->GetTileIndex());
         }
 
         obj["lowthreats"] = lowThreatArray;
@@ -382,9 +373,7 @@ void Civilization::WriteData(QJsonObject &obj) const
         QJsonArray midThreatArray;
         foreach(Unit* u, midThreats)
         {
-            QJsonObject mtu;
-            u->WriteUnitSaveData(mtu);
-            lowThreatArray.push_back(mtu);
+            midThreatArray.push_back(u->GetTileIndex());
         }
 
         obj["midthreats"] = midThreatArray;
@@ -392,9 +381,7 @@ void Civilization::WriteData(QJsonObject &obj) const
         QJsonArray highThreatArray;
         foreach(Unit* u, highThreats)
         {
-            QJsonObject htu;
-            u->WriteUnitSaveData(htu);
-            lowThreatArray.push_back(htu);
+            highThreatArray.push_back(u->GetTileIndex());
         }
 
         obj["highthreats"] = highThreatArray;
@@ -406,10 +393,10 @@ void Civilization::ReadData(const QJsonObject &obj)
     name = static_cast<Nation>(obj["nation"].toInt());
     LeaderName = obj["leader"].toString();
     civIndex = obj["civindex"].toInt();
-
-    totalCivYield->ReadYieldSaveData(obj["totalcivyield"].toObject());
+    alive = obj["alive"].toBool();
 
     totalGold = obj["totalgold"].toInt();
+    losingGold = obj["losinggold"].toBool();
     totalScience = obj["totalscience"].toInt();
     totalCulture = obj["totalculture"].toInt();
     accumulatedScience = obj["accumulatedscience"].toInt();
@@ -426,23 +413,45 @@ void Civilization::ReadData(const QJsonObject &obj)
         UnitList.push_back(unit);
     }
 
+    QJsonArray nameArray = obj["citynames"].toArray();
+    for(int i = 0; i < nameArray.size(); i++)
+    {
+        initialCityList.push_back(nameArray.at(i).toString());
+    }
+
     QJsonArray cArray = obj["cities"].toArray();
     for(int i = 0; i < cArray.size(); i++)
     {
         City* city = new City();
         city->ReadCitySaveData(cArray.at(i).toObject());
+        this->currentCityList.push_back(city);
     }
 
-    currentTech->ReadTechSaveData(obj["currenttech"].toObject());
-    nextTech->ReadTechSaveData(obj["nexttech"].toObject());
+    currentTech = techList.at(obj["currenttech"].toInt());
+    techIndex = currentTech->getIndex();
+    nextTech = techList.at(obj["nexttech"].toInt());
 
     isAIPlayer = obj["isaiplayer"].toBool();
 
     if(isAIPlayer)
     {
-//        QJsonArray ltArray = obj["lowthreats"].toArray();
-        //Load threat vectors as vector<int> and process later to find
-        //proper unit. the stored int should be the units currentTile.
+        QJsonArray ltArray = obj["lowthreats"].toArray();
+        for(int i = 0; i < ltArray.size(); i++)
+        {
+            lowThreatIndex.push_back(ltArray.at(i).toInt());
+        }
+
+        QJsonArray mtArray = obj["midthreats"].toArray();
+        for(int i = 0; i < mtArray.size(); i++)
+        {
+            midThreatIndex.push_back(mtArray.at(i).toInt());
+        }
+
+        QJsonArray htArray = obj["highthreats"].toArray();
+        for(int i = 0; i < htArray.size(); i++)
+        {
+            highThreatIndex.push_back(htArray.at(i).toInt());
+        }
     }
 }
 

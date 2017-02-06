@@ -20,88 +20,8 @@ QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  bac
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
-    gameView = new GameView(this);
-    ac = new AI_Controller();
-    clv = new QListWidget(this);
-    ns = new NotificationSystem(this);
-    about = new About();
-    diplo = new Diplomacy(this);
-    diplo->hide();
-
-    warbox = new QMessageBox();
-    warbox->addButton(QMessageBox::Cancel);
-    warbox->addButton(QMessageBox::Ok);
-    warbox->button(QMessageBox::Ok)->setText("Go to War");
-    warbox->button(QMessageBox::Cancel)->setText("Let me reconsider...");
-
-    warbox->setStyleSheet(warStyle);
-
-    vLayout = new QVBoxLayout();
-    hLayout = new QHBoxLayout();
-    gameLayout = new QHBoxLayout();
-    playerControlButtons = new QVBoxLayout();
-    unitControlButtons = new QVBoxLayout();
-    Yieldinfo = new QHBoxLayout();
-
-    cityScreen = new CityScreen();
-    cityScreen->hide();
-    techTree = new TechTree(this);
-
-    selectedTileQueue = new QQueue<SelectData>();
-    tileModifiedQueue = new QQueue<SelectData>();
-    viewUpdateTiles = new QQueue<ViewData>();
-
-    techLabel = new QLabel(" NO RESEARCH ");
-    techText = new QLabel(" 00/000 ");
-    endGameProgress = new QLabel("Capitals Controlled:");
-    endGameText = new QString(" 0/0 ");
-
-    unitToMove = NULL;
-    targetUnit = NULL;
-    targetCity = NULL;
-    unitTile = NULL;
-    targetTile = NULL;
-    state = IDLE;
-
-    cityScreenVisible = false;
-    techTreeVisible = false;
-    diploVisible = false;
-    toggleOn = false;
-    relocateUnit = false;
-    turnEnded = false;
-    turnStarted = true;
-    countTime = false;
-    citySelected = false;
-    updateFoW = false;
-    focusChanged = false;
-    fortify = false;
-
-    currentProductionName = "No Production Selected";
+    InitVariables(fullscreen);
     playerCiv = player;
-
-    if(!fullscreen)
-    {
-        this->setFixedSize(1400, 700);
-        this->setWindowTitle("Project Hiawatha");
-        gameView->setFixedWidth(1195);
-    }
-    else
-    {
-        this->setWindowState(Qt::WindowFullScreen);
-    }
-
-    gameView->ConfigureGraphicsView();
-
-    updateTimer = new QTimer();
-    updateTimer->setInterval(50);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
-
-    this->InitButtons();
-    this->InitLayouts();
-    this->setLayout(vLayout);
-    this->show();
-
-    ns->hide();
 
     renderer = new Renderer(mapSizeX);
 
@@ -117,99 +37,220 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     this->playersAliveCount = civList.size();
 
-    renderer->DrawHexScene(map, gameView);
-
-    for(int i = 0; i < civList.size(); i++)
-    {
-        renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
-        renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-
-        for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
-        {
-            renderer->DrawCityBorders(civList.at(i)->GetCityAt(j), gameView, civList.at(i)->getCiv());
-            if(i == 0)
-            {
-                if(j == 0)
-                {
-                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName().append(" (").append(QChar(0x2605)).append(")"));
-                }
-                else
-                {
-                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
-                }
-
-                foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
-                {
-                    renderer->SetTileWorkedIcon(tile, gameView);
-                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), civList.at(i)->getCiv(), tile->GetTileIDString());
-                }
-            }
-
-            civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
-            civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
-        }
-
-        if(i == 0)
-        {
-            qDebug() << "Setting up Fog of War";
-            foreach(Tile* n, map->GetNeighborsRange(civList.at(i)->GetCityAt(0)->GetCityTile(), 3))
-            {
-                if(!n->DiscoveredByPlayer)
-                {
-                    n->DiscoveredByPlayer = true;
-                    n->CanAlwaysBeSeen = true;
-                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
-                    renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
-                }
-
-                if(!n->IsSeenByPlayer)
-                {
-                    n->IsSeenByPlayer = true;
-                    n->CanAlwaysBeSeen = true;
-                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
-                }
-            }
-
-            endGameText = new QString("Capitals Controlled:");
-            endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
-        }
-        else
-        {
-            endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
-        }
-
-        civList.at(i)->UpdateCivYield();
-    }
-
-    endGameProgress->setText(*endGameText);
-
-    InitYieldDisplay();
-
-    ////Keep this statement. I need it at different points
-    /// in the debugging process. -Port
-//    renderer->DrawGridLines(gameView);
-//    renderer->DrawGuiText(map, stringData, gameView);
-
-    zoomScale = 1;
-
-    for(int i = 0; i < 3; i++)
-    {
-        zoomIn();
-    }
+    InitRenderData();
 
     currentTurn = 0;
     gameTurn = 0;
     //Start at 4000 BC. The game increments the turn to 1, and subsequently the in game year by 40 years, upon game start.
     year = -4040;
+}
 
-    gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
-    qsrand(QTime::currentTime().msec());
+GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
+{
+    InitVariables(fullscreen);
+    civLoadFailed = false;
 
-    playerInfoRect = new QRect(0, 0, this->width(), 20);
-    gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
-    statusMessage = " ";
+    qDebug() << "Loading data";
+    if(loadLatest)
+    {
+        QFile lastMapSaveFile("Saves/latest_map.json");
+        if(!lastMapSaveFile.open(QIODevice::ReadOnly))
+        {
+            qWarning("Could not open last map save file");
+            this->close();
+            return;
+        }
 
-    updateTimer->start();
+        QByteArray mapSave = lastMapSaveFile.readAll();
+        QJsonDocument mapDoc = QJsonDocument::fromJson(mapSave);
+        QJsonObject mapObj = mapDoc.object();
+        map = new Map();
+#ifdef __APPLE__
+        map->ReadMapSaveData(mapObj);
+#else
+        mapInit = QtConcurrent::run(this->map, Map::ReadMapSaveData, mapObj);
+#endif
+
+        QFile lastCivSaveFile("Saves/latest_manager.json");
+        if(!lastCivSaveFile.open(QIODevice::ReadOnly))
+        {
+            qWarning("Could not open last manager save file");
+            mapInit.waitForFinished();
+            this->close();
+            return;
+        }
+
+        QByteArray gmSave = lastCivSaveFile.readAll();
+        QJsonDocument gmDoc = QJsonDocument::fromJson(gmSave);
+        QJsonObject gmObject= gmDoc.object();
+
+        playersAliveCount = gmObject["playersleftalive"].toInt();
+        currentTurn = gmObject["currentturn"].toInt();
+        gameTurn = gmObject["gameturn"].toInt();
+        year = gmObject["year"].toInt();
+        state = static_cast<ActionState>(gmObject["state"].toInt());
+        int civListSize = gmObject["civlistsize"].toInt();
+
+        for(int i = 0; i < civListSize; i++)
+        {
+            Civilization* c = new Civilization();
+            c->loadTechs("Assets/Techs/Technology.txt");
+            civList.push_back(c);
+        }
+
+#ifdef __APPLE__
+        LoadCivs();
+#else
+        civInit = QtConcurrent::run(this, GameManager::LoadCivs);
+#endif
+
+        QFile lastDiploSaveFile("Saves/latest_diplo.json");
+        if(!lastDiploSaveFile.open(QIODevice::ReadOnly))
+        {
+            qWarning("Could not open last diplomacy save file");
+            mapInit.waitForFinished();
+            civInit.waitForFinished();
+            this->close();
+            return;
+        }
+
+        QByteArray diploSave = lastDiploSaveFile.readAll();
+        QJsonDocument diploDoc = QJsonDocument::fromJson(diploSave);
+
+#ifdef __APPLE__
+        diplo->ReadDiploSaveData(diploDoc.object());
+#else
+        QFuture<void> diploInit = QtConcurrent::run(this->diplo, Diplomacy::ReadDiploSaveData, diploDoc.object());
+
+        mapInit.waitForFinished();
+        civInit.waitForFinished();
+        diploInit.waitForFinished();
+#endif
+        renderer = new Renderer(map->GetMapSizeX());
+
+        if(civLoadFailed)
+        {
+            this->close();
+            return;
+        }
+
+        playerCiv = civList.at(0)->getCiv();
+        // Add city tile and controlled tiles to city objects.
+        QPixmap pic;
+        foreach(Civilization* c, civList)
+        {
+            foreach(City* ci, c->GetCityList())
+            {
+                ci->SetCityTile(map->GetTileAt(ci->loadedCityTileIndex));
+                for(int i = 0; i < ci->controlledTilesIndex.size(); i++)
+                {
+                    ci->AddControlledTile(map->GetTileAt(ci->controlledTilesIndex.at(i)));
+                }
+
+                QList<Tile*> cityMEB = map->GetNeighborsRange(map->GetTileAt(ci->loadedCityTileIndex), 4);
+                ci->SetMaximumExpansionBorderTiles(cityMEB);
+                ci->FilterMEBList();
+
+                map->GetTileQueue(ci);
+                map->DefineCityBordersNew(ci);
+                ci->SortTileQueue();
+                ci->SortControlledTiles();
+                ci->GetControlledTiles().first()->IsWorked = true;
+
+                ci->UpdateCityYield();
+                ci->UpdateCityStatus();
+            }
+
+            if(c->isCivAI())
+            {
+                QVector<Unit*> threats;
+                foreach(int j, c->lowThreatIndex)
+                {
+                    threats.push_back(uc->FindUnitAtTile(map->GetTileAt(j), c->GetUnitList()));
+                }
+
+                c->setLowThreats(threats);
+                threats.clear();
+
+                foreach(int j, c->midThreatIndex)
+                {
+                    threats.push_back(uc->FindUnitAtTile(map->GetTileAt(j), c->GetUnitList()));
+                }
+
+                c->setMidThreats(threats);
+                threats.clear();
+
+                foreach(int j, c->highThreatIndex)
+                {
+                    threats.push_back(uc->FindUnitAtTile(map->GetTileAt(j), c->GetUnitList()));
+                }
+
+                c->setHighThreats(threats);
+                threats.clear();
+            }
+
+            c->UpdateCivYield();
+
+            switch(c->getCiv())
+            {
+            case America:
+                pic = QPixmap("Assets/Leaders/George_head.jpg");
+                break;
+            case Germany:
+                pic = QPixmap("Assets/Leaders/bismark.jpg");
+                break;
+            case India:
+                pic = QPixmap("Assets/Leaders/gandhi.jpg");
+                break;
+            case China:
+                pic = QPixmap("Assets/Leaders/Mao.jpg");
+                break;
+            case Mongolia:
+                pic = QPixmap("Assets/Leaders/khan.jpg");
+                break;
+            case Aztec:
+                pic = QPixmap("Assets/Leaders/montezuma.jpg");
+                break;
+            case France:
+                pic = QPixmap("Assets/Leaders/napoleon.jpg");
+                break;
+            case Iroquois:
+                pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
+                break;
+            case Greece:
+                pic = QPixmap("Assets/Leaders/Alexander.jpg");
+                break;
+            case Rome:
+                pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
+                break;
+            case England:
+                pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
+                break;
+            case Arabia:
+                pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
+                break;
+            case Persia:
+                pic = QPixmap("Assets/Leaders/Cyrus.jpg");
+                break;
+            case Russia:
+                pic = QPixmap("Assets/Leaders/stalin.jpg");
+                break;
+            case Japan:
+                pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
+                break;
+            case Egypt:
+                pic = QPixmap("Assets/Leaders/Ramseses.jpg");
+                break;
+            default:
+                break;
+            }
+
+            diplo->SetLeaderImage(c->getCivIndex(), pic);
+        }
+    }
+
+    InitRenderData();
+
 }
 
 GameManager::~GameManager()
@@ -656,6 +697,27 @@ newCivRand:
     map->SpawnCivs(civList);
 }
 
+void GameManager::LoadCivs()
+{
+    QFile lastCivSaveFile("Saves/latest_civs.json");
+    if(!lastCivSaveFile.open(QIODevice::ReadOnly))
+    {
+        qWarning("Could not open last civ save file");
+        civLoadFailed = true;
+        return;
+    }
+
+    QByteArray civSave = lastCivSaveFile.readAll();
+    QJsonDocument civDoc = QJsonDocument::fromJson(civSave);
+    QJsonArray civArray = civDoc.object()["civilizations"].toArray();
+
+    QPixmap pic;
+    for(int i = 0; i < civList.size(); i++)
+    {
+        civList.at(i)->ReadData(civArray.at(i).toObject());
+    }
+}
+
 void GameManager::paintEvent(QPaintEvent *event)
 {
     QPainter paint(this);
@@ -906,10 +968,10 @@ void GameManager::StartTurn()
     {
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
         {
-            statusMessage = QString("--------<< You have finished researching %1 >>--------").arg(civList.at(0)->GetTechList().at(civList.at(0)->getTechIndex())->getName());
+            statusMessage = QString("--------<< You have finished researching %1 >>--------").arg(civList.at(0)->getCurrentTech()->getName());
         }
         QString unlocks = "UNLOCKED: ";
-        QString techName = civList.at(currentTurn)->GetTechList().at(civList.at(0)->getTechIndex())->getName();
+        QString techName = civList.at(currentTurn)->getCurrentTech()->getName();
         QString firstLine = "Finished: ";
         firstLine += techName;
         firstLine += "\n";
@@ -1128,7 +1190,6 @@ void GameManager::StartTurn()
             civMilStr += unit->GetUnitPower();
     }
 
-    qDebug() << "Military Strength for" << uc->NationName(civList.at(currentTurn)->getCiv()) << ": " << civMilStr;
     civList.at(currentTurn)->SetMilitaryStrength(civMilStr);
 
     if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
@@ -1803,6 +1864,91 @@ void GameManager::UpdateTileData()
     }
 }
 
+void GameManager::InitVariables(bool fullscreen)
+{
+    gameView = new GameView(this);
+    ac = new AI_Controller();
+    clv = new QListWidget(this);
+    ns = new NotificationSystem(this);
+    about = new About();
+    diplo = new Diplomacy(this);
+    diplo->hide();
+
+    warbox = new QMessageBox();
+    warbox->addButton(QMessageBox::Cancel);
+    warbox->addButton(QMessageBox::Ok);
+    warbox->button(QMessageBox::Ok)->setText("Go to War");
+    warbox->button(QMessageBox::Cancel)->setText("Let me reconsider...");
+
+    warbox->setStyleSheet(warStyle);
+
+    vLayout = new QVBoxLayout();
+    hLayout = new QHBoxLayout();
+    gameLayout = new QHBoxLayout();
+    playerControlButtons = new QVBoxLayout();
+    unitControlButtons = new QVBoxLayout();
+    Yieldinfo = new QHBoxLayout();
+
+    cityScreen = new CityScreen();
+    cityScreen->hide();
+    techTree = new TechTree(this);
+
+    selectedTileQueue = new QQueue<SelectData>();
+    tileModifiedQueue = new QQueue<SelectData>();
+    viewUpdateTiles = new QQueue<ViewData>();
+
+    techLabel = new QLabel(" NO RESEARCH ");
+    techText = new QLabel(" 00/000 ");
+    endGameProgress = new QLabel("Capitals Controlled:");
+    endGameText = new QString(" 0/0 ");
+
+    unitToMove = NULL;
+    targetUnit = NULL;
+    targetCity = NULL;
+    unitTile = NULL;
+    targetTile = NULL;
+    state = IDLE;
+
+    cityScreenVisible = false;
+    techTreeVisible = false;
+    diploVisible = false;
+    toggleOn = false;
+    relocateUnit = false;
+    turnEnded = false;
+    turnStarted = true;
+    countTime = false;
+    citySelected = false;
+    updateFoW = false;
+    focusChanged = false;
+    fortify = false;
+
+    currentProductionName = "No Production Selected";
+
+    if(!fullscreen)
+    {
+        this->setFixedSize(1400, 700);
+        this->setWindowTitle("Project Hiawatha");
+        gameView->setFixedWidth(1195);
+    }
+    else
+    {
+        this->setWindowState(Qt::WindowFullScreen);
+    }
+
+    gameView->ConfigureGraphicsView();
+
+    updateTimer = new QTimer();
+    updateTimer->setInterval(50);
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
+
+    this->InitButtons();
+    this->InitLayouts();
+    this->setLayout(vLayout);
+    this->show();
+
+    ns->hide();
+}
+
 void GameManager::InitButtons()
 {
     QString GameStyle = "QWidget { background-color: #145e88; } QFrame { background-color: black; }";
@@ -2052,6 +2198,98 @@ void GameManager::InitYieldDisplay()
         Yieldinfo->addSpacing(ceil(space));
     }
     vLayout->insertLayout(0, Yieldinfo);
+}
+
+void GameManager::InitRenderData()
+{
+    renderer->DrawHexScene(map, gameView);
+
+    for(int i = 0; i < civList.size(); i++)
+    {
+        renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
+        renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
+        for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
+        {
+            renderer->DrawCityBorders(civList.at(i)->GetCityAt(j), gameView, civList.at(i)->getCiv());
+            if(i == 0)
+            {
+                if(j == 0)
+                {
+                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName().append(" (").append(QChar(0x2605)).append(")"));
+                }
+                else
+                {
+                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
+                }
+
+                foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
+                {
+                    renderer->SetTileWorkedIcon(tile, gameView);
+                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), civList.at(i)->getCiv(), tile->GetTileIDString());
+                }
+            }
+
+            civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
+            civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
+        }
+
+        if(i == 0)
+        {
+            foreach(Tile* n, map->GetNeighborsRange(civList.at(i)->GetCityAt(0)->GetCityTile(), 3))
+            {
+                if(!n->DiscoveredByPlayer)
+                {
+                    n->DiscoveredByPlayer = true;
+                    n->CanAlwaysBeSeen = true;
+                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
+                    renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
+                }
+
+                if(!n->IsSeenByPlayer)
+                {
+                    n->IsSeenByPlayer = true;
+                    n->CanAlwaysBeSeen = true;
+                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
+                }
+            }
+
+            endGameText = new QString("Capitals Controlled:");
+            endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
+        }
+        else
+        {
+            endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
+        }
+
+        civList.at(i)->UpdateCivYield();
+    }
+
+    endGameProgress->setText(*endGameText);
+
+    InitYieldDisplay();
+
+    ////Keep this statement. I need it at different points
+    /// in the debugging process. -Port
+//    renderer->DrawGridLines(gameView);
+//    renderer->DrawGuiText(map, stringData, gameView);
+
+    zoomScale = 1;
+
+    for(int i = 0; i < 3; i++)
+    {
+        zoomIn();
+    }
+
+    gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
+    qsrand(QTime::currentTime().msec());
+
+    playerInfoRect = new QRect(0, 0, this->width(), 20);
+    gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
+    statusMessage = " ";
+
+    techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+
+    updateTimer->start();
 }
 
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
@@ -2418,7 +2656,7 @@ void GameManager::closeGame()
     QFile diploSaveFile("Saves/latest_diplo.json");
     if(!diploSaveFile.open(QIODevice::WriteOnly))
     {
-        qWarning("Couldn't open map save file");
+        qWarning("Couldn't open diplo save file");
         this->close();
         return;
     }
@@ -2443,6 +2681,9 @@ void GameManager::closeGame()
     gmObj["currentturn"] = currentTurn;
     gmObj["gameturn"] = gameTurn;
     gmObj["state"] = state;
+    gmObj["year"] = year;
+    gmObj["civlistsize"] = civList.size();
+    gmObj["playersleftalive"] = playersAliveCount;
 
     doc.setObject(gmObj);
     managerSaveFile.write(doc.toJson());

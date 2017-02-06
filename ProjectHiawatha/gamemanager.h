@@ -31,6 +31,7 @@ class GameManager : public QWidget
     Q_OBJECT
 public:
     explicit GameManager(QWidget *parent = 0, bool fullscreen = false, int mapSizeX = 33, int mapSizeY  = 42, Nation player = India, int numAI = 2);
+    GameManager(QWidget *parent = 0, bool fullscreen = false, bool loadLatest = true);
     ~GameManager();
 private:
 
@@ -128,11 +129,13 @@ private:
     bool citySelected, redrawTile, isTileSelected, cityTileSelected, updateFoW;
     bool focusChanged;
     bool toggleOn;
+    bool civLoadFailed;
 
     Nation playerCiv;
     ActionState state;
 
     void InitCivs(Nation player, int numAI);
+    void LoadCivs();
     void paintEvent(QPaintEvent *event);
 
     void TurnController();
@@ -141,9 +144,11 @@ private:
 
     void UpdateTileData();
 
+    void InitVariables(bool fullscreen);
     void InitButtons();
     void InitLayouts();
-    void InitYieldDisplay();
+    void InitYieldDisplay();\
+    void InitRenderData();
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();

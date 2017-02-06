@@ -544,7 +544,7 @@ void Tile::ReadTileSaveData(const QJsonObject &obj)
     ContainsUnit = obj["containsunit"].toBool();
     occupyingCivListIndex = obj["occupyingcivlistindex"].toInt();
     controllingCivListIndex = obj["controllingcivlistindex"].toInt();
-    governingCity = obj["governingCity"].toInt();
+    governingCity = obj["governedby"].toInt();
     owner = static_cast<Nation>(obj["owner"].toInt());
     moveCost = obj["movecost"].toInt();
     CanAlwaysBeSeen = obj["canalwaysbeseen"].toBool();

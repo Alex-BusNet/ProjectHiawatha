@@ -600,7 +600,6 @@ void Map::GetTileQueue(City *city)
 void Map::DefineCityBordersNew(City *city)
 {
     QVector<QLine*> lines;
-    QVector<Tile*> checked;
 
     //Search run GetNeighbors on the tileQueue to find where the city's border tiles are
     foreach(Tile* tile, city->borderQueue)

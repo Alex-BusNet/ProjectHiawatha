@@ -689,7 +689,7 @@ void City::ReadCitySaveData(const QJsonObject &obj)
     accumulatedProduction = obj["accumulatedproduction"].toInt();
     productionIndex = obj["productionindex"].toInt();
     productionYield = obj["productionyield"].toInt();
-
+    loadedCityTileIndex = obj["citytileindex"].toInt();
 
     QJsonArray bArray = obj["completedbuildings"].toArray();
     for(int i = 0; i < bArray.size(); i++)
@@ -697,6 +697,12 @@ void City::ReadCitySaveData(const QJsonObject &obj)
         Building* b = new Building();
         b->ReadBuildingSaveData(bArray.at(i).toObject());
         producedBuildings.push_back(b);
+    }
+
+    QJsonArray controlledArray = obj["controlledtiles"].toArray();
+    for(int i = 0; i < controlledArray.size(); i++)
+    {
+        controlledTilesIndex.push_back(controlledArray.at(i).toInt());
     }
 
     buildingStrength = obj["buildingStrength"].toInt();
@@ -708,7 +714,6 @@ void City::ReadCitySaveData(const QJsonObject &obj)
     scienceYield = obj["scienceyield"].toInt();
     growthCost = obj["growthcost"].toInt();
     foodSurplus = obj["foodsurplus"].toInt();
-
 }
 
 void City::SetCitizenCount(int count)

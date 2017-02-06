@@ -81,6 +81,7 @@ public:
     Technology *getNextTech();
 
     bool alive;
+    bool losingGold;
 
     //AI Funcs
     void StartAITurn(int aiIndex, bool isPlayer);
@@ -101,10 +102,9 @@ public:
     bool isEmpty();
     bool isCivAI();
     bool cityFounded;
-    bool losingGold;
 
     int queueSize();
-
+    QVector<int> lowThreatIndex, midThreatIndex, highThreatIndex;
 private:
     Nation name;
 

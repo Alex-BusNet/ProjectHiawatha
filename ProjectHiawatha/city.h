@@ -109,6 +109,7 @@ public:
 
     QVector<Tile*> tileQueue;
     QVector<Tile*> borderQueue;
+    QVector<int> controlledTilesIndex;
 
     Update_t UpdateProgress();
     Yield::YIELD GetCityFocus();
@@ -145,6 +146,7 @@ public:
 
     ~City();
 
+    int loadedCityTileIndex;
 private:
 
     QVector<Tile*> cityControlledTiles;
@@ -182,6 +184,7 @@ private:
     int cityIndex;
     int cityRenderIndex;
     int cityID;
+
 
     int growthCost;
     int foodSurplus;

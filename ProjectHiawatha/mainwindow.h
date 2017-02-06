@@ -28,6 +28,8 @@ private slots:
 
     void on_controls_clicked();
 
+    void on_loadGame_clicked();
+
 private:
     Ui::MainWindow *ui;
     GameManager *game;

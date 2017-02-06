@@ -77,3 +77,14 @@ void MainWindow::on_controls_clicked()
     about = new About();
     about->show();
 }
+
+void MainWindow::on_loadGame_clicked()
+{
+    if(game != NULL)
+    {
+        delete game;
+    }
+
+    game = new GameManager(0, fullscreen, true);
+    game->show();
+}

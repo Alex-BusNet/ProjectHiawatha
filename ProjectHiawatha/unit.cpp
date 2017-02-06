@@ -445,6 +445,8 @@ void Unit::ReadUnitSaveData(const QJsonObject &obj)
     healthBarIndex = obj["healthBarIndex"].toInt();
     pixmapIndex = obj["pixmapindex"].toInt();
     unitListIndex = obj["unitlistindex"].toInt();
+
+    SetUnitIcon(type);
 }
 
 int Unit::GetTileIndex()

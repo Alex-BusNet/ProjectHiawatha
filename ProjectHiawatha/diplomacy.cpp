@@ -100,6 +100,11 @@ void Diplomacy::UpdateLeader()
     selectLeader(leaderListArea->item(0));
 }
 
+void Diplomacy::SetLeaderImage(int index, QPixmap &image)
+{
+    diploItemList.at(index)->image = image;
+}
+
 void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
 {
     QJsonArray dArray;
@@ -154,6 +159,7 @@ void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
             di->warChart.push_back(wh);
         }
 
+        leaderListArea->addItem(di->displayString);
         diploItemList.push_back(di);
     }
 }
