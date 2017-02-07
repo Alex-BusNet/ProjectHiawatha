@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDir>
+
 QString MainStyle = "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 201px; min-width: 75; min-height: 23px; max-height: 61px; } QPushButton:pressed { background-color: #77adcb; }";
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -18,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainBackground->setPixmap(*bkgnd);
     ui->menuButtonBorder->setPixmap(*buttonBorder);
     this->setStyleSheet(MainStyle);
+
+    if(!QDir("Saves").exists())
+    {
+        ui->loadGame->setEnabled(false);
+    }
 }
 
 MainWindow::~MainWindow()
