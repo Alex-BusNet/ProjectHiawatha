@@ -282,7 +282,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
 
         fogOfWar.push_back(view->addPixmap(*clouds));
         fogOfWar.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
-        fogOfWar.at(i)->setZValue(6);
+        fogOfWar.at(i)->setZValue(7);
 
         if(map->GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
         {
@@ -554,7 +554,7 @@ void Renderer::DiscoverTile(int index, GameView *view)
     fogOfWar.replace(index, view->addPixmap(*hidden));
     fogOfWar.at(index)->setPos(pos);
     fogOfWar.at(index)->setOpacity(0);
-    fogOfWar.at(index)->setZValue(6);
+    fogOfWar.at(index)->setZValue(7);
 }
 
 void Renderer::SetTileVisibility(int index, bool viewable, bool toggle)
