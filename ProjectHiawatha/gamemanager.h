@@ -130,6 +130,7 @@ private:
     bool focusChanged;
     bool toggleOn;
     bool civLoadFailed;
+    bool renderInitFinished;
 
     Nation playerCiv;
     ActionState state;
@@ -147,8 +148,9 @@ private:
     void InitVariables(bool fullscreen);
     void InitButtons();
     void InitLayouts();
-    void InitYieldDisplay();\
+    void InitYieldDisplay();
     void InitRenderData();
+    void DeinitRenderer();
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();

@@ -13,7 +13,6 @@
 #include <random>
 #include <QTime>
 
-
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
 QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  background-color: #4899C8; border: 2px solid #f6b300; border-radius: 3px; font: 10px; min-width: 70px; } QPushButton#Cancel { background-color: #f53252 } QPushButton:pressed { background-color: #77adcb; }";
@@ -34,7 +33,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     civInit = QtConcurrent::run(this, GameManager::InitCivs, player, numAI);
 #endif
     civInit.waitForFinished();
-
     this->playersAliveCount = civList.size();
 
     InitRenderData();
@@ -43,6 +41,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
     gameTurn = 0;
     //Start at 4000 BC. The game increments the turn to 1, and subsequently the in game year by 40 years, upon game start.
     year = -4040;
+
 }
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
@@ -251,6 +250,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
     InitRenderData();
 
+    updateTimer->start();
 }
 
 GameManager::~GameManager()
@@ -278,8 +278,12 @@ GameManager::~GameManager()
         delete sd;
     }
 
+    QFuture<void> derender;
     if(renderer != NULL)
-        delete renderer;
+    {
+        derender = QtConcurrent::run(this, GameManager::DeinitRenderer);
+        //delete renderer;
+    }
 
     if(map != NULL)
         delete map;
@@ -404,6 +408,7 @@ GameManager::~GameManager()
 
     delete updateTimer;
 
+    derender.waitForFinished();
     delete gameView;
 
     qDebug() << "   Game Manager Deconstructed";
@@ -727,6 +732,7 @@ void GameManager::paintEvent(QPaintEvent *event)
     paint.setPen(Qt::white);
     paint.drawText(*playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
     paint.drawText(*gameStatusRect, (Qt::AlignHCenter | Qt::AlignVCenter), statusMessage);
+
 }
 
 void GameManager::TurnController()
@@ -1868,6 +1874,7 @@ void GameManager::InitVariables(bool fullscreen)
 {
     gameView = new GameView(this);
     ac = new AI_Controller();
+    uc = new UnitController();
     clv = new QListWidget(this);
     ns = new NotificationSystem(this);
     about = new About();
@@ -1940,6 +1947,9 @@ void GameManager::InitVariables(bool fullscreen)
     updateTimer = new QTimer();
     updateTimer->setInterval(50);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
+    updateTimer->start();
+
+    qsrand(QTime::currentTime().msec());
 
     this->InitButtons();
     this->InitLayouts();
@@ -2260,8 +2270,6 @@ void GameManager::InitRenderData()
         {
             endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
         }
-
-        civList.at(i)->UpdateCivYield();
     }
 
     endGameProgress->setText(*endGameText);
@@ -2281,15 +2289,17 @@ void GameManager::InitRenderData()
     }
 
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
-    qsrand(QTime::currentTime().msec());
 
     playerInfoRect = new QRect(0, 0, this->width(), 20);
     gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
     statusMessage = " ";
 
     techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+}
 
-    updateTimer->start();
+void GameManager::DeinitRenderer()
+{
+    delete renderer;
 }
 
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
