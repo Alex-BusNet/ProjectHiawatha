@@ -258,6 +258,18 @@ GameManager::~GameManager()
     qDebug() << "   GameManager Dec'tor called";
     updateTimer->stop();
 
+#ifndef __APPLE__
+    QFuture<void> derender;
+    if(renderer != NULL)
+    {
+        derender = QtConcurrent::run(this, GameManager::DeinitRenderer);
+//        derender.waitForFinished();
+    }
+#else
+    if(renderer != NULL)
+        delete renderer;
+#endif
+
     foreach(Civilization* c, civList)
     {
         foreach(Unit* unit, c->GetUnitList())
@@ -278,12 +290,6 @@ GameManager::~GameManager()
         delete sd;
     }
 
-    QFuture<void> derender;
-    if(renderer != NULL)
-    {
-        derender = QtConcurrent::run(this, GameManager::DeinitRenderer);
-        //delete renderer;
-    }
 
     if(map != NULL)
         delete map;
@@ -365,6 +371,7 @@ GameManager::~GameManager()
     if(culPix != NULL)
         delete culPix;
 
+
     qDebug() << "       Deleting misc pointers";
     if(playerInfoRect != NULL)
         delete playerInfoRect;
@@ -408,10 +415,16 @@ GameManager::~GameManager()
 
     delete updateTimer;
 
-    derender.waitForFinished();
+    if(!derender.isFinished())
+    {
+        qDebug() << "   ----Waiting for renderer";
+        derender.waitForFinished();
+    }
+
+    qDebug() <<"       Deleting gameView";
     delete gameView;
 
-    qDebug() << "   Game Manager Deconstructed";
+    qDebug() << "   --Game Manager Deconstructed";
 }
 
 void GameManager::WarByDiplomacy()
@@ -1945,7 +1958,7 @@ void GameManager::InitVariables(bool fullscreen)
     gameView->ConfigureGraphicsView();
 
     updateTimer = new QTimer();
-    updateTimer->setInterval(50);
+    updateTimer->setInterval(17);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
     updateTimer->start();
 

@@ -3,6 +3,9 @@
 #include <QPen>
 #include <QDebug>
 #include <QProgressBar>
+#include <QFuture>
+#include <QtConcurrent>
+#include <chrono>
 #include "resources.h"
 #include "unitcontroller.h"
 
@@ -65,10 +68,11 @@ Renderer::Renderer(int mapSizeX)
     fursPix = new QPixmap("Assets/Resources/furs.png");
     sheepPix = new QPixmap("Assets/Resources/sheep.png");
 
-    //Tile Worked Icons
+    //Tile Icons
     tileWorkedIcon = new QPixmap("Assets/Citizens/worked.png");
     tileUnworked = new QPixmap("Assets/Citizens/unworked.png");
     fortified = new QPixmap("Assets/Icons/fortified.png");
+    orders = new QPixmap("Assets/Icons/requiresOrders.png");
 
     //Tile improvement icons
     mine = new QPixmap("Assets/Resources/mine.png");
@@ -81,6 +85,7 @@ Renderer::Renderer(int mapSizeX)
 Renderer::~Renderer()
 {
     qDebug() << "   Renderer Dec'tor called";
+#ifndef PORT
     foreach(QGraphicsPolygonItem* t, tiles)
     {
         if(t != NULL)
@@ -97,6 +102,12 @@ Renderer::~Renderer()
     {
         if(p != NULL)
             delete p;
+    }
+
+    foreach(QGraphicsPixmapItem* oi, ordersIcon)
+    {
+        if(oi != NULL)
+            delete oi;
     }
 
     foreach(QGraphicsPolygonItem* mb, mapBorders)
@@ -197,7 +208,8 @@ Renderer::~Renderer()
 
     foreach(QGraphicsLineItem* gl, gridLines)
     {
-        delete gl;
+        if(gl != NULL)
+            delete gl;
     }
 
     foreach(QGraphicsTextItem* gc, gridCoords)
@@ -205,6 +217,83 @@ Renderer::~Renderer()
         if(gc != NULL)
             delete gc;
     }
+#else
+    QFutureSynchronizer<void> synch;
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread9));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread8));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread7));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread6));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread5));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread4));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread3));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread2));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DecThread1));
+
+    synch.waitForFinished();
+
+//    QFuture<void> dec1 = QtConcurrent::run(this, Renderer::DecThread1);
+//    if(!dec1.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread1 to finish";
+//        dec1.waitForFinished();
+//    }
+
+//    QFuture<void> dec2 = QtConcurrent::run(this, Renderer::DecThread2);
+//    if(!dec2.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread2 to finish";
+//        dec2.waitForFinished();
+//    }
+
+//    QFuture<void> dec3 = QtConcurrent::run(this, Renderer::DecThread3);
+//    if(!dec3.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread3 to finish";
+//        dec3.waitForFinished();
+//    }
+
+//    QFuture<void> dec4 = QtConcurrent::run(this, Renderer::DecThread4);
+//    if(!dec4.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread4 to finish";
+//        dec4.waitForFinished();
+//    }
+
+//    QFuture<void> dec5 = QtConcurrent::run(this, Renderer::DecThread5);
+//    if(!dec5.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread5 to finish";
+//        dec5.waitForFinished();
+//    }
+
+//    QFuture<void> dec6 = QtConcurrent::run(this, Renderer::DecThread6);
+//    if(!dec6.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread6 to finish";
+//        dec6.waitForFinished();
+//    }
+
+//    QFuture<void> dec7 = QtConcurrent::run(this, Renderer::DecThread7);
+//    if(!dec7.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread7 to finish";
+//        dec7.waitForFinished();
+//    }
+
+//    QFuture<void> dec8 = QtConcurrent::run(this, Renderer::DecThread8);
+//    QFuture<void> dec9 = QtConcurrent::run(this, Renderer::DecThread9);
+//    if(!dec8.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread8 to finish";
+//        dec8.waitForFinished();
+//    }
+
+//    if(dec9.isFinished())
+//    {
+//        qDebug() << "           Waiting for DecThread9 to finish";
+//        dec9.waitForFinished();
+//    }
+#endif
 
     if(cc != NULL)
         delete cc;
@@ -246,6 +335,7 @@ Renderer::~Renderer()
     delete none;
     delete clouds;
     delete hidden;
+    delete orders;
 
     qDebug() << "   --Renderer Deconstructed";
 }
@@ -257,6 +347,7 @@ Renderer::~Renderer()
 void Renderer::DrawHexScene(Map *map, GameView *view)
 {
     QPen circlePen(Qt::transparent);
+#ifdef __APPLE__
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         if(map->GetTileAt(i)->GetTileID().row % 2 != 0)
@@ -408,7 +499,7 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
             tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
         }
 
-        // Every tile created has a requires orders icon, fortified icon
+        //Every tile created has a requires orders icon, fortified icon
         // and a tile improvement icon slot. The tile improvement icon is
         // changed as the Player or AI builds builds different improvements.
         // The requires orders icon and fortified icons are turned on and off by changing
@@ -431,9 +522,128 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         tileImprovementIcons.last()->setOpacity(0);
         tileImprovementIcons.last()->setZValue(2);
         tileImprovementIcons.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 43, map->GetTileAt(i)->GetResourceIconPoint().y());
+    }
+#else
 
+    QFuture<void> th1 = QtConcurrent::run(this, Renderer::DrawThread1, map);
+    QFuture<void> th2 = QtConcurrent::run(this, Renderer::DrawThread2, map);
+    QFuture<void> th3 = QtConcurrent::run(this, Renderer::DrawThread3, map);
+    QFuture<void> th4 = QtConcurrent::run(this, Renderer::DrawThread4, map);
+
+    if(!th1.isFinished())
+    {
+        th1.waitForFinished();
     }
 
+    if(!th2.isFinished())
+    {
+        th2.waitForFinished();
+    }
+
+    if(!th3.isFinished())
+    {
+        th3.waitForFinished();
+    }
+
+    if(!th4.isFinished())
+    {
+        th4.waitForFinished();
+    }
+
+    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point end;
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPolygonItem *pi, tiles)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Tile polygons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+    foreach(QGraphicsEllipseItem *ei, tileCircles)
+    {
+        ei->setPen(circlePen);
+        view->addItem(ei);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Tile circles added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, tilePixmap)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Tile pixmaps added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, fogOfWar)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Fog of War added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, resourcePixmap)
+    {
+       view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Resource pixmaps added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, tileWorked)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Tile worked icons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, ordersIcon)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Orders icon added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, fortifiedIcon)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   Fortified icons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+    begin = std::chrono::steady_clock::now();
+
+    foreach(QGraphicsPixmapItem *pi, tileImprovementIcons)
+    {
+        view->addItem(pi);
+    }
+
+    end = std::chrono::steady_clock::now();
+    qDebug() << "   tile improvement icons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+
+#endif
     qDebug() << "DrawHexScene finished";
 }
 
@@ -711,6 +921,359 @@ void Renderer::AddUnitHealthBars(Unit *unit, Map *map, GameView *view)
     if(map->GetTileAt(unit->GetTileIndex())->GetControllingCivListIndex() == 0)
     {
         this->SetUnitNeedsOrders(unit->GetTileIndex(), true);
+    }
+}
+
+void Renderer::DrawThread1(Map *map)
+{
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+//    QPen circlePen(Qt::transparent);
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        if(map->GetTileAt(i)->GetTileID().row % 2 != 0)
+        {
+            map->GetTileAt(i)->SetTilePen(QPen(cc->NO_NATION_SECONDARY));
+        }
+        else
+        {
+            map->GetTileAt(i)->SetTilePen(outlinePen);
+        }
+
+        tiles.push_back(new QGraphicsPolygonItem(map->GetTileAt(i)->GetTilePolygon()));
+        tiles.at(i)->setPen(map->GetTileAt(i)->GetTilePen());
+        tiles.at(i)->setZValue(2);
+        tiles.at(i)->setOpacity(0.5);
+
+        tilePixmap.push_back(new QGraphicsPixmapItem((*(map->GetTilePixmap(i)))));
+        tilePixmap.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+        tilePixmap.at(i)->setZValue(-1);
+    }
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    qDebug() << "   Render thread 1 completed in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+}
+
+void Renderer::DrawThread2(Map *map)
+{
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        fogOfWar.push_back(new QGraphicsPixmapItem(*clouds));
+        fogOfWar.at(i)->setPos(map->GetTileAt(i)->GetTexturePoint());
+        fogOfWar.at(i)->setZValue(7);
+
+        ordersIcon.push_back(new QGraphicsPixmapItem(*orders));
+        ordersIcon.last()->setOpacity(0);
+        ordersIcon.last()->setZValue(3);
+        ordersIcon.last()->setPos(map->GetTileAt(i)->GetItemTexturePoint().x() + 30, map->GetTileAt(i)->GetItemTexturePoint().y());
+    }
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    qDebug() << "   Render thread 2 completed in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+}
+
+void Renderer::DrawThread3(Map *map)
+{
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        tileCircles.push_back(new QGraphicsEllipseItem(map->GetTileAt(i)->GetTileRect()));
+        tileCircles.last()->setZValue(0);
+
+        if(map->GetTileAt(i)->GetStratResource() != NO_STRATEGIC)
+        {
+            switch(map->GetTileAt(i)->GetStratResource())
+            {
+            case IRON:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*ironPix));
+                break;
+            case HORSES:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*horsePix));
+                break;
+            case URANIUM:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*uraniumPix));
+                break;
+            case ALUMINUM:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*aluminumPix));
+                break;
+            case COAL:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*coalPix));
+                break;
+            case OIL:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*oilPix));
+                break;
+            }
+
+            resourcePixmap.last()->setScale(0.5f);
+            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setZValue(1);
+        }
+        else if(map->GetTileAt(i)->GetLuxResource() != NO_LUXURY)
+        {
+            switch(map->GetTileAt(i)->GetLuxResource())
+            {
+            case WHEAT:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*wheatPix));
+                break;
+            case CATTLE:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*cattlePix));
+                break;
+            case DEER:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*deerPix));
+                break;
+            case FISH:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*fishPix));
+                break;
+            case WHALES:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*whalePix));
+                break;
+            case BANANAS:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*bananaPix));
+                break;
+            case GOLD_RESOURCE:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*goldResourcePix));
+                break;
+            case GEMS:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*gemsPix));
+                break;
+            case MARBLE:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*marblePix));
+                break;
+            case IVORY:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*ivoryPix));
+                break;
+            case DYES:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*dyesPix));
+                break;
+            case SPICES:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*spicesPix));
+                break;
+            case SILK:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*silkPix));
+                break;
+            case SUGAR:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*sugarPix));
+                break;
+            case COTTON:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*cottonPix));
+                break;
+            case PEARLS:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*pearlsPix));
+                break;
+            case INCENSE:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*incencePix));
+                break;
+            case WINE:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*winePix));
+                break;
+            case SILVER:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*silverPix));
+                break;
+            case FURS:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*fursPix));
+                break;
+            case SHEEP:
+                resourcePixmap.push_back(new QGraphicsPixmapItem(*sheepPix));
+                break;
+            }
+
+            resourcePixmap.last()->setScale(0.5f);
+            resourcePixmap.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint());
+            resourcePixmap.last()->setZValue(1);
+        }
+
+        if(map->GetTileAt(i)->GetControllingCivListIndex() == 0)
+        {
+            if(map->GetTileAt(i)->IsWorked)
+            {
+                tileWorked.push_back(new QGraphicsPixmapItem(*tileWorkedIcon));
+            }
+            else
+            {
+                if(!map->GetTileAt(i)->HasCity)
+                    tileWorked.push_back(new QGraphicsPixmapItem(*tileUnworked));
+            }
+
+            tileWorked.last()->setScale(0.6f);
+            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+            tileWorked.last()->setZValue(2);
+        }
+        else
+        {
+            tileWorked.push_back(new QGraphicsPixmapItem(*tileUnworked));
+            tileWorked.last()->setOpacity(0);
+            tileWorked.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 23, map->GetTileAt(i)->GetResourceIconPoint().y() + 10);
+        }
+    }
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    qDebug() << "   Render thread 3 completed in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+}
+
+void Renderer::DrawThread4(Map *map)
+{
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        fortifiedIcon.push_back(new QGraphicsPixmapItem(*fortified));
+        fortifiedIcon.last()->setScale(0.3f);
+        fortifiedIcon.last()->setOpacity(0);
+        fortifiedIcon.last()->setZValue(3);
+        fortifiedIcon.last()->setPos(map->GetTileAt(i)->GetItemTexturePoint().x(), map->GetTileAt(i)->GetItemTexturePoint().y());
+
+        tileImprovementIcons.push_back(new QGraphicsPixmapItem(*none));
+        tileImprovementIcons.last()->setScale(0.5f);
+        tileImprovementIcons.last()->setOpacity(0);
+        tileImprovementIcons.last()->setZValue(2);
+        tileImprovementIcons.last()->setPos(map->GetTileAt(i)->GetResourceIconPoint().x() + 43, map->GetTileAt(i)->GetResourceIconPoint().y());
+    }
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    qDebug() << "   Render thread 4 completed in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+}
+
+void Renderer::DecThread1()
+{
+    foreach(QGraphicsPolygonItem* t, tiles)
+    {
+        if(t != NULL)
+            delete t;
+    }
+
+    foreach(QGraphicsPixmapItem* tp, tilePixmap)
+    {
+        if(tp != NULL)
+            delete tp;
+    }
+}
+
+void Renderer::DecThread2()
+{
+    foreach(QGraphicsPixmapItem* fow, fogOfWar)
+    {
+        if(fow != NULL)
+            delete fow;
+    }
+
+    foreach(QGraphicsPixmapItem* oi, ordersIcon)
+    {
+        if(oi != NULL)
+            delete oi;
+    }
+}
+
+void Renderer::DecThread3()
+{
+    foreach(QGraphicsPixmapItem* rp, resourcePixmap)
+    {
+        if(rp != NULL)
+            delete rp;
+    }
+
+    foreach(QGraphicsEllipseItem* e, tileCircles)
+    {
+        if(e != NULL)
+            delete e;
+    }
+
+    foreach(QGraphicsPixmapItem* tw, tileWorked)
+    {
+        if(tw != NULL)
+            delete tw;
+    }
+}
+
+void Renderer::DecThread4()
+{
+    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
+    {
+        if(fi != NULL)
+            delete fi;
+    }
+
+    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
+    {
+        if(tii != NULL)
+            delete tii;
+    }
+}
+
+void Renderer::DecThread5()
+{
+    foreach(QGraphicsPolygonItem* cb, cityBorders)
+    {
+        if(cb != NULL)
+            delete cb;
+    }
+
+    foreach(QGraphicsTextItem* cl, cityLabels)
+    {
+        if(cl != NULL)
+            delete cl;
+    }
+}
+
+void Renderer::DecThread6()
+{
+    foreach(QGraphicsPixmapItem* cp, cityPixmap)
+    {
+        if(cp != NULL)
+            delete cp;
+    }
+
+    foreach(QGraphicsPixmapItem* up, unitPixmap)
+    {
+        if(up != NULL)
+            delete up;
+    }
+}
+
+void Renderer::DecThread7()
+{
+    foreach(QGraphicsRectItem* chb, cityHealthBars)
+    {
+        if(chb != NULL)
+            delete chb;
+    }
+
+    foreach(QGraphicsRectItem* uhb, unitHealthBars)
+    {
+        if(uhb != NULL)
+            delete uhb;
+    }
+}
+
+void Renderer::DecThread8()
+{
+    foreach(QGraphicsRectItem* cpb, cityProductionBars)
+    {
+        if(cpb != NULL)
+            delete cpb;
+    }
+
+    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
+    {
+        if(cgb != NULL)
+            delete cgb;
+    }
+}
+
+void Renderer::DecThread9()
+{
+    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
+    {
+        if(cbo != NULL)
+            delete cbo;
+    }
+
+    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
+    {
+        if(cpl != NULL)
+            delete cpl;
     }
 }
 

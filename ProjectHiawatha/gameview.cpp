@@ -73,6 +73,11 @@ void GameView::removeRect(QGraphicsRectItem *rect)
     this->game->removeItem(rect);
 }
 
+void GameView::addItem(QGraphicsItem *item)
+{
+    this->game->addItem(item);
+}
+
 GameScene *GameView::GetScene()
 {
     return this->game;

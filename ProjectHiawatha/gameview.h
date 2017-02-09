@@ -30,7 +30,7 @@ public:
 
     void removeItem(QGraphicsItem* item);
     void removeRect(QGraphicsRectItem* rect);
-
+    void addItem(QGraphicsItem *item);
     GameScene *GetScene();
     void ConfigureGraphicsView();
 

@@ -93,6 +93,22 @@ private:
 
     void SetOutlinePen(Nation owner);
     void AddUnitHealthBars(Unit *unit, Map *map, GameView *view);
+
+    void DrawThread1(Map *map);
+    void DrawThread2(Map *map);
+    void DrawThread3(Map *map);
+    void DrawThread4(Map *map);
+
+    void DecThread1();
+    void DecThread2();
+    void DecThread3();
+    void DecThread4();
+    void DecThread5();
+    void DecThread6();
+    void DecThread7();
+    void DecThread8();
+    void DecThread9();
+
     int mapSizeX;
 
     QPixmap *ironPix, *horsePix, *uraniumPix, *aluminumPix, *coalPix, *oilPix;
@@ -101,7 +117,7 @@ private:
     QPixmap *incencePix, *winePix, *silverPix, *fursPix, *sheepPix;
     QPixmap *tileWorkedIcon, *tileUnworked, *fortified;
     QPixmap *mine, *tradePost, *plantation, *farm, *none;
-    QPixmap *clouds, *hidden;
+    QPixmap *clouds, *hidden, *orders;
 
 };
 
