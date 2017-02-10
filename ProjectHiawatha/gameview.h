@@ -37,7 +37,6 @@ public:
     virtual void wheelEvent(QWheelEvent *e);
 
 private:
-//    QGraphicsView gameView;
     GameScene *game;
 
     QPointF clickedPos;

@@ -58,6 +58,9 @@ public:
     void DrawGridLines(GameView *view);
 
     void AddCityHealthBars(City* city, GameView *view);
+
+    void PrepareForDelete(GameView *view);
+
 private:
 
     QVector<QGraphicsPolygonItem*> tiles;
@@ -118,7 +121,6 @@ private:
     QPixmap *tileWorkedIcon, *tileUnworked, *fortified;
     QPixmap *mine, *tradePost, *plantation, *farm, *none;
     QPixmap *clouds, *hidden, *orders;
-
 };
 
 #endif // RENDERER_H

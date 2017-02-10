@@ -263,7 +263,6 @@ GameManager::~GameManager()
     if(renderer != NULL)
     {
         derender = QtConcurrent::run(this, GameManager::DeinitRenderer);
-//        derender.waitForFinished();
     }
 #else
     if(renderer != NULL)
@@ -413,7 +412,8 @@ GameManager::~GameManager()
     if(targetTile != NULL)
         delete targetTile;
 
-    delete updateTimer;
+    if(updateTimer != NULL)
+        delete updateTimer;
 
     if(!derender.isFinished())
     {
@@ -2227,6 +2227,7 @@ void GameManager::InitRenderData()
 {
     renderer->DrawHexScene(map, gameView);
 
+    qDebug() << "   Loading Civs to View";
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
@@ -2258,6 +2259,7 @@ void GameManager::InitRenderData()
 
         if(i == 0)
         {
+            qDebug() << "   Setting up FoW";
             foreach(Tile* n, map->GetNeighborsRange(civList.at(i)->GetCityAt(0)->GetCityTile(), 3))
             {
                 if(!n->DiscoveredByPlayer)
@@ -2275,6 +2277,7 @@ void GameManager::InitRenderData()
                     viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
                 }
             }
+            qDebug() << "   --Done";
 
             endGameText = new QString("Capitals Controlled:");
             endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
@@ -2308,10 +2311,13 @@ void GameManager::InitRenderData()
     statusMessage = " ";
 
     techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+
+    qDebug() << "   Project Hiawatha Loaded";
 }
 
 void GameManager::DeinitRenderer()
 {
+    renderer->PrepareForDelete(gameView);
     delete renderer;
 }
 
@@ -2636,6 +2642,7 @@ bool GameManager::AcceptsPeace(Civilization *ai)
 
 void GameManager::closeGame()
 {
+    this->close();
     if(!QDir("Saves").exists())
     {
         QDir().mkdir("Saves");
@@ -2717,8 +2724,6 @@ void GameManager::closeGame()
     managerSaveFile.write(doc.toJson());
     managerSaveFile.flush();
     managerSaveFile.close();
-
-    this->close();
 }
 
 void GameManager::zoomIn()

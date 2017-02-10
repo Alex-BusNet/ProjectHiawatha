@@ -19,7 +19,9 @@ GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
 
 GameScene::~GameScene()
 {
+    qDebug() << "       GameScene Dec'tor Called";
 
+    qDebug() << "       --GameScene Deconstructed";
 }
 
 void GameScene::mousePressEvent(QGraphicsSceneMouseEvent *e)

@@ -92,6 +92,11 @@ void MainWindow::on_loadGame_clicked()
         delete game;
     }
 
+    if(options != NULL)
+    {
+        delete options;
+    }
+
     game = new GameManager(0, fullscreen, true);
     game->show();
 }

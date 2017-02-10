@@ -85,7 +85,7 @@ Renderer::Renderer(int mapSizeX)
 Renderer::~Renderer()
 {
     qDebug() << "   Renderer Dec'tor called";
-#ifndef PORT
+#ifdef __APPLE__
     foreach(QGraphicsPolygonItem* t, tiles)
     {
         if(t != NULL)
@@ -217,7 +217,7 @@ Renderer::~Renderer()
         if(gc != NULL)
             delete gc;
     }
-#else
+#else    
     QFutureSynchronizer<void> synch;
     synch.addFuture(QtConcurrent::run(this, Renderer::DecThread9));
     synch.addFuture(QtConcurrent::run(this, Renderer::DecThread8));
@@ -228,71 +228,6 @@ Renderer::~Renderer()
     synch.addFuture(QtConcurrent::run(this, Renderer::DecThread3));
     synch.addFuture(QtConcurrent::run(this, Renderer::DecThread2));
     synch.addFuture(QtConcurrent::run(this, Renderer::DecThread1));
-
-    synch.waitForFinished();
-
-//    QFuture<void> dec1 = QtConcurrent::run(this, Renderer::DecThread1);
-//    if(!dec1.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread1 to finish";
-//        dec1.waitForFinished();
-//    }
-
-//    QFuture<void> dec2 = QtConcurrent::run(this, Renderer::DecThread2);
-//    if(!dec2.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread2 to finish";
-//        dec2.waitForFinished();
-//    }
-
-//    QFuture<void> dec3 = QtConcurrent::run(this, Renderer::DecThread3);
-//    if(!dec3.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread3 to finish";
-//        dec3.waitForFinished();
-//    }
-
-//    QFuture<void> dec4 = QtConcurrent::run(this, Renderer::DecThread4);
-//    if(!dec4.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread4 to finish";
-//        dec4.waitForFinished();
-//    }
-
-//    QFuture<void> dec5 = QtConcurrent::run(this, Renderer::DecThread5);
-//    if(!dec5.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread5 to finish";
-//        dec5.waitForFinished();
-//    }
-
-//    QFuture<void> dec6 = QtConcurrent::run(this, Renderer::DecThread6);
-//    if(!dec6.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread6 to finish";
-//        dec6.waitForFinished();
-//    }
-
-//    QFuture<void> dec7 = QtConcurrent::run(this, Renderer::DecThread7);
-//    if(!dec7.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread7 to finish";
-//        dec7.waitForFinished();
-//    }
-
-//    QFuture<void> dec8 = QtConcurrent::run(this, Renderer::DecThread8);
-//    QFuture<void> dec9 = QtConcurrent::run(this, Renderer::DecThread9);
-//    if(!dec8.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread8 to finish";
-//        dec8.waitForFinished();
-//    }
-
-//    if(dec9.isFinished())
-//    {
-//        qDebug() << "           Waiting for DecThread9 to finish";
-//        dec9.waitForFinished();
-//    }
 #endif
 
     if(cc != NULL)
@@ -337,6 +272,8 @@ Renderer::~Renderer()
     delete hidden;
     delete orders;
 
+    synch.waitForFinished();
+    qDebug() << "       Synch finished";
     qDebug() << "   --Renderer Deconstructed";
 }
 
@@ -1138,142 +1075,218 @@ void Renderer::DrawThread4(Map *map)
 
 void Renderer::DecThread1()
 {
-    foreach(QGraphicsPolygonItem* t, tiles)
+    if(!tiles.isEmpty())
     {
-        if(t != NULL)
-            delete t;
+        tiles.detach();
+        foreach(QGraphicsPolygonItem* t, tiles)
+        {
+            if(t != NULL)
+                delete t;
+        }
     }
 
-    foreach(QGraphicsPixmapItem* tp, tilePixmap)
+    if(!tilePixmap.isEmpty())
     {
-        if(tp != NULL)
-            delete tp;
+        tilePixmap.detach();
+        foreach(QGraphicsPixmapItem* tp, tilePixmap)
+        {
+            if(tp != NULL)
+                delete tp;
+        }
     }
 }
 
 void Renderer::DecThread2()
 {
-    foreach(QGraphicsPixmapItem* fow, fogOfWar)
+    if(!fogOfWar.isEmpty())
     {
-        if(fow != NULL)
-            delete fow;
+        fogOfWar.detach();
+        foreach(QGraphicsPixmapItem* fow, fogOfWar)
+        {
+            if(fow != NULL)
+                delete fow;
+        }
     }
 
-    foreach(QGraphicsPixmapItem* oi, ordersIcon)
+    if(!ordersIcon.isEmpty())
     {
-        if(oi != NULL)
-            delete oi;
+        ordersIcon.detach();
+        foreach(QGraphicsPixmapItem* oi, ordersIcon)
+        {
+            if(oi != NULL)
+                delete oi;
+        }
     }
 }
 
 void Renderer::DecThread3()
 {
-    foreach(QGraphicsPixmapItem* rp, resourcePixmap)
+    if(!resourcePixmap.isEmpty())
     {
-        if(rp != NULL)
-            delete rp;
+        resourcePixmap.detach();
+        foreach(QGraphicsPixmapItem* rp, resourcePixmap)
+        {
+            if(rp != NULL)
+                delete rp;
+        }
     }
 
-    foreach(QGraphicsEllipseItem* e, tileCircles)
+    if(!tileCircles.isEmpty())
     {
-        if(e != NULL)
-            delete e;
+        tileCircles.detach();
+        foreach(QGraphicsEllipseItem* e, tileCircles)
+        {
+            if(e != NULL)
+                delete e;
+        }
     }
 
-    foreach(QGraphicsPixmapItem* tw, tileWorked)
+    if(!tileWorked.isEmpty())
     {
-        if(tw != NULL)
-            delete tw;
+        tileWorked.detach();
+        foreach(QGraphicsPixmapItem* tw, tileWorked)
+        {
+            if(tw != NULL)
+                delete tw;
+        }
     }
 }
 
 void Renderer::DecThread4()
 {
-    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
+    if(!fortifiedIcon.isEmpty())
     {
-        if(fi != NULL)
-            delete fi;
+        fortifiedIcon.detach();
+        foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
+        {
+            if(fi != NULL)
+                delete fi;
+        }
     }
 
-    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
+    if(!tileImprovementIcons.isEmpty())
     {
-        if(tii != NULL)
-            delete tii;
+        tileImprovementIcons.detach();
+        foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
+        {
+            if(tii != NULL)
+                delete tii;
+        }
     }
 }
 
 void Renderer::DecThread5()
 {
-    foreach(QGraphicsPolygonItem* cb, cityBorders)
+    if(!cityBorders.isEmpty())
     {
-        if(cb != NULL)
-            delete cb;
+        cityBorders.detach();
+        foreach(QGraphicsPolygonItem* cb, cityBorders)
+        {
+            if(cb != NULL)
+                delete cb;
+        }
     }
 
-    foreach(QGraphicsTextItem* cl, cityLabels)
+    if(!cityLabels.isEmpty())
     {
-        if(cl != NULL)
-            delete cl;
+        cityLabels.detach();
+        foreach(QGraphicsTextItem* cl, cityLabels)
+        {
+            if(cl != NULL)
+                delete cl;
+        }
     }
 }
 
 void Renderer::DecThread6()
 {
-    foreach(QGraphicsPixmapItem* cp, cityPixmap)
+    if(!cityPixmap.isEmpty())
     {
-        if(cp != NULL)
-            delete cp;
+        cityPixmap.detach();
+        foreach(QGraphicsPixmapItem* cp, cityPixmap)
+        {
+            if(cp != NULL)
+                delete cp;
+        }
     }
 
-    foreach(QGraphicsPixmapItem* up, unitPixmap)
+    if(!unitPixmap.isEmpty())
     {
-        if(up != NULL)
-            delete up;
+        unitPixmap.detach();
+        foreach(QGraphicsPixmapItem* up, unitPixmap)
+        {
+            if(up != NULL)
+                delete up;
+        }
     }
 }
 
 void Renderer::DecThread7()
 {
-    foreach(QGraphicsRectItem* chb, cityHealthBars)
+    if(!cityHealthBars.isEmpty())
     {
-        if(chb != NULL)
-            delete chb;
+        cityHealthBars.detach();
+        foreach(QGraphicsRectItem* chb, cityHealthBars)
+        {
+            if(chb != NULL)
+                delete chb;
+        }
     }
 
-    foreach(QGraphicsRectItem* uhb, unitHealthBars)
+    if(!unitHealthBars.isEmpty())
     {
-        if(uhb != NULL)
-            delete uhb;
+        unitHealthBars.detach();
+        foreach(QGraphicsRectItem* uhb, unitHealthBars)
+        {
+            if(uhb != NULL)
+                 delete uhb;
+        }
     }
 }
 
 void Renderer::DecThread8()
 {
-    foreach(QGraphicsRectItem* cpb, cityProductionBars)
+    if(!cityProductionBars.isEmpty())
     {
-        if(cpb != NULL)
-            delete cpb;
+        cityProductionBars.detach();
+        foreach(QGraphicsRectItem* cpb, cityProductionBars)
+        {
+            if(cpb != NULL)
+                delete cpb;
+        }
     }
 
-    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
+    if(!cityGrowthBars.isEmpty())
     {
-        if(cgb != NULL)
-            delete cgb;
+        cityGrowthBars.detach();
+        foreach(QGraphicsRectItem* cgb, cityGrowthBars)
+        {
+            if(cgb != NULL)
+                delete cgb;
+        }
     }
 }
 
 void Renderer::DecThread9()
 {
-    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
+    if(!cityBarOutlines.isEmpty())
     {
-        if(cbo != NULL)
-            delete cbo;
+        cityBarOutlines.detach();
+        foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
+        {
+            if(cbo != NULL)
+                delete cbo;
+        }
     }
 
-    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
+    if(!cityPopulationLabels.isEmpty())
     {
-        if(cpl != NULL)
-            delete cpl;
+        cityPopulationLabels.detach();
+        foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
+        {
+            if(cpl != NULL)
+                delete cpl;
+        }
     }
 }
 
@@ -1326,6 +1339,141 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     cityPopulationLabels.last()->setPos(city->GetCityTile()->GetItemTexturePoint().x() - 25,
                             city->GetCityTile()->GetCityLabelPoint().y() + 8);
     //--------------------------------------------------------------------------------
+}
+
+void Renderer::PrepareForDelete(GameView *view)
+{
+    foreach(QGraphicsPolygonItem* t, tiles)
+    {
+        if(t != NULL)
+            view->removeItem(t);
+    }
+
+    foreach(QGraphicsPixmapItem* p, tilePixmap)
+    {
+        if(p != NULL)
+            view->removeItem(p);
+    }
+
+    foreach(QGraphicsPixmapItem* p, fogOfWar)
+    {
+        if(p != NULL)
+            view->removeItem(p);
+    }
+
+    foreach(QGraphicsPixmapItem* oi, ordersIcon)
+    {
+        if(oi != NULL)
+            view->removeItem(oi);
+    }
+
+    foreach(QGraphicsPolygonItem* mb, mapBorders)
+    {
+        if(mb != NULL)
+            view->removeItem(mb);
+    }
+
+    foreach(QGraphicsPixmapItem* p, resourcePixmap)
+    {
+        if(p != NULL)
+            view->removeItem(p);
+    }
+
+    foreach(QGraphicsEllipseItem* e, tileCircles)
+    {
+        if(e != NULL)
+            view->removeItem(e);
+    }
+
+    foreach(QGraphicsPixmapItem* tw, tileWorked)
+    {
+        if(tw != NULL)
+            view->removeItem(tw);
+    }
+
+    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
+    {
+        if(fi != NULL)
+            view->removeItem(fi);
+    }
+
+    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
+    {
+        if(tii != NULL)
+            view->removeItem(tii);
+    }
+
+    foreach(QGraphicsPolygonItem* cb, cityBorders)
+    {
+        if(cb != NULL)
+            view->removeItem(cb);
+    }
+
+    foreach(QGraphicsPixmapItem* cp, cityPixmap)
+    {
+        if(cp != NULL)
+            view->removeItem(cp);
+    }
+
+    foreach(QGraphicsTextItem* cl, cityLabels)
+    {
+        if(cl != NULL)
+            view->removeItem(cl);
+    }
+
+    foreach(QGraphicsRectItem* chb, cityHealthBars)
+    {
+        if(chb != NULL)
+            view->removeItem(chb);
+    }
+
+    foreach(QGraphicsRectItem* cpb, cityProductionBars)
+    {
+        if(cpb != NULL)
+            view->removeItem(cpb);
+    }
+
+    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
+    {
+        if(cgb != NULL)
+            view->removeItem(cgb);
+    }
+
+    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
+    {
+        if(cbo != NULL)
+            view->removeItem(cbo);
+    }
+
+    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
+    {
+        if(cpl != NULL)
+            view->removeItem(cpl);
+    }
+
+    foreach(QGraphicsPixmapItem* up, unitPixmap)
+    {
+        if(up != NULL)
+            view->removeItem(up);
+    }
+
+    foreach(QGraphicsRectItem* uhb, unitHealthBars)
+    {
+        if(uhb != NULL)
+            view->removeItem(uhb);
+    }
+
+    foreach(QGraphicsLineItem* gl, gridLines)
+    {
+        if(gl != NULL)
+            view->removeItem(gl);
+    }
+
+    foreach(QGraphicsTextItem* gc, gridCoords)
+    {
+        if(gc != NULL)
+            view->removeItem(gc);
+    }
 }
 
 /*
