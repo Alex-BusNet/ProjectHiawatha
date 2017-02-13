@@ -462,30 +462,13 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
     }
 #else
 
-    QFuture<void> th1 = QtConcurrent::run(this, Renderer::DrawThread1, map);
-    QFuture<void> th2 = QtConcurrent::run(this, Renderer::DrawThread2, map);
-    QFuture<void> th3 = QtConcurrent::run(this, Renderer::DrawThread3, map);
-    QFuture<void> th4 = QtConcurrent::run(this, Renderer::DrawThread4, map);
+    QFutureSynchronizer<void> synch;
+    synch.addFuture(QtConcurrent::run(this, Renderer::DrawThread1, map));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DrawThread2, map));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DrawThread3, map));
+    synch.addFuture(QtConcurrent::run(this, Renderer::DrawThread4, map));
 
-    if(!th1.isFinished())
-    {
-        th1.waitForFinished();
-    }
-
-    if(!th2.isFinished())
-    {
-        th2.waitForFinished();
-    }
-
-    if(!th3.isFinished())
-    {
-        th3.waitForFinished();
-    }
-
-    if(!th4.isFinished())
-    {
-        th4.waitForFinished();
-    }
+    synch.waitForFinished();
 
     std::chrono::steady_clock::time_point begin;
     std::chrono::steady_clock::time_point end;
@@ -512,16 +495,6 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
 
     begin = std::chrono::steady_clock::now();
 
-    foreach(QGraphicsPixmapItem *pi, tilePixmap)
-    {
-        view->addItem(pi);
-    }
-
-    end = std::chrono::steady_clock::now();
-    qDebug() << "   Tile pixmaps added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
-
-    begin = std::chrono::steady_clock::now();
-
     foreach(QGraphicsPixmapItem *pi, fogOfWar)
     {
         view->addItem(pi);
@@ -539,46 +512,6 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
 
     end = std::chrono::steady_clock::now();
     qDebug() << "   Resource pixmaps added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
-
-    begin = std::chrono::steady_clock::now();
-
-    foreach(QGraphicsPixmapItem *pi, tileWorked)
-    {
-        view->addItem(pi);
-    }
-
-    end = std::chrono::steady_clock::now();
-    qDebug() << "   Tile worked icons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
-
-    begin = std::chrono::steady_clock::now();
-
-    foreach(QGraphicsPixmapItem *pi, ordersIcon)
-    {
-        view->addItem(pi);
-    }
-
-    end = std::chrono::steady_clock::now();
-    qDebug() << "   Orders icon added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
-
-    begin = std::chrono::steady_clock::now();
-
-    foreach(QGraphicsPixmapItem *pi, fortifiedIcon)
-    {
-        view->addItem(pi);
-    }
-
-    end = std::chrono::steady_clock::now();
-    qDebug() << "   Fortified icons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
-
-    begin = std::chrono::steady_clock::now();
-
-    foreach(QGraphicsPixmapItem *pi, tileImprovementIcons)
-    {
-        view->addItem(pi);
-    }
-
-    end = std::chrono::steady_clock::now();
-    qDebug() << "   tile improvement icons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
 
 #endif
     qDebug() << "DrawHexScene finished";
@@ -702,6 +635,12 @@ void Renderer::DiscoverTile(int index, GameView *view)
     fogOfWar.at(index)->setPos(pos);
     fogOfWar.at(index)->setOpacity(0);
     fogOfWar.at(index)->setZValue(7);
+
+    view->addItem(tilePixmap.at(index));
+    view->addItem(ordersIcon.at(index));
+    view->addItem(fortifiedIcon.at(index));
+    view->addItem(tileWorked.at(index));
+    view->addItem(tileImprovementIcons.at(index));
 }
 
 void Renderer::SetTileVisibility(int index, bool viewable, bool toggle)
@@ -865,7 +804,6 @@ void Renderer::DrawThread1(Map *map)
 {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-//    QPen circlePen(Qt::transparent);
     for(int i = 0; i < map->GetBoardSize(); i++)
     {
         if(map->GetTileAt(i)->GetTileID().row % 2 != 0)
@@ -1343,137 +1281,195 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
 
 void Renderer::PrepareForDelete(GameView *view)
 {
-    foreach(QGraphicsPolygonItem* t, tiles)
+    QList<QGraphicsItem*> itemList = view->items();
+    foreach(QGraphicsItem* i, itemList)
     {
-        if(t != NULL)
-            view->removeItem(t);
+        view->removeItem(i);
     }
 
-    foreach(QGraphicsPixmapItem* p, tilePixmap)
-    {
-        if(p != NULL)
-            view->removeItem(p);
-    }
+//    foreach(QGraphicsPolygonItem* t, tiles)
+//    {
+//        if(itemList.contains(t))
+//        {
+//            if(t != NULL)
+//                view->removeItem(t);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* p, fogOfWar)
-    {
-        if(p != NULL)
-            view->removeItem(p);
-    }
+//    foreach(QGraphicsPixmapItem* p, tilePixmap)
+//    {
+//        if(itemList.contains(p))
+//        {
+//            if(p != NULL)
+//                view->removeItem(p);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* oi, ordersIcon)
-    {
-        if(oi != NULL)
-            view->removeItem(oi);
-    }
+//    foreach(QGraphicsPixmapItem* p, fogOfWar)
+//    {
+//        if(p != NULL)
+//            view->removeItem(p);
+//    }
 
-    foreach(QGraphicsPolygonItem* mb, mapBorders)
-    {
-        if(mb != NULL)
-            view->removeItem(mb);
-    }
+//    foreach(QGraphicsPixmapItem* oi, ordersIcon)
+//    {
+//        if(itemList.contains(oi))
+//        {
+//            if(oi != NULL)
+//                view->removeItem(oi);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* p, resourcePixmap)
-    {
-        if(p != NULL)
-            view->removeItem(p);
-    }
+//    foreach(QGraphicsPolygonItem* mb, mapBorders)
+//    {
+//        if(itemList.contains(mb))
+//        {
+//            if(mb != NULL)
+//                view->removeItem(mb);
+//        }
+//    }
 
-    foreach(QGraphicsEllipseItem* e, tileCircles)
-    {
-        if(e != NULL)
-            view->removeItem(e);
-    }
+//    foreach(QGraphicsPixmapItem* p, resourcePixmap)
+//    {
+//        if(itemList.contains(p))
+//        {
+//            if(p != NULL)
+//                view->removeItem(p);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* tw, tileWorked)
-    {
-        if(tw != NULL)
-            view->removeItem(tw);
-    }
+//    foreach(QGraphicsEllipseItem* e, tileCircles)
+//    {
+//        if(itemList.contains(e))
+//        {
+//            if(e != NULL)
+//                view->removeItem(e);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
-    {
-        if(fi != NULL)
-            view->removeItem(fi);
-    }
+//    foreach(QGraphicsPixmapItem* tw, tileWorked)
+//    {
+//        if(itemList.contains(tw))
+//        {
+//            if(tw != NULL)
+//                view->removeItem(tw);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
-    {
-        if(tii != NULL)
-            view->removeItem(tii);
-    }
+//    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
+//    {
+//        if(itemList.contains(fi))
+//        {
+//            if(fi != NULL)
+//                view->removeItem(fi);
+//        }
+//    }
 
-    foreach(QGraphicsPolygonItem* cb, cityBorders)
-    {
-        if(cb != NULL)
-            view->removeItem(cb);
-    }
+//    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
+//    {
+//        if(itemList.contains(tii))
+//        {
+//            if(tii != NULL)
+//                view->removeItem(tii);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* cp, cityPixmap)
-    {
-        if(cp != NULL)
-            view->removeItem(cp);
-    }
+//    foreach(QGraphicsPolygonItem* cb, cityBorders)
+//    {
+//        if(itemList.contains(cb))
+//        {
+//            if(cb != NULL)
+//                view->removeItem(cb);
+//        }
+//    }
 
-    foreach(QGraphicsTextItem* cl, cityLabels)
-    {
-        if(cl != NULL)
-            view->removeItem(cl);
-    }
+//    foreach(QGraphicsPixmapItem* cp, cityPixmap)
+//    {
+//        if(itemList.contains(cp))
+//        {
+//            if(cp != NULL)
+//                view->removeItem(cp);
+//        }
+//    }
 
-    foreach(QGraphicsRectItem* chb, cityHealthBars)
-    {
-        if(chb != NULL)
-            view->removeItem(chb);
-    }
+//    foreach(QGraphicsTextItem* cl, cityLabels)
+//    {
+//        if(itemList.contains(cl))
+//        {
+//            if(cl != NULL)
+//                view->removeItem(cl);
+//        }
+//    }
 
-    foreach(QGraphicsRectItem* cpb, cityProductionBars)
-    {
-        if(cpb != NULL)
-            view->removeItem(cpb);
-    }
+//    foreach(QGraphicsRectItem* chb, cityHealthBars)
+//    {
+//        if(itemList.contains(chb))
+//        {
+//            if(chb != NULL)
+//                view->removeItem(chb);
+//        }
+//    }
 
-    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
-    {
-        if(cgb != NULL)
-            view->removeItem(cgb);
-    }
+//    foreach(QGraphicsRectItem* cpb, cityProductionBars)
+//    {
+//        if(itemList.contains(cpb))
+//        {
+//            if(cpb != NULL)
+//                view->removeItem(cpb);
 
-    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
-    {
-        if(cbo != NULL)
-            view->removeItem(cbo);
-    }
+//        }
+//    }
 
-    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
-    {
-        if(cpl != NULL)
-            view->removeItem(cpl);
-    }
+//    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
+//    {
+//        if(itemList.contains(cgb))
+//        {
+//            if(cgb != NULL)
+//                view->removeItem(cgb);
+//        }
+//    }
 
-    foreach(QGraphicsPixmapItem* up, unitPixmap)
-    {
-        if(up != NULL)
-            view->removeItem(up);
-    }
+//    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
+//    {
+//        if(itemList.contains(cbo))
+//        {
+//            if(cbo != NULL)
+//                view->removeItem(cbo);
+//        }
+//    }
 
-    foreach(QGraphicsRectItem* uhb, unitHealthBars)
-    {
-        if(uhb != NULL)
-            view->removeItem(uhb);
-    }
+//    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
+//    {
+//        if(itemList.contains(cpl))
+//        {
+//            if(cpl != NULL)
+//                view->removeItem(cpl);
+//        }
+//    }
 
-    foreach(QGraphicsLineItem* gl, gridLines)
-    {
-        if(gl != NULL)
-            view->removeItem(gl);
-    }
+//    foreach(QGraphicsPixmapItem* up, unitPixmap)
+//    {
+//        if(up != NULL)
+//            view->removeItem(up);
+//    }
 
-    foreach(QGraphicsTextItem* gc, gridCoords)
-    {
-        if(gc != NULL)
-            view->removeItem(gc);
-    }
+//    foreach(QGraphicsRectItem* uhb, unitHealthBars)
+//    {
+//        if(uhb != NULL)
+//            view->removeItem(uhb);
+//    }
+
+//    foreach(QGraphicsLineItem* gl, gridLines)
+//    {
+//        if(gl != NULL)
+//            view->removeItem(gl);
+//    }
+
+//    foreach(QGraphicsTextItem* gc, gridCoords)
+//    {
+//        if(gc != NULL)
+//            view->removeItem(gc);
+//    }
 }
 
 /*
@@ -1481,6 +1477,7 @@ void Renderer::PrepareForDelete(GameView *view)
  */
 void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 {
+    qDebug() << "   Drawing City borders for" << city->GetName();
     SetOutlinePen(owner);
 
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));

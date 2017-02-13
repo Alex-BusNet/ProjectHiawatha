@@ -151,6 +151,7 @@ private:
     void InitYieldDisplay();
     void InitRenderData();
     void DeinitRenderer();
+    void SaveGame();
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();

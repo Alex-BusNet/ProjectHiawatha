@@ -2231,31 +2231,6 @@ void GameManager::InitRenderData()
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
-        renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-        for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
-        {
-            renderer->DrawCityBorders(civList.at(i)->GetCityAt(j), gameView, civList.at(i)->getCiv());
-            if(i == 0)
-            {
-                if(j == 0)
-                {
-                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName().append(" (").append(QChar(0x2605)).append(")"));
-                }
-                else
-                {
-                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
-                }
-
-                foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
-                {
-                    renderer->SetTileWorkedIcon(tile, gameView);
-                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), civList.at(i)->getCiv(), tile->GetTileIDString());
-                }
-            }
-
-            civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
-            civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
-        }
 
         if(i == 0)
         {
@@ -2285,6 +2260,35 @@ void GameManager::InitRenderData()
         else
         {
             endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
+        }
+
+        qDebug() << "   Adding Units";
+        renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
+        qDebug() << "   --Done";
+
+        for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
+        {
+            renderer->DrawCityBorders(civList.at(i)->GetCityAt(j), gameView, civList.at(i)->getCiv());
+            if(i == 0)
+            {
+                if(j == 0)
+                {
+                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName().append(" (").append(QChar(0x2605)).append(")"));
+                }
+                else
+                {
+                    clv->addItem(civList.at(i)->GetCityAt(j)->GetName());
+                }
+
+                foreach(Tile* tile, civList.at(i)->GetCityAt(j)->GetControlledTiles())
+                {
+                    renderer->SetTileWorkedIcon(tile, gameView);
+                    renderer->SetTileTooltip(tile->GetTileIndex(), *tile->GetYield(), civList.at(i)->getCiv(), tile->GetTileIDString());
+                }
+            }
+
+            civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
+            civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
         }
     }
 
@@ -2317,8 +2321,93 @@ void GameManager::InitRenderData()
 
 void GameManager::DeinitRenderer()
 {
-    renderer->PrepareForDelete(gameView);
+//    renderer->PrepareForDelete(gameView);
     delete renderer;
+}
+
+void GameManager::SaveGame()
+{
+    if(!QDir("Saves").exists())
+    {
+        QDir().mkdir("Saves");
+    }
+
+    QFile civSaveFile("Saves/latest_civs.json");
+    if(!civSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open civ save file");
+        this->close();
+        return;
+    }
+
+    QJsonDocument doc;
+    QJsonObject civs;
+    QJsonArray civArray;
+    for(int i = 0; i < civList.size(); i++)
+    {
+        QJsonObject civObject;
+        civList.at(i)->WriteData(civObject);
+        civArray.push_back(civObject);
+    }
+
+    civs["civilizations"] = civArray;
+    doc.setObject(civs);
+    civSaveFile.write(doc.toJson());
+    civSaveFile.flush();
+    civSaveFile.close();
+
+    QFile mapSaveFile("Saves/latest_map.json");
+    if(!mapSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open map save file");
+        this->close();
+        return;
+    }
+
+    QJsonObject mapObject;
+    map->WriteMapSaveData(mapObject);
+    doc.setObject(mapObject);
+
+    mapSaveFile.write(doc.toJson());
+    mapSaveFile.flush();
+    mapSaveFile.close();
+
+    QFile diploSaveFile("Saves/latest_diplo.json");
+    if(!diploSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open diplo save file");
+        this->close();
+        return;
+    }
+
+    QJsonObject diploObj;
+    diplo->WriteDiploSaveData(diploObj);
+    doc.setObject(diploObj);
+
+    diploSaveFile.write(doc.toJson());
+    diploSaveFile.flush();
+    diploSaveFile.close();
+
+    QFile managerSaveFile("Saves/latest_manager.json");
+    if(!managerSaveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open manager save file");
+        this->close();
+        return;
+    }
+
+    QJsonObject gmObj;
+    gmObj["currentturn"] = currentTurn;
+    gmObj["gameturn"] = gameTurn;
+    gmObj["state"] = state;
+    gmObj["year"] = year;
+    gmObj["civlistsize"] = civList.size();
+    gmObj["playersleftalive"] = playersAliveCount;
+
+    doc.setObject(gmObj);
+    managerSaveFile.write(doc.toJson());
+    managerSaveFile.flush();
+    managerSaveFile.close();
 }
 
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
@@ -2643,87 +2732,16 @@ bool GameManager::AcceptsPeace(Civilization *ai)
 void GameManager::closeGame()
 {
     this->close();
-    if(!QDir("Saves").exists())
-    {
-        QDir().mkdir("Saves");
-    }
+#ifndef __APPLE__
+    QFuture<void> save = QtConcurrent::run(this, GameManager::SaveGame);
+#else
+    this->SaveGame();
+#endif
+    renderer->PrepareForDelete(gameView);
 
-    QFile civSaveFile("Saves/latest_civs.json");
-    if(!civSaveFile.open(QIODevice::WriteOnly))
-    {
-        qWarning("Couldn't open civ save file");
-        this->close();
-        return;
-    }
-
-    QJsonDocument doc;
-    QJsonObject civs;
-    QJsonArray civArray;
-    for(int i = 0; i < civList.size(); i++)
-    {
-        QJsonObject civObject;
-        civList.at(i)->WriteData(civObject);
-        civArray.push_back(civObject);
-    }
-
-    civs["civilizations"] = civArray;
-    doc.setObject(civs);
-    civSaveFile.write(doc.toJson());
-    civSaveFile.flush();
-    civSaveFile.close();
-
-    QFile mapSaveFile("Saves/latest_map.json");
-    if(!mapSaveFile.open(QIODevice::WriteOnly))
-    {
-        qWarning("Couldn't open map save file");
-        this->close();
-        return;
-    }
-
-    QJsonObject mapObject;
-    map->WriteMapSaveData(mapObject);
-    doc.setObject(mapObject);
-
-    mapSaveFile.write(doc.toJson());
-    mapSaveFile.flush();
-    mapSaveFile.close();
-
-    QFile diploSaveFile("Saves/latest_diplo.json");
-    if(!diploSaveFile.open(QIODevice::WriteOnly))
-    {
-        qWarning("Couldn't open diplo save file");
-        this->close();
-        return;
-    }
-
-    QJsonObject diploObj;
-    diplo->WriteDiploSaveData(diploObj);
-    doc.setObject(diploObj);
-
-    diploSaveFile.write(doc.toJson());
-    diploSaveFile.flush();
-    diploSaveFile.close();
-
-    QFile managerSaveFile("Saves/latest_manager.json");
-    if(!managerSaveFile.open(QIODevice::WriteOnly))
-    {
-        qWarning("Couldn't open manager save file");
-        this->close();
-        return;
-    }
-
-    QJsonObject gmObj;
-    gmObj["currentturn"] = currentTurn;
-    gmObj["gameturn"] = gameTurn;
-    gmObj["state"] = state;
-    gmObj["year"] = year;
-    gmObj["civlistsize"] = civList.size();
-    gmObj["playersleftalive"] = playersAliveCount;
-
-    doc.setObject(gmObj);
-    managerSaveFile.write(doc.toJson());
-    managerSaveFile.flush();
-    managerSaveFile.close();
+#ifndef __APPLE__
+    save.waitForFinished();
+#endif
 }
 
 void GameManager::zoomIn()
