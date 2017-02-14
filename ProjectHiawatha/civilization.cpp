@@ -356,6 +356,7 @@ void Civilization::WriteData(QJsonObject &obj) const
     }
 
     obj["citynames"] = cityNameArray;
+    obj["currentcityindex"] = cityIndex;
     obj["isaiplayer"] = isAIPlayer;
     obj["currenttech"] = currentTech->getIndex();
     obj["nexttech"] = nextTech->getIndex();
@@ -418,6 +419,8 @@ void Civilization::ReadData(const QJsonObject &obj)
     {
         initialCityList.push_back(nameArray.at(i).toString());
     }
+
+    cityIndex = obj["currentcityindex"].toInt();
 
     QJsonArray cArray = obj["cities"].toArray();
     for(int i = 0; i < cArray.size(); i++)

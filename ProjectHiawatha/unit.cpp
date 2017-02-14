@@ -4,7 +4,7 @@
 
 Unit::Unit()
 {
-    this->belongsTo = India;
+    this->belongsTo = NO_NATION;
     this->NonCombat = false;
     this->Settler = false;
     this->naval = false;
@@ -21,6 +21,10 @@ Unit::Unit()
     this->needsPath = false;
     this->unlocked = 0;
     this->isGarrisoned=false;
+    this->pixmapIndex = -1;
+    this->dataMapIndex = -1;
+    this->healthBarIndex = -1;
+    this->unitListIndex = -1;
 
 }
 
@@ -43,6 +47,10 @@ Unit::Unit(Nation owner, UnitType type)
     this->range = 1;
     this->uses = 1;
     this->isGarrisoned=false;
+    this->pixmapIndex = -1;
+    this->dataMapIndex = -1;
+    this->healthBarIndex = -1;
+    this->unitListIndex = -1;
 }
 
 Unit::Unit(int index)
@@ -64,6 +72,10 @@ Unit::Unit(int index)
     this->needsPath = false;
     this->unlocked = 0;
     this->isGarrisoned=false;
+    this->pixmapIndex = -1;
+    this->dataMapIndex = -1;
+    this->healthBarIndex = -1;
+    this->unitListIndex = -1;
 }
 
 Unit::~Unit()
@@ -427,6 +439,17 @@ void Unit::WriteUnitSaveData(QJsonObject &obj) const
     obj["healthbarindex"] = healthBarIndex;
     obj["pixmapindex"] = pixmapIndex;
     obj["unitlistindex"] = unitListIndex;
+    obj["noncombat"] = NonCombat;
+    obj["settler"] = Settler;
+    obj["naval"] = naval;
+    obj["uses"] = uses;
+    obj["cost"] = cost;
+    obj["unlocked"] = unlocked;
+    obj["techindex"] = techIndex;
+    obj["fortified"] = false;
+    obj["melee"] = isMelee;
+    obj["siege"] = isSiege;
+    obj["cannuke"] = false; //For GDR, Gandhi-DR, and Nukes. When added;
 }
 
 void Unit::ReadUnitSaveData(const QJsonObject &obj)
@@ -445,6 +468,16 @@ void Unit::ReadUnitSaveData(const QJsonObject &obj)
     healthBarIndex = obj["healthBarIndex"].toInt();
     pixmapIndex = obj["pixmapindex"].toInt();
     unitListIndex = obj["unitlistindex"].toInt();
+    NonCombat = obj["noncombat"].toBool();
+    Settler = obj["settler"].toBool();
+    naval = obj["naval"].toBool();
+    uses = obj["uses"].toInt();
+    cost = obj["cost"].toInt();
+    unlocked = obj["unlocked"].toInt();
+    techIndex = obj["techindex"].toInt();
+    isFortified = obj["fortified"].toBool();
+    isMelee = obj["melee"].toBool();
+    isSiege = obj["siege"].toBool();
 
     SetUnitIcon(type);
 }

@@ -41,6 +41,7 @@ UnitController::~UnitController()
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
     bool warCheckFailed = false;
+
     if(startTile==endTile)
     {
         return;

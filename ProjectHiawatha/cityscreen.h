@@ -8,6 +8,8 @@
 #include <QVector>
 #include <QString>
 #include <QListWidgetItem>
+#include <QJsonArray>
+#include <QJsonObject>
 #include "map.h"
 #include "gameview.h"
 #include "renderer.h"
@@ -27,7 +29,7 @@ public:
     void    loadBuildings(QString filename);
     void    loadUnits(QString filename);
     //Checks to see if any additional units or buildings have been unlocked
-    void    updateList(int currentBuildingCount);
+    void    updateList(int currentBuildingCount, int techIndex);
     //Gets info about the city so it knows what to display
     void    getCityInfo(City* city);
     void    getCivInfo(Civilization* civ);
@@ -54,9 +56,11 @@ private slots:
 private:
     Ui::CityScreen *ui;
     //Initial Building List
-    QVector<Building*> buildings;
+//    QVector<Building*> buildings;
+    QJsonArray buildingList;
     //Initial Unit List
-    QVector<Unit*> initialUnitList;
+//    QVector<Unit*> initialUnitList;
+    QJsonArray unitList;
     //Pointer to city object allows cityscreen to know what to display
     City* currentCity;
     //

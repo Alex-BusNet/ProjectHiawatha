@@ -1792,6 +1792,7 @@ void GameManager::UpdateTileData()
         foundCityIndex = unitToMove->GetTileIndex();
         City* city = map->CreateCity(foundCityIndex, civList.at(currentTurn), false);
 
+        qDebug() << "   Checking spawn location";
         bool valid = true;
         int dstX, dstY;
         for(int i = 0; i < civList.size(); i++)
@@ -1826,6 +1827,7 @@ void GameManager::UpdateTileData()
         if(!valid)
             return;
 
+        qDebug() << "City spawn valid";
         city->loadBuildings("Assets/Buildings/BuildingList.txt");
         city->loadUnits("Assets/Units/UnitList.txt");
         civList.at(currentTurn)->AddCity(city);
@@ -1837,7 +1839,7 @@ void GameManager::UpdateTileData()
 
         map->GetTileQueue(city);
         map->DefineCityBordersNew(city);
-        city->SortTileQueue();
+//        city->SortTileQueue();
 
         city->SortControlledTiles();
         city->GetControlledTiles().first()->IsWorked = true;
@@ -2316,6 +2318,86 @@ void GameManager::InitRenderData()
 
             civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
             civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
+
+//            if(i == 0)
+//            {
+//                if(!QDir("Data").exists())
+//                {
+//                    QDir().mkdir("Data");
+//                }
+
+//                QFile buildExport("Data/buildings.json");
+
+//                if(!buildExport.open(QIODevice::WriteOnly))
+//                {
+//                    qWarning("Couldn't open buildExport save file");
+//                }
+//                else
+//                {
+//                    QJsonDocument build;
+//                    QJsonArray buildArray;
+
+//                    foreach(Building *b, civList.at(0)->GetCityAt(0)->getInitialBuildingList())
+//                    {
+//                        QJsonObject obj;
+//                        b->WriteBuildingSaveData(obj);
+//                        buildArray.push_back(obj);
+//                    }
+
+//                    build.setArray(buildArray);
+//                    buildExport.write(build.toJson());
+//                    buildExport.flush();
+//                    buildExport.close();
+//                }
+
+//                QFile unitExport("Data/units.json");
+
+//                if(!unitExport.open(QIODevice::WriteOnly))
+//                {
+//                    qWarning("Couldn't open unitExport save file");
+//                }
+//                else
+//                {
+//                    QJsonDocument unit;
+//                    QJsonArray unitArray;
+
+//                    foreach(Unit* u, civList.at(0)->GetCityAt(0)->getInitialUnitList())
+//                    {
+//                        QJsonObject obj;
+//                        u->WriteUnitSaveData(obj);
+//                        unitArray.push_back(obj);
+//                    }
+
+//                    unit.setArray(unitArray);
+//                    unitExport.write(unit.toJson());
+//                    unitExport.flush();
+//                    unitExport.close();
+//                }
+
+//                QFile techExport("Data/techList.json");
+
+//                if(!techExport.open(QIODevice::WriteOnly))
+//                {
+//                    qWarning("Couldn't open techExport save file");
+//                }
+//                else
+//                {
+//                    QJsonDocument tech;
+//                    QJsonArray techArray;
+
+//                    foreach(Technology *t, civList.at(0)->GetTechList())
+//                    {
+//                        QJsonObject obj;
+//                        t->WriteTechSaveData(obj);
+//                        techArray.push_back(obj);
+//                    }
+
+//                    tech.setArray(techArray);
+//                    techExport.write(tech.toJson());
+//                    techExport.flush();
+//                    techExport.close();
+//                }
+//            }
         }
     }
 
@@ -2440,18 +2522,32 @@ void GameManager::SaveGame()
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
 {
     City* city = new City();
-    city->SetName(tCity->GetName());
-    city->SetCityStrength(tCity->GetCityStrength());
-    city->SetBaseCityStrength(tCity->GetBaseStrength());
-    city->SetControllingCiv(aCiv->getCiv());
-    city->SetCityHealth(100);
-    city->SetCityFocus(Yield::GOLD);
-    city->SetCitizenCount(tCity->GetCitizenCount() / 2);
 
-    if(city->GetCitizenCount() < 1)
+    tCity->SetCityID(100*aCiv->getCivIndex() + aCiv->GetCityList().size());
+    tCity->SetControllingCiv(aCiv->getCiv());
+    tCity->SetCityHealth(100);
+    tCity->SetCityFocus(Yield::GOLD);
+    tCity->SetCitizenCount(tCity->GetCitizenCount() / 2);
+
+    if(tCity->GetCitizenCount() < 1)
     {
-        city->SetCitizenCount(1);
+        tCity->SetCitizenCount(1);
     }
+
+    tCity->resetAccumulatedProduction();
+    tCity->setCurrentProductionCost(0);
+    tCity->setProductionName("No Current Production");
+    tCity->setProductionIndex(0);
+    tCity->setProductionFinished(false);
+
+    tCity->GetCityTile()->SetControllingCiv(aCiv->getCiv(), aCiv->getCivIndex());
+
+    QJsonObject cityInfo;
+    tCity->WriteCitySaveData(cityInfo);
+
+    city->ReadCitySaveData(cityInfo);
+
+    city->SetCityTile(map->GetTileAt(city->loadedCityTileIndex));
 
     if(tCity->IsCityCaptial())
     {
@@ -2466,6 +2562,7 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
         else
         {
             city->SetCityAsCapital(false, false);
+            statusMessage = QString("--------<< %1 have conquered the city of %2 >>--------").arg(aCiv->GetLeaderName()).arg(tCity->GetName());
         }
     }
     else
@@ -2473,24 +2570,16 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
          statusMessage = QString("--------<< %1 have conquered the city of %2 >>--------").arg(aCiv->GetLeaderName()).arg(tCity->GetName());
     }
 
-    city->resetAccumulatedProduction();
-    city->setCurrentProductionCost(0);
-    city->setProductionName("No Current Production");
-    city->setProductionIndex(0);
-    city->setProductionFinished(false);
+//    city->resetAccumulatedProduction();
+//    city->setCurrentProductionCost(0);
+//    city->setProductionName("No Current Production");
+//    city->setProductionIndex(0);
+//    city->setProductionFinished(false);
 
-    city->SetCityTile(tCity->GetCityTile());
-    city->SetMaximumExpansionBorderTiles(tCity->GetMaximumExpansionBorderTiles());
-
-    foreach(Tile* tile, tCity->tileQueue)
+    foreach(int i, city->controlledTilesIndex)
     {
-        city->tileQueue.push_back(tile);
-    }
+        Tile* tile = map->GetTileAt(i);
 
-    city->SortTileQueue();
-
-    foreach(Tile* tile, tCity->GetControlledTiles())
-    {
         if(tile->IsWorked)
         {
             tile->IsWorked = false;
@@ -2499,15 +2588,12 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
         city->AddControlledTile(tile);
     }
 
+    map->GetTileQueue(city);
+
     city->SortControlledTiles();
 
     city->loadUnits("Assets/Units/UnitList.txt");
     city->loadBuildings("Assets/Buildings/BuildingList.txt");
-
-    foreach(Building* building, tCity->getCurrentBuildingList())
-    {
-        city->addBuilding(building);
-    }
 
     if(tCity->getHasWorker())
     {
@@ -2521,18 +2607,10 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
         tCiv->RemoveUnit(tCity->GetGarrisonedMilitary()->GetUnitListIndex());
     }
 
-    city->SetFullyExpanded(tCity->IsFullyExpanded());
-
-    city->SetGrowthCost(tCity->GetFoodNeededToGrow());
-    city->SetFoodSurplus(tCity->GetFoodSurplus());
-    city->SetBuildingStrength(tCity->GetCityBuildingStrength());
     city->UpdateCityStatus();
     city->UpdateCityYield();
 
-    city->SetCityBorders(tCity->GetCityBorders());
-    city->setCapitolConnection(false);
     city->SetCityIndex(aCiv->GetCityList().size());
-    city->SetCityRenderIndex(tCity->GetCityRenderIndex());
 
     renderer->RemoveCity(tCity, gameView);
     tCiv->RemoveCity(tCity->GetCityIndex());
@@ -2790,15 +2868,17 @@ void GameManager::showCity(City* city)
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
-        cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
-        cityScreen->loadUnits("Assets/Units/UnitList.txt");
+//        cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
+//        cityScreen->loadUnits("Assets/Units/UnitList.txt");
+        cityScreen->loadBuildings("Assets/Data/buildings.json");
+        cityScreen->loadUnits("Assets/Data/units.json");
         cityScreen->getCityInfo(city);
         cityScreen->getCivInfo(civList.at(0));
         cityScreen->getGameView(gameView);
         cityScreen->getMapInfo(map);
         cityScreen->getRenderer(renderer);
         cityScreen->getGold(civList.at(0)->GetTotalGold());
-        cityScreen->updateList(city->getNumberOfBuildings());
+        cityScreen->updateList(city->getNumberOfBuildings(), civList.at(0)->getCurrentTech()->getIndex() - 1);
         cityScreen->updateWidget();
 
         gameView->centerOn(city->GetCityTile()->GetCenter());
