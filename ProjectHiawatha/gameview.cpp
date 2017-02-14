@@ -95,7 +95,6 @@ void GameView::ConfigureGraphicsView()
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
     this->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-    this->setOptimizationFlags(QGraphicsView::DontAdjustForAntialiasing);
 }
 
 void GameView::wheelEvent(QWheelEvent *e)

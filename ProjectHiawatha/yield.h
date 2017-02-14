@@ -38,11 +38,6 @@ public:
 private:
 
     YieldStruct totalYield;
-//    int gold;
-//    int production;
-//    int research;
-//    int food;
-//    int culture;
 };
 
 #endif // YIELD_H

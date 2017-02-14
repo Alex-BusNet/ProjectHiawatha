@@ -250,6 +250,23 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
     InitRenderData();
 
+    //Find all discovered tiles and load them appropriately.
+    for(int i = 0; i < map->GetBoardSize(); i++)
+    {
+        if(map->GetTileAt(i)->DiscoveredByPlayer)
+        {
+            viewUpdateTiles->enqueue(ViewData{i, DISCOVERED});
+
+            if(!map->GetTileAt(i)->IsSeenByPlayer)
+            {
+                viewUpdateTiles->enqueue(ViewData{i, HIDDEN});
+            }
+
+            renderer->SetTileTooltip(map->GetTileAt(i)->GetTileIndex(), *map->GetTileAt(i)->GetYield(), map->GetTileAt(i)->GetControllingCiv(), map->GetTileAt(i)->GetTileIDString());
+        }
+    }
+
+    turnStarted = false;
     updateTimer->start();
 }
 
@@ -405,12 +422,6 @@ GameManager::~GameManager()
 
     if(viewUpdateTiles != NULL)
         delete viewUpdateTiles;
-
-    if(unitTile != NULL)
-        delete unitTile;
-
-    if(targetTile != NULL)
-        delete targetTile;
 
     if(updateTimer != NULL)
         delete updateTimer;
@@ -1949,6 +1960,7 @@ void GameManager::InitVariables(bool fullscreen)
         this->setFixedSize(1400, 700);
         this->setWindowTitle("Project Hiawatha");
         gameView->setFixedWidth(1195);
+//        this->setWindowFlags(Qt::FramelessWindowHint);
     }
     else
     {
@@ -2226,6 +2238,7 @@ void GameManager::InitYieldDisplay()
 void GameManager::InitRenderData()
 {
     renderer->DrawHexScene(map, gameView);
+    InitYieldDisplay();
 
     qDebug() << "   Loading Civs to View";
     for(int i = 0; i < civList.size(); i++)
@@ -2237,20 +2250,34 @@ void GameManager::InitRenderData()
             qDebug() << "   Setting up FoW";
             foreach(Tile* n, map->GetNeighborsRange(civList.at(i)->GetCityAt(0)->GetCityTile(), 3))
             {
-                if(!n->DiscoveredByPlayer)
+                if(n->DiscoveredByPlayer)
                 {
-                    n->DiscoveredByPlayer = true;
-                    n->CanAlwaysBeSeen = true;
                     viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
                     renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
+
+                    if(!n->IsSeenByPlayer)
+                    {
+                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
+                    }
+                }
+                else
+                {
+                    if(!n->DiscoveredByPlayer)
+                    {
+                        n->DiscoveredByPlayer = true;
+                        n->CanAlwaysBeSeen = true;
+                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
+                        renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
+                    }
+
+                    if(!n->IsSeenByPlayer)
+                    {
+                        n->IsSeenByPlayer = true;
+                        n->CanAlwaysBeSeen = true;
+                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
+                    }
                 }
 
-                if(!n->IsSeenByPlayer)
-                {
-                    n->IsSeenByPlayer = true;
-                    n->CanAlwaysBeSeen = true;
-                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
-                }
             }
             qDebug() << "   --Done";
 
@@ -2294,7 +2321,7 @@ void GameManager::InitRenderData()
 
     endGameProgress->setText(*endGameText);
 
-    InitYieldDisplay();
+
 
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
@@ -3191,14 +3218,14 @@ void GameManager::toggleFog()
             }
             else
             {
-                if(map->GetTileAt(i)->CanAlwaysBeSeen)
-                {
-                    renderer->SetTileVisibility(i, true, false);
-                }
-                else
-                {
+//                if(map->GetTileAt(i)->CanAlwaysBeSeen)
+//                {
+//                    renderer->SetTileVisibility(i, true, false);
+//                }
+//                else
+//                {
                     renderer->SetTileVisibility(i, false, true);
-                }
+//                }
             }
         }
     }

@@ -636,11 +636,20 @@ void Renderer::DiscoverTile(int index, GameView *view)
     fogOfWar.at(index)->setOpacity(0);
     fogOfWar.at(index)->setZValue(7);
 
-    view->addItem(tilePixmap.at(index));
-    view->addItem(ordersIcon.at(index));
-    view->addItem(fortifiedIcon.at(index));
-    view->addItem(tileWorked.at(index));
-    view->addItem(tileImprovementIcons.at(index));
+    if(!view->items().contains(tilePixmap.at(index)))
+        view->addItem(tilePixmap.at(index));
+
+    if(!view->items().contains(ordersIcon.at(index)))
+        view->addItem(ordersIcon.at(index));
+
+    if(!view->items().contains(fortifiedIcon.at(index)))
+        view->addItem(fortifiedIcon.at(index));
+
+    if(!view->items().contains(tileWorked.at(index)))
+        view->addItem(tileWorked.at(index));
+
+    if(!view->items().contains(tileImprovementIcons.at(index)))
+        view->addItem(tileImprovementIcons.at(index));
 }
 
 void Renderer::SetTileVisibility(int index, bool viewable, bool toggle)
@@ -1483,6 +1492,8 @@ void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
     cityBorders.last()->setZValue(3);
+
+    qDebug() << "   --done";
 }
 
 /*
@@ -1505,7 +1516,8 @@ void Renderer::SetTileWorkedIcon(Tile *tile, GameView *view)
 {
     int index = tile->GetTileIndex();
 
-    view->removeItem(tileWorked.at(index));
+    if(view->items().contains(tileWorked.at(index)))
+        view->removeItem(tileWorked.at(index));
 
     if(tile->IsWorked)
     {
@@ -1718,8 +1730,8 @@ void Renderer::AddCityLabel(City* city, GameView *view)
  */
 void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
-    QPixmap *cityImage = new QPixmap("Assets/Icons/CityIcon4944_alt.png");
-    cityPixmap.push_back(view->addPixmap(*cityImage));
+//    QPixmap *cityImage = new QPixmap("Assets/Icons/CityIcon4944_alt.png");
+    cityPixmap.push_back(view->addPixmap(QPixmap("Assets/Icons/CityIcon4944_alt.png")));
     cityPixmap.last()->setZValue(1);
     cityPixmap.last()->setScale(1.0f);
     cityPixmap.last()->setPos(city->GetCityTile()->GetTexturePoint().x() + 22, city->GetCityTile()->GetTexturePoint().y() + 24);

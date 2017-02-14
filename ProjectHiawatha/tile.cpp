@@ -548,7 +548,8 @@ void Tile::ReadTileSaveData(const QJsonObject &obj)
     owner = static_cast<Nation>(obj["owner"].toInt());
     moveCost = obj["movecost"].toInt();
     CanAlwaysBeSeen = obj["canalwaysbeseen"].toBool();
-    DiscoveredByPlayer = obj["canalwaysbeseen"].toBool();
+    DiscoveredByPlayer = obj["discoveredbyplayer"].toBool();
+    IsSeenByPlayer = obj["isseenbyplayer"].toBool();
 
     Walkable = obj["walkable"].toBool();
 
