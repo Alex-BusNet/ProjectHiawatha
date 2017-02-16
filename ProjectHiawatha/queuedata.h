@@ -14,6 +14,6 @@ public:
 
 private:
 };
-
 static QQueue<CityProdData> cityUpdate;
+
 #endif // QUEUEDATA_H

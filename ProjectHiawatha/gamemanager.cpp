@@ -900,12 +900,15 @@ void GameManager::StartTurn()
 
                         if(!n->DiscoveredByPlayer)
                         {
+                            n->DiscoveredByPlayer = true;
+                            n->IsSeenByPlayer = true;
                             viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
                             renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
                         }
 
                         if(!n->IsSeenByPlayer)
                         {
+                            n->IsSeenByPlayer = true;
                             viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
                         }
                     }
@@ -1077,13 +1080,17 @@ void GameManager::StartTurn()
     while(!QueueData::isEmpty())
     {
         cpd = QueueData::dequeue();
+        qDebug() << "   cpd:" << cpd.cityIndex << cpd.isUnit << cpd.producedUnitIndex;
+        civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProductionFinished(false);
 
         if(cpd.isUnit)
         {
+
             Unit *u = new Unit();
             u->ReadUnitSaveData(UnitData.at(cpd.producedUnitIndex).toObject());
             u->SetOwner(civList.at(currentTurn)->getCiv());
             u->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
+            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProducedUnit(u);
 
             foreach(Tile* t, civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
             {
@@ -1314,6 +1321,7 @@ void GameManager::EndTurn()
 {
     countTime = true;
     state = IDLE;
+    relocateUnit = false;
     processedData.relocateOrderGiven = false;
     processedData.newData = false;
     //This is for debugging purposes.
@@ -2040,7 +2048,7 @@ void GameManager::InitVariables(bool fullscreen)
 
 void GameManager::LoadJsonData()
 {
-    QFile buildExport("Data/buildings.json");
+    QFile buildExport("Assets/Data/buildings.json");
 
     if(!buildExport.open(QIODevice::ReadOnly))
     {
@@ -2053,7 +2061,7 @@ void GameManager::LoadJsonData()
         BuildingData = build.array();
     }
 
-    QFile unitExport("Data/units.json");
+    QFile unitExport("Assets/Data/units.json");
 
     if(!unitExport.open(QIODevice::ReadOnly))
     {
@@ -2067,7 +2075,7 @@ void GameManager::LoadJsonData()
 
     }
 
-    QFile techExport("Data/techList.json");
+    QFile techExport("Assets/Data/techList.json");
 
     if(!techExport.open(QIODevice::ReadOnly))
     {
@@ -3066,7 +3074,7 @@ void GameManager::toggleDiplomacy()
     else
     {
         diplo->hide();
-        diplo->UpdateLeader();
+//        diplo->UpdateLeader();
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         diploVisible = false;
     }
@@ -3320,14 +3328,14 @@ void GameManager::toggleFog()
             }
             else
             {
-//                if(map->GetTileAt(i)->CanAlwaysBeSeen)
-//                {
-//                    renderer->SetTileVisibility(i, true, false);
-//                }
-//                else
-//                {
+                if(map->GetTileAt(i)->CanAlwaysBeSeen)
+                {
+                    renderer->SetTileVisibility(i, true, false);
+                }
+                else
+                {
                     renderer->SetTileVisibility(i, false, true);
-//                }
+                }
             }
         }
     }
