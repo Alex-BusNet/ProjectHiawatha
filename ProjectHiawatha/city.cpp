@@ -4,6 +4,7 @@
 #include <QFile>
 #include <math.h>
 #include <QJsonArray>
+#include "queuedata.h"
 
 City::City()
 {
@@ -310,6 +311,11 @@ Update_t City::UpdateProgress()
         this->currentProductionCost = 0;
         update.productionFinished = true;
         this->productionFinished = true;
+
+        if(this->getIsUnit())
+            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, true});
+        else
+            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, false});
     }
 
     if(this->cityHealth < this->maxHealth)
@@ -1070,6 +1076,17 @@ void City::loadBuildings(QString filename)
 void City::addBuilding(Building *building)
 {
     this->producedBuildings.push_back(building);
+    IncrementNumberOfBuildings();
+    int bonusInt = building->getbonusType();
+    if(bonusInt != 5) // 5 = Defense bonus type
+    {
+        Yield::YIELD bonusType = static_cast<Yield::YIELD>(bonusInt);
+        cityTile->GetYield()->ChangeYield(bonusType, building->getBonusValue());
+    }
+    else
+    {
+        this->buildingStrength += building->getBonusValue();
+    }
 }
 
 Yield* City::getCityYield()

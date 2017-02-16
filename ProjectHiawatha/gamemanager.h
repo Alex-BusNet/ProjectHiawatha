@@ -110,6 +110,10 @@ private:
     QQueue<SelectData> *selectedTileQueue, *tileModifiedQueue;
     QQueue<ViewData> *viewUpdateTiles;
 
+    QJsonArray BuildingData;
+    QJsonArray UnitData;
+    QJsonArray TechData;
+
     Tile *unitTile, *targetTile;
 
     int zoomScale;
@@ -146,6 +150,7 @@ private:
     void UpdateTileData();
 
     void InitVariables(bool fullscreen);
+    void LoadJsonData();
     void InitButtons();
     void InitLayouts();
     void InitYieldDisplay();

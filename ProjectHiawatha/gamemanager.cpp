@@ -12,6 +12,7 @@
 #include <QDesktopWidget>
 #include <random>
 #include <QTime>
+#include "queuedata.h"
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -1072,115 +1073,161 @@ void GameManager::StartTurn()
     //---------------------------------------------------------------
     // The following section updates the production progress of
     // active civ object
-
-    for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
+    CityProdData cpd;
+    while(!QueueData::isEmpty())
     {
-        if(update.productionFinished)
+        cpd = QueueData::dequeue();
+
+        if(cpd.isUnit)
         {
-            if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
+            Unit *u = new Unit();
+            u->ReadUnitSaveData(UnitData.at(cpd.producedUnitIndex).toObject());
+            u->SetOwner(civList.at(currentTurn)->getCiv());
+            u->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
+
+            foreach(Tile* t, civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
             {
-                civList.at(currentTurn)->GetCityAt(i)->setProductionFinished(false);
-
-                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
+                if(u->isNaval())
                 {
-                    str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
-                    localIndex++;
-
-                }
-
-                if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
-                {
-                    civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
-                    Unit* unit = new Unit(0);
-                    Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
-                    unit->setUnitType(unitData->GetUnitType());
-                    unit->SetName(unitData->GetName());
-                    unit->SetCost(unitData->GetCost());
-                    unit->SetMovementPoints(unitData->GetMovementPoints());
-                    unit->SetStrength(unitData->GetStrength());
-                    unit->SetRange(unitData->GetRange());
-                    unit->SetRangeStrength(unitData->GetRangeStrength());
-                    unit->SetUnitIcon(unitData->GetUnitType());
-                    unit->SetOwner(civList.at(currentTurn)->getCiv());
-                    unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
-
-                    for(int j = 0; j < civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().size();j++)
+                    if(t->ContainsUnit  || !(t->GetTileType() == WATER)) { continue; }
+                    else
                     {
-                        int tileIndex = civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().at(j)->GetTileIndex();
-                        if(unit->isNaval())
-                        {
-                            if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-                            else
-                            {
-
-                                    unit->SetPositionIndex(tileIndex);
-                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
-                                    break;
-
-                            }
-                        }
-                        else
-                        {
-                            if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-                            else
-                            {
-
-                                    unit->SetPositionIndex(tileIndex);
-                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
-                                    break;
-
-                            }
-                        }
+                            u->SetPositionIndex(t->GetTileIndex());
+                            t->ContainsUnit = true;
+                            break;
                     }
-
-                    civList.at(currentTurn)->AddUnit(unit);
-                    renderer->AddUnit(unit,map,gameView);
                 }
                 else
                 {
-                    int science = 0;
-                    int gold = 0;
-                    int production = 0;
-                    int culture = 0;
-                    int food = 0;
-                    civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
-                    int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
-                    Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
-                    int bonusType = building->getbonusType();
-                    if(bonusType == 2)
+                    if(t->ContainsUnit || !(t->Walkable) || (t->GetTileType() == WATER)) { continue; }
+                    else
                     {
-                         science = building->getBonusValue();
-
-                    }else if(bonusType == 0)
-                    {
-                       gold = building->getBonusValue();
-
-                    }else if(bonusType == 3)
-                    {
-                         food = building->getBonusValue();
-                    }else if(bonusType == 1)
-                    {
-                         production = building->getBonusValue();
-                    }else if(bonusType == 4)
-                    {
-                         culture = building->getBonusValue();
+                            u->SetPositionIndex(t->GetTileIndex());
+                            t->ContainsUnit = true;
+                            break;
                     }
-
-                    if(0==currentTurn)
-                    {
-                        civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
-                    }
-
-                    civList.at(currentTurn)->GetCityList().at(i)->addBuilding(building);
-                }
-
-                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
-                {
-                    ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
                 }
             }
 
+            civList.at(currentTurn)->AddUnit(u);
+            renderer->AddUnit(u, map, gameView);
         }
+        else
+        {
+            Building *b = new Building();
+            b->ReadBuildingSaveData(BuildingData.at(cpd.producedUnitIndex).toObject());
+            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->addBuilding(b);
+        }
+
+        if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
+        {
+            ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->GetName())});
+        }
+    }
+
+    for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
+    {
+//        if(update.productionFinished)
+//        {
+//            if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
+//            {
+//                civList.at(currentTurn)->GetCityAt(i)->setProductionFinished(false);
+
+//                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
+//                {
+//                    str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
+//                    localIndex++;
+
+//                }
+
+//                if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
+//                {
+//                    civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
+//                    Unit* unit = new Unit(0);
+//                    Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
+//                    unit->setUnitType(unitData->GetUnitType());
+//                    unit->SetName(unitData->GetName());
+//                    unit->SetCost(unitData->GetCost());
+//                    unit->SetMovementPoints(unitData->GetMovementPoints());
+//                    unit->SetStrength(unitData->GetStrength());
+//                    unit->SetRange(unitData->GetRange());
+//                    unit->SetRangeStrength(unitData->GetRangeStrength());
+//                    unit->SetUnitIcon(unitData->GetUnitType());
+//                    unit->SetOwner(civList.at(currentTurn)->getCiv());
+//                    unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
+
+//                    for(int j = 0; j < civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().size();j++)
+//                    {
+//                        int tileIndex = civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().at(j)->GetTileIndex();
+//                        if(unit->isNaval())
+//                        {
+//                            if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
+//                            else
+//                            {
+//                                    unit->SetPositionIndex(tileIndex);
+//                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
+//                                    break;
+//                            }
+//                        }
+//                        else
+//                        {
+//                            if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
+//                            else
+//                            {
+//                                    unit->SetPositionIndex(tileIndex);
+//                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
+//                                    break;
+//                            }
+//                        }
+//                    }
+
+//                    civList.at(currentTurn)->AddUnit(unit);
+//                    renderer->AddUnit(unit,map,gameView);
+//                }
+//                else
+//                {
+//                    int science = 0;
+//                    int gold = 0;
+//                    int production = 0;
+//                    int culture = 0;
+//                    int food = 0;
+//                    civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
+//                    int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
+//                    Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
+//                    int bonusType = building->getbonusType();
+//                    if(bonusType == 2)
+//                    {
+//                         science = building->getBonusValue();
+
+//                    }else if(bonusType == 0)
+//                    {
+//                       gold = building->getBonusValue();
+
+//                    }else if(bonusType == 3)
+//                    {
+//                         food = building->getBonusValue();
+//                    }else if(bonusType == 1)
+//                    {
+//                         production = building->getBonusValue();
+//                    }else if(bonusType == 4)
+//                    {
+//                         culture = building->getBonusValue();
+//                    }
+
+//                    if(0==currentTurn)
+//                    {
+//                        civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
+//                    }
+
+//                    civList.at(currentTurn)->GetCityList().at(i)->addBuilding(building);
+//                }
+
+//                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
+//                {
+//                    ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
+//                }
+//            }
+//        }
 
         //-----------------------------------------------------------------------
 
@@ -1192,12 +1239,13 @@ void GameManager::StartTurn()
 
         civList.at(currentTurn)->GetCityAt(i)->UpdateCityYield();
 
-        civList.at(currentTurn)->UpdateCivYield();
 
         //Update the production and population growth bars for the city.
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
         renderer->UpdateCityGrowthBar(civList.at(currentTurn)->GetCityAt(i), gameView);
     }
+
+    civList.at(currentTurn)->UpdateCivYield();
 
     int civMilStr = 0;
     foreach(Unit* unit, civList.at(currentTurn)->GetUnitList())
@@ -1971,6 +2019,8 @@ void GameManager::InitVariables(bool fullscreen)
 
     gameView->ConfigureGraphicsView();
 
+    LoadJsonData();
+
     updateTimer = new QTimer();
     updateTimer->setInterval(17);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateTiles()));
@@ -1984,6 +2034,49 @@ void GameManager::InitVariables(bool fullscreen)
     this->show();
 
     ns->hide();
+}
+
+void GameManager::LoadJsonData()
+{
+    QFile buildExport("Data/buildings.json");
+
+    if(!buildExport.open(QIODevice::ReadOnly))
+    {
+        qWarning("Couldn't open buildExport save file");
+    }
+    else
+    {
+        QByteArray data = buildExport.readAll();
+        QJsonDocument build = QJsonDocument::fromJson(data);
+        BuildingData = build.array();
+    }
+
+    QFile unitExport("Data/units.json");
+
+    if(!unitExport.open(QIODevice::ReadOnly))
+    {
+        qWarning("Couldn't open unitExport save file");
+    }
+    else
+    {
+        QByteArray data = unitExport.readAll();
+        QJsonDocument unit = QJsonDocument::fromJson(data);
+        UnitData = unit.array();
+
+    }
+
+    QFile techExport("Data/techList.json");
+
+    if(!techExport.open(QIODevice::ReadOnly))
+    {
+        qWarning("Couldn't open techExport save file");
+    }
+    else
+    {
+        QByteArray data = techExport.readAll();
+        QJsonDocument tech = QJsonDocument::fromJson(data);
+        TechData = tech.array();
+    }
 }
 
 void GameManager::InitButtons()
@@ -2318,92 +2411,10 @@ void GameManager::InitRenderData()
 
             civList.at(i)->GetCityAt(j)->loadUnits("Assets/Units/UnitList.txt");
             civList.at(i)->GetCityAt(j)->loadBuildings("Assets/Buildings/BuildingList.txt");
-
-//            if(i == 0)
-//            {
-//                if(!QDir("Data").exists())
-//                {
-//                    QDir().mkdir("Data");
-//                }
-
-//                QFile buildExport("Data/buildings.json");
-
-//                if(!buildExport.open(QIODevice::WriteOnly))
-//                {
-//                    qWarning("Couldn't open buildExport save file");
-//                }
-//                else
-//                {
-//                    QJsonDocument build;
-//                    QJsonArray buildArray;
-
-//                    foreach(Building *b, civList.at(0)->GetCityAt(0)->getInitialBuildingList())
-//                    {
-//                        QJsonObject obj;
-//                        b->WriteBuildingSaveData(obj);
-//                        buildArray.push_back(obj);
-//                    }
-
-//                    build.setArray(buildArray);
-//                    buildExport.write(build.toJson());
-//                    buildExport.flush();
-//                    buildExport.close();
-//                }
-
-//                QFile unitExport("Data/units.json");
-
-//                if(!unitExport.open(QIODevice::WriteOnly))
-//                {
-//                    qWarning("Couldn't open unitExport save file");
-//                }
-//                else
-//                {
-//                    QJsonDocument unit;
-//                    QJsonArray unitArray;
-
-//                    foreach(Unit* u, civList.at(0)->GetCityAt(0)->getInitialUnitList())
-//                    {
-//                        QJsonObject obj;
-//                        u->WriteUnitSaveData(obj);
-//                        unitArray.push_back(obj);
-//                    }
-
-//                    unit.setArray(unitArray);
-//                    unitExport.write(unit.toJson());
-//                    unitExport.flush();
-//                    unitExport.close();
-//                }
-
-//                QFile techExport("Data/techList.json");
-
-//                if(!techExport.open(QIODevice::WriteOnly))
-//                {
-//                    qWarning("Couldn't open techExport save file");
-//                }
-//                else
-//                {
-//                    QJsonDocument tech;
-//                    QJsonArray techArray;
-
-//                    foreach(Technology *t, civList.at(0)->GetTechList())
-//                    {
-//                        QJsonObject obj;
-//                        t->WriteTechSaveData(obj);
-//                        techArray.push_back(obj);
-//                    }
-
-//                    tech.setArray(techArray);
-//                    techExport.write(tech.toJson());
-//                    techExport.flush();
-//                    techExport.close();
-//                }
-//            }
         }
     }
 
     endGameProgress->setText(*endGameText);
-
-
 
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
