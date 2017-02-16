@@ -7,7 +7,6 @@ NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
 {
 #ifdef __APPLE__
 QDir bin(QCoreApplication::applicationDirPath());
-qDebug()<<"Test Notif";
 bin.cdUp();
 bin.cdUp();
 bin.cdUp();

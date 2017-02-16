@@ -23,13 +23,10 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     InitVariables(fullscreen);
     playerCiv = player;
-    qDebug()<<"TTTT";
     renderer = new Renderer(mapSizeX);
 
-    qDebug()<<"TTTT";
     map = new Map(mapSizeX, mapSizeY);
 #ifdef __APPLE__
-
     this->map->InitHexMap();
     this->InitCivs(player, numAI);
 #else
@@ -2292,7 +2289,6 @@ void GameManager::InitYieldDisplay()
 
 #ifdef __APPLE__
 QDir bin(QCoreApplication::applicationDirPath());
-qDebug()<<"Test"<<bin.absolutePath()<<"Test2";
 bin.cdUp();
 bin.cdUp();
 bin.cdUp();

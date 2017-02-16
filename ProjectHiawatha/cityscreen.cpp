@@ -21,7 +21,6 @@ CityScreen::CityScreen(QWidget *parent) :
 {
 #ifdef __APPLE__
     QDir bin(QCoreApplication::applicationDirPath());
-    qDebug()<<"cityscreen";
     bin.cdUp();
     bin.cdUp();
     bin.cdUp();
@@ -270,7 +269,6 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     QJsonObject obj = buildingList.at(ui->listWidget->currentRow()).toObject();
     #ifdef __APPLE__
         QDir bin(QCoreApplication::applicationDirPath());
-        qDebug()<<"cityscreen";
         bin.cdUp();
         bin.cdUp();
         bin.cdUp();
@@ -361,7 +359,6 @@ void CityScreen::on_listWidget_2_itemSelectionChanged()
     QJsonObject obj = buildingList.at(ui->listWidget_2->currentRow()).toObject();
     #ifdef __APPLE__
         QDir bin(QCoreApplication::applicationDirPath());
-        qDebug()<<"cityscreen";
         bin.cdUp();
         bin.cdUp();
         bin.cdUp();

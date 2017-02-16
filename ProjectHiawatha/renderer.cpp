@@ -31,7 +31,6 @@ Renderer::Renderer(int mapSizeX)
 {
     #ifdef __APPLE__
         QDir bin(QCoreApplication::applicationDirPath());
-        qDebug()<<"renderer";
         bin.cdUp();
         bin.cdUp();
         bin.cdUp();
@@ -279,8 +278,7 @@ Renderer::~Renderer()
     delete clouds;
     delete hidden;
     delete orders;
-    #ifdef __APPLE__
-    #else
+    #ifndef __APPLE__
         synch.waitForFinished();
     #endif
     qDebug() << "       Synch finished";
@@ -453,7 +451,6 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         // their opacity levels when told to do so by the manager.
 #ifdef __APPLE__
 QDir bin(QCoreApplication::applicationDirPath());
-qDebug()<<bin.absolutePath();
 bin.cdUp();
 bin.cdUp();
 bin.cdUp();
@@ -1263,7 +1260,6 @@ void Renderer::AddCityHealthBars(City *city, GameView *view)
     //------------------------------------------------------------------------------
 #ifdef __APPLE__
 QDir bin(QCoreApplication::applicationDirPath());
-qDebug()<<bin.absolutePath();
 bin.cdUp();
 bin.cdUp();
 bin.cdUp();
@@ -1756,7 +1752,6 @@ void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
 #ifdef __APPLE__
 QDir bin(QCoreApplication::applicationDirPath());
-qDebug()<<bin.absolutePath();
 bin.cdUp();
 bin.cdUp();
 bin.cdUp();

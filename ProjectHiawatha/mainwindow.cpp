@@ -12,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 #ifdef __APPLE__
 QDir bin(QCoreApplication::applicationDirPath());
-qDebug()<<"Test"<<bin.absolutePath()<<"Test2";
 bin.cdUp();
 bin.cdUp();
 bin.cdUp();
