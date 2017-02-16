@@ -20,7 +20,6 @@ QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  bac
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
-
     InitVariables(fullscreen);
     playerCiv = player;
     renderer = new Renderer(mapSizeX);
@@ -135,6 +134,20 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
         }
 
         playerCiv = civList.at(0)->getCiv();
+
+        QFile civData("Assets/Data/civ_data.json");
+        QJsonArray civRefData;
+        if(!civData.open(QIODevice::ReadOnly))
+        {
+            qWarning("Couldn't open civData file");
+        }
+        else
+        {
+            QByteArray byte = civData.readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(byte);
+            civRefData = doc.array();
+        }
+
         // Add city tile and controlled tiles to city objects.
         QPixmap pic;
         foreach(Civilization* c, civList)
@@ -191,60 +204,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
             c->UpdateCivYield();
 
-            switch(c->getCiv())
-            {
-            case America:
-                pic = QPixmap("Assets/Leaders/George_head.jpg");
-                break;
-            case Germany:
-                pic = QPixmap("Assets/Leaders/bismark.jpg");
-                break;
-            case India:
-                pic = QPixmap("Assets/Leaders/gandhi.jpg");
-                break;
-            case China:
-                pic = QPixmap("Assets/Leaders/Mao.jpg");
-                break;
-            case Mongolia:
-                pic = QPixmap("Assets/Leaders/khan.jpg");
-                break;
-            case Aztec:
-                pic = QPixmap("Assets/Leaders/montezuma.jpg");
-                break;
-            case France:
-                pic = QPixmap("Assets/Leaders/napoleon.jpg");
-                break;
-            case Iroquois:
-                pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
-                break;
-            case Greece:
-                pic = QPixmap("Assets/Leaders/Alexander.jpg");
-                break;
-            case Rome:
-                pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
-                break;
-            case England:
-                pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
-                break;
-            case Arabia:
-                pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
-                break;
-            case Persia:
-                pic = QPixmap("Assets/Leaders/Cyrus.jpg");
-                break;
-            case Russia:
-                pic = QPixmap("Assets/Leaders/stalin.jpg");
-                break;
-            case Japan:
-                pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
-                break;
-            case Egypt:
-                pic = QPixmap("Assets/Leaders/Ramseses.jpg");
-                break;
-            default:
-                break;
-            }
-
+            pic = QPixmap(civRefData.at(c->getCiv()).toObject()["leaderimagepath"].toString());
             diplo->SetLeaderImage(c->getCivIndex(), pic);
         }
     }
@@ -459,266 +419,67 @@ void GameManager::MakePeace()
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
-    Civilization* civ = new Civilization(player, false, " ");
-    civ->loadTechs("Assets/Techs/Technology.txt");
-    civ->setCurrentTech(civ->GetTechList().at(0));
-    civ->setNextTech(civ->GetTechList().at(1));
-    civ->setCivIndex(0);
-    techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
-    QPixmap pic;
-
-    QString str = "Assets/CityLists/";
-    QString str2;
-    switch (player)
+    QFile civData("Assets/Data/civ_data.json");
+    if(!civData.open(QIODevice::ReadOnly))
     {
-    case America:
-        str2 = "america.txt";
-        civ->SetLeaderName(QString("Washington"));
-        pic = QPixmap("Assets/Leaders/George_head.jpg");
-        break;
-    case Germany:
-        str2 = "germany.txt";
-        civ->SetLeaderName(QString("Bismark"));
-        pic = QPixmap("Assets/Leaders/bismark.jpg");
-        break;
-    case India:
-        str2 = "india.txt";
-        civ->SetLeaderName(QString("Gandhi"));
-        pic = QPixmap("Assets/Leaders/gandhi.jpg");
-        break;
-    case China:
-        str2 = "china.txt";
-        civ->SetLeaderName(QString("Zedong"));
-        pic = QPixmap("Assets/Leaders/Mao.jpg");
-        break;
-    case Mongolia:
-        str2 = "mongolia.txt";
-        civ->SetLeaderName(QString("Genghis Khan"));
-        pic = QPixmap("Assets/Leaders/khan.jpg");
-        break;
-    case Aztec:
-        str2 = "aztec.txt";
-        civ->SetLeaderName(QString("Montezuma"));
-        pic = QPixmap("Assets/Leaders/montezuma.jpg");
-        break;
-    case France:
-        str2 = "france.txt";
-        civ->SetLeaderName(QString("Napoleon"));
-        pic = QPixmap("Assets/Leaders/napoleon.jpg");
-        break;
-    case Iroquois:
-        str2 = "iroquois.txt";
-        civ->SetLeaderName(QString("Hiawatha"));
-        pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
-        break;
-    case Greece:
-        str2 = "greece.txt";
-        civ->SetLeaderName(QString("Alexander"));
-        pic = QPixmap("Assets/Leaders/Alexander.jpg");
-        break;
-    case Rome:
-        str2 = "rome.txt";
-        civ->SetLeaderName(QString("Ceasar"));
-        pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
-        break;
-    case England:
-        str2 = "england.txt";
-        civ->SetLeaderName(QString("Elizabeth"));
-        pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
-        break;
-    case Arabia:
-        str2 = "arabia.txt";
-        civ->SetLeaderName(QString("al-Rashid"));
-        pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
-        break;
-    case Persia:
-        str2 = "persia.txt";
-        civ->SetLeaderName(QString("Cyrus"));
-        pic = QPixmap("Assets/Leaders/Cyrus.jpg");
-        break;
-    case Russia:
-        str2 = "russia.txt";
-        civ->SetLeaderName(QString("Stalin"));
-        pic = QPixmap("Assets/Leaders/stalin.jpg");
-        break;
-    case Japan:
-        str2 = "japan.txt";
-        civ->SetLeaderName(QString("Nobunga"));
-        pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
-        break;
-    case Egypt:
-        str2= "egypt.txt";
-        civ->SetLeaderName(QString("Ramesses"));
-        pic = QPixmap("Assets/Leaders/Ramseses.jpg");
-        break;
-    default:
-        str2 = "india.txt";
-        civ->SetLeaderName(QString("Gandhi"));
-        pic = QPixmap("Assets/Leaders/gandhi.jpg");
-        break;
+        qWarning("Couldn't open civData file");
     }
-    str = str + str2;
-    civ->loadCities(str);
-    civList.push_back(civ);
-    diplo->AddLeader(civ->GetLeaderName(), pic, player, true);
-    srand(time(0));
-    int civNum;
-    bool found;
-    QVector<int> selNat;
-
-    selNat.push_back(player);
-
-    for(int i = 0; i < numAI; i++)
+    else
     {
-newCivRand:
-        // The modulo number at the end indicates the
-        // max number of civs in the game.
-        civNum = rand() % 16;
+        QByteArray byte = civData.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(byte);
+        QJsonArray civRefData = doc.array();
 
-        if(civNum != player)
+        QJsonObject obj = civRefData.at(player).toObject();
+        Civilization* civ = new Civilization(obj, false);
+
+        civ->loadTechs("Assets/Techs/Technology.txt");
+        civ->setCurrentTech(civ->GetTechList().at(0));
+        civ->setNextTech(civ->GetTechList().at(1));
+        civ->setCivIndex(0);
+        techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
+
+        civList.push_back(civ);
+        diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), player, true);
+
+        srand(time(0));
+        int civNum;
+        QVector<int> selNat;
+
+        selNat.push_back(player);
+
+        for(int i = 0; i < numAI; i++)
         {
+    newCivRand:
+            // The modulo number at the end indicates the
+            // max number of civs in the game.
+            civNum = rand() % 16;
+
             // look to see if the selected civ has already been chosen
             foreach(int j, selNat)
             {
                 if(j == civNum)
                 {
-                    found = true;
-                    break;
+                    goto newCivRand;
                 }
             }
 
-            switch (civNum)
-            {
-            case America:
-                civ = new Civilization(America, true, "Washington");
-                civ->loadCities("Assets/CityLists/america.txt");
-                pic = QPixmap("Assets/Leaders/George_head.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Germany:
-                civ = new Civilization(Germany, true, "Bismark");
-                civ->loadCities("Assets/CityLists/germany.txt");
-                pic = QPixmap("Assets/Leaders/bismark.jpg");
-                selNat.push_back(civNum);
-                break;
-            case India:
-                civ = new Civilization(India, true, "Gandhi");
-                civ->loadCities("Assets/CityLists/india.txt");
-                pic = QPixmap("Assets/Leaders/gandhi.jpg");
-                selNat.push_back(civNum);
-                break;
-            case China:
-                civ = new Civilization(China, true, "Zedong");
-                civ->loadCities("Assets/CityLists/china.txt");
-                pic = QPixmap("Assets/Leaders/Mao.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Mongolia:
-                civ = new Civilization(Mongolia, true, "Genghis Khan");
-                civ->loadCities("Assets/CityLists/mongolia.txt");
-                pic = QPixmap("Assets/Leaders/khan.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Aztec:
-                civ = new Civilization(Aztec, true, "Montezuma");
-                civ->loadCities("Assets/CityLists/aztec.txt");
-                pic = QPixmap("Assets/Leaders/montezuma.jpg");
-                selNat.push_back(civNum);
-                break;
-            case France:
-                civ = new Civilization(France, true, "Napoleon");
-                civ->loadCities("Assets/CityLists/france.txt");
-                pic = QPixmap("Assets/Leaders/napoleon.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Iroquois:
-                civ = new Civilization(Iroquois, true, "Hiawatha");
-                civ->loadCities("Assets/CityLists/iroquois.txt");
-                pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
-                selNat.push_back(Iroquois);
-                break;
-            case Greece:
-                civ = new Civilization(Greece, true, "Alexander");
-                civ->loadCities("Assets/CityLists/greece.txt");
-                pic = QPixmap("Assets/Leaders/Alexander.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Rome:
-                civ = new Civilization(Rome, true, "Ceasar");
-                civ->loadCities("Assets/CityLists/rome.txt");
-                pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
-                selNat.push_back(civNum);
-                break;
-            case England:
-                civ = new Civilization(England, true, "Elizabeth");
-                civ->loadCities("Assets/CityLists/england.txt");
-                pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Arabia:
-                civ = new Civilization(Arabia, true, "al-Rashid");
-                civ->loadCities("Assets/CityLists/arabia.txt");
-                pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Persia:
-                civ = new Civilization(Persia, true, "Cyrus");
-                civ->loadCities("Assets/CityLists/persia.txt");
-                pic = QPixmap("Assets/Leaders/Cyrus.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Russia:
-                civ = new Civilization(Russia, true, "Stalin");
-                civ->loadCities("Assets/CityLists/russia.txt");
-                pic = QPixmap("Assets/Leaders/stalin.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Japan:
-                civ = new Civilization(Japan, true, "Nobunga");
-                civ->loadCities("Assets/CityLists/japan.txt");
-                pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Egypt:
-                civ = new Civilization(Egypt, true, "Ramesses");
-                civ->loadCities("Assets/CityLists/egypt.txt");
-                pic = QPixmap("Assets/Leaders/Ramseses.jpg");
-                selNat.push_back(civNum);
-                break;
-            default:
-                //Always default to Ghandi.
-                civ = new Civilization(India, true, "Gandhi");
-                civ->loadCities("Assets/CityLists/india.txt");
-                pic = QPixmap("Assets/Leaders/gandhi.jpg");
-                selNat.push_back(civNum);
-                break;
-            }
+            // Civ has not already been chosen, so create a new civ and
+            //  load it into the civList.
+            obj = civRefData.at(civNum).toObject();
+            civ = new Civilization(obj, true);
 
-            // If was not found, place in civList vector
-            if(!found)
-            {
-                civ->loadTechs("Assets/Techs/Technology.txt");
-                civ->setCurrentTech(civ->GetTechList().at(0));
-                civ->setNextTech(civ->GetTechList().at(1));
-                civ->setCivIndex(i+1);
-                civList.push_back(civ);
-                diplo->AddLeader(civ->GetLeaderName(), pic, (Nation)civNum, false);
-            }
-            // Otherwise, delete it and try again.
-            else
-            {
-                found = false;
-                delete civ;
-                goto newCivRand;
-            }
-        }
-        else
-        {
-            goto newCivRand;
-        }
+            civ->loadTechs("Assets/Techs/Technology.txt");
+            civ->setCurrentTech(civ->GetTechList().at(0));
+            civ->setNextTech(civ->GetTechList().at(1));
+            civ->setCivIndex(civList.size());
+            civList.push_back(civ);
 
+            diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), (Nation)civNum, false);
+
+            selNat.push_back(civNum);
+        }
     }
-
 
     if(!mapInit.isFinished())
     {
@@ -1134,110 +895,6 @@ void GameManager::StartTurn()
 
     for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
     {
-//        if(update.productionFinished)
-//        {
-//            if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
-//            {
-//                civList.at(currentTurn)->GetCityAt(i)->setProductionFinished(false);
-
-//                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
-//                {
-//                    str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
-//                    localIndex++;
-
-//                }
-
-//                if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
-//                {
-//                    civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
-//                    Unit* unit = new Unit(0);
-//                    Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
-//                    unit->setUnitType(unitData->GetUnitType());
-//                    unit->SetName(unitData->GetName());
-//                    unit->SetCost(unitData->GetCost());
-//                    unit->SetMovementPoints(unitData->GetMovementPoints());
-//                    unit->SetStrength(unitData->GetStrength());
-//                    unit->SetRange(unitData->GetRange());
-//                    unit->SetRangeStrength(unitData->GetRangeStrength());
-//                    unit->SetUnitIcon(unitData->GetUnitType());
-//                    unit->SetOwner(civList.at(currentTurn)->getCiv());
-//                    unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
-
-//                    for(int j = 0; j < civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().size();j++)
-//                    {
-//                        int tileIndex = civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().at(j)->GetTileIndex();
-//                        if(unit->isNaval())
-//                        {
-//                            if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-//                            else
-//                            {
-//                                    unit->SetPositionIndex(tileIndex);
-//                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
-//                                    break;
-//                            }
-//                        }
-//                        else
-//                        {
-//                            if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-//                            else
-//                            {
-//                                    unit->SetPositionIndex(tileIndex);
-//                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
-//                                    break;
-//                            }
-//                        }
-//                    }
-
-//                    civList.at(currentTurn)->AddUnit(unit);
-//                    renderer->AddUnit(unit,map,gameView);
-//                }
-//                else
-//                {
-//                    int science = 0;
-//                    int gold = 0;
-//                    int production = 0;
-//                    int culture = 0;
-//                    int food = 0;
-//                    civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
-//                    int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
-//                    Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
-//                    int bonusType = building->getbonusType();
-//                    if(bonusType == 2)
-//                    {
-//                         science = building->getBonusValue();
-
-//                    }else if(bonusType == 0)
-//                    {
-//                       gold = building->getBonusValue();
-
-//                    }else if(bonusType == 3)
-//                    {
-//                         food = building->getBonusValue();
-//                    }else if(bonusType == 1)
-//                    {
-//                         production = building->getBonusValue();
-//                    }else if(bonusType == 4)
-//                    {
-//                         culture = building->getBonusValue();
-//                    }
-
-//                    if(0==currentTurn)
-//                    {
-//                        civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
-//                    }
-
-//                    civList.at(currentTurn)->GetCityList().at(i)->addBuilding(building);
-//                }
-
-//                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
-//                {
-//                    ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
-//                }
-//            }
-//        }
-
-        //-----------------------------------------------------------------------
-
         //If a city took damage and has healed, alert the renderer of this change.
         if(update.cityHealed)
         {
@@ -1245,7 +902,6 @@ void GameManager::StartTurn()
         }
 
         civList.at(currentTurn)->GetCityAt(i)->UpdateCityYield();
-
 
         //Update the production and population growth bars for the city.
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
@@ -3342,4 +2998,3 @@ void GameManager::toggleFog()
 
     toggleOn = !toggleOn;
 }
-

@@ -143,7 +143,7 @@ void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
         QJsonObject dio = dArray.at(i).toObject();
         DiplomacyItem *di = new DiplomacyItem();
         di->nation = static_cast<Nation>(dio["nation"].toInt());
-        di->leaderName = dio["leadername"].toString();
+        di->leaderName = dio["leader"].toString();
         di->displayString = dio["displaystring"].toString();
 
         QJsonArray whArray = dio["warchart"].toArray();

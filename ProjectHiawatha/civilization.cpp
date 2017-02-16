@@ -49,6 +49,38 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     }
 }
 
+Civilization::Civilization(QJsonObject obj, bool isAI)
+{
+    LeaderName = obj["name"].toString();
+    name = static_cast<Nation>(obj["nation"].toInt());
+
+    this->totalCivYield = new Yield(0, 0, 0, 0, 0);
+    this->cityIndex = 0;
+    this->totalGold = 0;
+    this->totalScience = 0;
+    this->totalCulture = 0;
+    this->accumulatedScience = 0;
+    this->techIndex = 0;
+    this->cityFounded = false;
+    this->alive = true;
+    this->capitalsControlled = 1;
+    this->atWar = false;
+    this->militaryStrength = 0;
+
+    this->isAIPlayer = isAI;
+
+    this->loadCities(obj["citynames"].toArray());
+    this->totalScience += this->getCivYield()->GetScienceYield();
+    this->totalCulture += this->getCivYield()->GetCultureYield();
+    this->totalGold += this->totalCivYield->GetGoldYield();
+
+}
+
+Civilization::~Civilization()
+{
+
+}
+
 
 
 
@@ -186,7 +218,7 @@ Update_t Civilization::UpdateProgress()
     int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
     this->totalCivYield->ChangeYield(Yield::GOLD, maintenance * -1);
-    this->totalGold += this->getCivYield()->GetGoldYield();
+    this->totalGold += this->totalCivYield->GetGoldYield();
 //    this->totalGold -= maintenance;
 
     if(this->totalGold < 0)
@@ -389,6 +421,18 @@ void Civilization::WriteData(QJsonObject &obj) const
     }
 }
 
+void Civilization::ExportData(QJsonObject &obj) const
+{
+    obj["name"] = LeaderName;
+    obj["nation"] = name;
+    QJsonArray cityNames;
+    foreach(QString s, this->initialCityList)
+    {
+        cityNames.push_back(s);
+    }
+    obj["citynames"] = cityNames;
+}
+
 void Civilization::ReadData(const QJsonObject &obj)
 {
     name = static_cast<Nation>(obj["nation"].toInt());
@@ -524,6 +568,14 @@ void Civilization::loadCities(QString filename)
         mBox->setText("File Not Found");
         mBox->exec();
 
+    }
+}
+
+void Civilization::loadCities(QJsonArray arr)
+{
+    for(int i = 0; i < arr.size(); i++)
+    {
+        this->initialCityList.push_back(arr.at(i).toString());
     }
 }
 

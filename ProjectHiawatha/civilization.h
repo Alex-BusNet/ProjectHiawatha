@@ -24,6 +24,8 @@ class Civilization
 public:
     Civilization();//default, don't use
     Civilization(Nation name, bool isAI, QString leaderName);
+    Civilization(QJsonObject obj, bool isAI);
+    ~Civilization();
 
     //Accessors and Mutators
     void UpdateCivYield();
@@ -43,11 +45,13 @@ public:
     void setTechIndex();
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
+    void loadCities(QJsonArray arr);
     void setCivIndex(int index);
     void SetMilitaryStrength(int milStr);
     void MakePeace(int enemyCivListIndex);
 
     void WriteData(QJsonObject &obj) const;
+    void ExportData(QJsonObject &obj) const;
     void ReadData(const QJsonObject &obj);
 
     QString GetLeaderName();

@@ -31,6 +31,9 @@ City::City()
     this->fullyExpanded = false;
     this->hasWorker=false;
     this->cityID = -1;
+    this->goldYield = 0;
+    this->productionYield = 0;
+    this->scienceYield = 0;
 
     this->StationedMilitary = NULL;
     this->StationedWorkers = NULL;
