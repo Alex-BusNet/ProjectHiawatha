@@ -20,9 +20,9 @@ QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  bac
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
+
     InitVariables(fullscreen);
     playerCiv = player;
-
     renderer = new Renderer(mapSizeX);
 
     map = new Map(mapSizeX, mapSizeY);
@@ -426,12 +426,13 @@ GameManager::~GameManager()
 
     if(updateTimer != NULL)
         delete updateTimer;
-
+#ifndef __APPLE__
     if(!derender.isFinished())
     {
         qDebug() << "   ----Waiting for renderer";
         derender.waitForFinished();
     }
+#endif
 
     qDebug() <<"       Deleting gameView";
     delete gameView;
@@ -751,13 +752,12 @@ void GameManager::LoadCivs()
 void GameManager::paintEvent(QPaintEvent *event)
 {
     QPainter paint(this);
-
     paint.fillRect(*playerInfoRect, QBrush(Qt::black));
     paint.fillRect(*gameStatusRect, QBrush(Qt::black));
     paint.setPen(Qt::white);
     paint.drawText(*playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
-    paint.drawText(*gameStatusRect, (Qt::AlignHCenter | Qt::AlignVCenter), statusMessage);
 
+    paint.drawText(*gameStatusRect, (Qt::AlignHCenter | Qt::AlignVCenter), statusMessage);
 }
 
 void GameManager::TurnController()
@@ -1954,7 +1954,6 @@ void GameManager::InitVariables(bool fullscreen)
     about = new About();
     diplo = new Diplomacy(this);
     diplo->hide();
-
     warbox = new QMessageBox();
     warbox->addButton(QMessageBox::Cancel);
     warbox->addButton(QMessageBox::Ok);
@@ -1972,6 +1971,7 @@ void GameManager::InitVariables(bool fullscreen)
 
     cityScreen = new CityScreen();
     cityScreen->hide();
+
     techTree = new TechTree(this);
 
     selectedTileQueue = new QQueue<SelectData>();
@@ -2027,12 +2027,14 @@ void GameManager::InitVariables(bool fullscreen)
     updateTimer->start();
 
     qsrand(QTime::currentTime().msec());
-
     this->InitButtons();
     this->InitLayouts();
     this->setLayout(vLayout);
+    #ifdef __APPLE__
+        playerInfoRect = new QRect(0, 0, this->width(), 20);
+        gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
+    #endif
     this->show();
-
     ns->hide();
 }
 
@@ -2285,6 +2287,14 @@ void GameManager::InitYieldDisplay()
     sciText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     culText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
+#ifdef __APPLE__
+QDir bin(QCoreApplication::applicationDirPath());
+bin.cdUp();
+bin.cdUp();
+bin.cdUp();
+QDir::setCurrent(bin.absolutePath());
+#endif
+
     goldPix = new QPixmap("Assets/Icons/gold.png");
     prodPix = new QPixmap("Assets/Icons/production.png");
     foodPix = new QPixmap("Assets/Icons/food.png");
@@ -2429,9 +2439,10 @@ void GameManager::InitRenderData()
     }
 
     gameView->centerOn(civList.at(0)->GetCityAt(0)->GetCityTile()->GetCenter());
-
-    playerInfoRect = new QRect(0, 0, this->width(), 20);
-    gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
+    #ifndef __APPLE__
+        playerInfoRect = new QRect(0, 0, this->width(), 20);
+        gameStatusRect = new QRect(0, this->height() - 20, this->width(), 20);
+    #endif
     statusMessage = " ";
 
     techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));

@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QFile>
+#include <QDir>
+#include <QCoreApplication>
 
 TechTree::TechTree(QWidget *parent) :
     QWidget(parent),
@@ -33,6 +35,14 @@ TechTree::~TechTree()
 
 void TechTree::loadData(Technology *currentTech, Technology *nextTech, int currentProgress)
 {
+#ifdef __APPLE__
+    QDir bin(QCoreApplication::applicationDirPath());
+    qDebug()<<"TechTree";
+    bin.cdUp();
+    bin.cdUp();
+    bin.cdUp();
+    QDir::setCurrent(bin.absolutePath());
+#endif
     QString str = "Assets/Techs/";
     QString str2 = currentTech->getName();
     QString str3 = nextTech->getName();
@@ -101,6 +111,14 @@ void TechTree::loadTechList(QString filename)
 
 void TechTree::on_listWidget_itemSelectionChanged()
 {
+#ifdef __APPLE__
+    QDir bin(QCoreApplication::applicationDirPath());
+    qDebug()<<"TechTree";
+    bin.cdUp();
+    bin.cdUp();
+    bin.cdUp();
+    QDir::setCurrent(bin.absolutePath());
+#endif
     int vectorIndex = ui->listWidget->currentRow()+ localIndex;
     QString str = "Assets/Techs/";
     QString str2 = techListCopy.at(vectorIndex)->getName();
