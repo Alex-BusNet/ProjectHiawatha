@@ -23,7 +23,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 
     InitVariables(fullscreen);
     playerCiv = player;
-
+    qDebug()<<"TTTT";
     renderer = new Renderer(mapSizeX);
 
     qDebug()<<"TTTT";
