@@ -1,0 +1,222 @@
+[
+    {
+        "bonus": 4,
+        "bonustype": 5,
+        "buildingmaintenancecost": 0,
+        "description": " Adds to a city's defense",
+        "name": "Walls",
+        "productioncost": 75,
+        "techindex": -1,
+        "unlocked": 1
+    },
+    {
+        "bonus": 12,
+        "bonustype": 2,
+        "buildingmaintenancecost": 2,
+        "description": " Increases a city's science output",
+        "name": "Library",
+        "productioncost": 100,
+        "techindex": 2,
+        "unlocked": 0
+    },
+    {
+        "bonus": 55,
+        "bonustype": 2,
+        "buildingmaintenancecost": 3,
+        "description": " Increases a city's science production",
+        "name": "Observatory",
+        "productioncost": 220,
+        "techindex": 6,
+        "unlocked": 0
+    },
+    {
+        "bonus": 6,
+        "bonustype": 5,
+        "buildingmaintenancecost": 2,
+        "description": " Increases a city's defense",
+        "name": "Barracks",
+        "productioncost": 125,
+        "techindex": -1,
+        "unlocked": 1
+    },
+    {
+        "bonus": 20,
+        "bonustype": 0,
+        "buildingmaintenancecost": 0,
+        "description": " Increases a city's gold production",
+        "name": "Bank",
+        "productioncost": 300,
+        "techindex": 6,
+        "unlocked": 0
+    },
+    {
+        "bonus": 2,
+        "bonustype": 3,
+        "buildingmaintenancecost": 1,
+        "description": " Adds food to a city",
+        "name": "Granary",
+        "productioncost": 50,
+        "techindex": -1,
+        "unlocked": 1
+    },
+    {
+        "bonus": 4,
+        "bonustype": 4,
+        "buildingmaintenancecost": 3,
+        "description": " Adds culture to a city",
+        "name": "Theatre",
+        "productioncost": 200,
+        "techindex": 6,
+        "unlocked": 0
+    },
+    {
+        "bonus": 3,
+        "bonustype": 4,
+        "buildingmaintenancecost": 1,
+        "description": " Adds culture to a city",
+        "name": "Colosseum",
+        "productioncost": 100,
+        "techindex": 3,
+        "unlocked": 0
+    },
+    {
+        "bonus": 5,
+        "bonustype": 4,
+        "buildingmaintenancecost": 4,
+        "description": " Increases culture in a city",
+        "name": "Courthouse",
+        "productioncost": 120,
+        "techindex": 3,
+        "unlocked": 0
+    },
+    {
+        "bonus": 5,
+        "bonustype": 3,
+        "buildingmaintenancecost": 1,
+        "description": " Increase amount of food in a city",
+        "name": "Lighthouse",
+        "productioncost": 70,
+        "techindex": -1,
+        "unlocked": 1
+    },
+    {
+        "bonus": 12,
+        "bonustype": 1,
+        "buildingmaintenancecost": 3,
+        "description": " Greatly increases production",
+        "name": "Factory",
+        "productioncost": 365,
+        "techindex": 9,
+        "unlocked": 0
+    },
+    {
+        "bonus": 7,
+        "bonustype": 3,
+        "buildingmaintenancecost": 2,
+        "description": " Helps a city grow",
+        "name": "Hospital",
+        "productioncost": 365,
+        "techindex": 9,
+        "unlocked": 0
+    },
+    {
+        "bonus": 4,
+        "bonustype": 4,
+        "buildingmaintenancecost": 3,
+        "description": " Increases cultutre in a city",
+        "name": "Temple",
+        "productioncost": 110,
+        "techindex": 3,
+        "unlocked": 0
+    },
+    {
+        "bonus": 5,
+        "bonustype": 3,
+        "buildingmaintenancecost": 1,
+        "description": " Helps a city's population to grow",
+        "name": "Aqueduct",
+        "productioncost": 115,
+        "techindex": 4,
+        "unlocked": 0
+    },
+    {
+        "bonus": 6,
+        "bonustype": 1,
+        "buildingmaintenancecost": 4,
+        "description": " Increases production",
+        "name": "Hydro Plant",
+        "productioncost": 425,
+        "techindex": 13,
+        "unlocked": 0
+    },
+    {
+        "bonus": 6,
+        "bonustype": 5,
+        "buildingmaintenancecost": 0,
+        "description": " Increases a city's defense",
+        "name": "Castle",
+        "productioncost": 175,
+        "techindex": 5,
+        "unlocked": 0
+    },
+    {
+        "bonus": 5,
+        "bonustype": 1,
+        "buildingmaintenancecost": 1,
+        "description": " Increases production",
+        "name": "Forge",
+        "productioncost": 130,
+        "techindex": 4,
+        "unlocked": 0
+    },
+    {
+        "bonus": 25,
+        "bonustype": 1,
+        "buildingmaintenancecost": 3,
+        "description": " Significantly increases production",
+        "name": "Nuclear Plant",
+        "productioncost": 500,
+        "techindex": 13,
+        "unlocked": 0
+    },
+    {
+        "bonus": 25,
+        "bonustype": 1,
+        "buildingmaintenancecost": 3,
+        "description": " Increases production",
+        "name": "Harbor",
+        "productioncost": 500,
+        "techindex": 13,
+        "unlocked": 0
+    },
+    {
+        "bonus": 10,
+        "bonustype": 0,
+        "buildingmaintenancecost": 0,
+        "description": " Increases a city's gold output",
+        "name": "Market",
+        "productioncost": 150,
+        "techindex": 4,
+        "unlocked": 0
+    },
+    {
+        "bonus": 3,
+        "bonustype": 4,
+        "buildingmaintenancecost": 0,
+        "description": " Increases cultutre",
+        "name": "Monastery",
+        "productioncost": 130,
+        "techindex": 4,
+        "unlocked": 0
+    },
+    {
+        "bonus": 30,
+        "bonustype": 2,
+        "buildingmaintenancecost": 2,
+        "description": " Increases science output",
+        "name": "University",
+        "productioncost": 180,
+        "techindex": 5,
+        "unlocked": 0
+    }
+]
