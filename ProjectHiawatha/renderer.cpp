@@ -29,6 +29,14 @@ QBrush brush(Qt::black);
 
 Renderer::Renderer(int mapSizeX)
 {
+    #ifdef __APPLE__
+        QDir bin(QCoreApplication::applicationDirPath());
+        qDebug()<<"renderer";
+        bin.cdUp();
+        bin.cdUp();
+        bin.cdUp();
+        QDir::setCurrent(bin.absolutePath());
+    #endif
     this->mapSizeX = mapSizeX;
     cc = new CivColors();
     outlinePen.setColor(cc->NO_NATION_PRIMARY);
@@ -271,8 +279,10 @@ Renderer::~Renderer()
     delete clouds;
     delete hidden;
     delete orders;
-
-    synch.waitForFinished();
+    #ifdef __APPLE__
+    #else
+        synch.waitForFinished();
+    #endif
     qDebug() << "       Synch finished";
     qDebug() << "   --Renderer Deconstructed";
 }
@@ -441,7 +451,14 @@ void Renderer::DrawHexScene(Map *map, GameView *view)
         // changed as the Player or AI builds builds different improvements.
         // The requires orders icon and fortified icons are turned on and off by changing
         // their opacity levels when told to do so by the manager.
-
+#ifdef __APPLE__
+QDir bin(QCoreApplication::applicationDirPath());
+qDebug()<<bin.absolutePath();
+bin.cdUp();
+bin.cdUp();
+bin.cdUp();
+QDir::setCurrent(bin.absolutePath());
+#endif
         QPixmap *orders = new QPixmap("Assets/Icons/requiresOrders.png");
         ordersIcon.push_back(view->addPixmap(*orders));
         ordersIcon.last()->setOpacity(0);
@@ -1244,7 +1261,14 @@ void Renderer::DecThread9()
 void Renderer::AddCityHealthBars(City *city, GameView *view)
 {
     //------------------------------------------------------------------------------
-
+#ifdef __APPLE__
+QDir bin(QCoreApplication::applicationDirPath());
+qDebug()<<bin.absolutePath();
+bin.cdUp();
+bin.cdUp();
+bin.cdUp();
+QDir::setCurrent(bin.absolutePath());
+#endif
     QPixmap *cityOutlines = new QPixmap("Assets/UI/CityStatusBarOutline.png");
 
     cityBarOutlines.push_back(view->addPixmap(*cityOutlines));
@@ -1730,6 +1754,14 @@ void Renderer::AddCityLabel(City* city, GameView *view)
  */
 void Renderer::AddCity(City *city, GameView *view, bool conqueredCity)
 {
+#ifdef __APPLE__
+QDir bin(QCoreApplication::applicationDirPath());
+qDebug()<<bin.absolutePath();
+bin.cdUp();
+bin.cdUp();
+bin.cdUp();
+QDir::setCurrent(bin.absolutePath());
+#endif
 //    QPixmap *cityImage = new QPixmap("Assets/Icons/CityIcon4944_alt.png");
     cityPixmap.push_back(view->addPixmap(QPixmap("Assets/Icons/CityIcon4944_alt.png")));
     cityPixmap.last()->setZValue(1);

@@ -1,8 +1,18 @@
 #include "notificationsystem.h"
 #include <QDebug>
+#include <QDir>
+#include <QCoreApplication>
 
 NotificationSystem::NotificationSystem(QWidget *parent) : QListWidget(parent)
 {
+#ifdef __APPLE__
+QDir bin(QCoreApplication::applicationDirPath());
+qDebug()<<"Test Notif";
+bin.cdUp();
+bin.cdUp();
+bin.cdUp();
+QDir::setCurrent(bin.absolutePath());
+#endif
     QIcon capitalLost("Assets/Icons/capitolLost.png");
     QIcon unitKilled("Assets/Icons/unitKilled.png");
     QIcon populationIncreased("Assets/Icons/populationIncreased.png");

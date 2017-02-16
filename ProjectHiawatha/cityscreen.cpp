@@ -10,14 +10,26 @@
 #include <QDebug>
 #include <QListWidgetItem>
 #include <math.h>
+<<<<<<< Updated upstream
 #include <QJsonDocument>
+=======
+#include <QDir>
+#include <QCoreApplication>
+>>>>>>> Stashed changes
 
 
 CityScreen::CityScreen(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CityScreen)
 {
-
+#ifdef __APPLE__
+    QDir bin(QCoreApplication::applicationDirPath());
+    qDebug()<<"cityscreen";
+    bin.cdUp();
+    bin.cdUp();
+    bin.cdUp();
+    QDir::setCurrent(bin.absolutePath());
+#endif
     ui->setupUi(this);
     QPixmap pic("Assets/Buildings/walls.png");
     ui->picture->setPixmap(pic);
@@ -258,7 +270,18 @@ void CityScreen::getGold(int gold)
 
 void CityScreen::on_listWidget_itemSelectionChanged()
 {
+<<<<<<< Updated upstream
     QJsonObject obj = buildingList.at(ui->listWidget->currentRow()).toObject();
+=======
+    #ifdef __APPLE__
+        QDir bin(QCoreApplication::applicationDirPath());
+        qDebug()<<"cityscreen";
+        bin.cdUp();
+        bin.cdUp();
+        bin.cdUp();
+        QDir::setCurrent(bin.absolutePath());
+    #endif
+>>>>>>> Stashed changes
     QString tempString = "Assets/Buildings/";
     QString extension = ".png";
 //    QString name = buildings.at(ui->listWidget->currentRow())->getName();
@@ -341,7 +364,18 @@ void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 void CityScreen::on_listWidget_2_itemSelectionChanged()
 {
+<<<<<<< Updated upstream
     QJsonObject obj = buildingList.at(ui->listWidget_2->currentRow()).toObject();
+=======
+    #ifdef __APPLE__
+        QDir bin(QCoreApplication::applicationDirPath());
+        qDebug()<<"cityscreen";
+        bin.cdUp();
+        bin.cdUp();
+        bin.cdUp();
+        QDir::setCurrent(bin.absolutePath());
+    #endif
+>>>>>>> Stashed changes
     QString tempString = "Assets/Units/";
     QString extension = ".png";
 //    QString name = initialUnitList.at(ui->listWidget_2->currentRow())->GetName();
