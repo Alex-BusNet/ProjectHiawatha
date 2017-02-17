@@ -172,6 +172,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
                 ci->UpdateCityYield();
                 ci->UpdateCityStatus();
+
             }
 
             if(c->isCivAI())
@@ -210,6 +211,16 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
     }
 
     InitRenderData();
+
+    foreach(Civilization *ci, civList)
+    {
+        foreach(City* c, ci->GetCityList())
+        {
+            renderer->UpdateCityHealthBar(c, gameView);
+            renderer->UpdateCityGrowthBar(c, gameView);
+            renderer->UpdateCityProductionBar(c, gameView);
+        }
+    }
 
     //Find all discovered tiles and load them appropriately.
     for(int i = 0; i < map->GetBoardSize(); i++)
@@ -408,7 +419,7 @@ void GameManager::WarByDiplomacy()
 
     civList.at(currentTurn)->SetAtWar(targetCivListIndex);
     civList.at(targetCivListIndex)->SetAtWar(currentTurn);
-    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), targetCivListIndex, civList.at(currentTurn)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), targetCivListIndex, civList.at(currentTurn)->getCiv(), currentTurn);
     diplo->declareWar->setEnabled(false);
 }
 
@@ -523,6 +534,7 @@ void GameManager::paintEvent(QPaintEvent *event)
 
 void GameManager::TurnController()
 {
+    static bool AiTurnInProgress = false;
     //Is it currently the Player's turn?
     if(currentTurn == 0)
     {
@@ -542,39 +554,13 @@ void GameManager::TurnController()
     {
         //Cycle through the AI turns.
         statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
-        StartTurn();
+        if(!AiTurnInProgress)
+        {
+            StartTurn();
 
 #ifdef __APPLE__
-        this->ac->turnStarted(civList.at(currentTurn),civList.at(0),this->map);
-        while(!civList.at(currentTurn)->isEmpty())
-        {
-            AIQueueData data = civList.at(currentTurn)->dequeue();
-            state = data.action;
-
-            if(state == AI_FOUND_CITY)
-            {
-                unitToMove = data.unit;
-            }
-            else if(state == CONQUER)
-            {
-                state = FIND_CITY;
-                unitToMove = data.unit;
-                targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
-            }
-            else if(state == AI_DECLARE_WAR)
-            {
-                WarByDiplomacy();
-            }
-
-            this->UpdateTileData();
-        }
-#else
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
-        //While the AI is taking its turn, check the Queue
-        // if the AI is trying to settle a city or conquer one
-        while(future.isRunning())
-        {
-            if(!civList.at(currentTurn)->isEmpty())
+            this->ac->turnStarted(civList.at(currentTurn),civList.at(0),this->map);
+            while(!civList.at(currentTurn)->isEmpty())
             {
                 AIQueueData data = civList.at(currentTurn)->dequeue();
                 state = data.action;
@@ -591,24 +577,66 @@ void GameManager::TurnController()
                 }
                 else if(state == AI_DECLARE_WAR)
                 {
-                    diplo->UpdateLeader(0);
                     WarByDiplomacy();
                 }
 
                 this->UpdateTileData();
             }
-        }
-        //This is just for extra precautions so that we don't try to end the AI's
-        // turn and move on before the AI thread has completly finished.
-        future.waitForFinished();
+#else
+            QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
+            //While the AI is taking its turn, check the Queue
+            // if the AI is trying to settle a city or conquer one
+            while(future.isRunning())
+            {
+                if(!civList.at(currentTurn)->isEmpty())
+                {
+                    AIQueueData data = civList.at(currentTurn)->dequeue();
+                    state = data.action;
+
+                    if(state == AI_FOUND_CITY)
+                    {
+                        unitToMove = data.unit;
+                    }
+                    else if(state == CONQUER)
+                    {
+                        state = FIND_CITY;
+                        unitToMove = data.unit;
+                        targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
+                    }
+                    else if(state == AI_DECLARE_WAR)
+                    {
+                        diplo->UpdateLeader(0);
+                        WarByDiplomacy();
+                    }
+
+                    this->UpdateTileData();
+                }
+            }
+            //This is just for extra precautions so that we don't try to end the AI's
+            // turn and move on before the AI thread has completly finished.
+            future.waitForFinished();
 #endif
-        EndTurn();
+            EndTurn();
+            AiTurnInProgress = false;
+        }
     }
 
 }
 
 void GameManager::StartTurn()
 {
+    if(currentTurn == 0)
+    {
+        qDebug() << "   EndGame check";
+        if(!civList.at(currentTurn)->alive)
+        {
+            Defeat();
+        }
+        else if(playersAliveCount == 1)
+        {
+            Victory();
+        }
+    }
     for(int i = 0; i < civList.size(); i++)
     {
         if(i == 0)
@@ -1135,6 +1163,7 @@ nextCivAlive:
         // needing to be adjusted when a civ is eliminated.
         if(!civList.at(currentTurn)->alive)
         {
+            qDebug() << "   civList.at(" << currentTurn << ") is not alive";
             goto nextCivAlive;
         }
     }
@@ -1260,7 +1289,7 @@ void GameManager::UpdateTileData()
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
         tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
-        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (/*unitToMove->RequiresOrders ||*/ unitToMove->isFortified))
+        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (unitToMove->RequiresOrders || unitToMove->isFortified))
         {
             if(unitToMove->isFortified)
             {
@@ -1383,23 +1412,35 @@ void GameManager::UpdateTileData()
                 if(currentTurn == 0)
                     statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
 
-                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetTile->GetControllingCivListIndex()));
+                qDebug() << "       attacker" << civList.at(currentTurn)->GetLeaderName() << "target" << civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName() << "target city" << targetCity->GetName();
+                qDebug() << "   target City list size pre conquer" << (civList.at(targetTile->GetControllingCivListIndex())->GetCityList().size());
+                qDebug() << "   attacker City list size pre conquer" << (civList.at(currentTurn)->GetCityList().size());
 
-                if(civList.at(targetTile->GetControllingCivListIndex())->GetCityList().size() == 0)
+                int targetIndex = targetTile->GetControllingCivListIndex();
+                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetIndex));
+
+                qDebug() << "   target City list size post conquer" << (civList.at(targetIndex)->GetCityList().size());
+                qDebug() << "   attacker City list size post conquer" << (civList.at(currentTurn)->GetCityList().size());
+
+                if(civList.at(targetIndex)->GetCityList().size() == 0)
                 {
-                    if(!civList.at(targetTile->GetControllingCivListIndex())->GetUnitList().isEmpty())
+                    qDebug() << "   Civ has no cities left";
+                    if(!civList.at(targetIndex)->GetUnitList().isEmpty())
                     {
-                        foreach(Unit* unit, civList.at(targetTile->GetControllingCivListIndex())->GetUnitList())
+                        qDebug() << "   Removing remaining units";
+                        foreach(Unit* unit, civList.at(targetIndex)->GetUnitList())
                         {
                             renderer->RemoveUnit(unit, gameView);
                         }
 
-                        for(int i = 0; i < civList.at(targetTile->GetControllingCivListIndex())->GetUnitList().size(); i++)
+                        qDebug() << "   Removing unit from civ";
+                        for(int i = 0; i < civList.at(targetIndex)->GetUnitList().size(); i++)
                         {
-                            civList.at(targetTile->GetControllingCivListIndex())->RemoveUnit(0);
+                            civList.at(targetIndex)->RemoveUnit(i);
                         }
                     }
 
+                    qDebug() << "   Decrementing playerAliveCount";
                     playersAliveCount--;
                 }
             }
@@ -2018,36 +2059,39 @@ void GameManager::InitRenderData()
         if(i == 0)
         {
             qDebug() << "   Setting up FoW";
-            foreach(Tile* n, map->GetNeighborsRange(civList.at(i)->GetCityAt(0)->GetCityTile(), 3))
+            foreach(City* ci, civList.at(i)->GetCityList())
             {
-                if(n->DiscoveredByPlayer)
+                foreach(Tile* n, map->GetNeighborsRange(ci->GetCityTile(), 3))
                 {
-                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
-                    renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
-
-                    if(!n->IsSeenByPlayer)
+                    if(n->DiscoveredByPlayer)
                     {
-                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
-                    }
-                }
-                else
-                {
-                    if(!n->DiscoveredByPlayer)
-                    {
-                        n->DiscoveredByPlayer = true;
-                        n->CanAlwaysBeSeen = true;
                         viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
                         renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
-                    }
 
-                    if(!n->IsSeenByPlayer)
+                        if(!n->IsSeenByPlayer)
+                        {
+                            viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
+                        }
+                    }
+                    else
                     {
-                        n->IsSeenByPlayer = true;
-                        n->CanAlwaysBeSeen = true;
-                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
-                    }
-                }
+                        if(!n->DiscoveredByPlayer)
+                        {
+                            n->DiscoveredByPlayer = true;
+                            n->CanAlwaysBeSeen = true;
+                            viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
+                            renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
+                        }
 
+                        if(!n->IsSeenByPlayer)
+                        {
+                            n->IsSeenByPlayer = true;
+                            n->CanAlwaysBeSeen = true;
+                            viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
+                        }
+                    }
+
+                }
             }
             qDebug() << "   --Done";
 
@@ -2243,7 +2287,6 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
             ns->PostNotification(Notification{0, QString("%1 has lost their Capital! %2 Now controls %3 capitals.").arg(tCiv->GetLeaderName()).arg(aCiv->GetLeaderName()).arg(aCiv->GetCapitalsControlled())});
             aCiv->IncrementCapitalsControlled();
             tCiv->SetCaptialsControlled(0);
-
             city->SetCityAsCapital(false, true);
         }
         else
@@ -2306,7 +2349,10 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     renderer->AddCity(city, gameView, true);
     aCiv->AddCity(city);
 
-    clv->addItem(city->GetName());
+    if(aCiv->getCiv() == civList.at(0)->getCiv())
+        clv->addItem(city->GetName());
+    else if(tCiv->getCiv() == civList.at(0)->getCiv())
+        clv->takeItem(tCity->GetCityIndex());
 }
 
 void GameManager::ProcessAttackUnit()
@@ -2521,6 +2567,31 @@ bool GameManager::AcceptsPeace(Civilization *ai)
     return accepts;
 }
 
+void GameManager::Victory()
+{
+    QMessageBox* mBox = new QMessageBox();
+    mBox->setWindowFlags(Qt::FramelessWindowHint);
+    mBox->setFixedSize(200, 500);
+    mBox->setText("You Win!");
+    mBox->exec();
+    this->playersAliveCount = 0;
+    this->close();
+    renderer->PrepareForDelete(gameView);
+}
+
+void GameManager::Defeat()
+{
+    QMessageBox* mBox = new QMessageBox();
+    mBox->setWindowFlags(Qt::FramelessWindowHint);
+    mBox->setFixedSize(200, 500);
+    mBox->setText("You Lose!");
+    mBox->exec();
+    this->playersAliveCount = 0;
+    //Defeat screen?
+    this->close();
+    renderer->PrepareForDelete(gameView);
+}
+
 void GameManager::closeGame()
 {
     this->close();
@@ -2588,7 +2659,6 @@ void GameManager::showCity(City* city)
 
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
-        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
     }
 }
 
@@ -2634,28 +2704,6 @@ void GameManager::updateTiles()
     }
 
     this->update();
-
-    if(this->currentTurn == 0 && !civList.at(currentTurn)->alive && this->playersAliveCount == 1)
-    {
-        QMessageBox* mBox = new QMessageBox();
-        mBox->setWindowFlags(Qt::FramelessWindowHint);
-        mBox->setFixedSize(200, 500);
-        mBox->setText("You Lose!");
-        mBox->exec();
-        this->playersAliveCount=0;
-        //Defeat screen?
-        this->closeGame();
-    }
-    else if(this->currentTurn == 0 && this->playersAliveCount == 1)
-    {
-        QMessageBox* mBox = new QMessageBox();
-        mBox->setWindowFlags(Qt::FramelessWindowHint);
-        mBox->setFixedSize(200, 500);
-        mBox->setText("You Win!");
-        mBox->exec();
-        this->playersAliveCount = 0;
-        this->closeGame();
-    }
 
     if(!ns->HasNotificationsWaiting() && ns->item(0) == NULL)
     {
@@ -2733,7 +2781,7 @@ void GameManager::toggleDiplomacy()
     else
     {
         diplo->hide();
-//        diplo->UpdateLeader();
+        diplo->UpdateLeader(0);
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         diploVisible = false;
     }
@@ -2918,7 +2966,7 @@ void GameManager::WarDeclared()
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetOccupyingCivListIndex())->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), targetTile->GetOccupyingCivListIndex(), civList.at(0)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), targetTile->GetOccupyingCivListIndex(), civList.at(0)->getCiv(), 0);
 }
 
 void GameManager::WarAvoided()
@@ -2939,7 +2987,7 @@ void GameManager::WarByInvasion()
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex(), civList.at(0)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex(), civList.at(0)->getCiv(), 0);
 }
 
 void GameManager::OpenHelp()

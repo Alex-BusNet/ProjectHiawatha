@@ -52,6 +52,15 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
         endTile = unit->GetPath().at(unit->GetPath().size() - 2);
     }
 
+    if(endTile->HasCity)
+    {
+        if(!unit->isMelee && wDat.atWar && wDat.warringCivListIndex.contains(endTile->GetControllingCivListIndex()))
+        {
+            if(unit->GetOwner() != endTile->GetControllingCiv())
+                return;
+        }
+    }
+
     QList<Tile*> openSet;
     QSet<Tile*> closedSet;
     Tile *currentHex;

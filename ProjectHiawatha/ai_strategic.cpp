@@ -85,7 +85,7 @@ void AI_Strategic::cityProduction(Civilization *civ,Civilization *player){
             combatUnits++;
         }
     }//Tallies various unit types
-    if(30<=combatUnits&&!civ->isAtWar()){
+    if(1<=combatUnits&&!civ->isAtWar()){
 #ifdef DEBUG
      qDebug()<<"30 units! Declare War!";
 #endif

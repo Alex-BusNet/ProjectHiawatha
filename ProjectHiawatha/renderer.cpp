@@ -537,7 +537,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         return;
 
     int index;
-
     SelectData selDat;
     while(!data->isEmpty())
     {
@@ -607,6 +606,7 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
  */
 void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 {
+    qDebug() << "   UpdateCityBorders()";
     SetOutlinePen(owner);
 
     view->removeItem(cityBorders.at(city->GetCityRenderIndex()));

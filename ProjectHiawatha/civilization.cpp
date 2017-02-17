@@ -172,6 +172,7 @@ Update_t Civilization::UpdateProgress()
     Update_t redraw{false, false, false, false};
     foreach(City* city, this->currentCityList)
     {
+        qDebug() << "       Updating" << city->GetName();
         Update_t cityProgress = city->UpdateProgress();
 
         if(cityProgress.updateBorders && !redraw.updateBorders)

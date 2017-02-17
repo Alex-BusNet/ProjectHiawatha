@@ -164,6 +164,9 @@ private:
 
     bool AcceptsPeace(Civilization* ai);
 
+    void Victory();
+    void Defeat();
+
     TileData processedData;
 
     std::chrono::steady_clock::time_point begin;

@@ -19,6 +19,7 @@ AI_Tactical::AI_Tactical(Civilization *civ, Map *map, QVector<Tile *> CityToBeFo
 #ifdef DEBUG
      qDebug()<<"             Tactical AI called";
 #endif
+    uc = new UnitController();
     highThreatProcessing(civ, map);
     lowThreatProcessing(civ, map);
     if(civ->isAtWar()){
@@ -37,7 +38,6 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
         }
     }//Tally combat units
     QVector<Unit*> unitlist=civ->GetUnitList();
-    UnitController *UnitControl= new UnitController();
     bool conquered=false;
     for(int i=0; i<unitlist.length();i++){
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
@@ -56,7 +56,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 #ifdef DEBUG
      qDebug()<<"Attack City of "<<(cityTarget->GetName());
 #endif
-                        UnitControl->AttackCity(unitlist.at(i),cityTarget);
+                        uc->AttackCity(unitlist.at(i),cityTarget);
                         while(!unitlist.at(i)->isPathEmpty()){
                             unitlist.at(i)->UpdatePath();
                         }//Clear remaining movement
@@ -95,7 +95,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 #ifdef DEBUG
      qDebug()<<"Sent to tile: "<<targetNeighbor.at(k)->GetTileIndex();
 #endif
-                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                    uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
 #ifdef DEBUG
      qDebug()<<"test2"<<unitlist.at(i)->GetTargetTileIndex();
 #endif
@@ -108,7 +108,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                             k++;
                             continue;
                         }//Check if tile is occupied
-                        UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                        uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
 #ifdef DEBUG
      qDebug()<<"Test3"<<unitlist.at(i)->GetTargetTileIndex();
 #endif
@@ -126,7 +126,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 #ifdef DEBUG
      qDebug()<<"Attack City of "<<(cityTarget->GetName());
 #endif
-                        UnitControl->AttackCity(unitlist.at(i),cityTarget);
+                        uc->AttackCity(unitlist.at(i),cityTarget);
                         while(!unitlist.at(i)->isPathEmpty()){
                             unitlist.at(i)->UpdatePath();
                         }//Clear remaining movement
@@ -147,7 +147,7 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
                         k++;
                         continue;
                     }//Check if tile is occupied
-                    UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                    uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
 #ifdef DEBUG
      qDebug()<<"Ranged moving to "<<unitlist.at(i)->GetTargetTileIndex()<<unitlist.at(i)->GetPath().length();
 #endif
@@ -179,7 +179,6 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
 #endif
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
-    UnitController *UnitControl= new UnitController();
     QVector<Unit*> threatVec;
     for(int i=0;i<civ->getHighThreats().length();i++){
         threatVec.push_back(civ->getHighThreats().at(i));
@@ -203,7 +202,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
      qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
 #endif
                             canHit=true;
-                            UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                            uc->Attack(unitlist.at(i),threatVec.at(0),false);
                             while(!unitlist.at(i)->isPathEmpty()){
                                 unitlist.at(i)->UpdatePath();
                             }
@@ -220,7 +219,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                            uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -270,7 +269,6 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
 #endif
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
-    UnitController *UnitControl= new UnitController();
     QVector<Unit*> threatVec;
     for(int i=0;i<civ->getLowThreats().length();i++){
         threatVec.push_back(civ->getLowThreats().at(i));
@@ -294,7 +292,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
      qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
 #endif
                             canHit=true;
-                            UnitControl->Attack(unitlist.at(i),threatVec.at(0),false);
+                            uc->Attack(unitlist.at(i),threatVec.at(0),false);
                             while(!unitlist.at(i)->isPathEmpty()){
                                 unitlist.at(i)->UpdatePath();
                             }
@@ -310,7 +308,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
                         QList<Tile*> targetNeighbor = map->GetNeighbors(map->GetTileAt(threatVec.at(0)->GetTileIndex()));
                         int k=0;
                         while(unitlist.at(i)->isPathEmpty()){
-                            UnitControl->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                            uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                             k++;
                             if(k>5){break;}
                         }//Find path accounts for impassable terrain around the target unit
@@ -346,7 +344,6 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
      qDebug()<<"Settler Control";
 #endif
     QVector<Unit*> unitlist=civ->GetUnitList();
-    UnitController *UnitControl= new UnitController();
     for(int i = 0; i<unitlist.length();i++){
         //Find worker location
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
@@ -381,7 +378,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
 #ifdef DEBUG
      qDebug() << "Setting path to" << CityToBeFounded.at(0)->GetTileIDString();
 #endif
-                    UnitControl->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                    uc->FindPath(unitlocation,CityToBeFounded.at(0),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                 }
 #ifdef DEBUG
      qDebug()<<"Path not empty";
@@ -415,7 +412,6 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
 #endif
     //Get list of units and make a controller
     QVector<Unit*> unitlist=civ->GetUnitList();
-    UnitController *UnitControl= new UnitController();
     //Make sure a roadworker exists
     bool roadWorkerExists=false;
     for(int i = 0; i<unitlist.length();i++){
@@ -451,7 +447,7 @@ void AI_Tactical::workercontrol(Civilization *civ, Map *map){
                             //Send the unused worker to city
                             unitlist.at(i)->SetUnitTargetTile(civ->GetCityAt(j)->GetCityTile()->GetTileID().column, civ->GetCityAt(j)->GetCityTile()->GetTileID().row);
                             unitlist.at(i)->SetUnitTargetTileIndex(civ->GetCityAt(j)->GetCityTile()->GetTileIndex());
-                            UnitControl->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                            uc->FindPath(unitlocation,civ->GetCityAt(j)->GetCityTile(),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
                         }
                     }
                     else if(false==roadWorkerExists){

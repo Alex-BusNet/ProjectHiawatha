@@ -676,6 +676,9 @@ void City::WriteCitySaveData(QJsonObject &obj) const
     obj["scienceyield"] = scienceYield;
     obj["growthcost"] = growthCost;
     obj["foodsurplus"] = foodSurplus;
+
+    obj["hasworker"] = hasWorker;
+    obj["hasgarrison"] = hasGarrison;
 }
 
 void City::ReadCitySaveData(const QJsonObject &obj)
@@ -725,6 +728,9 @@ void City::ReadCitySaveData(const QJsonObject &obj)
     scienceYield = obj["scienceyield"].toInt();
     growthCost = obj["growthcost"].toInt();
     foodSurplus = obj["foodsurplus"].toInt();
+
+    hasWorker = obj["hasWorker"].toBool();
+    hasGarrison = obj["hasGarrison"].toBool();
 }
 
 void City::SetCitizenCount(int count)

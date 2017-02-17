@@ -19,6 +19,7 @@ private:
     void workercontrol(Civilization *civ, Map *map);
     void highThreatProcessing(Civilization *civ, Map *map);
     void lowThreatProcessing(Civilization *civ, Map *map);
+    UnitController *uc;
 };
 
 #endif // AI_TACTICAL_H

@@ -19,7 +19,7 @@ public:
 
     void AddLeader(QString _name, QPixmap _image, Nation _nation, bool isPlayer);
     void RemoveLeader(Nation nation);
-    void DeclareWarOn(Nation target, int targetIndex, Nation aggressor);
+    void DeclareWarOn(Nation target, int targetIndex, Nation aggressor, int aggressorIndex);
 
     void UpdateTurn();
     void UpdateLeader(int row);
@@ -38,7 +38,7 @@ public:
     QPushButton *makePeace;
 
 private:
-    enum WarStatus {AT_WAR, AT_PEACE, PERMANENT_WAR, SELF};
+    enum WarStatus {SELF, AT_WAR, AT_PEACE, PERMANENT_WAR};
     typedef struct {Nation nation; int warStartedOn, timesAtWarWith; WarStatus warStat;} WarHistory;
     typedef struct {QPixmap image; QString leaderName, displayString; Nation nation; QVector<WarHistory> warChart;} DiplomacyItem;
 

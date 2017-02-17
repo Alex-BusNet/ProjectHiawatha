@@ -19,6 +19,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
 #ifdef DEBUG
      qDebug()<<"         Operational AI Called";
 #endif
+    uc = new UnitController();
     threatScan(civ, player);
     if(civ->isAtWar()){
         theaterAtWar(civ, player);
@@ -35,7 +36,6 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player){
     qDebug()<<"Threatscan";
 #endif
     //Clear threats each time, else they remain after the unit dies
-    UnitController* unitCon = new UnitController();
     Unit* unit;
     //Check tiles near cities
         for(int i = 0; i<civ->GetCityList().length();i++){
@@ -46,7 +46,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player){
                     qDebug()<<"Enemy Near";
 #endif
                     QVector<Unit*> tempVec = civ->getMidThreats();
-                    unit = unitCon->FindUnitAtTile(borderingTiles.at(j),player->GetUnitList());
+                    unit = uc->FindUnitAtTile(borderingTiles.at(j),player->GetUnitList());
                     tempVec.push_back(unit);
                     civ->setMidThreats(tempVec);
 #ifdef DEBUG
@@ -81,16 +81,13 @@ void AI_Operational::theaterAtWar(Civilization *civ, Civilization *player){
     qDebug()<<"Theater At War";
 #endif
     int targetIndex=0, targetDistance=INT_MAX;
-    UnitController *checkDist = new UnitController();
     for(int i =0; i< player->GetCityList().length();i++){
-        if(checkDist->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile())<targetDistance){
+        if(uc->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile())<targetDistance){
             targetIndex=i;
-            targetDistance=checkDist->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile());
+            targetDistance=uc->GetDistance(civ->GetCityAt(0)->GetCityTile(),player->GetCityAt(i)->GetCityTile());
         }
     }
     this->cityTarget=player->GetCityAt(targetIndex);
-
-    delete checkDist;
 }
 //************Theater of War***************
 //Prioritizes the nearest city (by accessibility?) of the player civ
