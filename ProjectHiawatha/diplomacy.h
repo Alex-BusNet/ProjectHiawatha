@@ -22,7 +22,7 @@ public:
     void DeclareWarOn(Nation target, int targetIndex, Nation aggressor);
 
     void UpdateTurn();
-    void UpdateLeader();
+    void UpdateLeader(int row);
     void SetLeaderImage(int index, QPixmap &image);
     void WriteDiploSaveData(QJsonObject &obj) const;
     void ReadDiploSaveData(const QJsonObject &obj);

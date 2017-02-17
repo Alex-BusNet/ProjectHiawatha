@@ -356,7 +356,7 @@ void CityScreen::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 void CityScreen::on_listWidget_2_itemSelectionChanged()
 {
-    QJsonObject obj = buildingList.at(ui->listWidget_2->currentRow()).toObject();
+    QJsonObject obj = unitList.at(ui->listWidget_2->currentRow()).toObject();
     #ifdef __APPLE__
         QDir bin(QCoreApplication::applicationDirPath());
         bin.cdUp();

@@ -95,9 +95,9 @@ void Diplomacy::UpdateTurn()
     turn++;
 }
 
-void Diplomacy::UpdateLeader()
+void Diplomacy::UpdateLeader(int row)
 {
-    selectLeader(leaderListArea->item(0));
+    leaderListArea->setCurrentRow(row);
 }
 
 void Diplomacy::SetLeaderImage(int index, QPixmap &image)

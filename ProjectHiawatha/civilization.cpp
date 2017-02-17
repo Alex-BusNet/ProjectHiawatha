@@ -361,6 +361,12 @@ void Civilization::WriteData(QJsonObject &obj) const
     obj["militarystrength"] = militaryStrength;
 
     obj["atwar"] = atWar;
+    QJsonArray warVec;
+    foreach(int i, atWarWithCivListIndex)
+    {
+        warVec.push_back(i);
+    }
+    obj["atwarwithvector"] = warVec;
 
     QJsonArray units;
     foreach(Unit* u, this->UnitList)
@@ -448,6 +454,12 @@ void Civilization::ReadData(const QJsonObject &obj)
     capitalsControlled = obj["capitalscontrolled"].toInt();
     militaryStrength = obj["militarystrength"].toInt();
     atWar = obj["atwar"].toBool();
+
+    QJsonArray warVec = obj["atwarwithvector"].toArray();
+    for(int i = 0; i < warVec.size(); i++)
+    {
+        atWarWithCivListIndex.push_back(warVec.at(i).toInt());
+    }
 
     QJsonArray uArray = obj["units"].toArray();
     for(int i = 0; i < uArray.size(); i++)

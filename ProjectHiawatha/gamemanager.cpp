@@ -403,7 +403,7 @@ GameManager::~GameManager()
 void GameManager::WarByDiplomacy()
 {
     int targetCivListIndex = diplo->GetIndex();
-
+    qDebug() << "   target" << targetCivListIndex;
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetCivListIndex)->GetLeaderName())});
 
     civList.at(currentTurn)->SetAtWar(targetCivListIndex);
@@ -591,6 +591,7 @@ void GameManager::TurnController()
                 }
                 else if(state == AI_DECLARE_WAR)
                 {
+                    diplo->UpdateLeader(0);
                     WarByDiplomacy();
                 }
 
@@ -1259,7 +1260,7 @@ void GameManager::UpdateTileData()
         selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
         tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
-        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (unitToMove->RequiresOrders || unitToMove->isFortified))
+        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (/*unitToMove->RequiresOrders ||*/ unitToMove->isFortified))
         {
             if(unitToMove->isFortified)
             {
@@ -2627,7 +2628,9 @@ void GameManager::updateTiles()
 
     if(!viewUpdateTiles->isEmpty())
     {
+        qDebug() << "   Updating Tile Visibility";
         renderer->UpdateTileVisibilty(viewUpdateTiles, gameView);
+        qDebug() << "   --Done";
     }
 
     this->update();
