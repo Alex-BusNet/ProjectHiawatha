@@ -321,8 +321,10 @@ void Civilization::IncrementCapitalsControlled()
 
 void Civilization::SetAtWar(int enemyCivListIndex)
 {
-    this->atWarWithCivListIndex.push_back(enemyCivListIndex);
-    this->atWar = true;
+    if(!this->atWarWithCivListIndex.contains(enemyCivListIndex)){
+        this->atWarWithCivListIndex.push_back(enemyCivListIndex);
+        this->atWar = true;
+    }
 }
 
 void Civilization::MakePeace(int enemyCivListIndex)
