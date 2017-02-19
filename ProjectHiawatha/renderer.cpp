@@ -96,7 +96,6 @@ Renderer::Renderer(int mapSizeX)
 
 Renderer::~Renderer()
 {
-    qDebug() << "   Renderer Dec'tor called";
 #ifdef __APPLE__
     foreach(QGraphicsPolygonItem* t, tiles)
     {
@@ -292,8 +291,6 @@ Renderer::~Renderer()
     #ifndef __APPLE__
         synch.waitForFinished();
     #endif
-    qDebug() << "       Synch finished";
-    qDebug() << "   --Renderer Deconstructed";
 }
 
 /*

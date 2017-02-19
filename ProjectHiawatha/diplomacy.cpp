@@ -69,7 +69,6 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
 
 Diplomacy::~Diplomacy()
 {
-    qDebug() << "   Diplomacy Dec'tor called";
     foreach(DiplomacyItem* di, diploItemList)
     {
         if(di != NULL)
@@ -86,8 +85,6 @@ Diplomacy::~Diplomacy()
 
     delete declareWar;
     delete makePeace;
-
-    qDebug() << "   --Diplomacy Deconstructed";
 }
 
 void Diplomacy::UpdateTurn()
@@ -107,7 +104,6 @@ void Diplomacy::SetLeaderImage(int index, QPixmap &image)
 
 void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
 {
-    qDebug() << "WriteDiploSaveData()";
     QJsonArray dArray;
 
     foreach(DiplomacyItem *di, diploItemList)
@@ -126,7 +122,6 @@ void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
             who["warstartedon"] = wh.warStartedOn;
             who["warstatus"] = wh.warStat;
             whArray.append(who);
-            qDebug() << "   " << di->leaderName << UnitController::NationName(wh.nation) <<"   WarStat:" << wh.warStat;
         }
 
         dio["warchart"] = whArray;
@@ -138,7 +133,6 @@ void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
 
 void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
 {
-    qDebug() << "ReadDiploSaveData";
     QJsonArray dArray = obj["diplomacyitems"].toArray();
     DiplomacyItem *di;
     for(int i = 0; i < dArray.size(); i++)
@@ -214,7 +208,6 @@ int Diplomacy::GetIndex()
 
 void Diplomacy::AddLeader(QString _name, QPixmap _image, Nation _nation, bool isPlayer)
 {
-    qDebug() << "   AddLeader()";
     DiplomacyItem *di = new DiplomacyItem{_image, _name, QString(" "), _nation};
     if(!isPlayer)
     {

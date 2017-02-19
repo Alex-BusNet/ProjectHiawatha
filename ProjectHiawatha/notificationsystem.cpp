@@ -46,10 +46,6 @@ QDir::setCurrent(bin.absolutePath());
 
 NotificationSystem::~NotificationSystem()
 {
-    qDebug() << "   Notification System Dec'tor called";
-
-
-    qDebug() << "   --Notification System Deconstructed";
 }
 
 void NotificationSystem::PostNotification(Notification n)

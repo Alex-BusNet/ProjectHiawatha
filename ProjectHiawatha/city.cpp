@@ -44,7 +44,6 @@ City::City()
 
 City::~City()
 {
-    qDebug() << "   City Dec'tor called for" << this->name;
     foreach(Unit* unit, initialUnitList)
     {
         if(unit != NULL)
@@ -86,8 +85,6 @@ City::~City()
 
     if(cityTotalYield != NULL)
         delete cityTotalYield;
-
-    qDebug() << "   --City Deconstructed";
 }
 
 QVector<Unit *> City::getInitialUnitList()

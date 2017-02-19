@@ -14,10 +14,6 @@ UnitController::UnitController()
 
 UnitController::~UnitController()
 {
-    qDebug() << "   UnitController Dec'tor called";
-
-
-    qDebug() << "   --UnitController Deconstructed";
 }
 
 /*

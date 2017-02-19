@@ -357,6 +357,9 @@ void Civilization::WriteData(QJsonObject &obj) const
     obj["totalcivyield"] = yo;
 
     obj["totalgold"] = totalGold;
+    obj["maintenance"] = maintenance;
+    obj["gpt"] = GPT;
+    obj["gptadjusted"] = GptAdjusted;
     obj["losinggold"] = losingGold;
     obj["totalscience"] = totalScience;
     obj["totalculture"] = totalCulture;
@@ -451,6 +454,9 @@ void Civilization::ReadData(const QJsonObject &obj)
     alive = obj["alive"].toBool();
 
     totalGold = obj["totalgold"].toInt();
+    maintenance = obj["maintenance"].toInt();
+    GPT = obj["gpt"].toInt();
+    GptAdjusted = obj["gptadjusted"];
     losingGold = obj["losinggold"].toBool();
     totalScience = obj["totalscience"].toInt();
     totalCulture = obj["totalculture"].toInt();
