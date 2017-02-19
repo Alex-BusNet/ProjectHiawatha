@@ -108,6 +108,9 @@ public:
     bool cityFounded;
 
     int queueSize();
+    int GetGPT();
+    int GetMaintenance();
+    int GetGptAdjusted();
     QVector<int> lowThreatIndex, midThreatIndex, highThreatIndex;
 private:
     Nation name;
@@ -121,6 +124,7 @@ private:
     int cityIndex;
 
     Yield* totalCivYield;
+    int GPT, maintenance, GptAdjusted;
 
     void UpdateYield();
 

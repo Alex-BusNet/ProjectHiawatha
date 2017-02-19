@@ -119,7 +119,7 @@ private:
     QPixmap *gemsPix, *marblePix, *ivoryPix, *dyesPix, *spicesPix, *silkPix, *sugarPix, *cottonPix, *pearlsPix;
     QPixmap *incencePix, *winePix, *silverPix, *fursPix, *sheepPix;
     QPixmap *tileWorkedIcon, *tileUnworked, *fortified;
-    QPixmap *mine, *tradePost, *plantation, *farm, *none;
+    QPixmap *mine, *tradePost, *plantation, *farm, *oilwell, *pasture, *quarry, *camp, *fishingboat, *none;
     QPixmap *clouds, *hidden, *orders;
 };
 

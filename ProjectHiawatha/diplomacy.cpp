@@ -152,13 +152,12 @@ void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
         QJsonArray whArray = dio["warchart"].toArray();
         for(int j = 0; j < whArray.size(); j++)
         {
-            QJsonObject who = whArray.at(i).toObject();
+            QJsonObject who = whArray.at(j).toObject();
             WarHistory wh{NO_NATION, 0, 0, AT_PEACE};
             wh.nation = static_cast<Nation>(who["targetnation"].toInt());
             wh.timesAtWarWith = who["timesatwarwith"].toInt();
             wh.warStartedOn = who["warstartedon"].toInt();
             wh.warStat = static_cast<WarStatus>(who["warstatus"].toInt());
-            qDebug() << "   " << di->leaderName << UnitController::NationName(wh.nation) <<"   WarStat:" << wh.warStat;
 
             di->warChart.push_back(wh);
         }

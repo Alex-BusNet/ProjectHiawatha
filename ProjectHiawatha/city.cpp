@@ -29,7 +29,8 @@ City::City()
     this->isCaptial = false;
     this->isOriginalCapital = false;
     this->fullyExpanded = false;
-    this->hasWorker=false;
+    this->hasWorker = false;
+    this->hasGarrison = false;
     this->cityID = -1;
     this->goldYield = 0;
     this->productionYield = 0;

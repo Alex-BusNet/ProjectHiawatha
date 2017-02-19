@@ -87,6 +87,11 @@ Renderer::Renderer(int mapSizeX)
     farm = new QPixmap("Assets/Resources/farm.png");
     tradePost = new QPixmap("Assets/Resources/trade_post.png");
     none = new QPixmap("Assets/Resources/noImprovement.png");
+    camp = new QPixmap("Assets/Resources/camp.png");
+    pasture = new QPixmap("Assets/Resources/pasture.png");
+    fishingboat = new QPixmap("Assets/Resources/fishingboat.png");
+    quarry = new QPixmap("Assets/Resources/quarry.png");
+    oilwell = new QPixmap("Assets/Resources/oilwell.png");
 }
 
 Renderer::~Renderer()
@@ -273,11 +278,17 @@ Renderer::~Renderer()
     delete mine;
     delete tradePost;
     delete plantation;
+    delete oilwell;
+    delete quarry;
+    delete fishingboat;
+    delete pasture;
+    delete camp;
     delete farm;
     delete none;
     delete clouds;
     delete hidden;
     delete orders;
+
     #ifndef __APPLE__
         synch.waitForFinished();
     #endif
@@ -553,7 +564,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // The tile has been selected by the player
         if(selDat.player && !selDat.target)
         {
-            view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::yellow);
             outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = true;
@@ -561,7 +571,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // The tile is contains a unit that can be targeted
         else if(!selDat.player && selDat.target)
         {
-            view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::red);
             outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = false;
@@ -569,7 +578,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // Return the tile to it's default state.
         else if(!selDat.player && !selDat.target)
         {
-            view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::transparent);
             outlinePen.setWidth(1);
             map->GetTileAt(index)->Selected = false;
@@ -577,7 +585,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
 
         // Update the tileCircle vector and GameView with the
         // new circle information.
-        tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(outlinePen);
         tileCircles.at(index)->setZValue(0);
     }
@@ -612,6 +619,20 @@ void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
     view->removeItem(cityBorders.at(city->GetCityRenderIndex()));
     cityBorders.replace(city->GetCityRenderIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.at(city->GetCityRenderIndex())->setZValue(2);
+
+    if(city->GetCityID() < 100)
+    {
+        outlinePen.setColor(Qt::green);
+        foreach(Tile* t, city->borderQueue)
+        {
+            tileCircles.at(t->GetTileIndex())->setPen(outlinePen);
+        }
+        outlinePen.setColor(Qt::transparent);
+        foreach(Tile* t, city->GetControlledTiles())
+        {
+            tileCircles.at(t->GetTileIndex())->setPen(outlinePen);
+        }
+    }
 }
 
 void Renderer::UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view)
@@ -1419,7 +1440,23 @@ void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view
     case NONE:
         tileImprovementIcons.replace(index, view->addPixmap(*none));
         break;
+    case QUARRY:
+        tileImprovementIcons.replace(index, view->addPixmap(*quarry));
+        break;
+    case FISHING_BOAT:
+        tileImprovementIcons.replace(index, view->addPixmap(*fishingboat));
+        break;
+    case PASTURE:
+        tileImprovementIcons.replace(index, view->addPixmap(*pasture));
+        break;
+    case CAMP:
+        tileImprovementIcons.replace(index, view->addPixmap(*camp));
+        break;
+    case OIL_WELL:
+        tileImprovementIcons.replace(index, view->addPixmap(*oilwell));
     case ROAD:
+        break;
+    default:
         break;
     }
 
@@ -1457,6 +1494,7 @@ void Renderer::SetTileTooltip(int index, Yield tileYield, Nation owner, QString 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
+    static bool textAdjusted = false;
 
     view->removeItem(cityGrowthBars.at(index));
     int barSize;
@@ -1480,8 +1518,10 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     cityGrowthBars.at(index)->setZValue(4);
 
     cityPopulationLabels.at(index)->setPlainText(QString("%1").arg(city->GetCitizenCount()));
-    if(city->GetCitizenCount() == 10)
+
+    if(city->GetCitizenCount() == 10 && !textAdjusted)
     {
+        textAdjusted = true;
         cityPopulationLabels.at(index)->setFont(QFont("Helvetica", 6, QFont::Normal));
         cityPopulationLabels.at(index)->moveBy(-2, 0);
     }
@@ -1588,6 +1628,7 @@ QDir::setCurrent(bin.absolutePath());
     }
     else
     {
+        qDebug() << "   Updating conquered city";
         this->UpdateCityBorders(city, view, city->GetControllingCiv());
         this->UpdateCityGrowthBar(city, view);
         this->UpdateCityHealthBar(city, view);

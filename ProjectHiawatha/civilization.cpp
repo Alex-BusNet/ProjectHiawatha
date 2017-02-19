@@ -216,11 +216,12 @@ Update_t Civilization::UpdateProgress()
      */
     double gpf =  turn / 500.0;
 
-    int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
+    maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
-    this->totalCivYield->ChangeYield(Yield::GOLD, maintenance * -1);
-    this->totalGold += this->totalCivYield->GetGoldYield();
-//    this->totalGold -= maintenance;
+    this->GPT = totalCivYield->GetGoldYield();
+    this->totalGold += GPT;
+    this->totalGold -= maintenance;
+    GptAdjusted = GPT - maintenance;
 
     if(this->totalGold < 0)
     {
@@ -694,6 +695,21 @@ int Civilization::queueSize()
     return this->cityFounding.size();
 }
 
+int Civilization::GetMaintenance()
+{
+    return maintenance;
+}
+
+int Civilization::GetGptAdjusted()
+{
+    return GptAdjusted;
+}
+
+int Civilization::GetGPT()
+{
+    return GPT;
+}
+
 bool Civilization::isAtWar()
 {
     return this->atWar;
@@ -716,6 +732,7 @@ void Civilization::AddUnit(Unit *unit)
  */
 void Civilization::RemoveCity(int cityIndex)
 {
+    qDebug() << "   Removing city";
     this->currentCityList.removeAt(cityIndex);
     for(int i = 0; i < currentCityList.size(); i++)
     {
@@ -731,6 +748,8 @@ void Civilization::RemoveCity(int cityIndex)
     {
         this->alive = false;
     }
+
+    qDebug() << "   --done";
 }
 
 /*

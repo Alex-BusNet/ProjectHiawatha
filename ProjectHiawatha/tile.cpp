@@ -47,8 +47,18 @@ Tile::Tile(int _posX, int _posY)
     IsSeenByPlayer = false;
     CanAlwaysBeSeen = false;
 
-    //Size of Hex tiles in px
+    //Tile Improvement flags
+    CanHaveFarm = false;
+    CanHaveMine = false;
+    CanHavePasture = false;
+    CanHavePlantation = false;
+    CanHaveTrade = false;
+    CanHaveFishBoat = false;
+    CanHaveCamp = false;
+    CanHaveOilWell = false;
+    CanHaveQuarry = false;
 
+    //Size of Hex tiles in px
     hexVertOffset = 22 * drawScale;
     hexHorOffset = 74 * drawScale;
     hexRowOffset = 37 * drawScale;
@@ -374,12 +384,17 @@ void Tile::SetTileTexture(TileType type)
     {
     case WATER:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
+        CanHaveFishBoat = true;
         break;
     case GRASS:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/grass.png");
+        CanHaveFarm = true;
+        CanHaveTrade = true;
         break;
     case DESERT:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/desert.png");
+        CanHaveFarm = true;
+        CanHaveTrade = true;
         break;
     case MOUNTAIN:
          this->tileTexture = QPixmap("Assets/Textures/Scaled/mountain.png");
@@ -393,15 +408,22 @@ void Tile::SetTileTexture(TileType type)
         break;
     case HILL:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/hills.png");
+        CanHaveFarm = true;
+        CanHaveTrade = true;
+        CanHaveMine = true;
         break;
     case FOREST:
          this->tileTexture = QPixmap("Assets/Textures/Scaled/forest.png");
+        CanHaveFarm = true;
+        CanHaveTrade = true;
         break;
     case SNOW:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/snow.png");
         break;
     case PLAINS_TILE:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/plains.png");
+        CanHaveFarm = true;
+        CanHaveTrade = true;
         break;
     default:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
