@@ -43,7 +43,6 @@ CityScreen::CityScreen(QWidget *parent) :
 
 CityScreen::~CityScreen()
 {
-    qDebug() << "   CityScreen Dec'tor called";
 //    foreach(Building* b, buildings)
 //    {
 //        if(b != NULL)
@@ -57,8 +56,6 @@ CityScreen::~CityScreen()
 //    }
 
     delete ui;
-
-    qDebug() << "   --CityScreen Deconstructed";
 }
 
 

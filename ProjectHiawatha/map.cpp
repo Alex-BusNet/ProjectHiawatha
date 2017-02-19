@@ -63,10 +63,8 @@ Map::Map(int mapSizeX, int mapSizeY)
 
 Map::~Map()
 {
-    qDebug() << "   Map Dec'tor called";
     if(!terrain.isEmpty())
     {
-        qDebug() << "   --Deleting terrain";
         foreach(QPixmap* p, terrain)
         {
             if(p != NULL)
@@ -76,14 +74,12 @@ Map::~Map()
 
     if(!board.isEmpty())
     {
-        qDebug() << "   --Deleting Board";
         foreach(Tile* t, board)
         {
             if(t != NULL)
                 delete t;
         }
     }
-    qDebug() << "   --Map Deconstructed";
 }
 
 void Map::InitHexMap()

@@ -244,7 +244,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
 GameManager::~GameManager()
 {
-    qDebug() << "   GameManager Dec'tor called";
     updateTimer->stop();
 
 #ifndef __APPLE__
@@ -278,7 +277,6 @@ GameManager::~GameManager()
         delete sd;
     }
 
-
     if(map != NULL)
         delete map;
 
@@ -300,7 +298,6 @@ GameManager::~GameManager()
     if(techTree != NULL)
         delete techTree;
 
-    qDebug() << "       Disconnecting GameManagerButtons";
     disconnect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
     disconnect(showDiplomacy, SIGNAL(clicked(bool)), this, SLOT(toggleDiplomacy()));
     disconnect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
@@ -324,15 +321,11 @@ GameManager::~GameManager()
     disconnect(foodFocus, SIGNAL(clicked(bool)), this, SLOT(SetFoodFocus()));
     disconnect(cultureFocus, SIGNAL(clicked(bool)), this, SLOT(SetCultureFocus()));
     disconnect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem()));
-//    disconnect(ns, SIGNAL(itemClicked(QListWidgetItem*)), ns, SLOT(removeNotification(QListWidgetItem*)));
-//    disconnect(diplo->makePeace, SIGNAL(clicked(bool)), this, SLOT(MakePeace()));
-//    disconnect(diplo->declareWar, SIGNAL(clicked(bool)), this, SLOT(WarByDiplomacy()));
     disconnect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
     disconnect(rangeAttack, SIGNAL(clicked(bool)), this, SLOT(RangeAttack()));
     disconnect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
     disconnect(help, SIGNAL(clicked(bool)), this, SLOT(OpenHelp()));
 
-    qDebug() << "       Deleting GameManager Buttons";
     delete exitGame;
     delete endTurn;
     delete moveUnit;
@@ -355,14 +348,12 @@ GameManager::~GameManager()
     delete fortifyUnit;
     delete help;
 
-    qDebug() << "       Deleting city focus buttons";
     delete goldFocus;
     delete productionFocus;
     delete scienceFocus;
     delete foodFocus;
     delete cultureFocus;
 
-    qDebug() << "       Deleting YieldDisplay, tech progress, and endGame";
     delete goldLabel;
     delete goldText;
     delete prodLabel;
@@ -379,7 +370,6 @@ GameManager::~GameManager()
     delete endGameText;
     delete warbox;
 
-    qDebug() << "       Deleting yield pixmaps";
     if(goldPix != NULL)
         delete goldPix;
 
@@ -395,8 +385,6 @@ GameManager::~GameManager()
     if(culPix != NULL)
         delete culPix;
 
-
-    qDebug() << "       Deleting misc pointers";
     if(playerInfoRect != NULL)
         delete playerInfoRect;
 
@@ -412,7 +400,6 @@ GameManager::~GameManager()
     if(targetCity != NULL)
         delete targetCity;
 
-    qDebug() << "       Deleting Queues";
     if(!selectedTileQueue->isEmpty())
         selectedTileQueue->clear();
 
@@ -433,18 +420,15 @@ GameManager::~GameManager()
 
     if(updateTimer != NULL)
         delete updateTimer;
+
 #ifndef __APPLE__
     if(!derender.isFinished())
     {
-        qDebug() << "   ----Waiting for renderer";
         derender.waitForFinished();
     }
 #endif
 
-    qDebug() <<"       Deleting gameView";
     delete gameView;
-
-    qDebug() << "   --Game Manager Deconstructed";
 }
 
 void GameManager::WarByDiplomacy()
@@ -1810,8 +1794,7 @@ void GameManager::InitVariables(bool fullscreen)
         this->setFixedSize(1400, 700);
         this->setWindowTitle("Project Hiawatha");
         gameView->setFixedWidth(1195);
-        this->setWindowFlags(!Qt::WindowCloseButtonHint);
-//        this->setWindowFlags(Qt::FramelessWindowHint);
+        this->setWindowFlags(Qt::WindowMinimizeButtonHint);
     }
     else
     {
@@ -2066,7 +2049,12 @@ void GameManager::InitLayouts()
     gameLayout->addLayout(unitControlButtons);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
-    gameLayout->addWidget(ns);
+
+//    if(this->isFullScreen())
+//        ns->setGeometry(this->width() - 150, 20, 50, this->height() - 40);
+//    else
+        gameLayout->addWidget(ns);
+
     gameLayout->setGeometry(QRect(100, 20, this->width(), this->height()));
     diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
 
@@ -3222,41 +3210,3 @@ void GameManager::parseItem()
     this->showTechTreeButton->setEnabled(false);
     this->showCity(civList[0]->GetCityAt(clv->currentRow()));
 }
-
-//void GameManager::toggleFog()
-//{
-//    for(int i = 0; i < map->GetBoardSize(); i++)
-//    {
-//        if(!toggleOn)
-//        {
-//            renderer->SetTileVisibility(i, true, false);
-//        }
-//        else
-//        {
-//            if(map->GetTileAt(i)->DiscoveredByPlayer)
-//            {
-//                if(map->GetTileAt(i)->CanAlwaysBeSeen)
-//                {
-//                    renderer->SetTileVisibility(i, true, false);
-//                }
-//                else if(!map->GetTileAt(i)->IsSeenByPlayer)
-//                {
-//                    renderer->SetTileVisibility(i, false, false);
-//                }
-//            }
-//            else
-//            {
-//                if(map->GetTileAt(i)->CanAlwaysBeSeen)
-//                {
-//                    renderer->SetTileVisibility(i, true, false);
-//                }
-//                else
-//                {
-//                    renderer->SetTileVisibility(i, false, true);
-//                }
-//            }
-//        }
-//    }
-
-//    toggleOn = !toggleOn;
-//}
