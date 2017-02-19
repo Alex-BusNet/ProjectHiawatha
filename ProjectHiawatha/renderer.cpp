@@ -1556,6 +1556,7 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
     cityProductionBars.at(index)->setZValue(4);
 
     cityLabels.at(index)->setPlainText(QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength()));
+
 }
 
 /*
@@ -1593,6 +1594,7 @@ void Renderer::AddCityLabel(City* city, GameView *view)
     cityLabels.last()->setFont(QFont("Helvetica", 8, QFont::Normal));
     cityLabels.last()->font().setStretch(QFont::ExtraCondensed);
 
+
     cityLabels.last()->setPos(city->GetCityTile()->GetCenter().x() - (cityLabels.last()->boundingRect().width() / 2) - 2,
                               city->GetCityTile()->GetCityLabelPoint().y() - 5);
 }
@@ -1621,7 +1623,7 @@ QDir::setCurrent(bin.absolutePath());
 
     if(!conqueredCity)
     {
-        city->SetCityRenderIndex(this->cityBorders.size());
+        city->SetCityRenderIndex(this->cityPixmap.size()-1);
 
         this->AddCityLabel(city, view);
         this->AddCityHealthBars(city, view);
