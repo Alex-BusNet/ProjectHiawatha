@@ -366,6 +366,7 @@ void Civilization::WriteData(QJsonObject &obj) const
     obj["accumulatedscience"] = accumulatedScience;
     obj["capitalscontrolled"] = capitalsControlled;
     obj["militarystrength"] = militaryStrength;
+    obj["cityfounded"] = cityFounded;
 
     obj["atwar"] = atWar;
     QJsonArray warVec;
@@ -456,13 +457,14 @@ void Civilization::ReadData(const QJsonObject &obj)
     totalGold = obj["totalgold"].toInt();
     maintenance = obj["maintenance"].toInt();
     GPT = obj["gpt"].toInt();
-    GptAdjusted = obj["gptadjusted"];
+    GptAdjusted = obj["gptadjusted"].toInt();
     losingGold = obj["losinggold"].toBool();
     totalScience = obj["totalscience"].toInt();
     totalCulture = obj["totalculture"].toInt();
     accumulatedScience = obj["accumulatedscience"].toInt();
     capitalsControlled = obj["capitalscontrolled"].toInt();
     militaryStrength = obj["militarystrength"].toInt();
+    cityFounded = obj["cityfounded"].toBool();
     atWar = obj["atwar"].toBool();
 
     QJsonArray warVec = obj["atwarwithvector"].toArray();

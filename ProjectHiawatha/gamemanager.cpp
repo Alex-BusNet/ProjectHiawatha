@@ -229,7 +229,7 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
         {
             viewUpdateTiles->enqueue(ViewData{i, DISCOVERED});
 
-            if(!map->GetTileAt(i)->IsSeenByPlayer)
+            if(!map->GetTileAt(i)->IsSeenByPlayer && !map->GetTileAt(i)->CanAlwaysBeSeen)
             {
                 viewUpdateTiles->enqueue(ViewData{i, HIDDEN});
             }
@@ -534,7 +534,7 @@ void GameManager::LoadCivs()
     QJsonDocument civDoc = QJsonDocument::fromJson(civSave);
     QJsonArray civArray = civDoc.object()["civilizations"].toArray();
 
-    QPixmap pic;
+//    QPixmap pic;
     for(int i = 0; i < civList.size(); i++)
     {
         civList.at(i)->ReadData(civArray.at(i).toObject());
