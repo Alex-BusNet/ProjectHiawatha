@@ -1416,7 +1416,7 @@ void GameManager::UpdateTileData()
 
                 foreach(Tile *tile, tiles)
                 {
-                    if((tile->GetOccupyingCivListIndex() != 0) && (tile->GetOccupyingCivListIndex() != -1))
+                    if((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0))
                     {
                         int tileIndex = tile->GetTileIndex();
 
@@ -1427,8 +1427,7 @@ void GameManager::UpdateTileData()
                         {
                             attackCity->setEnabled(true);
                         }
-
-                        if(tile->ContainsUnit && !tile->HasCity)
+                        else if(tile->ContainsUnit && !tile->HasCity)
                         {
                             if(unitToMove->isMelee)
                             {
@@ -1474,25 +1473,14 @@ void GameManager::UpdateTileData()
                 if(currentTurn == 0)
                     statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
 
-                qDebug() << "       attacker" << civList.at(currentTurn)->GetLeaderName() << "target" << civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName() << "target city" << targetCity->GetName();
-                qDebug() << "   target City list size pre conquer" << (civList.at(targetTile->GetControllingCivListIndex())->GetCityList().size());
-                qDebug() << "   attacker City list size pre conquer" << (civList.at(currentTurn)->GetCityList().size());
-
                 int targetIndex = targetTile->GetControllingCivListIndex();
 
                 ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetIndex));
-                qDebug() << "   --Done";
-
-
-                qDebug() << "   target City list size post conquer" << (civList.at(targetIndex)->GetCityList().size());
-                qDebug() << "   attacker City list size post conquer" << (civList.at(currentTurn)->GetCityList().size());
 
                 if(civList.at(targetIndex)->GetCityList().size() == 0)
                 {
-                    qDebug() << "   Civ has no cities left";
                     if(!civList.at(targetIndex)->GetUnitList().isEmpty())
                     {
-                        qDebug() << "   Removing remaining units";
                         foreach(Unit* unit, civList.at(targetIndex)->GetUnitList())
                         {
                             map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
@@ -1500,14 +1488,11 @@ void GameManager::UpdateTileData()
                             renderer->RemoveUnit(unit, gameView);
                         }
 
-                        qDebug() << "   Removing unit from civ";
                         for(int i = 0; i < civList.at(targetIndex)->GetUnitList().size(); i++)
                         {
                             civList.at(targetIndex)->RemoveUnit(i);
                         }
                     }
-
-                    qDebug() << "   Decrementing playerAliveCount";
                     playersAliveCount--;
                 }
             }
