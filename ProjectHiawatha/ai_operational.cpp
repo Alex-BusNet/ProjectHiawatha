@@ -24,7 +24,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
     if(civ->isAtWar()){
         theaterAtWar(civ, player);
     }
-    aiTact = new AI_Tactical(civ, map, CityToBeFounded, cityTarget);
+    aiTact = new AI_Tactical(civ, player, map, CityToBeFounded, cityTarget);
 }
 //****************Tactical AI Called**************
     //Pass target city
