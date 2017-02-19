@@ -736,7 +736,7 @@
         "healthbarindex": -1,
         "hp": 100,
         "maxhp": 100,
-        "melee": false,
+        "melee": true,
         "movepoints": 6,
         "name": "Helicopter Gunship",
         "naval": false,
