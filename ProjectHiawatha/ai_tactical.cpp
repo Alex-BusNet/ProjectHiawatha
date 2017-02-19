@@ -31,6 +31,9 @@ AI_Tactical::AI_Tactical(Civilization *civ, Map *map, QVector<Tile *> CityToBeFo
 
 void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 {
+#ifdef DEBUG
+    qDebug()<<"AtWar";
+#endif
     int combatUnits=0;
     for(int i = 0;i< civ->GetUnitList().length();i++){
         if(!civ->GetUnitAt(i)->isNonCombat()){
@@ -39,6 +42,73 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
     }//Tally combat units
     QVector<Unit*> unitlist=civ->GetUnitList();
     bool conquered=false;
+
+#ifdef DEBUG
+    qDebug()<<cityTarget->GetControllingCiv();
+    qDebug()<<cityTarget->GetName()<<" at "<<cityTarget->GetCityTile()->GetTileIndex();
+#endif
+    QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),2);
+    for(int i=0;i<targetNeighbor.length();i++){
+#ifdef DEBUG
+        qDebug()<<"Tile "<<i<<" is: "<<targetNeighbor.at(i)->GetTileIndex();
+#endif
+    }
+
+    QList<Tile*> meleeTarget = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),1);
+
+#ifdef DEBUG
+    qDebug()<<"target neighbor length: "<<targetNeighbor.length();
+    qDebug()<<"melee target length: "<<meleeTarget.length();
+#endif
+
+    for(int i=(targetNeighbor.length()-1);i>=0;i--){
+        for(int j=(meleeTarget.length()-1);j>=0;j--){
+            if(targetNeighbor.at(i)->GetTileIndex()==meleeTarget.at(j)->GetTileIndex()){
+                qDebug()<<"Removing from Neighbor, tile: "<<targetNeighbor.at(i)->GetTileIndex();
+                targetNeighbor.removeAt(i);
+            }
+            if(cityTarget->GetCityTile()->GetTileIndex()==meleeTarget.at(j)->GetTileIndex()){
+                qDebug()<<"Removing from Melee, tile: "<< meleeTarget.at(j)->GetTileIndex();
+                meleeTarget.removeAt(j);
+            }
+            if(cityTarget->GetCityTile()->GetTileIndex()==targetNeighbor.at(i)->GetTileIndex()){
+                qDebug()<<"Removing from Neighbor, tile: "<<targetNeighbor.at(i)->GetTileIndex();
+                targetNeighbor.removeAt(i);
+            }
+        }
+    }
+
+
+#ifdef DEBUG
+    qDebug()<<"target neighbor length: "<<targetNeighbor.length();
+    qDebug()<<"melee target length: "<<meleeTarget.length();
+#endif
+
+    for(int i=(targetNeighbor.length()-1);i>=0;i--){
+        if(targetNeighbor.at(i)->ContainsUnit||MOUNTAIN==targetNeighbor.at(i)->GetTileType()){
+#ifdef DEBUG
+            qDebug()<<"Removing "<<targetNeighbor.at(i)->GetTileIndex();
+#endif
+            targetNeighbor.removeAt(i);
+        }
+    }
+#ifdef DEBUG
+    qDebug()<<"target neighbor length: "<<targetNeighbor.length();
+#endif
+
+    for(int i=(meleeTarget.length()-1);i>=0;i--){
+        if(meleeTarget.at(i)->ContainsUnit||MOUNTAIN==meleeTarget.at(i)->GetTileType()){
+#ifdef DEBUG
+            qDebug()<<"Removing "<<meleeTarget.at(i)->GetTileIndex();
+#endif
+            meleeTarget.removeAt(i);
+        }
+    }
+#ifdef DEBUG
+    qDebug()<<"melee target length: "<<meleeTarget.length();
+#endif
+
+
     for(int i=0; i<unitlist.length();i++){
         Tile *unitlocation = map->GetTileAt(unitlist.at(i)->GetTileIndex());
         if(civ->GetUnitAt(i)->isMelee&&(combatUnits>4)){
@@ -76,46 +146,20 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 #ifdef DEBUG
      qDebug()<<"Send to city: "<<(cityTarget->GetName());
 #endif
-                QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),1);
-                int k=0;
-                while(unitlist.at(i)->isPathEmpty()){
-                    if(targetNeighbor.at(k)->ContainsUnit||MOUNTAIN==targetNeighbor.at(k)->GetTileType()||WATER==targetNeighbor.at(k)->GetTileType()){
-                        k++;
-                        continue;
-                    }//Check if tile is occupied
-#ifdef DEBUG
-     qDebug()<<"K="<<k;
-#endif
-                    if(k>6){
-#ifdef DEBUG
-     qDebug()<<"All tiles occupied";
-#endif
-                        break;
-                    }
+               for(int k=0;k<meleeTarget.length();k++){
+                    if(unitlist.at(i)->isPathEmpty()){
+                        uc->FindPath(unitlocation,meleeTarget.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                        meleeTarget.removeAt(k);
 #ifdef DEBUG
      qDebug()<<"Sent to tile: "<<targetNeighbor.at(k)->GetTileIndex();
 #endif
-                    uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
-#ifdef DEBUG
-     qDebug()<<"test2"<<unitlist.at(i)->GetTargetTileIndex();
-#endif
-                }//Attempts to send melee units into attack range
-                if(civ->GetUnitAt(i)->RequiresOrders){
-                    QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),3);
-                    int k=0;
-                    while(unitlist.at(i)->isPathEmpty()){
-                        if(targetNeighbor.at(k)->ContainsUnit||MOUNTAIN==targetNeighbor.at(k)->GetTileType()||WATER==targetNeighbor.at(k)->GetTileType()){
-                            k++;
-                            continue;
-                        }//Check if tile is occupied
-                        uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
-#ifdef DEBUG
-     qDebug()<<"Test3"<<unitlist.at(i)->GetTargetTileIndex();
-#endif
                     }
-                }//Places units in 'On Deck' position if attack spots are occupied
+                }//Attempts to send melee units into attack range
             }//Direct Melee units to an appropriate tile
         }//Melee Unit City Combat
+
+
+        //Start Ranged
         else if(!civ->GetUnitAt(i)->isNonCombat()&&(combatUnits>4)){
             QList<Tile*> inRange = map->GetNeighborsRange(unitlocation,2);
             bool canHit = false;
@@ -140,17 +184,14 @@ void AI_Tactical::AtWar(Civilization *civ, Map *map, City *cityTarget)
 #ifdef DEBUG
      qDebug()<<"Send to city: "<<(cityTarget->GetName());
 #endif
-                QList<Tile*> targetNeighbor = map->GetNeighborsRange(map->GetTileAt(cityTarget->GetCityTile()->GetTileIndex()),2);
-                int k=0;
-                while(unitlist.at(i)->isPathEmpty()){
-                    if(targetNeighbor.at(k)->ContainsUnit||MOUNTAIN==targetNeighbor.at(k)->GetTileType()||WATER==targetNeighbor.at(k)->GetTileType()){
-                        k++;
-                        continue;
-                    }//Check if tile is occupied
-                    uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                for(int k=0;k<targetNeighbor.length();k++){
+                    if(unitlist.at(i)->isPathEmpty()){
+                        uc->FindPath(unitlocation,targetNeighbor.at(k),map,unitlist.at(i), WarData{civ->isAtWar(), civ->GetCivListIndexAtWar()});
+                        targetNeighbor.removeAt(k);
 #ifdef DEBUG
-     qDebug()<<"Ranged moving to "<<unitlist.at(i)->GetTargetTileIndex()<<unitlist.at(i)->GetPath().length();
+     qDebug()<<"Ranged: K is: "<<k<<" Ranged moving to "<<unitlist.at(i)->GetTargetTileIndex()<<unitlist.at(i)->GetPath().length();
 #endif
+                    }
                 }//Attempt to send ranged units into attack range
             }//Direct ranged units to appropriate tile
         }//Ranged Unit City Combat

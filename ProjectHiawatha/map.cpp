@@ -178,6 +178,12 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
 {
     QList<Tile*> neighbors;
 
+
+    int maxTiles = 1;
+    for(int i=1;i<(range+1);i++){
+        maxTiles+=(6*i);
+    }//Calculates how many tiles need returned
+
     int xMin = (-2) * range;
     int xMax = 2 * range;
     int yMin = (-1) * range;
@@ -237,9 +243,16 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
                             }
                         }
                     }
-
-                boardTile = board.at(boardIndex);
-                neighbors.push_back(boardTile);
+                bool addtile=true;
+                for(int i=0;i<neighbors.length();i++){
+                    if(neighbors.at(i)->GetTileIndex()==boardIndex){
+                        addtile=false;
+                    }
+                }
+                if(addtile&&(neighbors.length()<maxTiles)){
+                    boardTile = board.at(boardIndex);
+                    neighbors.push_back(boardTile);
+                }
             }
         }
 

@@ -85,10 +85,8 @@ void AI_Strategic::cityProduction(Civilization *civ,Civilization *player){
             combatUnits++;
         }
     }//Tallies various unit types
-    if(1<=combatUnits&&!civ->isAtWar()){
-#ifndef DEBUG
-     qDebug()<<"30 units! Declare War!";
-#endif
+    if(10<=combatUnits&&!civ->isAtWar()){
+     qDebug()<<combatUnits<<" units! AI Declare War!";
         //Needs to use the official logic, or else the war is a surprise!
         civ->setCityFounding(AIQueueData{AI_DECLARE_WAR,civ->GetUnitAt(0)});
         civ->SetAtWar(0);

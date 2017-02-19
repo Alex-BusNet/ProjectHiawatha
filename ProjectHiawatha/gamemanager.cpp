@@ -588,6 +588,7 @@ void GameManager::TurnController()
             // if the AI is trying to settle a city or conquer one
             while(future.isRunning())
             {
+                qDebug()<<"                                     Is empty:"<<civList.at(currentTurn)->isEmpty();
                 if(!civList.at(currentTurn)->isEmpty())
                 {
                     AIQueueData data = civList.at(currentTurn)->dequeue();
@@ -608,7 +609,6 @@ void GameManager::TurnController()
                         diplo->UpdateLeader(0);
                         WarByDiplomacy();
                     }
-
                     this->UpdateTileData();
                 }
             }
