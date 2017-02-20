@@ -160,7 +160,7 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
                         canHit=true;
                         if(0>=cityTarget->GetCityHealth()){
                             unitlist.at(i)->SetUnitTargetTileIndex(cityTarget->GetCityTile()->GetTileIndex());
-                            civ->setCityFounding(AIQueueData{CONQUER,unitlist.at(i)});
+                            civ->setCityFounding(AIQueueData{CONQUER,unitlist.at(i), NULL});
                             conquered=true;
                         }//Only Melee units can conquer cities
                         else{
@@ -394,6 +394,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
      qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
 #endif
                             canHit=true;
+//                            civ->setCityFounding(AIQueueData{ATTACK_RANGE, unitlist.at(i), threatVec.at(0)});
                             uc->Attack(unitlist.at(i),threatVec.at(0),false);
                             while(!unitlist.at(i)->isPathEmpty()){
                                 unitlist.at(i)->UpdatePath();
@@ -428,6 +429,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
     qDebug()<<"Attack to target at "<<(threatVec.at(0)->GetTileIndex());
 #endif
                              canHit=true;
+//                             civ->setCityFounding(AIQueueData{ATTACK_RANGE, unitlist.at(i), threatVec.at(0)});
                              uc->Attack(unitlist.at(i),threatVec.at(0),false);
                              while(!unitlist.at(i)->isPathEmpty()){
                                  unitlist.at(i)->UpdatePath();
@@ -484,7 +486,7 @@ void AI_Tactical::settlercontrol(Civilization *civ, Map *map, QVector<Tile *> Ci
 #ifdef DEBUG
      qDebug() << "------AI" << civ->getCivIndex() << "writing to foundCity queue";
 #endif
-                civ->setCityFounding(AIQueueData{AI_FOUND_CITY,unitlist.at(i)});
+                civ->setCityFounding(AIQueueData{AI_FOUND_CITY, unitlist.at(i), NULL});
                 //This will get set regardless if a city is actually settled or not.
                 // If the city is not founded, the AI <<SHOULD>> try to move the settler
                 // to the next valid location until a city is actually settled.

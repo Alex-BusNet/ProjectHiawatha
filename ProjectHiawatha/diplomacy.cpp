@@ -337,6 +337,7 @@ void Diplomacy::selectLeader(QListWidgetItem *item)
     else
     {
         leaderName->setText(QString("Unmet Player %1").arg(leaderListArea->currentRow()));
+        leaderImage->setText("  ?  ");
         leaderImage->setFixedSize(350, 350);
         nationName->setText("Unknown");
     }
@@ -359,7 +360,7 @@ void Diplomacy::selectLeader(QListWidgetItem *item)
     }
     atWarWith->setText(war);
 
-    if((leaderListArea->currentRow() != 0))
+    if((leaderListArea->currentRow() != 0) && d->hasMetPlayer)
     {
         if(d->warChart.at(0).warStat == AT_WAR || d->warChart.at(0).warStat == PERMANENT_WAR)
         {

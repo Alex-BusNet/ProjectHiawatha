@@ -17,7 +17,7 @@
 class City;
 class AI_Controller;
 
-typedef struct {ActionState action; Unit *unit; } AIQueueData;
+typedef struct {ActionState action; Unit *unit; Unit *target;} AIQueueData;
 
 class Civilization
 {
