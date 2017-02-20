@@ -39,6 +39,8 @@ public:
     bool CanHaveFarm, CanHaveMine, CanHavePlantation, CanHavePasture, CanHaveTrade;
     bool CanHaveFishBoat, CanHaveOilWell, CanHaveCamp, CanHaveQuarry;
 
+    int SeenByUnits;
+
     TileType GetTileType();
     Yield* GetYield();
     TileImprovement GetTileImprovement();

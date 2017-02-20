@@ -227,10 +227,12 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
                             {
                                 n->DiscoveredByPlayer = true;
                                 n->IsSeenByPlayer = true;
+                                n->CanAlwaysBeSeen = true;
                             }
                             else
                             {
                                 n->IsSeenByPlayer = true;
+                                n->CanAlwaysBeSeen = true;
                             }
                         }
                     }
@@ -264,6 +266,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
             }
 
             renderer->SetTileTooltip(map->GetTileAt(i)->GetTileIndex(), *map->GetTileAt(i)->GetYield(), map->GetTileAt(i)->GetControllingCiv(), map->GetTileAt(i)->GetTileIDString());
+        }
+
+        if(map->GetTileAt(i)->GetTileImprovement() != NONE)
+        {
+            renderer->SetTileImprovement(map->GetTileAt(i)->GetTileImprovement(), map->GetTileAt(i), gameView);
         }
     }
 
@@ -1064,8 +1071,6 @@ void GameManager::EndTurn()
     relocateUnit = false;
     processedData.relocateOrderGiven = false;
     processedData.newData = false;
-    //This is for debugging purposes.
-    begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
     QList<Tile*> t;
 
@@ -1108,17 +1113,19 @@ void GameManager::EndTurn()
             {
                 renderer->SetUnitNeedsOrders(civList.at(0)->GetUnitAt(i)->GetTileIndex(), false);
 
-                if(!toggleOn)
+                t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
+                foreach(Tile* ti, t)
                 {
-                    t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
-                    qDebug() << "   size of t:" << t.size();
-                    foreach(Tile* ti, t)
+                    if(ti->SeenByUnits == 1 && !ti->CanAlwaysBeSeen)
                     {
-                        if(ti->IsSeenByPlayer && !ti->CanAlwaysBeSeen)
-                        {
-                            ti->IsSeenByPlayer = false;
-                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), HIDDEN});
-                        }
+                        ti->SeenByUnits = 0;
+                        ti->IsSeenByPlayer = false;
+                        viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), HIDDEN});
+                    }
+                    else
+                    {
+                        if(ti->SeenByUnits == 0) { ti->SeenByUnits = 0; }
+                        else { ti->SeenByUnits--; }
                     }
                 }
             }
@@ -1129,29 +1136,31 @@ void GameManager::EndTurn()
             {
                 tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
-                if(!toggleOn)
+                t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
+
+                foreach(Tile* ti, t)
                 {
-                    t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
-
-                    foreach(Tile* ti, t)
+                    if(ti->SeenByUnits == 0)
                     {
-                        if(!ti->CanAlwaysBeSeen)
+                        ti->SeenByUnits = 1;
+                        if(!ti->DiscoveredByPlayer)
                         {
-                            if(!ti->DiscoveredByPlayer)
-                            {
-                                ti->DiscoveredByPlayer = true;
-                                viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
-                            }
-
-                            if(!ti->IsSeenByPlayer)
-                            {
-                                ti->IsSeenByPlayer = true;
-                                viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), VISIBLE});
-                            }
+                            ti->DiscoveredByPlayer = true;
+                            ti->IsSeenByPlayer = true;
+                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
                         }
-
-                        renderer->SetTileTooltip(ti->GetTileIndex(), *ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
+                        else if(!ti->IsSeenByPlayer)
+                        {
+                            ti->IsSeenByPlayer = true;
+                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), VISIBLE});
+                        }
                     }
+                    else
+                    {
+                        ti->SeenByUnits++;
+                    }
+
+                    renderer->SetTileTooltip(ti->GetTileIndex(), *ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
                 }
             }
 
@@ -1224,7 +1233,6 @@ nextCivAlive:
         // needing to be adjusted when a civ is eliminated.
         if(!civList.at(currentTurn)->alive)
         {
-            qDebug() << "   civList.at(" << currentTurn << ") is not alive";
             goto nextCivAlive;
         }
     }
@@ -2163,14 +2171,12 @@ void GameManager::InitRenderData()
     renderer->DrawHexScene(map, gameView);
     InitYieldDisplay();
 
-    qDebug() << "   Loading Civs to View";
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
 
         if(i == 0)
         {
-            qDebug() << "   Setting up FoW";
             foreach(City* ci, civList.at(i)->GetCityList())
             {
                 foreach(Tile* n, map->GetNeighborsRange(ci->GetCityTile(), 3))
@@ -2205,7 +2211,6 @@ void GameManager::InitRenderData()
 
                 }
             }
-            qDebug() << "   --Done";
 
             endGameText = new QString("Capitals Controlled:");
             endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
@@ -2215,9 +2220,7 @@ void GameManager::InitRenderData()
             endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
         }
 
-        qDebug() << "   Adding Units";
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-        qDebug() << "   --Done";
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
@@ -2268,13 +2271,10 @@ void GameManager::InitRenderData()
 
     techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
     diplo->UpdateLeader(0);
-
-    qDebug() << "   Project Hiawatha Loaded";
 }
 
 void GameManager::DeinitRenderer()
 {
-//    renderer->PrepareForDelete(gameView);
     delete renderer;
 }
 
@@ -2365,7 +2365,6 @@ void GameManager::SaveGame()
 
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
 {
-    qDebug() << "   Processing city conquer";
     City* city = new City();
 
     tCity->SetCityID(100*aCiv->getCivIndex() + aCiv->GetCityList().size());
@@ -2387,17 +2386,12 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
 
     tCity->GetCityTile()->SetControllingCiv(aCiv->getCiv(), aCiv->getCivIndex());
 
-    qDebug() << "   Writing save data";
     QJsonObject cityInfo;
     tCity->WriteCitySaveData(cityInfo);
 
-    qDebug() << "   Read data to new city";
     city->ReadCitySaveData(cityInfo);
-
-    qDebug() << "   Setting city tile";
     city->SetCityTile(map->GetTileAt(city->loadedCityTileIndex));
 
-    qDebug() << "   Setting capital flags";
     if(tCity->IsCityCaptial())
     {
         if(tCity->IsOriginalCapital())
@@ -2418,13 +2412,6 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
          statusMessage = QString("--------<< %1 have conquered the city of %2 >>--------").arg(aCiv->GetLeaderName()).arg(tCity->GetName());
     }
 
-//    city->resetAccumulatedProduction();
-//    city->setCurrentProductionCost(0);
-//    city->setProductionName("No Current Production");
-//    city->setProductionIndex(0);
-//    city->setProductionFinished(false);
-
-    qDebug() << "   setting controlled tiles";
     foreach(int i, city->controlledTilesIndex)
     {
         Tile* tile = map->GetTileAt(i);
@@ -2437,44 +2424,34 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
         city->AddControlledTile(tile);
     }
 
-    qDebug() << "   Setting tile queue";
     map->GetTileQueue(city);
 
-    qDebug() << "   Sorting controlled tiles";
     city->SortControlledTiles();
 
-    qDebug() << "   Loading units and building data";
     city->loadUnits("Assets/Units/UnitList.txt");
     city->loadBuildings("Assets/Buildings/BuildingList.txt");
 
     if(tCity->getHasWorker())
     {
-        qDebug() << "   City has Worker";
         renderer->RemoveUnit(tCity->GetGarrisonedWorker(), gameView);
         tCiv->RemoveUnit(tCity->GetGarrisonedWorker()->GetUnitListIndex());
     }
 
     if(tCity->HasGarrisonUnit())
     {
-        qDebug() << "   City has garrison";
         renderer->RemoveUnit(tCity->GetGarrisonedMilitary(), gameView);
         tCiv->RemoveUnit(tCity->GetGarrisonedMilitary()->GetUnitListIndex());
     }
 
-    qDebug() << "   Updating city status";
     city->UpdateCityStatus();
-    qDebug() << "   updating city yield";
     city->UpdateCityYield();
 
-    qDebug() << "   Setting city index";
     city->SetCityIndex(aCiv->GetCityList().size());
 
-    qDebug() << "   Removing city from renderer";
     renderer->RemoveCity(tCity, gameView);
     tCiv->RemoveCity(tCity->GetCityIndex());
 
     city->InitializeCity();
-    qDebug() << "   Adding new city to renderer";
     renderer->AddCity(city, gameView, true);
     aCiv->AddCity(city);
 
@@ -2482,8 +2459,6 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
         clv->addItem(city->GetName());
     else if(tCiv->getCiv() == civList.at(0)->getCiv())
         clv->takeItem(tCity->GetCityIndex());
-
-    qDebug() << "   city conquer done";
 }
 
 void GameManager::ProcessAttackUnit()
@@ -2757,8 +2732,6 @@ void GameManager::showCity(City* city)
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
-//        cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
-//        cityScreen->loadUnits("Assets/Units/UnitList.txt");
         cityScreen->loadBuildings("Assets/Data/buildings.json");
         cityScreen->loadUnits("Assets/Data/units.json");
         cityScreen->getCityInfo(city);
@@ -2829,9 +2802,7 @@ void GameManager::updateTiles()
 
     if(!viewUpdateTiles->isEmpty())
     {
-        qDebug() << "   Updating Tile Visibility";
         renderer->UpdateTileVisibilty(viewUpdateTiles, gameView);
-        qDebug() << "   --Done";
     }
 
     this->update();
@@ -2852,13 +2823,6 @@ void GameManager::updateTiles()
     {
         cityScreenVisible = true;
         showCity(NULL);
-    }
-
-    end = std::chrono::steady_clock::now();
-    if(countTime == true)
-    {
-        countTime = false;
-        qDebug() << "------------------ Time to process AI Turns:" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "us";
     }
 }
 

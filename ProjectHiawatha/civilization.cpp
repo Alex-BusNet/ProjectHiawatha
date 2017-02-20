@@ -435,18 +435,6 @@ void Civilization::WriteData(QJsonObject &obj) const
     }
 }
 
-void Civilization::ExportData(QJsonObject &obj) const
-{
-    obj["name"] = LeaderName;
-    obj["nation"] = name;
-    QJsonArray cityNames;
-    foreach(QString s, this->initialCityList)
-    {
-        cityNames.push_back(s);
-    }
-    obj["citynames"] = cityNames;
-}
-
 void Civilization::ReadData(const QJsonObject &obj)
 {
     name = static_cast<Nation>(obj["nation"].toInt());

@@ -116,6 +116,7 @@ Tile::Tile(int _posX, int _posY)
     controllingCivListIndex = -1;
     continent = 0;
     container = 0;
+    SeenByUnits = 0;
 
     gCost = 0;
     hCost = 0;

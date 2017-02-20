@@ -51,7 +51,6 @@ public:
     void MakePeace(int enemyCivListIndex);
 
     void WriteData(QJsonObject &obj) const;
-    void ExportData(QJsonObject &obj) const;
     void ReadData(const QJsonObject &obj);
 
     QString GetLeaderName();

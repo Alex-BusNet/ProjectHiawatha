@@ -1325,14 +1325,11 @@ void Renderer::PrepareForDelete(GameView *view)
  */
 void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 {
-    qDebug() << "   Drawing City borders for" << city->GetName();
     SetOutlinePen(owner);
 
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
     cityBorders.last()->setZValue(3);
-
-    qDebug() << "   --done";
 }
 
 /*
