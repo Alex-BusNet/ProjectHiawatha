@@ -97,6 +97,14 @@ void Diplomacy::UpdateLeader(int row)
     leaderListArea->setCurrentRow(row);
 }
 
+void Diplomacy::MeetPlayer(int row)
+{
+    diploItemList.at(row)->hasMetPlayer = true;
+    diploItemList.at(row)->displayString = QString("%1 \t(%2)\n").arg(diploItemList.at(row)->leaderName).arg(UnitController::NationName(diploItemList.at(row)->nation));
+    leaderListArea->takeItem(row);
+    leaderListArea->insertItem(row, diploItemList.at(row)->displayString);
+}
+
 void Diplomacy::SetLeaderImage(int index, QPixmap &image)
 {
     diploItemList.at(index)->image = image;
@@ -112,6 +120,7 @@ void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
         dio["nation"] = di->nation;
         dio["leader"] = di->leaderName;
         dio["displaystring"] = di->displayString;
+        dio["hasmetplayer"] = di->hasMetPlayer;
 
         QJsonArray whArray;
         foreach(WarHistory wh, di->warChart)
@@ -142,6 +151,7 @@ void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
         di->nation = static_cast<Nation>(dio["nation"].toInt());
         di->leaderName = dio["leader"].toString();
         di->displayString = dio["displaystring"].toString();
+        di->hasMetPlayer = dio["hasmetplayer"].toBool();
 
         QJsonArray whArray = dio["warchart"].toArray();
         for(int j = 0; j < whArray.size(); j++)
@@ -230,14 +240,15 @@ void Diplomacy::AddLeader(QString _name, QPixmap _image, Nation _nation, bool is
             di->warChart.push_back(wh);
         }
 
-        di->displayString = QString("%1 \t(%2)\n").arg(_name).arg(UnitController::NationName(_nation));
-
+        di->displayString = QString("Unmet Player %1 \t( ? )\n").arg(diploItemList.size());
+        di->hasMetPlayer = false;
         di->warChart.push_back(WarHistory{_nation, 0, 0, SELF});
     }
     else
     {
         di->displayString = QString("%1 (You)\t(%2)\n").arg(_name).arg(UnitController::NationName(_nation));
         di->warChart.push_back(WarHistory{_nation, 0, 0, SELF});
+        di->hasMetPlayer = true;
     }
 
     leaderListArea->addItem(di->displayString);
@@ -264,9 +275,7 @@ void Diplomacy::DeclareWarOn(Nation target, int targetIndex, Nation aggressor, i
         if(diploItemList.at(targetIndex)->warChart.at(i).nation == aggressor)
         {
             WarHistory wh{aggressor, turn, 0, AT_WAR};
-//            wh.nation = aggressor;
             wh.timesAtWarWith = diploItemList.at(targetIndex)->warChart.at(i).timesAtWarWith + 1;
-//            wh.warStartedOn = turn;
 
             if(diploItemList.at(targetIndex)->warChart.at(i).timesAtWarWith >= 4)
             {
@@ -279,9 +288,7 @@ void Diplomacy::DeclareWarOn(Nation target, int targetIndex, Nation aggressor, i
     }
 
     WarHistory wh{target, turn, 0, AT_WAR};
-//    wh.nation = target;
     wh.timesAtWarWith = diploItemList.at(aggressorIndex)->warChart.at(targetIndex).timesAtWarWith + 1;
-//    wh.warStartedOn = turn;
 
     if(diploItemList.at(aggressorIndex)->warChart.at(targetIndex).timesAtWarWith >= 4)
     {
@@ -320,10 +327,19 @@ bool Diplomacy::MakePeaceWith(Nation player, int targetIndex, Nation ai)
 void Diplomacy::selectLeader(QListWidgetItem *item)
 {
     DiplomacyItem *d = diploItemList.at(leaderListArea->currentRow());
-    leaderName->setText(d->leaderName);
-    leaderImage->setPixmap(d->image.scaled(350,350));
-    leaderImage->setFixedSize(350, 350);
-    nationName->setText(UnitController::NationName(d->nation));
+    if(d->hasMetPlayer)
+    {
+        leaderName->setText(d->leaderName);
+        leaderImage->setPixmap(d->image.scaled(350,350));
+        leaderImage->setFixedSize(350, 350);
+        nationName->setText(UnitController::NationName(d->nation));
+    }
+    else
+    {
+        leaderName->setText(QString("Unmet Player %1").arg(leaderListArea->currentRow()));
+        leaderImage->setFixedSize(350, 350);
+        nationName->setText("Unknown");
+    }
 
     QString war(" ");
     bool first = true;

@@ -204,6 +204,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
             c->UpdateCivYield();
 
+            if(c->HasCivMetPlayer())
+            {
+                diplo->MeetPlayer(c->getCivIndex());
+            }
+
             pic = QPixmap(civRefData.at(c->getCiv()).toObject()["leaderimagepath"].toString());
             diplo->SetLeaderImage(c->getCivIndex(), pic);
         }
@@ -273,6 +278,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
             renderer->SetTileImprovement(map->GetTileAt(i)->GetTileImprovement(), map->GetTileAt(i), gameView);
         }
     }
+
+    techText->setText(QString(" %1 / %2").arg(civList.at(0)->getAccumulatedScience()).arg(civList.at(0)->getCurrentTech()->getCost()));
 
     turnStarted = false;
     updateTimer->start();
@@ -570,7 +577,6 @@ void GameManager::LoadCivs()
     QJsonDocument civDoc = QJsonDocument::fromJson(civSave);
     QJsonArray civArray = civDoc.object()["civilizations"].toArray();
 
-//    QPixmap pic;
     for(int i = 0; i < civList.size(); i++)
     {
         civList.at(i)->ReadData(civArray.at(i).toObject());
@@ -609,7 +615,11 @@ void GameManager::TurnController()
     else
     {
         //Cycle through the AI turns.
-        statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
+        if(civList.at(currentTurn)->HasCivMetPlayer())
+            statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
+        else
+            statusMessage = QString("--------<< Processing Turn for Unmet Player %1 >>--------").arg(currentTurn);
+
         if(!AiTurnInProgress)
         {
             StartTurn();
@@ -644,7 +654,6 @@ void GameManager::TurnController()
             // if the AI is trying to settle a city or conquer one
             while(future.isRunning())
             {
-//                qDebug()<<"                                     Is empty:"<<civList.at(currentTurn)->isEmpty();
                 if(!civList.at(currentTurn)->isEmpty())
                 {
                     AIQueueData data = civList.at(currentTurn)->dequeue();
@@ -662,10 +671,8 @@ void GameManager::TurnController()
                     }
                     else if(state == AI_DECLARE_WAR)
                     {
-                        qDebug() << "   Declare War";
                         diplo->UpdateLeader(0);
                         WarByDiplomacy();
-                        qDebug() << "   --done";
                     }
                     this->UpdateTileData();
                 }
@@ -673,7 +680,6 @@ void GameManager::TurnController()
             //This is just for extra precautions so that we don't try to end the AI's
             // turn and move on before the AI thread has completly finished.
             future.waitForFinished();
-            qDebug() << "   Turn complete";
 #endif
             EndTurn();
             AiTurnInProgress = false;
@@ -686,7 +692,6 @@ void GameManager::StartTurn()
 {
     if(currentTurn == 0)
     {
-        qDebug() << "   EndGame check";
         if(!civList.at(currentTurn)->alive)
         {
             Defeat();
@@ -706,8 +711,10 @@ void GameManager::StartTurn()
         }
         else
         {
-            if(civList.at(i)->alive)
+            if(civList.at(i)->alive && civList.at(i)->HasCivMetPlayer())
                 endGameText->append(QString("\n%1     %2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+            else
+                endGameText->append(QString("\nUnmet Player %1    %2/%3").arg(i).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
         }
     }
 
@@ -834,9 +841,6 @@ void GameManager::StartTurn()
         year += yearPerTurn;
     }
 
-    int localIndex = 0;
-    QString str[20];
-
     //--------------------------------------------------------
     // The following section updates the science yield of the
     // active civ object
@@ -929,7 +933,6 @@ void GameManager::StartTurn()
     while(!QueueData::isEmpty())
     {
         cpd = QueueData::dequeue();
-        qDebug() << "   cpd:" << cpd.cityIndex << cpd.isUnit << cpd.producedUnitIndex;
         civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProductionFinished(false);
 
         if(cpd.isUnit)
@@ -1021,32 +1024,6 @@ void GameManager::StartTurn()
     }
 
     civList.at(currentTurn)->SetMilitaryStrength(civMilStr);
-
-//    if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
-//    {
-//        QString cityList;
-//        for(int j = 0;j<20;j++)
-//        {
-//            if(str[j].isEmpty()) { continue; }
-//            else
-//            {
-//                QString str3 = str[j];
-//                str3+= ", ";
-//                cityList += str3;
-//            }
-
-//        }
-//        QString prodString = "Production has finished in: ";
-//        QString finalString = prodString+cityList;
-//        finalString.chop(2);
-//        QMessageBox *mbox = new QMessageBox();
-//        mbox->setText(finalString);
-//        mbox->setWindowFlags(Qt::FramelessWindowHint);
-//        mbox->setStyleSheet(warStyle);
-//        mbox->exec();
-//        delete mbox;
-
-//    }
 
     //Update the yield status bar for the player.
     if(currentTurn == 0)
@@ -1148,6 +1125,21 @@ void GameManager::EndTurn()
                             ti->DiscoveredByPlayer = true;
                             ti->IsSeenByPlayer = true;
                             viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
+
+                            if(ti->GetControllingCivListIndex() > 0)
+                            {
+                                if(!civList.at(ti->GetControllingCivListIndex())->HasCivMetPlayer())
+                                {
+                                    civList.at(ti->GetControllingCivListIndex())->MeetPlayer();
+                                    diplo->MeetPlayer(ti->GetControllingCivListIndex());
+                                    QMessageBox *mbox = new QMessageBox();
+                                    mbox->setText(QString("You have met %1").arg(civList.at(ti->GetControllingCivListIndex())->GetLeaderName()));
+                                    mbox->setStyleSheet(warStyle);
+                                    mbox->setWindowFlags(Qt::FramelessWindowHint);
+                                    mbox->exec();
+                                    delete mbox;
+                                }
+                            }
                         }
                         else if(!ti->IsSeenByPlayer)
                         {

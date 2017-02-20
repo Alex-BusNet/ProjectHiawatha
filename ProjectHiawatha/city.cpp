@@ -225,7 +225,6 @@ Update_t City::UpdateProgress()
 
     if(turnsToBorderGrowth == 0 && !fullyExpanded)
     {
-        qDebug() << "       Update City Borders" << this->GetName();
         //Gets the first available tile from the tile queue, and adds it to cityControlledTiles.
         foreach(Tile* tile, this->tileQueue)
         {

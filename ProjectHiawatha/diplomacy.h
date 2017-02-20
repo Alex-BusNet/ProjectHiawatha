@@ -23,6 +23,7 @@ public:
 
     void UpdateTurn();
     void UpdateLeader(int row);
+    void MeetPlayer(int row);
     void SetLeaderImage(int index, QPixmap &image);
     void WriteDiploSaveData(QJsonObject &obj) const;
     void ReadDiploSaveData(const QJsonObject &obj);
@@ -39,8 +40,8 @@ public:
 
 private:
     enum WarStatus {SELF, AT_WAR, AT_PEACE, PERMANENT_WAR};
-    typedef struct {Nation nation; int warStartedOn, timesAtWarWith; WarStatus warStat;} WarHistory;
-    typedef struct {QPixmap image; QString leaderName, displayString; Nation nation; QVector<WarHistory> warChart;} DiplomacyItem;
+    typedef struct {Nation nation; int warStartedOn, timesAtWarWith; WarStatus warStat; } WarHistory;
+    typedef struct {QPixmap image; QString leaderName, displayString; Nation nation; QVector<WarHistory> warChart; bool hasMetPlayer;} DiplomacyItem;
 
     QPushButton *closeDiplo;
     QLabel *leaderImage, *leaderName, *warStatus, *nationName, *atWarWith;

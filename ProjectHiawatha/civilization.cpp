@@ -46,7 +46,10 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     if(isAI)
     {
         this->isAIPlayer = true;
+        this->hasMetPlayer = false;
     }
+    else
+        this->hasMetPlayer = true;
 }
 
 Civilization::Civilization(QJsonObject obj, bool isAI)
@@ -172,7 +175,6 @@ Update_t Civilization::UpdateProgress()
     Update_t redraw{false, false, false, false};
     foreach(City* city, this->currentCityList)
     {
-        qDebug() << "       Updating" << city->GetName();
         Update_t cityProgress = city->UpdateProgress();
 
         if(cityProgress.updateBorders && !redraw.updateBorders)
@@ -267,6 +269,11 @@ int Civilization::getCityIndex()
 bool Civilization::isCivAI()
 {
     return this->isAIPlayer;
+}
+
+bool Civilization::HasCivMetPlayer()
+{
+    return hasMetPlayer;
 }
 
 void Civilization::loadTechs(QString filename)
@@ -367,7 +374,7 @@ void Civilization::WriteData(QJsonObject &obj) const
     obj["capitalscontrolled"] = capitalsControlled;
     obj["militarystrength"] = militaryStrength;
     obj["cityfounded"] = cityFounded;
-
+    obj["hasmetplayer"] = hasMetPlayer;
     obj["atwar"] = atWar;
     QJsonArray warVec;
     foreach(int i, atWarWithCivListIndex)
@@ -454,6 +461,7 @@ void Civilization::ReadData(const QJsonObject &obj)
     militaryStrength = obj["militarystrength"].toInt();
     cityFounded = obj["cityfounded"].toBool();
     atWar = obj["atwar"].toBool();
+    hasMetPlayer = obj["hasmetplayer"].toBool();
 
     QJsonArray warVec = obj["atwarwithvector"].toArray();
     for(int i = 0; i < warVec.size(); i++)
@@ -614,6 +622,11 @@ void Civilization::clearThreats()
     this->highThreats.clear();
     this->midThreats.clear();
     this->lowThreats.clear();
+}
+
+void Civilization::MeetPlayer()
+{
+    this->hasMetPlayer = true;
 }
 
 QVector<Unit *> Civilization::getLowThreats()

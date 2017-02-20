@@ -93,6 +93,7 @@ public:
     void setHighThreats(QVector<Unit *> highThreats);
     void setCityFounding(AIQueueData data);
     void clearThreats();
+    void MeetPlayer();
 
     QVector<Unit *> getLowThreats();
     QVector<Unit *> getMidThreats();
@@ -104,6 +105,7 @@ public:
     bool isAtWar();
     bool isEmpty();
     bool isCivAI();
+    bool HasCivMetPlayer();
     bool cityFounded;
 
     int queueSize();
@@ -143,6 +145,7 @@ private:
 
     //AI stuff
     bool isAIPlayer;
+    bool hasMetPlayer;
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;
