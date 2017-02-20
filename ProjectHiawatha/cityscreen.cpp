@@ -13,6 +13,7 @@
 #include <QJsonDocument>
 #include <QDir>
 #include <QCoreApplication>
+#include "queuedata.h"
 
 
 CityScreen::CityScreen(QWidget *parent) :
@@ -405,13 +406,14 @@ void CityScreen::on_purchase_clicked()
     qDebug()<<"TOTAL GOLD: "<<totalGold;
     if(ui->tabWidget->currentIndex() == 0)
     {
-//        if(totalGold > buildings.at(ui->listWidget->currentRow())->getProductionCost())
+
         if(totalGold > buildingList.at(ui->listWidget->currentRow()).toObject()["productioncost"].toInt())
         {
 //            currentCity->addBuilding(buildings.at(ui->listWidget->currentRow()));
             Building* b = new Building();
             b->ReadBuildingSaveData(buildingList.at(ui->listWidget->currentRow()).toObject());
             currentCity->addBuilding(b);
+             playerCiv->Puchased(unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt());
 
         }else
         {
@@ -421,51 +423,16 @@ void CityScreen::on_purchase_clicked()
         }
     }else if(ui->tabWidget->currentIndex() == 1)
     {
-//        if(totalGold > initialUnitList.at(ui->listWidget_2->currentRow())->GetCost())
+
         if(totalGold > unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt())
         {
-            Unit* unit = new Unit(0);
-//            Unit* unitData = initialUnitList.at(ui->listWidget_2->currentRow());
-            unit->ReadUnitSaveData(unitList.at(ui->listWidget_2->currentRow()).toObject());
-//            unit->setUnitType(unitData->GetUnitType());
-//            unit->SetName(unitData->GetName());
-//            unit->SetCost(unitData->GetCost());
-//            unit->SetMovementPoints(unitData->GetMovementPoints());
-//            unit->SetStrength(unitData->GetStrength());
-//            unit->SetRange(unitData->GetRange());
-//            unit->SetRangeStrength(unitData->GetRangeStrength());
-//            unit->SetUnitIcon(unitData->GetUnitType());
-            unit->SetOwner(playerCiv->getCiv());
-//            unit->SetUnitListIndex(playerCiv->GetUnitList().size());
+            currentCity->setPurchased(true);
+            currentCity->setProductionIndex(ui->listWidget_2->currentRow());
+            currentCity->setIsUnit(true);
+            QueueData::enqueue(CityProdData{currentCity->GetCityIndex(), currentCity->getProductionIndex(), true, 0});
+            playerCiv->Puchased(unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt());
 
-            for(int j = 0; j < currentCity->GetControlledTiles().size();j++)
-            {
-                int tileIndex = currentCity->GetControlledTiles().at(j)->GetTileIndex();
-                if(unit->isNaval())
-                {
-                    if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-                    else
-                    {
 
-                            unit->SetPositionIndex(tileIndex);
-                            map->GetTileAt(tileIndex)->ContainsUnit = true;
-                            break;
-
-                    }
-                }
-                else
-                {
-                    if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-                    else
-                    {
-
-                            unit->SetPositionIndex(tileIndex);
-                            map->GetTileAt(tileIndex)->ContainsUnit = true;
-                            break;
-
-                    }
-                }
-            }
 
 
 

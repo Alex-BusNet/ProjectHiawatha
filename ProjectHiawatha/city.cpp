@@ -313,9 +313,9 @@ Update_t City::UpdateProgress()
         this->productionFinished = true;
 
         if(this->getIsUnit())
-            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, true});
+            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, true, cityID/100});
         else
-            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, false});
+            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, false, cityID/100});
     }
 
     if(this->cityHealth < this->maxHealth)
@@ -730,6 +730,11 @@ void City::ReadCitySaveData(const QJsonObject &obj)
     hasGarrison = obj["hasGarrison"].toBool();
 }
 
+void City::setPurchased(bool p)
+{
+    this->purchased = p;
+}
+
 void City::SetCitizenCount(int count)
 {
     this->citizens = count;
@@ -1002,6 +1007,11 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
     //MSDs do not intersect
     return false;
+}
+
+bool City::wasPurchased()
+{
+    return this->purchased;
 }
 
 void City::loadUnits(QString filename)

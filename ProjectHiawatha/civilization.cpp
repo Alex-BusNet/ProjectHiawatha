@@ -216,7 +216,7 @@ Update_t Civilization::UpdateProgress()
      * g = game progress factor
      *      g = currentTurn / approx. endTurn
      */
-    double gpf =  turn / 500.0;
+    double gpf =  turn / 5000.0;
 
     maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
@@ -555,6 +555,11 @@ Technology *Civilization::getNextTech()
 void Civilization::setCurrentTech(Technology *tech)
 {
     currentTech = tech;
+}
+
+void Civilization::Puchased(int purchaseAmount)
+{
+    totalGold -= purchaseAmount;
 }
 
 void Civilization::setNextTech(Technology *tech)

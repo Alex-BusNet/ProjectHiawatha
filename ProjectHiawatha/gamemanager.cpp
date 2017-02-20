@@ -937,20 +937,21 @@ void GameManager::StartTurn()
 
         if(cpd.isUnit)
         {
+
             Unit *u = new Unit();
             u->ReadUnitSaveData(UnitData.at(cpd.producedUnitIndex).toObject());
-            u->SetOwner(civList.at(currentTurn)->getCiv());
-            u->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
-            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProducedUnit(u);
+            u->SetOwner(civList.at(cpd.civIndex)->getCiv());
+            u->SetUnitListIndex(civList.at(cpd.civIndex)->GetUnitList().size());
+            civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->setProducedUnit(u);
 
-            foreach(Tile* t, civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
+            foreach(Tile* t, civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
             {
                 if(u->isNaval())
                 {
                     if(t->ContainsUnit  || !(t->GetTileType() == WATER)) { continue; }
                     else
                     {
-                            t->SetOccupyingCivListIndex(currentTurn);
+                            t->SetOccupyingCivListIndex(cpd.civIndex);
                             u->SetPositionIndex(t->GetTileIndex());
                             t->ContainsUnit = true;
                             break;
@@ -961,7 +962,7 @@ void GameManager::StartTurn()
                     if(t->ContainsUnit || !(t->Walkable) || (t->GetTileType() == WATER)) { continue; }
                     else
                     {
-                            t->SetOccupyingCivListIndex(currentTurn);
+                            t->SetOccupyingCivListIndex(cpd.civIndex);
                             u->SetPositionIndex(t->GetTileIndex());
                             t->ContainsUnit = true;
                             break;
@@ -969,14 +970,14 @@ void GameManager::StartTurn()
                 }
             }
 
-            civList.at(currentTurn)->AddUnit(u);
+            civList.at(cpd.civIndex)->AddUnit(u);
             renderer->AddUnit(u, map, gameView);
         }
         else
         {
             Building *b = new Building();
             b->ReadBuildingSaveData(BuildingData.at(cpd.producedUnitIndex).toObject());
-            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->addBuilding(b);
+            civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->addBuilding(b);
         }
 
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
