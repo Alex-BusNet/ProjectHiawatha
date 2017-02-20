@@ -30,7 +30,14 @@ Hiawatha
 MAC only
 
 macdeployqt is rather easy to use. Compile your app in release mode and call 
-(no idea if this can be done from a windows computer)
-c:\program files\qt\5.7\mingw53_32\bin\macdeployqt <path_to_your_bundle>/<bundle>.app. 
 
 After thats done, all Qt libraries are stored inside the <bundle>.app folder.
+You will still need to move image files, etc, unless you can include them in the qt build
+Needs to be run from a mac 
+
+/Users/samstein/Qt/5.8/clang_64/bin/macdeployqt /Users/samstein/Desktop/Hiawatha/NotCiv.app 
+
+
+
+Adding -dmg will form a dmg 
+(file paths need to be an extra level OR images/saves need to be included in the qt deployment)
