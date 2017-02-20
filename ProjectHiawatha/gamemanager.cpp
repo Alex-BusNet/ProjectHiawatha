@@ -940,6 +940,7 @@ void GameManager::StartTurn()
                     if(t->ContainsUnit  || !(t->GetTileType() == WATER)) { continue; }
                     else
                     {
+                            t->SetOccupyingCivListIndex(currentTurn);
                             u->SetPositionIndex(t->GetTileIndex());
                             t->ContainsUnit = true;
                             break;
@@ -950,6 +951,7 @@ void GameManager::StartTurn()
                     if(t->ContainsUnit || !(t->Walkable) || (t->GetTileType() == WATER)) { continue; }
                     else
                     {
+                            t->SetOccupyingCivListIndex(currentTurn);
                             u->SetPositionIndex(t->GetTileIndex());
                             t->ContainsUnit = true;
                             break;
@@ -1255,20 +1257,6 @@ void GameManager::UpdateTileData()
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
-        if(targetTile->ContainsUnit && processedData.relocateOrderGiven)
-        {
-            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
-
-            foreach(Tile* tile, neighbors)
-            {
-                if(!tile->ContainsUnit && !tile->HasCity && tile->Walkable)
-                {
-                    targetTile = tile;
-                    break;
-                }
-            }
-        }
-
         if((targetTile->ContainsUnit || targetTile->HasCity) && (targetTile->GetControllingCivListIndex() != 0) && (targetTile->GetControllingCivListIndex() != -1))
         {
             if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
@@ -1311,19 +1299,6 @@ void GameManager::UpdateTileData()
                             break;
                         }
                     }
-                }
-            }
-        }
-        else if(!targetTile->HasCity && (state == ATTACK_CITY))
-        {
-            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
-
-            foreach(Tile* tile, neighbors)
-            {
-                if(tile->HasCity)
-                {
-                    targetTile = tile;
-                    break;
                 }
             }
         }
@@ -2521,7 +2496,7 @@ void GameManager::ProcessAttackUnit()
         renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
     }
 
-    targetUnit = uc->FindUnitAtTile(targetTile, civList.at(targetTile->GetControllingCivListIndex())->GetUnitList());
+    targetUnit = uc->FindUnitAtTile(targetTile, civList.at(targetTile->GetOccupyingCivListIndex())->GetUnitList());
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
