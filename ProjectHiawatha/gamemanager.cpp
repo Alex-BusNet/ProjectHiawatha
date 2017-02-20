@@ -1416,7 +1416,7 @@ void GameManager::UpdateTileData()
 
                 foreach(Tile *tile, tiles)
                 {
-                    if((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0))
+                    if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0))&&(tile->ContainsUnit||tile->HasCity))
                     {
                         int tileIndex = tile->GetTileIndex();
 
