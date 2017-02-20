@@ -172,7 +172,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
                 ci->UpdateCityYield();
                 ci->UpdateCityStatus();
-
             }
 
             if(c->isCivAI())
@@ -216,9 +215,39 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
     {
         foreach(City* c, ci->GetCityList())
         {
+            if(ci->getCivIndex() == 0)
+            {
+                foreach(Tile* t, c->GetControlledTiles())
+                {
+                    foreach(Tile* n,  map->GetNeighborsRange(t, 2))
+                    {
+                        if(n->GetControllingCivListIndex() != 0)
+                        {
+                            if(!n->DiscoveredByPlayer)
+                            {
+                                n->DiscoveredByPlayer = true;
+                                n->IsSeenByPlayer = true;
+                            }
+                            else
+                            {
+                                n->IsSeenByPlayer = true;
+                            }
+                        }
+                    }
+                }
+            }
+
             renderer->UpdateCityHealthBar(c, gameView);
             renderer->UpdateCityGrowthBar(c, gameView);
             renderer->UpdateCityProductionBar(c, gameView);
+        }
+
+        foreach(Unit* u, ci->GetUnitList())
+        {
+            if(u->RequiresOrders)
+            {
+                renderer->SetUnitNeedsOrders(u->GetTileIndex(), true);
+            }
         }
     }
 
@@ -1416,19 +1445,22 @@ void GameManager::UpdateTileData()
 
                 foreach(Tile *tile, tiles)
                 {
-                    if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0))&&(tile->ContainsUnit||tile->HasCity))
+                    if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0)) && (tile->HasCity || tile->ContainsUnit))
                     {
                         int tileIndex = tile->GetTileIndex();
 
-                        selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                        tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
-
-                        if(tile->HasCity)
+                        if(tile->HasCity && tile->GetControllingCivListIndex() != 0)
                         {
+                            qDebug() << "   Tile:" << tile->GetTileIDString() << "controlled by:" << tile->GetControllingCivListIndex() << "occupied by" << tile->GetOccupyingCivListIndex();
+                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
                             attackCity->setEnabled(true);
                         }
-                        else if(tile->ContainsUnit && !tile->HasCity)
+                        else if(tile->ContainsUnit && !tile->HasCity && tile->GetOccupyingCivListIndex() != 0)
                         {
+                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+
                             if(unitToMove->isMelee)
                             {
                                 attackUnit->setEnabled(true);
@@ -1446,7 +1478,12 @@ void GameManager::UpdateTileData()
         else
         {
             if(currentTurn == 0)
-                statusMessage = "--------<< You do not own that unit >>--------";
+            {
+                if(unitToMove->GetOwner() != civList.at(0)->getCiv())
+                    statusMessage = "--------<< You do not own that unit >>--------";
+                else
+                    statusMessage = "--------<< You cannot give orders to this unit >>-------";
+            }
 
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         }
@@ -1692,6 +1729,10 @@ void GameManager::UpdateTileData()
         if(unitToMove != NULL)
         {
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            if(!tileModifiedQueue->isEmpty())
+            {
+                renderer->UpdateScene(map, gameView, tileModifiedQueue);
+            }
         }
 
         attackCity->setEnabled(false);
@@ -2164,7 +2205,7 @@ void GameManager::InitRenderData()
                         viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
                         renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
 
-                        if(!n->IsSeenByPlayer)
+                        if(!n->IsSeenByPlayer && !n->ContainsUnit)
                         {
                             viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
                         }
@@ -2251,6 +2292,7 @@ void GameManager::InitRenderData()
     statusMessage = " ";
 
     techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+    diplo->UpdateLeader(0);
 
     qDebug() << "   Project Hiawatha Loaded";
 }

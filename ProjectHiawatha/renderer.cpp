@@ -610,26 +610,11 @@ void Renderer::UpdateUnits(Map *map, GameView *view, Unit *unit, bool unitMoved)
  */
 void Renderer::UpdateCityBorders(City *city, GameView *view, Nation owner)
 {
-    qDebug() << "   UpdateCityBorders()";
     SetOutlinePen(owner);
 
     view->removeItem(cityBorders.at(city->GetCityRenderIndex()));
     cityBorders.replace(city->GetCityRenderIndex(), view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.at(city->GetCityRenderIndex())->setZValue(2);
-
-    if(city->GetCityID() < 100)
-    {
-        outlinePen.setColor(Qt::green);
-        foreach(Tile* t, city->borderQueue)
-        {
-            tileCircles.at(t->GetTileIndex())->setPen(outlinePen);
-        }
-        outlinePen.setColor(Qt::transparent);
-        foreach(Tile* t, city->GetControlledTiles())
-        {
-            tileCircles.at(t->GetTileIndex())->setPen(outlinePen);
-        }
-    }
 }
 
 void Renderer::UpdateTileVisibilty(QQueue<ViewData> *data, GameView *view)
