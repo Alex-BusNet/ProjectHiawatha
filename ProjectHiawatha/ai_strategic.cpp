@@ -765,7 +765,9 @@ void AI_Strategic::cityProduction(Civilization *civ,Civilization *player){
                     }
                 }
             }
+#ifdef DEBUG
             qDebug()<<civ->GetCityAt(i)->GetName()<<" now producing "<<civ->GetCityAt(i)->getProductionName();
+#endif
         }
         else{
 #ifdef DEBUG
