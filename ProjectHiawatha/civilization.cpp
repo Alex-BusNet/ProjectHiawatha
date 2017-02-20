@@ -225,7 +225,7 @@ Update_t Civilization::UpdateProgress()
     this->totalGold -= maintenance;
     GptAdjusted = GPT - maintenance;
 
-    if(this->totalGold < 0)
+    if(this->GptAdjusted < 0)
     {
         losingGold = true;
     }

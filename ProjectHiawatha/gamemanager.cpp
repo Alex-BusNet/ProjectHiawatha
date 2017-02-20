@@ -643,6 +643,7 @@ void GameManager::TurnController()
                 }
                 else if(state == AI_DECLARE_WAR)
                 {
+                    diplo->UpdateLeader(0);
                     WarByDiplomacy();
                 }
 
@@ -673,6 +674,18 @@ void GameManager::TurnController()
                     {
                         diplo->UpdateLeader(0);
                         WarByDiplomacy();
+                    }
+                    else if(state == ATTACK_MELEE)
+                    {
+                        unitToMove = data.unit;
+                        targetUnit = data.target;
+                        ProcessAttackUnit();
+                    }
+                    else if(state == ATTACK_RANGE)
+                    {
+                        unitToMove = data.unit;
+                        targetUnit = data.target;
+                        ProcessAttackUnit();
                     }
                     this->UpdateTileData();
                 }
@@ -941,7 +954,6 @@ void GameManager::StartTurn()
             u->ReadUnitSaveData(UnitData.at(cpd.producedUnitIndex).toObject());
             u->SetOwner(civList.at(currentTurn)->getCiv());
             u->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
-            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProducedUnit(u);
 
             foreach(Tile* t, civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
             {
@@ -1028,7 +1040,7 @@ void GameManager::StartTurn()
     //Update the yield status bar for the player.
     if(currentTurn == 0)
     {
-        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->losingGold ? "-" : "+").arg(civList.at(0)->GetGptAdjusted()));
+        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->losingGold ? " " : "+").arg(civList.at(0)->GetGptAdjusted()));
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
@@ -1153,6 +1165,20 @@ void GameManager::EndTurn()
                     }
 
                     renderer->SetTileTooltip(ti->GetTileIndex(), *ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
+                }
+            }
+            else if(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->SeenByUnits > 0)
+            {
+                if(!civList.at(currentTurn)->HasCivMetPlayer())
+                {
+                    civList.at(currentTurn)->MeetPlayer();
+                    diplo->MeetPlayer(currentTurn);
+                    QMessageBox *mbox = new QMessageBox();
+                    mbox->setText(QString("You have met %1").arg(civList.at(currentTurn)->GetLeaderName()));
+                    mbox->setStyleSheet(warStyle);
+                    mbox->setWindowFlags(Qt::FramelessWindowHint);
+                    mbox->exec();
+                    delete mbox;
                 }
             }
 
@@ -2476,6 +2502,51 @@ void GameManager::ProcessAttackUnit()
         uc->Attack(unitToMove, targetUnit, true);
     else
         uc->Attack(unitToMove, targetUnit, false);
+
+
+    if(unitToMove->GetHealth() <= 0)
+    {
+        if(unitToMove->GetOwner() == civList.at(0)->getCiv())
+        {
+            ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(unitToMove->GetName())});
+
+            QMediaPlayer *musicPlayer = new QMediaPlayer();
+            musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
+            musicPlayer->setVolume(50);
+            musicPlayer->play();
+        }
+
+        //These statements handle removing a unit from the game if it is killed.
+        renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+        int listIndex = map->GetTileAt(unitToMove->GetTileIndex())->GetOccupyingCivListIndex();
+        map->GetTileAt(unitToMove->GetTileIndex())->SetOccupyingCivListIndex(-1);
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->RemoveUnit(unitToMove, gameView);
+        civList.at(listIndex)->RemoveUnit(unitToMove->GetUnitListIndex());
+    }
+
+    if(targetUnit->GetHealth() <= 0)
+    {
+        if(targetUnit->GetOwner() == civList.at(0)->getCiv())
+        {
+            ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(targetUnit->GetName())});
+
+            QMediaPlayer *musicPlayer = new QMediaPlayer();
+            musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
+            musicPlayer->setVolume(50);
+            musicPlayer->play();
+        }
+
+        //These statements handle removing a unit from the game if it is killed.
+        renderer->SetFortifyIcon(targetUnit->GetTileIndex(), true);
+        renderer->SetUnitNeedsOrders(targetUnit->GetTileIndex(), false);
+        map->GetTileAt(targetUnit->GetTileIndex())->ContainsUnit = false;
+        int listIndex = map->GetTileAt(targetUnit->GetTileIndex())->GetOccupyingCivListIndex();
+        map->GetTileAt(targetUnit->GetTileIndex())->SetOccupyingCivListIndex(-1);
+        renderer->RemoveUnit(targetUnit, gameView);
+        civList.at(listIndex)->RemoveUnit(targetUnit->GetUnitListIndex());
+    }
 
     renderer->UpdateUnits(map, gameView, unitToMove, false);
     renderer->UpdateUnits(map, gameView, targetUnit, false);
