@@ -15,11 +15,8 @@ GameView::GameView(QWidget *parent) : QGraphicsView(parent)
 
 GameView::~GameView()
 {
-    qDebug() << "   GameView Dec'tor called";
     if(game != NULL)
         delete game;
-
-    qDebug() << "   --GameView Deconstructed";
 }
 
 QGraphicsPolygonItem *GameView::addPolygon(const QPolygonF &polygon)

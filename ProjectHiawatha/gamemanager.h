@@ -63,13 +63,18 @@ private:
     QPushButton *buildTradePost;
     QPushButton *buildPlantation;
     QPushButton *buildRoad;
+    QPushButton *buildQuarry;
+    QPushButton *buildFishBoat;
+    QPushButton *buildCamp;
+    QPushButton *buildOilWell;
+    QPushButton *buildPasture;
     QPushButton *foundCity;
     QPushButton *attackUnit;
     QPushButton *attackCity;
     QPushButton *rangeAttack;
     QPushButton *fortifyUnit;
     QPushButton *help;
-    QPushButton *toggleFoW;
+//    QPushButton *toggleFoW;
 
     QFuture<void> civInit, mapInit;
 
@@ -164,6 +169,9 @@ private:
 
     bool AcceptsPeace(Civilization* ai);
 
+    void Victory();
+    void Defeat();
+
     TileData processedData;
 
     std::chrono::steady_clock::time_point begin;
@@ -188,6 +196,11 @@ public slots:
     void buildNewPlantation();
     void buildNewTradePost();
     void buildNewMine();
+    void buildNewCamp();
+    void buildNewPasture();
+    void buildNewOilWell();
+    void buildNewFishBoat();
+    void buildNewQuarry();
     void attackMelee();
     void SetGoldFocus();
     void SetProdFocus();
@@ -205,7 +218,7 @@ public slots:
     void OpenHelp();
 
     void parseItem();
-    void toggleFog();
+//    void toggleFog();
 };
 
 #endif // GAMEWINDOW_H

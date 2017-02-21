@@ -20,7 +20,6 @@ QString warStyle = "QMessageBox { background-color: #145e88 } QPushButton {  bac
 
 GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int mapSizeY, Nation player, int numAI) : QWidget(parent)
 {
-
     InitVariables(fullscreen);
     playerCiv = player;
     renderer = new Renderer(mapSizeX);
@@ -135,6 +134,20 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
         }
 
         playerCiv = civList.at(0)->getCiv();
+
+        QFile civData("Assets/Data/civ_data.json");
+        QJsonArray civRefData;
+        if(!civData.open(QIODevice::ReadOnly))
+        {
+            qWarning("Couldn't open civData file");
+        }
+        else
+        {
+            QByteArray byte = civData.readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(byte);
+            civRefData = doc.array();
+        }
+
         // Add city tile and controlled tiles to city objects.
         QPixmap pic;
         foreach(Civilization* c, civList)
@@ -191,65 +204,59 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
             c->UpdateCivYield();
 
-            switch(c->getCiv())
+            if(c->HasCivMetPlayer())
             {
-            case America:
-                pic = QPixmap("Assets/Leaders/George_head.jpg");
-                break;
-            case Germany:
-                pic = QPixmap("Assets/Leaders/bismark.jpg");
-                break;
-            case India:
-                pic = QPixmap("Assets/Leaders/gandhi.jpg");
-                break;
-            case China:
-                pic = QPixmap("Assets/Leaders/Mao.jpg");
-                break;
-            case Mongolia:
-                pic = QPixmap("Assets/Leaders/khan.jpg");
-                break;
-            case Aztec:
-                pic = QPixmap("Assets/Leaders/montezuma.jpg");
-                break;
-            case France:
-                pic = QPixmap("Assets/Leaders/napoleon.jpg");
-                break;
-            case Iroquois:
-                pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
-                break;
-            case Greece:
-                pic = QPixmap("Assets/Leaders/Alexander.jpg");
-                break;
-            case Rome:
-                pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
-                break;
-            case England:
-                pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
-                break;
-            case Arabia:
-                pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
-                break;
-            case Persia:
-                pic = QPixmap("Assets/Leaders/Cyrus.jpg");
-                break;
-            case Russia:
-                pic = QPixmap("Assets/Leaders/stalin.jpg");
-                break;
-            case Japan:
-                pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
-                break;
-            case Egypt:
-                pic = QPixmap("Assets/Leaders/Ramseses.jpg");
-                break;
-            default:
-                break;
+                diplo->MeetPlayer(c->getCivIndex());
             }
 
+            pic = QPixmap(civRefData.at(c->getCiv()).toObject()["leaderimagepath"].toString());
             diplo->SetLeaderImage(c->getCivIndex(), pic);
         }
     }
 
     InitRenderData();
+
+    foreach(Civilization *ci, civList)
+    {
+        foreach(City* c, ci->GetCityList())
+        {
+            if(ci->getCivIndex() == 0)
+            {
+                foreach(Tile* t, c->GetControlledTiles())
+                {
+                    foreach(Tile* n,  map->GetNeighborsRange(t, 2))
+                    {
+                        if(n->GetControllingCivListIndex() != 0)
+                        {
+                            if(!n->DiscoveredByPlayer)
+                            {
+                                n->DiscoveredByPlayer = true;
+                                n->IsSeenByPlayer = true;
+                                n->CanAlwaysBeSeen = true;
+                            }
+                            else
+                            {
+                                n->IsSeenByPlayer = true;
+                                n->CanAlwaysBeSeen = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            renderer->UpdateCityHealthBar(c, gameView);
+            renderer->UpdateCityGrowthBar(c, gameView);
+            renderer->UpdateCityProductionBar(c, gameView);
+        }
+
+        foreach(Unit* u, ci->GetUnitList())
+        {
+            if(u->RequiresOrders)
+            {
+                renderer->SetUnitNeedsOrders(u->GetTileIndex(), true);
+            }
+        }
+    }
 
     //Find all discovered tiles and load them appropriately.
     for(int i = 0; i < map->GetBoardSize(); i++)
@@ -258,14 +265,21 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
         {
             viewUpdateTiles->enqueue(ViewData{i, DISCOVERED});
 
-            if(!map->GetTileAt(i)->IsSeenByPlayer)
+            if(!map->GetTileAt(i)->IsSeenByPlayer && !map->GetTileAt(i)->CanAlwaysBeSeen)
             {
                 viewUpdateTiles->enqueue(ViewData{i, HIDDEN});
             }
 
             renderer->SetTileTooltip(map->GetTileAt(i)->GetTileIndex(), *map->GetTileAt(i)->GetYield(), map->GetTileAt(i)->GetControllingCiv(), map->GetTileAt(i)->GetTileIDString());
         }
+
+        if(map->GetTileAt(i)->GetTileImprovement() != NONE)
+        {
+            renderer->SetTileImprovement(map->GetTileAt(i)->GetTileImprovement(), map->GetTileAt(i), gameView);
+        }
     }
+
+    techText->setText(QString(" %1 / %2").arg(civList.at(0)->getAccumulatedScience()).arg(civList.at(0)->getCurrentTech()->getCost()));
 
     turnStarted = false;
     updateTimer->start();
@@ -273,7 +287,6 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
 GameManager::~GameManager()
 {
-    qDebug() << "   GameManager Dec'tor called";
     updateTimer->stop();
 
 #ifndef __APPLE__
@@ -307,7 +320,6 @@ GameManager::~GameManager()
         delete sd;
     }
 
-
     if(map != NULL)
         delete map;
 
@@ -329,7 +341,34 @@ GameManager::~GameManager()
     if(techTree != NULL)
         delete techTree;
 
-    qDebug() << "       Deleting GameManager Buttons";
+    disconnect(exitGame, SIGNAL(clicked(bool)), this, SLOT(closeGame()));
+    disconnect(showDiplomacy, SIGNAL(clicked(bool)), this, SLOT(toggleDiplomacy()));
+    disconnect(showTechTreeButton, SIGNAL(clicked(bool)), this, SLOT(showTechTree()));
+    disconnect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
+    disconnect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
+    disconnect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));
+    disconnect(buildMine, SIGNAL(clicked(bool)), this, SLOT(buildNewMine()));
+    disconnect(buildPlantation, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
+    disconnect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewTradePost()));
+    disconnect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewRoad()));
+    disconnect(buildCamp, SIGNAL(clicked(bool)), this, SLOT(buildNewCamp()));
+    disconnect(buildPasture, SIGNAL(clicked(bool)), this, SLOT(buildNewPasture()));
+    disconnect(buildFishBoat, SIGNAL(clicked(bool)), this, SLOT(buildNewFishBoat()));
+    disconnect(buildQuarry, SIGNAL(clicked(bool)), this, SLOT(buildNewQuarry()));
+    disconnect(buildOilWell, SIGNAL(clicked(bool)), this, SLOT(buildNewOilWell()));
+    disconnect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
+    disconnect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
+    disconnect(goldFocus, SIGNAL(clicked(bool)), this, SLOT(SetGoldFocus()));
+    disconnect(productionFocus, SIGNAL(clicked(bool)), this, SLOT(SetProdFocus()));
+    disconnect(scienceFocus, SIGNAL(clicked(bool)), this, SLOT(SetScienceFocus()));
+    disconnect(foodFocus, SIGNAL(clicked(bool)), this, SLOT(SetFoodFocus()));
+    disconnect(cultureFocus, SIGNAL(clicked(bool)), this, SLOT(SetCultureFocus()));
+    disconnect(clv, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(parseItem()));
+    disconnect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
+    disconnect(rangeAttack, SIGNAL(clicked(bool)), this, SLOT(RangeAttack()));
+    disconnect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
+    disconnect(help, SIGNAL(clicked(bool)), this, SLOT(OpenHelp()));
+
     delete exitGame;
     delete endTurn;
     delete moveUnit;
@@ -340,22 +379,24 @@ GameManager::~GameManager()
     delete buildTradePost;
     delete buildPlantation;
     delete buildRoad;
+    delete buildCamp;
+    delete buildPasture;
+    delete buildFishBoat;
+    delete buildOilWell;
+    delete buildQuarry;
     delete foundCity;
     delete attackUnit;
     delete attackCity;
     delete rangeAttack;
     delete fortifyUnit;
     delete help;
-    delete toggleFoW;
 
-    qDebug() << "       Deleting city focus buttons";
     delete goldFocus;
     delete productionFocus;
     delete scienceFocus;
     delete foodFocus;
     delete cultureFocus;
 
-    qDebug() << "       Deleting YieldDisplay, tech progress, and endGame";
     delete goldLabel;
     delete goldText;
     delete prodLabel;
@@ -372,7 +413,6 @@ GameManager::~GameManager()
     delete endGameText;
     delete warbox;
 
-    qDebug() << "       Deleting yield pixmaps";
     if(goldPix != NULL)
         delete goldPix;
 
@@ -388,8 +428,6 @@ GameManager::~GameManager()
     if(culPix != NULL)
         delete culPix;
 
-
-    qDebug() << "       Deleting misc pointers";
     if(playerInfoRect != NULL)
         delete playerInfoRect;
 
@@ -405,7 +443,6 @@ GameManager::~GameManager()
     if(targetCity != NULL)
         delete targetCity;
 
-    qDebug() << "       Deleting Queues";
     if(!selectedTileQueue->isEmpty())
         selectedTileQueue->clear();
 
@@ -426,29 +463,26 @@ GameManager::~GameManager()
 
     if(updateTimer != NULL)
         delete updateTimer;
+
 #ifndef __APPLE__
     if(!derender.isFinished())
     {
-        qDebug() << "   ----Waiting for renderer";
         derender.waitForFinished();
     }
 #endif
 
-    qDebug() <<"       Deleting gameView";
     delete gameView;
-
-    qDebug() << "   --Game Manager Deconstructed";
 }
 
 void GameManager::WarByDiplomacy()
 {
     int targetCivListIndex = diplo->GetIndex();
-
+    qDebug() << "   target" << targetCivListIndex;
     ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetCivListIndex)->GetLeaderName())});
 
     civList.at(currentTurn)->SetAtWar(targetCivListIndex);
     civList.at(targetCivListIndex)->SetAtWar(currentTurn);
-    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), targetCivListIndex, civList.at(currentTurn)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetCivListIndex)->getCiv(), targetCivListIndex, civList.at(currentTurn)->getCiv(), currentTurn);
     diplo->declareWar->setEnabled(false);
 }
 
@@ -459,266 +493,67 @@ void GameManager::MakePeace()
 
 void GameManager::InitCivs(Nation player, int numAI)
 {
-    Civilization* civ = new Civilization(player, false, " ");
-    civ->loadTechs("Assets/Techs/Technology.txt");
-    civ->setCurrentTech(civ->GetTechList().at(0));
-    civ->setNextTech(civ->GetTechList().at(1));
-    civ->setCivIndex(0);
-    techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
-    QPixmap pic;
-
-    QString str = "Assets/CityLists/";
-    QString str2;
-    switch (player)
+    QFile civData("Assets/Data/civ_data.json");
+    if(!civData.open(QIODevice::ReadOnly))
     {
-    case America:
-        str2 = "america.txt";
-        civ->SetLeaderName(QString("Washington"));
-        pic = QPixmap("Assets/Leaders/George_head.jpg");
-        break;
-    case Germany:
-        str2 = "germany.txt";
-        civ->SetLeaderName(QString("Bismark"));
-        pic = QPixmap("Assets/Leaders/bismark.jpg");
-        break;
-    case India:
-        str2 = "india.txt";
-        civ->SetLeaderName(QString("Gandhi"));
-        pic = QPixmap("Assets/Leaders/gandhi.jpg");
-        break;
-    case China:
-        str2 = "china.txt";
-        civ->SetLeaderName(QString("Zedong"));
-        pic = QPixmap("Assets/Leaders/Mao.jpg");
-        break;
-    case Mongolia:
-        str2 = "mongolia.txt";
-        civ->SetLeaderName(QString("Genghis Khan"));
-        pic = QPixmap("Assets/Leaders/khan.jpg");
-        break;
-    case Aztec:
-        str2 = "aztec.txt";
-        civ->SetLeaderName(QString("Montezuma"));
-        pic = QPixmap("Assets/Leaders/montezuma.jpg");
-        break;
-    case France:
-        str2 = "france.txt";
-        civ->SetLeaderName(QString("Napoleon"));
-        pic = QPixmap("Assets/Leaders/napoleon.jpg");
-        break;
-    case Iroquois:
-        str2 = "iroquois.txt";
-        civ->SetLeaderName(QString("Hiawatha"));
-        pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
-        break;
-    case Greece:
-        str2 = "greece.txt";
-        civ->SetLeaderName(QString("Alexander"));
-        pic = QPixmap("Assets/Leaders/Alexander.jpg");
-        break;
-    case Rome:
-        str2 = "rome.txt";
-        civ->SetLeaderName(QString("Ceasar"));
-        pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
-        break;
-    case England:
-        str2 = "england.txt";
-        civ->SetLeaderName(QString("Elizabeth"));
-        pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
-        break;
-    case Arabia:
-        str2 = "arabia.txt";
-        civ->SetLeaderName(QString("al-Rashid"));
-        pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
-        break;
-    case Persia:
-        str2 = "persia.txt";
-        civ->SetLeaderName(QString("Cyrus"));
-        pic = QPixmap("Assets/Leaders/Cyrus.jpg");
-        break;
-    case Russia:
-        str2 = "russia.txt";
-        civ->SetLeaderName(QString("Stalin"));
-        pic = QPixmap("Assets/Leaders/stalin.jpg");
-        break;
-    case Japan:
-        str2 = "japan.txt";
-        civ->SetLeaderName(QString("Nobunga"));
-        pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
-        break;
-    case Egypt:
-        str2= "egypt.txt";
-        civ->SetLeaderName(QString("Ramesses"));
-        pic = QPixmap("Assets/Leaders/Ramseses.jpg");
-        break;
-    default:
-        str2 = "india.txt";
-        civ->SetLeaderName(QString("Gandhi"));
-        pic = QPixmap("Assets/Leaders/gandhi.jpg");
-        break;
+        qWarning("Couldn't open civData file");
     }
-    str = str + str2;
-    civ->loadCities(str);
-    civList.push_back(civ);
-    diplo->AddLeader(civ->GetLeaderName(), pic, player, true);
-    srand(time(0));
-    int civNum;
-    bool found;
-    QVector<int> selNat;
-
-    selNat.push_back(player);
-
-    for(int i = 0; i < numAI; i++)
+    else
     {
-newCivRand:
-        // The modulo number at the end indicates the
-        // max number of civs in the game.
-        civNum = rand() % 16;
+        QByteArray byte = civData.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(byte);
+        QJsonArray civRefData = doc.array();
 
-        if(civNum != player)
+        QJsonObject obj = civRefData.at(player).toObject();
+        Civilization* civ = new Civilization(obj, false);
+
+        civ->loadTechs("Assets/Techs/Technology.txt");
+        civ->setCurrentTech(civ->GetTechList().at(0));
+        civ->setNextTech(civ->GetTechList().at(1));
+        civ->setCivIndex(0);
+        techLabel->setText(QString(" %1 ").arg(civ->getCurrentTech()->getName()));
+
+        civList.push_back(civ);
+        diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), player, true);
+
+        srand(time(0));
+        int civNum;
+        QVector<int> selNat;
+
+        selNat.push_back(player);
+
+        for(int i = 0; i < numAI; i++)
         {
+    newCivRand:
+            // The modulo number at the end indicates the
+            // max number of civs in the game.
+            civNum = rand() % 16;
+
             // look to see if the selected civ has already been chosen
             foreach(int j, selNat)
             {
                 if(j == civNum)
                 {
-                    found = true;
-                    break;
+                    goto newCivRand;
                 }
             }
 
-            switch (civNum)
-            {
-            case America:
-                civ = new Civilization(America, true, "Washington");
-                civ->loadCities("Assets/CityLists/america.txt");
-                pic = QPixmap("Assets/Leaders/George_head.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Germany:
-                civ = new Civilization(Germany, true, "Bismark");
-                civ->loadCities("Assets/CityLists/germany.txt");
-                pic = QPixmap("Assets/Leaders/bismark.jpg");
-                selNat.push_back(civNum);
-                break;
-            case India:
-                civ = new Civilization(India, true, "Gandhi");
-                civ->loadCities("Assets/CityLists/india.txt");
-                pic = QPixmap("Assets/Leaders/gandhi.jpg");
-                selNat.push_back(civNum);
-                break;
-            case China:
-                civ = new Civilization(China, true, "Zedong");
-                civ->loadCities("Assets/CityLists/china.txt");
-                pic = QPixmap("Assets/Leaders/Mao.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Mongolia:
-                civ = new Civilization(Mongolia, true, "Genghis Khan");
-                civ->loadCities("Assets/CityLists/mongolia.txt");
-                pic = QPixmap("Assets/Leaders/khan.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Aztec:
-                civ = new Civilization(Aztec, true, "Montezuma");
-                civ->loadCities("Assets/CityLists/aztec.txt");
-                pic = QPixmap("Assets/Leaders/montezuma.jpg");
-                selNat.push_back(civNum);
-                break;
-            case France:
-                civ = new Civilization(France, true, "Napoleon");
-                civ->loadCities("Assets/CityLists/france.txt");
-                pic = QPixmap("Assets/Leaders/napoleon.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Iroquois:
-                civ = new Civilization(Iroquois, true, "Hiawatha");
-                civ->loadCities("Assets/CityLists/iroquois.txt");
-                pic = QPixmap("Assets/Leaders/Hiawatha.jpg");
-                selNat.push_back(Iroquois);
-                break;
-            case Greece:
-                civ = new Civilization(Greece, true, "Alexander");
-                civ->loadCities("Assets/CityLists/greece.txt");
-                pic = QPixmap("Assets/Leaders/Alexander.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Rome:
-                civ = new Civilization(Rome, true, "Ceasar");
-                civ->loadCities("Assets/CityLists/rome.txt");
-                pic = QPixmap("Assets/Leaders/Julius_Caesar.jpg");
-                selNat.push_back(civNum);
-                break;
-            case England:
-                civ = new Civilization(England, true, "Elizabeth");
-                civ->loadCities("Assets/CityLists/england.txt");
-                pic = QPixmap("Assets/Leaders/Queen_Elizabeth.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Arabia:
-                civ = new Civilization(Arabia, true, "al-Rashid");
-                civ->loadCities("Assets/CityLists/arabia.txt");
-                pic =  QPixmap("Assets/Leaders/Harun-Rashid.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Persia:
-                civ = new Civilization(Persia, true, "Cyrus");
-                civ->loadCities("Assets/CityLists/persia.txt");
-                pic = QPixmap("Assets/Leaders/Cyrus.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Russia:
-                civ = new Civilization(Russia, true, "Stalin");
-                civ->loadCities("Assets/CityLists/russia.txt");
-                pic = QPixmap("Assets/Leaders/stalin.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Japan:
-                civ = new Civilization(Japan, true, "Nobunga");
-                civ->loadCities("Assets/CityLists/japan.txt");
-                pic = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
-                selNat.push_back(civNum);
-                break;
-            case Egypt:
-                civ = new Civilization(Egypt, true, "Ramesses");
-                civ->loadCities("Assets/CityLists/egypt.txt");
-                pic = QPixmap("Assets/Leaders/Ramseses.jpg");
-                selNat.push_back(civNum);
-                break;
-            default:
-                //Always default to Ghandi.
-                civ = new Civilization(India, true, "Gandhi");
-                civ->loadCities("Assets/CityLists/india.txt");
-                pic = QPixmap("Assets/Leaders/gandhi.jpg");
-                selNat.push_back(civNum);
-                break;
-            }
+            // Civ has not already been chosen, so create a new civ and
+            //  load it into the civList.
+            obj = civRefData.at(civNum).toObject();
+            civ = new Civilization(obj, true);
 
-            // If was not found, place in civList vector
-            if(!found)
-            {
-                civ->loadTechs("Assets/Techs/Technology.txt");
-                civ->setCurrentTech(civ->GetTechList().at(0));
-                civ->setNextTech(civ->GetTechList().at(1));
-                civ->setCivIndex(i+1);
-                civList.push_back(civ);
-                diplo->AddLeader(civ->GetLeaderName(), pic, (Nation)civNum, false);
-            }
-            // Otherwise, delete it and try again.
-            else
-            {
-                found = false;
-                delete civ;
-                goto newCivRand;
-            }
-        }
-        else
-        {
-            goto newCivRand;
-        }
+            civ->loadTechs("Assets/Techs/Technology.txt");
+            civ->setCurrentTech(civ->GetTechList().at(0));
+            civ->setNextTech(civ->GetTechList().at(1));
+            civ->setCivIndex(civList.size());
+            civList.push_back(civ);
 
+            diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), (Nation)civNum, false);
+
+            selNat.push_back(civNum);
+        }
     }
-
 
     if(!mapInit.isFinished())
     {
@@ -742,7 +577,6 @@ void GameManager::LoadCivs()
     QJsonDocument civDoc = QJsonDocument::fromJson(civSave);
     QJsonArray civArray = civDoc.object()["civilizations"].toArray();
 
-    QPixmap pic;
     for(int i = 0; i < civList.size(); i++)
     {
         civList.at(i)->ReadData(civArray.at(i).toObject());
@@ -762,6 +596,7 @@ void GameManager::paintEvent(QPaintEvent *event)
 
 void GameManager::TurnController()
 {
+    static bool AiTurnInProgress = false;
     //Is it currently the Player's turn?
     if(currentTurn == 0)
     {
@@ -780,40 +615,18 @@ void GameManager::TurnController()
     else
     {
         //Cycle through the AI turns.
-        statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
-        StartTurn();
+        if(civList.at(currentTurn)->HasCivMetPlayer())
+            statusMessage = QString("--------<< Processing Turn for %1 >>--------").arg(civList.at(currentTurn)->GetLeaderName());
+        else
+            statusMessage = QString("--------<< Processing Turn for Unmet Player %1 >>--------").arg(currentTurn);
+
+        if(!AiTurnInProgress)
+        {
+            StartTurn();
 
 #ifdef __APPLE__
-        this->ac->turnStarted(civList.at(currentTurn),civList.at(0),this->map);
-        while(!civList.at(currentTurn)->isEmpty())
-        {
-            AIQueueData data = civList.at(currentTurn)->dequeue();
-            state = data.action;
-
-            if(state == AI_FOUND_CITY)
-            {
-                unitToMove = data.unit;
-            }
-            else if(state == CONQUER)
-            {
-                state = FIND_CITY;
-                unitToMove = data.unit;
-                targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
-            }
-            else if(state == AI_DECLARE_WAR)
-            {
-                WarByDiplomacy();
-            }
-
-            this->UpdateTileData();
-        }
-#else
-        QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
-        //While the AI is taking its turn, check the Queue
-        // if the AI is trying to settle a city or conquer one
-        while(future.isRunning())
-        {
-            if(!civList.at(currentTurn)->isEmpty())
+            this->ac->turnStarted(civList.at(currentTurn),civList.at(0),this->map);
+            while(!civList.at(currentTurn)->isEmpty())
             {
                 AIQueueData data = civList.at(currentTurn)->dequeue();
                 state = data.action;
@@ -830,23 +643,77 @@ void GameManager::TurnController()
                 }
                 else if(state == AI_DECLARE_WAR)
                 {
+                    diplo->UpdateLeader(0);
                     WarByDiplomacy();
                 }
 
                 this->UpdateTileData();
             }
-        }
-        //This is just for extra precautions so that we don't try to end the AI's
-        // turn and move on before the AI thread has completly finished.
-        future.waitForFinished();
+#else
+            QFuture<void> future = QtConcurrent::run(this->ac, AI_Controller::turnStarted, civList.at(currentTurn), civList.at(0), this->map);
+            //While the AI is taking its turn, check the Queue
+            // if the AI is trying to settle a city or conquer one
+            while(future.isRunning())
+            {
+                if(!civList.at(currentTurn)->isEmpty())
+                {
+                    AIQueueData data = civList.at(currentTurn)->dequeue();
+                    state = data.action;
+
+                    if(state == AI_FOUND_CITY)
+                    {
+                        unitToMove = data.unit;
+                    }
+                    else if(state == CONQUER)
+                    {
+                        state = FIND_CITY;
+                        unitToMove = data.unit;
+                        targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
+                    }
+                    else if(state == AI_DECLARE_WAR)
+                    {
+                        diplo->UpdateLeader(0);
+                        WarByDiplomacy();
+                    }
+                    else if(state == ATTACK_MELEE)
+                    {
+                        unitToMove = data.unit;
+                        targetUnit = data.target;
+                        ProcessAttackUnit();
+                    }
+                    else if(state == ATTACK_RANGE)
+                    {
+                        unitToMove = data.unit;
+                        targetUnit = data.target;
+                        ProcessAttackUnit();
+                    }
+                    this->UpdateTileData();
+                }
+            }
+            //This is just for extra precautions so that we don't try to end the AI's
+            // turn and move on before the AI thread has completly finished.
+            future.waitForFinished();
 #endif
-        EndTurn();
+            EndTurn();
+            AiTurnInProgress = false;
+        }
     }
 
 }
 
 void GameManager::StartTurn()
 {
+    if(currentTurn == 0)
+    {
+        if(!civList.at(currentTurn)->alive)
+        {
+            Defeat();
+        }
+        else if(playersAliveCount == 1)
+        {
+            Victory();
+        }
+    }
     for(int i = 0; i < civList.size(); i++)
     {
         if(i == 0)
@@ -857,8 +724,10 @@ void GameManager::StartTurn()
         }
         else
         {
-            if(civList.at(i)->alive)
+            if(civList.at(i)->alive && civList.at(i)->HasCivMetPlayer())
                 endGameText->append(QString("\n%1     %2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+            else
+                endGameText->append(QString("\nUnmet Player %1    %2/%3").arg(i).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
         }
     }
 
@@ -985,9 +854,6 @@ void GameManager::StartTurn()
         year += yearPerTurn;
     }
 
-    int localIndex = 0;
-    QString str[20];
-
     //--------------------------------------------------------
     // The following section updates the science yield of the
     // active civ object
@@ -1080,7 +946,6 @@ void GameManager::StartTurn()
     while(!QueueData::isEmpty())
     {
         cpd = QueueData::dequeue();
-        qDebug() << "   cpd:" << cpd.cityIndex << cpd.isUnit << cpd.producedUnitIndex;
         civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProductionFinished(false);
 
         if(cpd.isUnit)
@@ -1088,17 +953,23 @@ void GameManager::StartTurn()
 
             Unit *u = new Unit();
             u->ReadUnitSaveData(UnitData.at(cpd.producedUnitIndex).toObject());
+
+            u->SetOwner(civList.at(cpd.civIndex)->getCiv());
+            u->SetUnitListIndex(civList.at(cpd.civIndex)->GetUnitList().size());
+            civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->setProducedUnit(u);
+
             u->SetOwner(civList.at(currentTurn)->getCiv());
             u->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
-            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->setProducedUnit(u);
 
-            foreach(Tile* t, civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
+
+            foreach(Tile* t, civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
             {
                 if(u->isNaval())
                 {
                     if(t->ContainsUnit  || !(t->GetTileType() == WATER)) { continue; }
                     else
                     {
+                            t->SetOccupyingCivListIndex(cpd.civIndex);
                             u->SetPositionIndex(t->GetTileIndex());
                             t->ContainsUnit = true;
                             break;
@@ -1109,6 +980,7 @@ void GameManager::StartTurn()
                     if(t->ContainsUnit || !(t->Walkable) || (t->GetTileType() == WATER)) { continue; }
                     else
                     {
+                            t->SetOccupyingCivListIndex(cpd.civIndex);
                             u->SetPositionIndex(t->GetTileIndex());
                             t->ContainsUnit = true;
                             break;
@@ -1116,14 +988,14 @@ void GameManager::StartTurn()
                 }
             }
 
-            civList.at(currentTurn)->AddUnit(u);
+            civList.at(cpd.civIndex)->AddUnit(u);
             renderer->AddUnit(u, map, gameView);
         }
         else
         {
             Building *b = new Building();
             b->ReadBuildingSaveData(BuildingData.at(cpd.producedUnitIndex).toObject());
-            civList.at(currentTurn)->GetCityAt(cpd.cityIndex)->addBuilding(b);
+            civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->addBuilding(b);
         }
 
         if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
@@ -1134,110 +1006,6 @@ void GameManager::StartTurn()
 
     for(int i = 0; i<civList.at(currentTurn)->GetCityList().size();i++)
     {
-//        if(update.productionFinished)
-//        {
-//            if(civList.at(currentTurn)->GetCityAt(i)->getProductionFinished())
-//            {
-//                civList.at(currentTurn)->GetCityAt(i)->setProductionFinished(false);
-
-//                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv())
-//                {
-//                    str[localIndex] = civList.at(currentTurn)->GetCityList().at(i)->GetName();
-//                    localIndex++;
-
-//                }
-
-//                if(civList.at(currentTurn)->GetCityAt(i)->getIsUnit())
-//                {
-//                    civList.at(currentTurn)->GetCityAt(i)->setProducedUnit(civList.at(currentTurn)->GetCityAt(i)->getInitialUnitList().at(civList.at(currentTurn)->GetCityAt(i)->getProductionIndex()));
-//                    Unit* unit = new Unit(0);
-//                    Unit* unitData = civList.at(currentTurn)->GetCityAt(i)->getProducedUnit();
-//                    unit->setUnitType(unitData->GetUnitType());
-//                    unit->SetName(unitData->GetName());
-//                    unit->SetCost(unitData->GetCost());
-//                    unit->SetMovementPoints(unitData->GetMovementPoints());
-//                    unit->SetStrength(unitData->GetStrength());
-//                    unit->SetRange(unitData->GetRange());
-//                    unit->SetRangeStrength(unitData->GetRangeStrength());
-//                    unit->SetUnitIcon(unitData->GetUnitType());
-//                    unit->SetOwner(civList.at(currentTurn)->getCiv());
-//                    unit->SetUnitListIndex(civList.at(currentTurn)->GetUnitList().size());
-
-//                    for(int j = 0; j < civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().size();j++)
-//                    {
-//                        int tileIndex = civList.at(currentTurn)->GetCityAt(i)->GetControlledTiles().at(j)->GetTileIndex();
-//                        if(unit->isNaval())
-//                        {
-//                            if(map->GetTileAt(tileIndex)->ContainsUnit  || !(map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-//                            else
-//                            {
-//                                    unit->SetPositionIndex(tileIndex);
-//                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
-//                                    break;
-//                            }
-//                        }
-//                        else
-//                        {
-//                            if(map->GetTileAt(tileIndex)->ContainsUnit || !(map->GetTileAt(tileIndex)->Walkable) || (map->GetTileTypeAt(tileIndex) == WATER)) { continue; }
-//                            else
-//                            {
-//                                    unit->SetPositionIndex(tileIndex);
-//                                    map->GetTileAt(tileIndex)->ContainsUnit = true;
-//                                    break;
-//                            }
-//                        }
-//                    }
-
-//                    civList.at(currentTurn)->AddUnit(unit);
-//                    renderer->AddUnit(unit,map,gameView);
-//                }
-//                else
-//                {
-//                    int science = 0;
-//                    int gold = 0;
-//                    int production = 0;
-//                    int culture = 0;
-//                    int food = 0;
-//                    civList.at(currentTurn)->GetCityList().at(i)->IncrementNumberOfBuildings();
-//                    int productionIndex = civList.at(currentTurn)->GetCityList().at(i)->getProductionIndex();
-//                    Building* building = civList.at(currentTurn)->GetCityList().at(i)->getInitialBuildingList().at(productionIndex);
-//                    int bonusType = building->getbonusType();
-//                    if(bonusType == 2)
-//                    {
-//                         science = building->getBonusValue();
-
-//                    }else if(bonusType == 0)
-//                    {
-//                       gold = building->getBonusValue();
-
-//                    }else if(bonusType == 3)
-//                    {
-//                         food = building->getBonusValue();
-//                    }else if(bonusType == 1)
-//                    {
-//                         production = building->getBonusValue();
-//                    }else if(bonusType == 4)
-//                    {
-//                         culture = building->getBonusValue();
-//                    }
-
-//                    if(0==currentTurn)
-//                    {
-//                        civList.at(0)->GetCityList().at(i)->GetCityTile()->SetYield(gold,production,science,food,culture);
-//                    }
-
-//                    civList.at(currentTurn)->GetCityList().at(i)->addBuilding(building);
-//                }
-
-//                if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
-//                {
-//                    ns->PostNotification(Notification{4, QString("Production in %1 finished").arg(civList.at(currentTurn)->GetCityAt(i)->GetName())});
-//                }
-//            }
-//        }
-
-        //-----------------------------------------------------------------------
-
         //If a city took damage and has healed, alert the renderer of this change.
         if(update.cityHealed)
         {
@@ -1245,7 +1013,6 @@ void GameManager::StartTurn()
         }
 
         civList.at(currentTurn)->GetCityAt(i)->UpdateCityYield();
-
 
         //Update the production and population growth bars for the city.
         renderer->UpdateCityProductionBar(civList.at(currentTurn)->GetCityAt(i), gameView);
@@ -1277,41 +1044,17 @@ void GameManager::StartTurn()
 
     civList.at(currentTurn)->SetMilitaryStrength(civMilStr);
 
-    if(civList.at(0)->getCiv() == civList.at(currentTurn)->getCiv() && update.productionFinished)
-    {
-        QString cityList;
-        for(int j = 0;j<20;j++)
-        {
-            if(str[j].isEmpty()) { continue; }
-            else
-            {
-                QString str3 = str[j];
-                str3+= ", ";
-                cityList += str3;
-            }
-
-        }
-        QString prodString = "Production has finished in: ";
-        QString finalString = prodString+cityList;
-        finalString.chop(2);
-        QMessageBox *mbox = new QMessageBox();
-        mbox->setText(finalString);
-        mbox->setWindowFlags(Qt::FramelessWindowHint);
-        mbox->setStyleSheet(warStyle);
-        mbox->exec();
-        delete mbox;
-
-    }
-
     //Update the yield status bar for the player.
     if(currentTurn == 0)
     {
-        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->losingGold ? "-" : "+").arg(civList.at(0)->getCivYield()->GetGoldYield()));
+        goldText->setText(QString("%1 (%2%3)").arg(civList.at(0)->GetTotalGold()).arg(civList.at(0)->losingGold ? " " : "+").arg(civList.at(0)->GetGptAdjusted()));
         prodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetProductionYield()));
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
         culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
         techText->setText(QString(" %1 / %2").arg(accumulatedScience).arg(techCost));
+
+        goldText->setToolTip(QString("GPT: %1\nMaintenance: -%2").arg(civList.at(0)->GetGPT()).arg(civList.at(0)->GetMaintenance()));
 
         endTurn->setEnabled(true);
     }
@@ -1324,8 +1067,6 @@ void GameManager::EndTurn()
     relocateUnit = false;
     processedData.relocateOrderGiven = false;
     processedData.newData = false;
-    //This is for debugging purposes.
-    begin = std::chrono::steady_clock::now();
     bool unitMoved = false;
     QList<Tile*> t;
 
@@ -1340,6 +1081,11 @@ void GameManager::EndTurn()
         buildPlantation->setEnabled(false);
         buildTradePost->setEnabled(false);
         buildRoad->setEnabled(false);
+        buildCamp->setEnabled(false);
+        buildPasture->setEnabled(false);
+        buildFishBoat->setEnabled(false);
+        buildOilWell->setEnabled(false);
+        buildQuarry->setEnabled(false);
 
         attackUnit->setEnabled(false);
         attackCity->setEnabled(false);
@@ -1363,16 +1109,19 @@ void GameManager::EndTurn()
             {
                 renderer->SetUnitNeedsOrders(civList.at(0)->GetUnitAt(i)->GetTileIndex(), false);
 
-                if(!toggleOn)
+                t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
+                foreach(Tile* ti, t)
                 {
-                    t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
-                    foreach(Tile* ti, t)
+                    if(ti->SeenByUnits == 1 && !ti->CanAlwaysBeSeen)
                     {
-                        if(ti->IsSeenByPlayer && !ti->CanAlwaysBeSeen)
-                        {
-                            ti->IsSeenByPlayer = false;
-                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), HIDDEN});
-                        }
+                        ti->SeenByUnits = 0;
+                        ti->IsSeenByPlayer = false;
+                        viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), HIDDEN});
+                    }
+                    else
+                    {
+                        if(ti->SeenByUnits == 0) { ti->SeenByUnits = 0; }
+                        else { ti->SeenByUnits--; }
                     }
                 }
             }
@@ -1383,29 +1132,60 @@ void GameManager::EndTurn()
             {
                 tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
-                if(!toggleOn)
+                t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
+
+                foreach(Tile* ti, t)
                 {
-                    t = map->GetNeighborsRange(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex()), 2);
-
-                    foreach(Tile* ti, t)
+                    if(ti->SeenByUnits == 0)
                     {
-                        if(!ti->CanAlwaysBeSeen)
+                        ti->SeenByUnits = 1;
+                        if(!ti->DiscoveredByPlayer)
                         {
-                            if(!ti->DiscoveredByPlayer)
-                            {
-                                ti->DiscoveredByPlayer = true;
-                                viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
-                            }
+                            ti->DiscoveredByPlayer = true;
+                            ti->IsSeenByPlayer = true;
+                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), DISCOVERED});
 
-                            if(!ti->IsSeenByPlayer)
+                            if(ti->GetControllingCivListIndex() > 0)
                             {
-                                ti->IsSeenByPlayer = true;
-                                viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), VISIBLE});
+                                if(!civList.at(ti->GetControllingCivListIndex())->HasCivMetPlayer())
+                                {
+                                    civList.at(ti->GetControllingCivListIndex())->MeetPlayer();
+                                    diplo->MeetPlayer(ti->GetControllingCivListIndex());
+                                    QMessageBox *mbox = new QMessageBox();
+                                    mbox->setText(QString("You have met %1").arg(civList.at(ti->GetControllingCivListIndex())->GetLeaderName()));
+                                    mbox->setStyleSheet(warStyle);
+                                    mbox->setWindowFlags(Qt::FramelessWindowHint);
+                                    mbox->exec();
+                                    delete mbox;
+                                }
                             }
                         }
-
-                        renderer->SetTileTooltip(ti->GetTileIndex(), *ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
+                        else if(!ti->IsSeenByPlayer)
+                        {
+                            ti->IsSeenByPlayer = true;
+                            viewUpdateTiles->enqueue(ViewData{ti->GetTileIndex(), VISIBLE});
+                        }
                     }
+                    else
+                    {
+                        ti->SeenByUnits++;
+                    }
+
+                    renderer->SetTileTooltip(ti->GetTileIndex(), *ti->GetYield(), ti->GetControllingCiv(), ti->GetTileIDString());
+                }
+            }
+            else if(map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->SeenByUnits > 0)
+            {
+                if(!civList.at(currentTurn)->HasCivMetPlayer())
+                {
+                    civList.at(currentTurn)->MeetPlayer();
+                    diplo->MeetPlayer(currentTurn);
+                    QMessageBox *mbox = new QMessageBox();
+                    mbox->setText(QString("You have met %1").arg(civList.at(currentTurn)->GetLeaderName()));
+                    mbox->setStyleSheet(warStyle);
+                    mbox->setWindowFlags(Qt::FramelessWindowHint);
+                    mbox->exec();
+                    delete mbox;
                 }
             }
 
@@ -1423,13 +1203,13 @@ void GameManager::EndTurn()
                 musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
                 musicPlayer->setVolume(50);
                 musicPlayer->play();
-
             }
 
             //These statements handle removing a unit from the game if it is killed.
             renderer->SetFortifyIcon(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), true);
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
             map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
+            map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->SetOccupyingCivListIndex(-1);
             renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView);
             civList.at(currentTurn)->RemoveUnit(i);
         }
@@ -1510,20 +1290,6 @@ void GameManager::UpdateTileData()
     {
         targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
 
-        if(targetTile->ContainsUnit && processedData.relocateOrderGiven)
-        {
-            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
-
-            foreach(Tile* tile, neighbors)
-            {
-                if(!tile->ContainsUnit && !tile->HasCity && tile->Walkable)
-                {
-                    targetTile = tile;
-                    break;
-                }
-            }
-        }
-
         if((targetTile->ContainsUnit || targetTile->HasCity) && (targetTile->GetControllingCivListIndex() != 0) && (targetTile->GetControllingCivListIndex() != -1))
         {
             if(uc->AtPeaceWith(targetTile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
@@ -1566,19 +1332,6 @@ void GameManager::UpdateTileData()
                             break;
                         }
                     }
-                }
-            }
-        }
-        else if(!targetTile->HasCity && (state == ATTACK_CITY))
-        {
-            QList<Tile*> neighbors = map->GetNeighbors(targetTile);
-
-            foreach(Tile* tile, neighbors)
-            {
-                if(tile->HasCity)
-                {
-                    targetTile = tile;
-                    break;
                 }
             }
         }
@@ -1633,16 +1386,43 @@ void GameManager::UpdateTileData()
                         buildPlantation->setEnabled(false);
                         buildTradePost->setEnabled(false);
                         buildRoad->setEnabled(false);
+                        buildCamp->setEnabled(false);
+                        buildPasture->setEnabled(false);
+                        buildFishBoat->setEnabled(false);
+                        buildOilWell->setEnabled(false);
+                        buildQuarry->setEnabled(false);
                     }
                 }
                 else if (unitToMove->GetUnitType() == WORKER)
                 {
                     if(map->GetTileAt(unitToMove->GetTileIndex())->GetControllingCiv() == civList.at(currentTurn)->getCiv())
                     {
-                        buildFarm->setEnabled(true);
-                        buildMine->setEnabled(true);
-                        buildPlantation->setEnabled(true);
-                        buildTradePost->setEnabled(true);
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveFarm)
+                            buildFarm->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveMine)
+                            buildMine->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHavePlantation)
+                            buildPlantation->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveTrade)
+                            buildTradePost->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveCamp)
+                            buildCamp->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveFishBoat)
+                            buildFishBoat->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveOilWell)
+                            buildOilWell->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHavePasture)
+                            buildPasture->setEnabled(true);
+
+                        if(map->GetTileAt(unitToMove->GetTileIndex())->CanHaveQuarry)
+                            buildQuarry->setEnabled(true);
                     }
 
                     foundCity->setEnabled(false);
@@ -1661,6 +1441,11 @@ void GameManager::UpdateTileData()
                 buildPlantation->setEnabled(false);
                 buildTradePost->setEnabled(false);
                 buildRoad->setEnabled(false);
+                buildCamp->setEnabled(false);
+                buildPasture->setEnabled(false);
+                buildFishBoat->setEnabled(false);
+                buildOilWell->setEnabled(false);
+                buildQuarry->setEnabled(false);
 
                 fortifyUnit->setEnabled(true);
 
@@ -1668,20 +1453,22 @@ void GameManager::UpdateTileData()
 
                 foreach(Tile *tile, tiles)
                 {
-                    if((tile->GetOccupyingCivListIndex() != 0) && (tile->GetOccupyingCivListIndex() != -1))
+                    if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0)) && (tile->HasCity || tile->ContainsUnit))
                     {
                         int tileIndex = tile->GetTileIndex();
 
-                        selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                        tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
-
-                        if(tile->HasCity)
+                        if(tile->HasCity && tile->GetControllingCivListIndex() != 0)
                         {
+                            qDebug() << "   Tile:" << tile->GetTileIDString() << "controlled by:" << tile->GetControllingCivListIndex() << "occupied by" << tile->GetOccupyingCivListIndex();
+                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
                             attackCity->setEnabled(true);
                         }
-
-                        if(tile->ContainsUnit && !tile->HasCity)
+                        else if(tile->ContainsUnit && !tile->HasCity && tile->GetOccupyingCivListIndex() != 0)
                         {
+                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+
                             if(unitToMove->isMelee)
                             {
                                 attackUnit->setEnabled(true);
@@ -1699,7 +1486,12 @@ void GameManager::UpdateTileData()
         else
         {
             if(currentTurn == 0)
-                statusMessage = "--------<< You do not own that unit >>--------";
+            {
+                if(unitToMove->GetOwner() != civList.at(0)->getCiv())
+                    statusMessage = "--------<< You do not own that unit >>--------";
+                else
+                    statusMessage = "--------<< You cannot give orders to this unit >>-------";
+            }
 
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
         }
@@ -1726,23 +1518,26 @@ void GameManager::UpdateTileData()
                 if(currentTurn == 0)
                     statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
 
-                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetTile->GetControllingCivListIndex()));
+                int targetIndex = targetTile->GetControllingCivListIndex();
 
-                if(civList.at(targetTile->GetControllingCivListIndex())->GetCityList().size() == 0)
+                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetIndex));
+
+                if(civList.at(targetIndex)->GetCityList().size() == 0)
                 {
-                    if(!civList.at(targetTile->GetControllingCivListIndex())->GetUnitList().isEmpty())
+                    if(!civList.at(targetIndex)->GetUnitList().isEmpty())
                     {
-                        foreach(Unit* unit, civList.at(targetTile->GetControllingCivListIndex())->GetUnitList())
+                        foreach(Unit* unit, civList.at(targetIndex)->GetUnitList())
                         {
+                            map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
+                            map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
                             renderer->RemoveUnit(unit, gameView);
                         }
 
-                        for(int i = 0; i < civList.at(targetTile->GetControllingCivListIndex())->GetUnitList().size(); i++)
+                        for(int i = 0; i < civList.at(targetIndex)->GetUnitList().size(); i++)
                         {
-                            civList.at(targetTile->GetControllingCivListIndex())->RemoveUnit(0);
+                            civList.at(targetIndex)->RemoveUnit(i);
                         }
                     }
-
                     playersAliveCount--;
                 }
             }
@@ -1816,6 +1611,7 @@ void GameManager::UpdateTileData()
             relocateUnit = false;
             processedData.relocateOrderGiven = false;
             map->GetTileAt(unitToMove->GetTileIndex())->Selected = false;
+            renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
             this->redrawTile = true;
         }
@@ -1827,6 +1623,11 @@ void GameManager::UpdateTileData()
         buildPlantation->setEnabled(false);
         buildTradePost->setEnabled(false);
         buildRoad->setEnabled(false);
+        buildCamp->setEnabled(false);
+        buildPasture->setEnabled(false);
+        buildFishBoat->setEnabled(false);
+        buildOilWell->setEnabled(false);
+        buildQuarry->setEnabled(false);
 
         attackUnit->setEnabled(false);
         attackCity->setEnabled(false);
@@ -1931,11 +1732,15 @@ void GameManager::UpdateTileData()
         }
     }
 
-    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && state != AI_FOUND_CITY && state != IDLE)
+    if((map->GetTileFromCoord(processedData.column, processedData.row)->Selected == false) && state != AI_FOUND_CITY)
     {
         if(unitToMove != NULL)
         {
             selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            if(!tileModifiedQueue->isEmpty())
+            {
+                renderer->UpdateScene(map, gameView, tileModifiedQueue);
+            }
         }
 
         attackCity->setEnabled(false);
@@ -1946,6 +1751,11 @@ void GameManager::UpdateTileData()
         buildPlantation->setEnabled(false);
         buildTradePost->setEnabled(false);
         buildRoad->setEnabled(false);
+        buildCamp->setEnabled(false);
+        buildPasture->setEnabled(false);
+        buildFishBoat->setEnabled(false);
+        buildOilWell->setEnabled(false);
+        buildQuarry->setEnabled(false);
         moveUnit->setEnabled(false);
         fortifyUnit->setEnabled(false);
         redrawTile = true;
@@ -2018,10 +1828,11 @@ void GameManager::InitVariables(bool fullscreen)
         this->setFixedSize(1400, 700);
         this->setWindowTitle("Project Hiawatha");
         gameView->setFixedWidth(1195);
-//        this->setWindowFlags(Qt::FramelessWindowHint);
+        this->setWindowFlags(Qt::WindowMinimizeButtonHint);
     }
     else
     {
+        gameView->setMaximumWidth(widget.screenGeometry(0).width() - 200);
         this->setWindowState(Qt::WindowFullScreen);
     }
 
@@ -2143,14 +1954,39 @@ void GameManager::InitButtons()
     buildPlantation->setShortcut(QKeySequence(Qt::Key_D));
 
     buildTradePost = new QPushButton ("Build Trading Post");
-    connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
+    connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewTradePost()));
     buildTradePost->setEnabled(false);
     buildTradePost->setShortcut(QKeySequence(Qt::Key_G));
 
     buildRoad = new QPushButton("Build Road");
-    connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
+    connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewRoad()));
     buildRoad->setEnabled(false);
     buildRoad->setShortcut(QKeySequence(Qt::Key_H));
+
+    buildCamp = new QPushButton("Build Camp");
+    connect(buildCamp, SIGNAL(clicked(bool)), this, SLOT(buildNewCamp()));
+    buildCamp->setEnabled(false);
+    // Shortcut
+
+    buildPasture = new QPushButton("Build Pasture");
+    connect(buildPasture, SIGNAL(clicked(bool)), this, SLOT(buildNewPasture()));
+    buildPasture->setEnabled(false);
+    // Shortcut
+
+    buildFishBoat = new QPushButton("Build Fishing Boat");
+    connect(buildFishBoat, SIGNAL(clicked(bool)), this, SLOT(buildNewFishBoat()));
+    buildFishBoat->setEnabled(false);
+    // Shortcut
+
+    buildQuarry = new QPushButton("Build Quarry");
+    connect(buildQuarry, SIGNAL(clicked(bool)), this, SLOT(buildNewQuarry()));
+    buildQuarry->setEnabled(false);
+    // Shortcut
+
+    buildOilWell = new QPushButton("Build Oil Well");
+    connect(buildOilWell, SIGNAL(clicked(bool)), this, SLOT(buildNewOilWell()));
+    buildOilWell->setEnabled(false);
+    // Shortcut
 
     foundCity = new QPushButton("Found City");
     connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
@@ -2197,7 +2033,6 @@ void GameManager::InitButtons()
     attackCity = new QPushButton("Attack City");
     connect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
     attackCity->setEnabled(false);
-
     attackCity->setShortcut(QKeySequence(Qt::Key_E));
 
     rangeAttack = new QPushButton("Range Attack");
@@ -2214,8 +2049,8 @@ void GameManager::InitButtons()
     connect(help, SIGNAL(clicked(bool)), this, SLOT(OpenHelp()));
     help->setShortcut(QKeySequence(Qt::Key_Z));
 
-    toggleFoW = new QPushButton("Toggle FoW");
-    connect(toggleFoW, SIGNAL(clicked(bool)), this, SLOT(toggleFog()));
+//    toggleFoW = new QPushButton("Toggle FoW");
+//    connect(toggleFoW, SIGNAL(clicked(bool)), this, SLOT(toggleFog()));
 
 }
 
@@ -2225,8 +2060,7 @@ void GameManager::InitLayouts()
 
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addWidget(showDiplomacy);
-    unitControlButtons->addWidget(toggleFoW);
-    unitControlButtons->addSpacing(widget.screenGeometry(widget.primaryScreen()).height() / 1.8f);
+    unitControlButtons->addSpacerItem(new QSpacerItem(100, 500, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -2236,16 +2070,25 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(buildMine);
     unitControlButtons->addWidget(buildPlantation);
     unitControlButtons->addWidget(buildTradePost);
+    unitControlButtons->addWidget(buildCamp);
+    unitControlButtons->addWidget(buildOilWell);
+    unitControlButtons->addWidget(buildPasture);
+    unitControlButtons->addWidget(buildQuarry);
+    unitControlButtons->addWidget(buildFishBoat);
     unitControlButtons->addWidget(buildRoad);
     unitControlButtons->addWidget(moveUnit);
     unitControlButtons->setGeometry(QRect(0, 20, 100, this->height() - 20));
+    unitControlButtons->setSizeConstraint(QVBoxLayout::SetFixedSize);
 
     gameLayout->addLayout(unitControlButtons);
-//    gameLayout->addWidget(cityScreen);
     gameLayout->addWidget(gameView);
     gameLayout->addWidget(techTree);
-//    gameLayout->addWidget(diplo);
-    gameLayout->addWidget(ns);
+
+//    if(this->isFullScreen())
+//        ns->setGeometry(this->width() - 150, 20, 50, this->height() - 40);
+//    else
+        gameLayout->addWidget(ns);
+
     gameLayout->setGeometry(QRect(100, 20, this->width(), this->height()));
     diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
 
@@ -2336,15 +2179,15 @@ QDir::setCurrent(bin.absolutePath());
     Yieldinfo->addWidget(culLabel);
     Yieldinfo->addWidget(culText);
 
-    if(!this->isFullScreen())
-    {
-        Yieldinfo->addSpacing(1600);
-    }
-    else
-    {
-        float space = (static_cast<float>(widget.screenGeometry(widget.primaryScreen()).width()) / 1.2f) * 0.75f;
-        Yieldinfo->addSpacing(ceil(space));
-    }
+//    if(!this->isFullScreen())
+//    {
+        Yieldinfo->addSpacerItem(new QSpacerItem(1000, 20, QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
+//    }
+//    else
+//    {
+//        float space = (static_cast<float>(widget.screenGeometry(widget.primaryScreen()).width()) / 1.2f) * 0.75f;
+//        Yieldinfo->addSpacing(ceil(space));
+//    }
     vLayout->insertLayout(0, Yieldinfo);
 }
 
@@ -2353,46 +2196,46 @@ void GameManager::InitRenderData()
     renderer->DrawHexScene(map, gameView);
     InitYieldDisplay();
 
-    qDebug() << "   Loading Civs to View";
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
 
         if(i == 0)
         {
-            qDebug() << "   Setting up FoW";
-            foreach(Tile* n, map->GetNeighborsRange(civList.at(i)->GetCityAt(0)->GetCityTile(), 3))
+            foreach(City* ci, civList.at(i)->GetCityList())
             {
-                if(n->DiscoveredByPlayer)
+                foreach(Tile* n, map->GetNeighborsRange(ci->GetCityTile(), 3))
                 {
-                    viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
-                    renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
-
-                    if(!n->IsSeenByPlayer)
+                    if(n->DiscoveredByPlayer)
                     {
-                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
-                    }
-                }
-                else
-                {
-                    if(!n->DiscoveredByPlayer)
-                    {
-                        n->DiscoveredByPlayer = true;
-                        n->CanAlwaysBeSeen = true;
                         viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
                         renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
-                    }
 
-                    if(!n->IsSeenByPlayer)
+                        if(!n->IsSeenByPlayer && !n->ContainsUnit)
+                        {
+                            viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
+                        }
+                    }
+                    else
                     {
-                        n->IsSeenByPlayer = true;
-                        n->CanAlwaysBeSeen = true;
-                        viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
-                    }
-                }
+                        if(!n->DiscoveredByPlayer)
+                        {
+                            n->DiscoveredByPlayer = true;
+                            n->CanAlwaysBeSeen = true;
+                            viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
+                            renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
+                        }
 
+                        if(!n->IsSeenByPlayer)
+                        {
+                            n->IsSeenByPlayer = true;
+                            n->CanAlwaysBeSeen = true;
+                            viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), VISIBLE});
+                        }
+                    }
+
+                }
             }
-            qDebug() << "   --Done";
 
             endGameText = new QString("Capitals Controlled:");
             endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
@@ -2402,9 +2245,7 @@ void GameManager::InitRenderData()
             endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
         }
 
-        qDebug() << "   Adding Units";
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
-        qDebug() << "   --Done";
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
         {
@@ -2454,13 +2295,11 @@ void GameManager::InitRenderData()
     statusMessage = " ";
 
     techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
-
-    qDebug() << "   Project Hiawatha Loaded";
+    diplo->UpdateLeader(0);
 }
 
 void GameManager::DeinitRenderer()
 {
-//    renderer->PrepareForDelete(gameView);
     delete renderer;
 }
 
@@ -2576,7 +2415,6 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     tCity->WriteCitySaveData(cityInfo);
 
     city->ReadCitySaveData(cityInfo);
-
     city->SetCityTile(map->GetTileAt(city->loadedCityTileIndex));
 
     if(tCity->IsCityCaptial())
@@ -2586,7 +2424,6 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
             ns->PostNotification(Notification{0, QString("%1 has lost their Capital! %2 Now controls %3 capitals.").arg(tCiv->GetLeaderName()).arg(aCiv->GetLeaderName()).arg(aCiv->GetCapitalsControlled())});
             aCiv->IncrementCapitalsControlled();
             tCiv->SetCaptialsControlled(0);
-
             city->SetCityAsCapital(false, true);
         }
         else
@@ -2599,12 +2436,6 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     {
          statusMessage = QString("--------<< %1 have conquered the city of %2 >>--------").arg(aCiv->GetLeaderName()).arg(tCity->GetName());
     }
-
-//    city->resetAccumulatedProduction();
-//    city->setCurrentProductionCost(0);
-//    city->setProductionName("No Current Production");
-//    city->setProductionIndex(0);
-//    city->setProductionFinished(false);
 
     foreach(int i, city->controlledTilesIndex)
     {
@@ -2649,7 +2480,10 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     renderer->AddCity(city, gameView, true);
     aCiv->AddCity(city);
 
-    clv->addItem(city->GetName());
+    if(aCiv->getCiv() == civList.at(0)->getCiv())
+        clv->addItem(city->GetName());
+    else if(tCiv->getCiv() == civList.at(0)->getCiv())
+        clv->takeItem(tCity->GetCityIndex());
 }
 
 void GameManager::ProcessAttackUnit()
@@ -2662,7 +2496,7 @@ void GameManager::ProcessAttackUnit()
         renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
     }
 
-    targetUnit = uc->FindUnitAtTile(targetTile, civList.at(targetTile->GetControllingCivListIndex())->GetUnitList());
+    targetUnit = uc->FindUnitAtTile(targetTile, civList.at(targetTile->GetOccupyingCivListIndex())->GetUnitList());
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
@@ -2675,6 +2509,51 @@ void GameManager::ProcessAttackUnit()
         uc->Attack(unitToMove, targetUnit, true);
     else
         uc->Attack(unitToMove, targetUnit, false);
+
+
+    if(unitToMove->GetHealth() <= 0)
+    {
+        if(unitToMove->GetOwner() == civList.at(0)->getCiv())
+        {
+            ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(unitToMove->GetName())});
+
+            QMediaPlayer *musicPlayer = new QMediaPlayer();
+            musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
+            musicPlayer->setVolume(50);
+            musicPlayer->play();
+        }
+
+        //These statements handle removing a unit from the game if it is killed.
+        renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+        int listIndex = map->GetTileAt(unitToMove->GetTileIndex())->GetOccupyingCivListIndex();
+        map->GetTileAt(unitToMove->GetTileIndex())->SetOccupyingCivListIndex(-1);
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->RemoveUnit(unitToMove, gameView);
+        civList.at(listIndex)->RemoveUnit(unitToMove->GetUnitListIndex());
+    }
+
+    if(targetUnit->GetHealth() <= 0)
+    {
+        if(targetUnit->GetOwner() == civList.at(0)->getCiv())
+        {
+            ns->PostNotification(Notification{1, QString("Your %1 has been killed!").arg(targetUnit->GetName())});
+
+            QMediaPlayer *musicPlayer = new QMediaPlayer();
+            musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
+            musicPlayer->setVolume(50);
+            musicPlayer->play();
+        }
+
+        //These statements handle removing a unit from the game if it is killed.
+        renderer->SetFortifyIcon(targetUnit->GetTileIndex(), true);
+        renderer->SetUnitNeedsOrders(targetUnit->GetTileIndex(), false);
+        map->GetTileAt(targetUnit->GetTileIndex())->ContainsUnit = false;
+        int listIndex = map->GetTileAt(targetUnit->GetTileIndex())->GetOccupyingCivListIndex();
+        map->GetTileAt(targetUnit->GetTileIndex())->SetOccupyingCivListIndex(-1);
+        renderer->RemoveUnit(targetUnit, gameView);
+        civList.at(listIndex)->RemoveUnit(targetUnit->GetUnitListIndex());
+    }
 
     renderer->UpdateUnits(map, gameView, unitToMove, false);
     renderer->UpdateUnits(map, gameView, targetUnit, false);
@@ -2864,6 +2743,31 @@ bool GameManager::AcceptsPeace(Civilization *ai)
     return accepts;
 }
 
+void GameManager::Victory()
+{
+    QMessageBox* mBox = new QMessageBox();
+    mBox->setWindowFlags(Qt::FramelessWindowHint);
+    mBox->setFixedSize(200, 500);
+    mBox->setText("You Win!");
+    mBox->exec();
+    this->playersAliveCount = 0;
+    this->close();
+    renderer->PrepareForDelete(gameView);
+}
+
+void GameManager::Defeat()
+{
+    QMessageBox* mBox = new QMessageBox();
+    mBox->setWindowFlags(Qt::FramelessWindowHint);
+    mBox->setFixedSize(200, 500);
+    mBox->setText("You Lose!");
+    mBox->exec();
+    this->playersAliveCount = 0;
+    //Defeat screen?
+    this->close();
+    renderer->PrepareForDelete(gameView);
+}
+
 void GameManager::closeGame()
 {
     this->close();
@@ -2898,8 +2802,6 @@ void GameManager::showCity(City* city)
             delete cityScreen;
         }
         cityScreen = new CityScreen(this);
-//        cityScreen->loadBuildings("Assets/Buildings/BuildingList.txt");
-//        cityScreen->loadUnits("Assets/Units/UnitList.txt");
         cityScreen->loadBuildings("Assets/Data/buildings.json");
         cityScreen->loadUnits("Assets/Data/units.json");
         cityScreen->getCityInfo(city);
@@ -2931,7 +2833,6 @@ void GameManager::showCity(City* city)
 
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         cityScreenVisible = false;
-        renderer->UpdateCityProductionBar(civList.at(0)->GetCityAt(0), gameView);
     }
 }
 
@@ -2976,28 +2877,6 @@ void GameManager::updateTiles()
 
     this->update();
 
-    if(this->currentTurn == 0 && !civList.at(currentTurn)->alive && this->playersAliveCount == 1)
-    {
-        QMessageBox* mBox = new QMessageBox();
-        mBox->setWindowFlags(Qt::FramelessWindowHint);
-        mBox->setFixedSize(200, 500);
-        mBox->setText("You Lose!");
-        mBox->exec();
-        this->playersAliveCount=0;
-        //Defeat screen?
-        this->closeGame();
-    }
-    else if(this->currentTurn == 0 && this->playersAliveCount == 1)
-    {
-        QMessageBox* mBox = new QMessageBox();
-        mBox->setWindowFlags(Qt::FramelessWindowHint);
-        mBox->setFixedSize(200, 500);
-        mBox->setText("You Win!");
-        mBox->exec();
-        this->playersAliveCount = 0;
-        this->closeGame();
-    }
-
     if(!ns->HasNotificationsWaiting() && ns->item(0) == NULL)
     {
         ns->hide();
@@ -3014,13 +2893,6 @@ void GameManager::updateTiles()
     {
         cityScreenVisible = true;
         showCity(NULL);
-    }
-
-    end = std::chrono::steady_clock::now();
-    if(countTime == true)
-    {
-        countTime = false;
-        qDebug() << "------------------ Time to process AI Turns:" << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "us";
     }
 }
 
@@ -3074,7 +2946,7 @@ void GameManager::toggleDiplomacy()
     else
     {
         diplo->hide();
-//        diplo->UpdateLeader();
+        diplo->UpdateLeader(0);
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         diploVisible = false;
     }
@@ -3146,6 +3018,76 @@ void GameManager::buildNewMine()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(MINE, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+    }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
+}
+
+void GameManager::buildNewCamp()
+{
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),CAMP))
+    {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
+        renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(CAMP, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+    }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
+}
+
+void GameManager::buildNewPasture()
+{
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),PASTURE))
+    {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
+        renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(PASTURE, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+    }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
+}
+
+void GameManager::buildNewOilWell()
+{
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),OIL_WELL))
+    {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
+        renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(OIL_WELL, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+    }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
+}
+
+void GameManager::buildNewFishBoat()
+{
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),FISHING_BOAT))
+    {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
+        renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(FISHING_BOAT, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+    }
+
+    selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+    this->redrawTile = true;
+}
+
+void GameManager::buildNewQuarry()
+{
+    if(uc->BuildImprovement(unitToMove,map->GetTileAt(unitToMove->GetTileIndex()),civList.at(currentTurn),QUARRY))
+    {
+        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
+        renderer->RemoveUnit(unitToMove,gameView);
+        renderer->SetTileImprovement(QUARRY, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3259,7 +3201,7 @@ void GameManager::WarDeclared()
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetOccupyingCivListIndex())->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), targetTile->GetOccupyingCivListIndex(), civList.at(0)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetTile->GetOccupyingCivListIndex())->getCiv(), targetTile->GetOccupyingCivListIndex(), civList.at(0)->getCiv(), 0);
 }
 
 void GameManager::WarAvoided()
@@ -3280,7 +3222,7 @@ void GameManager::WarByInvasion()
     civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
     civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex(), civList.at(0)->getCiv());
+    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex(), civList.at(0)->getCiv(), 0);
 }
 
 void GameManager::OpenHelp()
@@ -3304,42 +3246,3 @@ void GameManager::parseItem()
     this->showTechTreeButton->setEnabled(false);
     this->showCity(civList[0]->GetCityAt(clv->currentRow()));
 }
-
-void GameManager::toggleFog()
-{
-    for(int i = 0; i < map->GetBoardSize(); i++)
-    {
-        if(!toggleOn)
-        {
-            renderer->SetTileVisibility(i, true, false);
-        }
-        else
-        {
-            if(map->GetTileAt(i)->DiscoveredByPlayer)
-            {
-                if(map->GetTileAt(i)->CanAlwaysBeSeen)
-                {
-                    renderer->SetTileVisibility(i, true, false);
-                }
-                else if(!map->GetTileAt(i)->IsSeenByPlayer)
-                {
-                    renderer->SetTileVisibility(i, false, false);
-                }
-            }
-            else
-            {
-                if(map->GetTileAt(i)->CanAlwaysBeSeen)
-                {
-                    renderer->SetTileVisibility(i, true, false);
-                }
-                else
-                {
-                    renderer->SetTileVisibility(i, false, true);
-                }
-            }
-        }
-    }
-
-    toggleOn = !toggleOn;
-}
-

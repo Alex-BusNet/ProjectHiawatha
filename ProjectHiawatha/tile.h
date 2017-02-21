@@ -36,6 +36,10 @@ public:
     bool DiscoveredByPlayer; // Fog of War flag
     bool IsSeenByPlayer; // Fog of War and Line of Sight flag
     bool CanAlwaysBeSeen;
+    bool CanHaveFarm, CanHaveMine, CanHavePlantation, CanHavePasture, CanHaveTrade;
+    bool CanHaveFishBoat, CanHaveOilWell, CanHaveCamp, CanHaveQuarry;
+
+    int SeenByUnits;
 
     TileType GetTileType();
     Yield* GetYield();

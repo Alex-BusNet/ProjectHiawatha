@@ -17,13 +17,15 @@
 class City;
 class AI_Controller;
 
-typedef struct {ActionState action; Unit *unit; } AIQueueData;
+typedef struct {ActionState action; Unit *unit; Unit *target;} AIQueueData;
 
 class Civilization
 {
 public:
     Civilization();//default, don't use
     Civilization(Nation name, bool isAI, QString leaderName);
+    Civilization(QJsonObject obj, bool isAI);
+    ~Civilization();
 
     //Accessors and Mutators
     void UpdateCivYield();
@@ -40,9 +42,11 @@ public:
     void IncrementCapitalsControlled();
     void SetAtWar(int enemyCivListIndex);
     void setCurrentTech(Technology* tech);
+    void Puchased(int purchaseAmount);
     void setTechIndex();
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
+    void loadCities(QJsonArray arr);
     void setCivIndex(int index);
     void SetMilitaryStrength(int milStr);
     void MakePeace(int enemyCivListIndex);
@@ -90,6 +94,7 @@ public:
     void setHighThreats(QVector<Unit *> highThreats);
     void setCityFounding(AIQueueData data);
     void clearThreats();
+    void MeetPlayer();
 
     QVector<Unit *> getLowThreats();
     QVector<Unit *> getMidThreats();
@@ -101,9 +106,13 @@ public:
     bool isAtWar();
     bool isEmpty();
     bool isCivAI();
+    bool HasCivMetPlayer();
     bool cityFounded;
 
     int queueSize();
+    int GetGPT();
+    int GetMaintenance();
+    int GetGptAdjusted();
     QVector<int> lowThreatIndex, midThreatIndex, highThreatIndex;
 private:
     Nation name;
@@ -117,6 +126,7 @@ private:
     int cityIndex;
 
     Yield* totalCivYield;
+    int GPT, maintenance, GptAdjusted;
 
     void UpdateYield();
 
@@ -136,6 +146,7 @@ private:
 
     //AI stuff
     bool isAIPlayer;
+    bool hasMetPlayer;
     QVector<Unit*> lowThreats;
     QVector<Unit*> midThreats;
     QVector<Unit*> highThreats;
