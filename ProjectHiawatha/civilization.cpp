@@ -72,6 +72,15 @@ Civilization::Civilization(QJsonObject obj, bool isAI)
 
     this->isAIPlayer = isAI;
 
+    if(isAI)
+    {
+        this->hasMetPlayer = false;
+    }
+    else
+    {
+        this->hasMetPlayer = true;
+    }
+
     this->loadCities(obj["citynames"].toArray());
     this->totalScience += this->getCivYield()->GetScienceYield();
     this->totalCulture += this->getCivYield()->GetCultureYield();
