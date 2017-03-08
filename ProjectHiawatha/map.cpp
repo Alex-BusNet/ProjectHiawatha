@@ -63,10 +63,8 @@ Map::Map(int mapSizeX, int mapSizeY)
 
 Map::~Map()
 {
-    qDebug() << "   Map Dec'tor called";
     if(!terrain.isEmpty())
     {
-        qDebug() << "   --Deleting terrain";
         foreach(QPixmap* p, terrain)
         {
             if(p != NULL)
@@ -76,14 +74,12 @@ Map::~Map()
 
     if(!board.isEmpty())
     {
-        qDebug() << "   --Deleting Board";
         foreach(Tile* t, board)
         {
             if(t != NULL)
                 delete t;
         }
     }
-    qDebug() << "   --Map Deconstructed";
 }
 
 void Map::InitHexMap()
@@ -178,6 +174,12 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
 {
     QList<Tile*> neighbors;
 
+
+    int maxTiles = 1;
+    for(int i=1;i<(range+1);i++){
+        maxTiles+=(6*i);
+    }//Calculates how many tiles need returned
+
     int xMin = (-2) * range;
     int xMax = 2 * range;
     int yMin = (-1) * range;
@@ -237,9 +239,16 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
                             }
                         }
                     }
-
-                boardTile = board.at(boardIndex);
-                neighbors.push_back(boardTile);
+                bool addtile=true;
+                for(int i=0;i<neighbors.length();i++){
+                    if(neighbors.at(i)->GetTileIndex()==boardIndex){
+                        addtile=false;
+                    }
+                }
+                if(addtile&&(neighbors.length()<maxTiles)){
+                    boardTile = board.at(boardIndex);
+                    neighbors.push_back(boardTile);
+                }
             }
         }
 
@@ -1120,8 +1129,8 @@ void Map::GenerateResources()
         0.1, // Wheat
         0.1, // Cattle
         0.1, // Deer
-        0.0, // Fish
-        0.0, // Whales
+        0.1, // Fish
+        0.1, // Whales
         0.1, // Bananas
         0.1, // Gold
         0.1, // Gems
@@ -1132,7 +1141,7 @@ void Map::GenerateResources()
         0.1, // Silk
         0.1, // Sugar
         0.1, // Cotton
-        0.0, // Pearls
+        0.1, // Pearls
         0.1, // Incense
         0.1, // Wine
         0.1, // Silver
@@ -1148,7 +1157,7 @@ void Map::GenerateResources()
 
     for(int i = 0; i < board.size(); i++)
     {
-        if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST) && (board.at(i)->GetContinent() != 0))
+        if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST) || (board.at(i)->GetTileType() == PLAINS_TILE) && (board.at(i)->GetContinent() != 0))
         {
             resource = d(gen);
             switch(resource)
@@ -1158,26 +1167,32 @@ void Map::GenerateResources()
                 break;
             case IRON:
                 board.at(i)->SetResource(IRON, NO_LUXURY);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case HORSES:
                 board.at(i)->SetResource(HORSES, NO_LUXURY);
+                board.at(i)->CanHavePasture = true;
                 board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case URANIUM:
                 board.at(i)->SetResource(URANIUM, NO_LUXURY);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case ALUMINUM:
                 board.at(i)->SetResource(ALUMINUM, NO_LUXURY);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case COAL:
                 board.at(i)->SetResource(COAL, NO_LUXURY);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case OIL:
                 board.at(i)->SetResource(OIL, NO_LUXURY);
+                board.at(i)->CanHaveOilWell = true;
                 board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case NO_LUXURY:
@@ -1189,82 +1204,111 @@ void Map::GenerateResources()
                 break;
             case CATTLE:
                 board.at(i)->SetResource(NO_STRATEGIC, CATTLE);
+                board.at(i)->CanHavePasture = true;
                 board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case DEER:
                 board.at(i)->SetResource(NO_STRATEGIC, DEER);
+                board.at(i)->CanHaveCamp = true;
                 board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case FISH:
-                board.at(i)->SetResource(NO_STRATEGIC, FISH);
-                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 2, 0);
+                if(board.at(i)->GetTileType() == WATER)
+                {
+                    board.at(i)->SetResource(NO_STRATEGIC, FISH);
+                    board.at(i)->CanHaveFishBoat = true;
+                    board.at(i)->GetYield()->ChangeYield(0, 0, 0, 2, 0);
+                }
                 break;
             case WHALES:
-                board.at(i)->SetResource(NO_STRATEGIC, WHALES);
-                board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
+                if(board.at(i)->GetTileType() == WATER)
+                {
+                    board.at(i)->SetResource(NO_STRATEGIC, WHALES);
+                    board.at(i)->CanHaveFishBoat = true;
+                    board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
+                }
                 break;
             case BANANAS:
                 board.at(i)->SetResource(NO_STRATEGIC, BANANAS);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case GOLD_RESOURCE:
                 board.at(i)->SetResource(NO_STRATEGIC, GOLD_RESOURCE);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case GEMS:
                 board.at(i)->SetResource(NO_STRATEGIC, GEMS);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(3, 0, 0, 0, 0);
                 break;
             case MARBLE:
                 board.at(i)->SetResource(NO_STRATEGIC, MARBLE);
+                board.at(i)->CanHaveQuarry = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case IVORY:
                 board.at(i)->SetResource(NO_STRATEGIC, IVORY);
+                board.at(i)->CanHaveCamp = true;
                 board.at(i)->GetYield()->ChangeYield(1, 0, 0, 0, 0);
                 break;
             case DYES:
                 board.at(i)->SetResource(NO_STRATEGIC, DYES);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SPICES:
                 board.at(i)->SetResource(NO_STRATEGIC, SPICES);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SILK:
                 board.at(i)->SetResource(NO_STRATEGIC, SILK);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SUGAR:
                 board.at(i)->SetResource(NO_STRATEGIC, SUGAR);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case COTTON:
                 board.at(i)->SetResource(NO_STRATEGIC, COTTON);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case PEARLS:
-                board.at(i)->SetResource(NO_STRATEGIC, PEARLS);
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                if(board.at(i)->GetTileType() == WATER)
+                {
+                    board.at(i)->SetResource(NO_STRATEGIC, PEARLS);
+                    board.at(i)->CanHaveFishBoat = true;
+                    board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                }
                 break;
             case INCENSE:
                 board.at(i)->SetResource(NO_STRATEGIC, INCENSE);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case WINE:
                 board.at(i)->SetResource(NO_STRATEGIC, WINE);
+                board.at(i)->CanHavePlantation = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SILVER:
                 board.at(i)->SetResource(NO_STRATEGIC, SILVER);
+                board.at(i)->CanHaveMine = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case FURS:
                 board.at(i)->SetResource(NO_STRATEGIC, FURS);
+                board.at(i)->CanHaveCamp = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SHEEP:
                 board.at(i)->SetResource(NO_STRATEGIC, SHEEP);
+                board.at(i)->CanHavePasture = true;
                 board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             default:

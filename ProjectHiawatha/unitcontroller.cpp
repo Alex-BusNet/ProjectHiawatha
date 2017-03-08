@@ -14,10 +14,6 @@ UnitController::UnitController()
 
 UnitController::~UnitController()
 {
-    qDebug() << "   UnitController Dec'tor called";
-
-
-    qDebug() << "   --UnitController Deconstructed";
 }
 
 /*
@@ -50,6 +46,15 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
     if(endTile->ContainsUnit && !unit->isPathEmpty())
     {
         endTile = unit->GetPath().at(unit->GetPath().size() - 2);
+    }
+
+    if(endTile->HasCity)
+    {
+        if(!unit->isMelee && !AtPeaceWith(endTile, wDat))
+        {
+//            if(unit->GetOwner() != endTile->GetControllingCiv())
+                return;
+        }
     }
 
     QList<Tile*> openSet;
@@ -272,11 +277,11 @@ void UnitController::AttackCity(Unit *attacker, City *city)
     float damageDealt = (((attacker->GetHealth() / attacker->GetStrength()) * AtkBonus));
     float damageSustained = (city->GetCityStrength() - damageDealt) * melee;
 
-    qDebug() << "Damage dealt to city:" << damageDealt << "damage sustained:" << damageSustained;
-
     city->SetCityHealth(city->GetCityHealth() - damageDealt);
     attacker->DealDamage(damageSustained);
     attacker->RequiresOrders = false;
+
+    qDebug() << "Damage dealt to city:" << damageDealt << "damage sustained:" << damageSustained;
 }
 
 /*
@@ -323,6 +328,35 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
     case TRADE_POST:
         gold = 2;//TRADING POST INCREASES GOLD YIELD BY 2
         break;
+    case QUARRY:
+        gold = 2;
+        break;
+    case PASTURE:
+        if(currentTile->GetStratResource() == HORSES)
+            production = 1;
+        else
+            food = 1;
+        break;
+    case CAMP:
+        if(currentTile->GetLuxResource() == DEER)
+            food = 1;
+        else
+            gold = 1;
+        break;
+    case FISHING_BOAT:
+        if(currentTile->GetLuxResource() == FISH)
+            food = 1;
+        else if(currentTile->GetLuxResource() == WHALES)
+        {
+            gold = 1;
+            food = 1;
+        }
+        else
+            gold = 1;
+        break;
+    case OIL_WELL:
+        production = 1;
+        break;
     default:
         break;
     }
@@ -332,7 +366,6 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
         currentTile->SetTileImprovement(improvement);//set this tile to have the improvement specified
         currentTile->SetYield(gold, production, science, food, culture);//update the yield to reflect new changes
         unit->Use();//use up the unit
-
     }
 
     if(unit->GetRemainingUses() <= 0)

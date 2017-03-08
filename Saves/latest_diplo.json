@@ -1,0 +1,42 @@
+{
+    "diplomacyitems": [
+        {
+            "displaystring": "Gandhi (You)\t(India)\n",
+            "leader": "Gandhi",
+            "nation": 2,
+            "warchart": [
+                {
+                    "targetnation": 2,
+                    "timesatwarwith": 0,
+                    "warstartedon": 0,
+                    "warstatus": 0
+                },
+                {
+                    "targetnation": 7,
+                    "timesatwarwith": 1,
+                    "warstartedon": 0,
+                    "warstatus": 1
+                }
+            ]
+        },
+        {
+            "displaystring": "Hiawatha \t(Iroquois)\n",
+            "leader": "Hiawatha",
+            "nation": 7,
+            "warchart": [
+                {
+                    "targetnation": 2,
+                    "timesatwarwith": 1,
+                    "warstartedon": 0,
+                    "warstatus": 1
+                },
+                {
+                    "targetnation": 7,
+                    "timesatwarwith": 0,
+                    "warstartedon": 0,
+                    "warstatus": 0
+                }
+            ]
+        }
+    ]
+}

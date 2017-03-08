@@ -69,7 +69,6 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
 
 Diplomacy::~Diplomacy()
 {
-    qDebug() << "   Diplomacy Dec'tor called";
     foreach(DiplomacyItem* di, diploItemList)
     {
         if(di != NULL)
@@ -86,8 +85,6 @@ Diplomacy::~Diplomacy()
 
     delete declareWar;
     delete makePeace;
-
-    qDebug() << "   --Diplomacy Deconstructed";
 }
 
 void Diplomacy::UpdateTurn()
@@ -95,9 +92,17 @@ void Diplomacy::UpdateTurn()
     turn++;
 }
 
-void Diplomacy::UpdateLeader()
+void Diplomacy::UpdateLeader(int row)
 {
-    selectLeader(leaderListArea->item(0));
+    leaderListArea->setCurrentRow(row);
+}
+
+void Diplomacy::MeetPlayer(int row)
+{
+    diploItemList.at(row)->hasMetPlayer = true;
+    diploItemList.at(row)->displayString = QString("%1 \t(%2)\n").arg(diploItemList.at(row)->leaderName).arg(UnitController::NationName(diploItemList.at(row)->nation));
+    leaderListArea->takeItem(row);
+    leaderListArea->insertItem(row, diploItemList.at(row)->displayString);
 }
 
 void Diplomacy::SetLeaderImage(int index, QPixmap &image)
@@ -115,6 +120,7 @@ void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
         dio["nation"] = di->nation;
         dio["leader"] = di->leaderName;
         dio["displaystring"] = di->displayString;
+        dio["hasmetplayer"] = di->hasMetPlayer;
 
         QJsonArray whArray;
         foreach(WarHistory wh, di->warChart)
@@ -137,20 +143,21 @@ void Diplomacy::WriteDiploSaveData(QJsonObject &obj) const
 void Diplomacy::ReadDiploSaveData(const QJsonObject &obj)
 {
     QJsonArray dArray = obj["diplomacyitems"].toArray();
-
+    DiplomacyItem *di;
     for(int i = 0; i < dArray.size(); i++)
     {
         QJsonObject dio = dArray.at(i).toObject();
-        DiplomacyItem *di = new DiplomacyItem();
+        di = new DiplomacyItem{QPixmap(), " ", QString(" "), NO_NATION};
         di->nation = static_cast<Nation>(dio["nation"].toInt());
-        di->leaderName = dio["leadername"].toString();
+        di->leaderName = dio["leader"].toString();
         di->displayString = dio["displaystring"].toString();
+        di->hasMetPlayer = dio["hasmetplayer"].toBool();
 
         QJsonArray whArray = dio["warchart"].toArray();
         for(int j = 0; j < whArray.size(); j++)
         {
-            QJsonObject who = whArray.at(i).toObject();
-            WarHistory wh;
+            QJsonObject who = whArray.at(j).toObject();
+            WarHistory wh{NO_NATION, 0, 0, AT_PEACE};
             wh.nation = static_cast<Nation>(who["targetnation"].toInt());
             wh.timesAtWarWith = who["timesatwarwith"].toInt();
             wh.warStartedOn = who["warstartedon"].toInt();
@@ -233,14 +240,15 @@ void Diplomacy::AddLeader(QString _name, QPixmap _image, Nation _nation, bool is
             di->warChart.push_back(wh);
         }
 
-        di->displayString = QString("%1 \t(%2)\n").arg(_name).arg(UnitController::NationName(_nation));
-
+        di->displayString = QString("Unmet Player %1 \t( ? )\n").arg(diploItemList.size());
+        di->hasMetPlayer = false;
         di->warChart.push_back(WarHistory{_nation, 0, 0, SELF});
     }
     else
     {
         di->displayString = QString("%1 (You)\t(%2)\n").arg(_name).arg(UnitController::NationName(_nation));
         di->warChart.push_back(WarHistory{_nation, 0, 0, SELF});
+        di->hasMetPlayer = true;
     }
 
     leaderListArea->addItem(di->displayString);
@@ -260,24 +268,18 @@ void Diplomacy::RemoveLeader(Nation nation)
     }
 }
 
-void Diplomacy::DeclareWarOn(Nation target, int targetIndex, Nation aggressor)
+void Diplomacy::DeclareWarOn(Nation target, int targetIndex, Nation aggressor, int aggressorIndex)
 {
     for(int i = 0; i < diploItemList.at(targetIndex)->warChart.size(); i++)
     {
         if(diploItemList.at(targetIndex)->warChart.at(i).nation == aggressor)
         {
-            WarHistory wh{NO_NATION, 0,0, AT_PEACE};
-            wh.nation = aggressor;
+            WarHistory wh{aggressor, turn, 0, AT_WAR};
             wh.timesAtWarWith = diploItemList.at(targetIndex)->warChart.at(i).timesAtWarWith + 1;
-            wh.warStartedOn = turn;
 
             if(diploItemList.at(targetIndex)->warChart.at(i).timesAtWarWith >= 4)
             {
                 wh.warStat = PERMANENT_WAR;
-            }
-            else
-            {
-                wh.warStat = AT_WAR;
             }
 
             diploItemList.at(targetIndex)->warChart.replace(i, wh);
@@ -285,21 +287,15 @@ void Diplomacy::DeclareWarOn(Nation target, int targetIndex, Nation aggressor)
         }
     }
 
-    WarHistory wh{NO_NATION, 0, 0, AT_PEACE};
-    wh.nation = target;
-    wh.timesAtWarWith = diploItemList.at(0)->warChart.at(targetIndex).timesAtWarWith + 1;
-    wh.warStartedOn = turn;
+    WarHistory wh{target, turn, 0, AT_WAR};
+    wh.timesAtWarWith = diploItemList.at(aggressorIndex)->warChart.at(targetIndex).timesAtWarWith + 1;
 
-    if(diploItemList.at(0)->warChart.at(targetIndex).timesAtWarWith >= 4)
+    if(diploItemList.at(aggressorIndex)->warChart.at(targetIndex).timesAtWarWith >= 4)
     {
         wh.warStat = PERMANENT_WAR;
     }
-    else
-    {
-        wh.warStat = AT_WAR;
-    }
 
-    diploItemList.at(0)->warChart.replace(targetIndex, wh);
+    diploItemList.at(aggressorIndex)->warChart.replace(targetIndex, wh);
 }
 
 bool Diplomacy::MakePeaceWith(Nation player, int targetIndex, Nation ai)
@@ -308,8 +304,7 @@ bool Diplomacy::MakePeaceWith(Nation player, int targetIndex, Nation ai)
     {
         if(diploItemList.at(targetIndex)->warChart.at(i).nation == player)
         {
-            WarHistory wh{NO_NATION, 0, 0, AT_PEACE};
-            wh.nation = player;
+            WarHistory wh{player, 0, 0, AT_PEACE};
             wh.timesAtWarWith = diploItemList.at(targetIndex)->warChart.at(i).timesAtWarWith;
             wh.warStartedOn = diploItemList.at(targetIndex)->warChart.at(i).warStartedOn;
             diploItemList.at(targetIndex)->warChart.replace(i, wh);
@@ -321,7 +316,7 @@ bool Diplomacy::MakePeaceWith(Nation player, int targetIndex, Nation ai)
     {
         if(diploItemList.at(0)->warChart.at(i).nation == ai)
         {
-            diploItemList.at(0)->warChart.replace(i, WarHistory{diploItemList.at(0)->nation, diploItemList.at(0)->warChart.at(i).warStartedOn, diploItemList.at(0)->warChart.at(i).timesAtWarWith, AT_PEACE});
+            diploItemList.at(0)->warChart.replace(i, WarHistory{player, diploItemList.at(0)->warChart.at(i).warStartedOn, diploItemList.at(0)->warChart.at(i).timesAtWarWith, AT_PEACE});
             return true;
         }
     }
@@ -332,10 +327,20 @@ bool Diplomacy::MakePeaceWith(Nation player, int targetIndex, Nation ai)
 void Diplomacy::selectLeader(QListWidgetItem *item)
 {
     DiplomacyItem *d = diploItemList.at(leaderListArea->currentRow());
-    leaderName->setText(d->leaderName);
-    leaderImage->setPixmap(d->image.scaled(350,350));
-    leaderImage->setFixedSize(350, 350);
-    nationName->setText(UnitController::NationName(d->nation));
+    if(d->hasMetPlayer)
+    {
+        leaderName->setText(d->leaderName);
+        leaderImage->setPixmap(d->image.scaled(350,350));
+        leaderImage->setFixedSize(350, 350);
+        nationName->setText(UnitController::NationName(d->nation));
+    }
+    else
+    {
+        leaderName->setText(QString("Unmet Player %1").arg(leaderListArea->currentRow()));
+        leaderImage->setText("  ?  ");
+        leaderImage->setFixedSize(350, 350);
+        nationName->setText("Unknown");
+    }
 
     QString war(" ");
     bool first = true;
@@ -355,7 +360,7 @@ void Diplomacy::selectLeader(QListWidgetItem *item)
     }
     atWarWith->setText(war);
 
-    if((leaderListArea->currentRow() != 0))
+    if((leaderListArea->currentRow() != 0) && d->hasMetPlayer)
     {
         if(d->warChart.at(0).warStat == AT_WAR || d->warChart.at(0).warStat == PERMANENT_WAR)
         {
@@ -378,11 +383,11 @@ void Diplomacy::selectLeader(QListWidgetItem *item)
 void Diplomacy::slot_delcareWar()
 {
     Nation t = diploItemList.at(leaderListArea->currentRow())->nation;
-    this->DeclareWarOn(t, leaderListArea->currentRow(), player);
+    this->DeclareWarOn(t, leaderListArea->currentRow(), player, 0);
 }
 
 void Diplomacy::slot_makePeace()
 {
     Nation t = diploItemList.at(leaderListArea->currentRow())->nation;
-    this->MakePeaceWith(t, leaderListArea->currentRow(), player);
+    this->MakePeaceWith(player, leaderListArea->currentRow(), t);
 }

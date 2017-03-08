@@ -87,11 +87,15 @@ Renderer::Renderer(int mapSizeX)
     farm = new QPixmap("Assets/Resources/farm.png");
     tradePost = new QPixmap("Assets/Resources/trade_post.png");
     none = new QPixmap("Assets/Resources/noImprovement.png");
+    camp = new QPixmap("Assets/Resources/camp.png");
+    pasture = new QPixmap("Assets/Resources/pasture.png");
+    fishingboat = new QPixmap("Assets/Resources/fishingboat.png");
+    quarry = new QPixmap("Assets/Resources/quarry.png");
+    oilwell = new QPixmap("Assets/Resources/oilwell.png");
 }
 
 Renderer::~Renderer()
 {
-    qDebug() << "   Renderer Dec'tor called";
 #ifdef __APPLE__
     foreach(QGraphicsPolygonItem* t, tiles)
     {
@@ -273,16 +277,20 @@ Renderer::~Renderer()
     delete mine;
     delete tradePost;
     delete plantation;
+    delete oilwell;
+    delete quarry;
+    delete fishingboat;
+    delete pasture;
+    delete camp;
     delete farm;
     delete none;
     delete clouds;
     delete hidden;
     delete orders;
+
     #ifndef __APPLE__
         synch.waitForFinished();
     #endif
-    qDebug() << "       Synch finished";
-    qDebug() << "   --Renderer Deconstructed";
 }
 
 /*
@@ -537,7 +545,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         return;
 
     int index;
-
     SelectData selDat;
     while(!data->isEmpty())
     {
@@ -554,7 +561,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // The tile has been selected by the player
         if(selDat.player && !selDat.target)
         {
-            view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::yellow);
             outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = true;
@@ -562,7 +568,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // The tile is contains a unit that can be targeted
         else if(!selDat.player && selDat.target)
         {
-            view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::red);
             outlinePen.setWidth(2);
             map->GetTileAt(index)->Selected = false;
@@ -570,7 +575,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
         // Return the tile to it's default state.
         else if(!selDat.player && !selDat.target)
         {
-            view->removeItem(tileCircles.at(index));
             outlinePen.setColor(Qt::transparent);
             outlinePen.setWidth(1);
             map->GetTileAt(index)->Selected = false;
@@ -578,7 +582,6 @@ void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)
 
         // Update the tileCircle vector and GameView with the
         // new circle information.
-        tileCircles.replace(index, view->addEllipse(map->GetTileAt(index)->GetTileRect(), outlinePen));
         tileCircles.at(index)->setPen(outlinePen);
         tileCircles.at(index)->setZValue(0);
     }
@@ -1315,190 +1318,6 @@ void Renderer::PrepareForDelete(GameView *view)
     {
         view->removeItem(i);
     }
-
-//    foreach(QGraphicsPolygonItem* t, tiles)
-//    {
-//        if(itemList.contains(t))
-//        {
-//            if(t != NULL)
-//                view->removeItem(t);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* p, tilePixmap)
-//    {
-//        if(itemList.contains(p))
-//        {
-//            if(p != NULL)
-//                view->removeItem(p);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* p, fogOfWar)
-//    {
-//        if(p != NULL)
-//            view->removeItem(p);
-//    }
-
-//    foreach(QGraphicsPixmapItem* oi, ordersIcon)
-//    {
-//        if(itemList.contains(oi))
-//        {
-//            if(oi != NULL)
-//                view->removeItem(oi);
-//        }
-//    }
-
-//    foreach(QGraphicsPolygonItem* mb, mapBorders)
-//    {
-//        if(itemList.contains(mb))
-//        {
-//            if(mb != NULL)
-//                view->removeItem(mb);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* p, resourcePixmap)
-//    {
-//        if(itemList.contains(p))
-//        {
-//            if(p != NULL)
-//                view->removeItem(p);
-//        }
-//    }
-
-//    foreach(QGraphicsEllipseItem* e, tileCircles)
-//    {
-//        if(itemList.contains(e))
-//        {
-//            if(e != NULL)
-//                view->removeItem(e);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* tw, tileWorked)
-//    {
-//        if(itemList.contains(tw))
-//        {
-//            if(tw != NULL)
-//                view->removeItem(tw);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* fi, fortifiedIcon)
-//    {
-//        if(itemList.contains(fi))
-//        {
-//            if(fi != NULL)
-//                view->removeItem(fi);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* tii, tileImprovementIcons)
-//    {
-//        if(itemList.contains(tii))
-//        {
-//            if(tii != NULL)
-//                view->removeItem(tii);
-//        }
-//    }
-
-//    foreach(QGraphicsPolygonItem* cb, cityBorders)
-//    {
-//        if(itemList.contains(cb))
-//        {
-//            if(cb != NULL)
-//                view->removeItem(cb);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* cp, cityPixmap)
-//    {
-//        if(itemList.contains(cp))
-//        {
-//            if(cp != NULL)
-//                view->removeItem(cp);
-//        }
-//    }
-
-//    foreach(QGraphicsTextItem* cl, cityLabels)
-//    {
-//        if(itemList.contains(cl))
-//        {
-//            if(cl != NULL)
-//                view->removeItem(cl);
-//        }
-//    }
-
-//    foreach(QGraphicsRectItem* chb, cityHealthBars)
-//    {
-//        if(itemList.contains(chb))
-//        {
-//            if(chb != NULL)
-//                view->removeItem(chb);
-//        }
-//    }
-
-//    foreach(QGraphicsRectItem* cpb, cityProductionBars)
-//    {
-//        if(itemList.contains(cpb))
-//        {
-//            if(cpb != NULL)
-//                view->removeItem(cpb);
-
-//        }
-//    }
-
-//    foreach(QGraphicsRectItem* cgb, cityGrowthBars)
-//    {
-//        if(itemList.contains(cgb))
-//        {
-//            if(cgb != NULL)
-//                view->removeItem(cgb);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* cbo, cityBarOutlines)
-//    {
-//        if(itemList.contains(cbo))
-//        {
-//            if(cbo != NULL)
-//                view->removeItem(cbo);
-//        }
-//    }
-
-//    foreach(QGraphicsTextItem* cpl, cityPopulationLabels)
-//    {
-//        if(itemList.contains(cpl))
-//        {
-//            if(cpl != NULL)
-//                view->removeItem(cpl);
-//        }
-//    }
-
-//    foreach(QGraphicsPixmapItem* up, unitPixmap)
-//    {
-//        if(up != NULL)
-//            view->removeItem(up);
-//    }
-
-//    foreach(QGraphicsRectItem* uhb, unitHealthBars)
-//    {
-//        if(uhb != NULL)
-//            view->removeItem(uhb);
-//    }
-
-//    foreach(QGraphicsLineItem* gl, gridLines)
-//    {
-//        if(gl != NULL)
-//            view->removeItem(gl);
-//    }
-
-//    foreach(QGraphicsTextItem* gc, gridCoords)
-//    {
-//        if(gc != NULL)
-//            view->removeItem(gc);
-//    }
 }
 
 /*
@@ -1506,14 +1325,11 @@ void Renderer::PrepareForDelete(GameView *view)
  */
 void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
 {
-    qDebug() << "   Drawing City borders for" << city->GetName();
     SetOutlinePen(owner);
 
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
     cityBorders.last()->setZValue(3);
-
-    qDebug() << "   --done";
 }
 
 /*
@@ -1603,7 +1419,23 @@ void Renderer::SetTileImprovement(TileImprovement ti, Tile* tile, GameView *view
     case NONE:
         tileImprovementIcons.replace(index, view->addPixmap(*none));
         break;
+    case QUARRY:
+        tileImprovementIcons.replace(index, view->addPixmap(*quarry));
+        break;
+    case FISHING_BOAT:
+        tileImprovementIcons.replace(index, view->addPixmap(*fishingboat));
+        break;
+    case PASTURE:
+        tileImprovementIcons.replace(index, view->addPixmap(*pasture));
+        break;
+    case CAMP:
+        tileImprovementIcons.replace(index, view->addPixmap(*camp));
+        break;
+    case OIL_WELL:
+        tileImprovementIcons.replace(index, view->addPixmap(*oilwell));
     case ROAD:
+        break;
+    default:
         break;
     }
 
@@ -1641,6 +1473,7 @@ void Renderer::SetTileTooltip(int index, Yield tileYield, Nation owner, QString 
 void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
 {
     int index = city->GetCityRenderIndex();
+    static bool textAdjusted = false;
 
     view->removeItem(cityGrowthBars.at(index));
     int barSize;
@@ -1664,8 +1497,10 @@ void Renderer::UpdateCityGrowthBar(City *city, GameView *view)
     cityGrowthBars.at(index)->setZValue(4);
 
     cityPopulationLabels.at(index)->setPlainText(QString("%1").arg(city->GetCitizenCount()));
-    if(city->GetCitizenCount() > 9)
+
+    if(city->GetCitizenCount() == 10 && !textAdjusted)
     {
+        textAdjusted = true;
         cityPopulationLabels.at(index)->setFont(QFont("Helvetica", 6, QFont::Normal));
         cityPopulationLabels.at(index)->moveBy(-2, 0);
     }
@@ -1700,6 +1535,7 @@ void Renderer::UpdateCityProductionBar(City *city, GameView *view)
     cityProductionBars.at(index)->setZValue(4);
 
     cityLabels.at(index)->setPlainText(QString(" %1 [%2] ").arg(city->GetName()).arg(city->GetCityStrength()));
+
 }
 
 /*
@@ -1737,6 +1573,7 @@ void Renderer::AddCityLabel(City* city, GameView *view)
     cityLabels.last()->setFont(QFont("Helvetica", 8, QFont::Normal));
     cityLabels.last()->font().setStretch(QFont::ExtraCondensed);
 
+
     cityLabels.last()->setPos(city->GetCityTile()->GetCenter().x() - (cityLabels.last()->boundingRect().width() / 2) - 2,
                               city->GetCityTile()->GetCityLabelPoint().y() - 5);
 }
@@ -1765,13 +1602,14 @@ QDir::setCurrent(bin.absolutePath());
 
     if(!conqueredCity)
     {
-        city->SetCityRenderIndex(this->cityBorders.size());
+        city->SetCityRenderIndex(this->cityPixmap.size()-1);
 
         this->AddCityLabel(city, view);
         this->AddCityHealthBars(city, view);
     }
     else
     {
+        qDebug() << "   Updating conquered city";
         this->UpdateCityBorders(city, view, city->GetControllingCiv());
         this->UpdateCityGrowthBar(city, view);
         this->UpdateCityHealthBar(city, view);

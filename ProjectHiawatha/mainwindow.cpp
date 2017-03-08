@@ -18,6 +18,8 @@ bin.cdUp();
 QDir::setCurrent(bin.absolutePath());
 #endif
 
+
+
     game = NULL;
     options = NULL;
     about = NULL;

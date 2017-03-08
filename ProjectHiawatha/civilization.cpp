@@ -46,7 +46,51 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
     if(isAI)
     {
         this->isAIPlayer = true;
+        this->hasMetPlayer = false;
     }
+    else
+        this->hasMetPlayer = true;
+}
+
+Civilization::Civilization(QJsonObject obj, bool isAI)
+{
+    LeaderName = obj["name"].toString();
+    name = static_cast<Nation>(obj["nation"].toInt());
+
+    this->totalCivYield = new Yield(0, 0, 0, 0, 0);
+    this->cityIndex = 0;
+    this->totalGold = 0;
+    this->totalScience = 0;
+    this->totalCulture = 0;
+    this->accumulatedScience = 0;
+    this->techIndex = 0;
+    this->cityFounded = false;
+    this->alive = true;
+    this->capitalsControlled = 1;
+    this->atWar = false;
+    this->militaryStrength = 0;
+
+    this->isAIPlayer = isAI;
+
+    if(isAI)
+    {
+        this->hasMetPlayer = false;
+    }
+    else
+    {
+        this->hasMetPlayer = true;
+    }
+
+    this->loadCities(obj["citynames"].toArray());
+    this->totalScience += this->getCivYield()->GetScienceYield();
+    this->totalCulture += this->getCivYield()->GetCultureYield();
+    this->totalGold += this->totalCivYield->GetGoldYield();
+
+}
+
+Civilization::~Civilization()
+{
+
 }
 
 
@@ -181,15 +225,16 @@ Update_t Civilization::UpdateProgress()
      * g = game progress factor
      *      g = currentTurn / approx. endTurn
      */
-    double gpf =  turn / 500.0;
+    double gpf =  turn / 5000.0;
 
-    int maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
+    maintenance = pow((this->UnitList.size() * 200 * (1 + gpf)) / 100, (1 + gpf));
 
-    this->totalCivYield->ChangeYield(Yield::GOLD, maintenance * -1);
-    this->totalGold += this->getCivYield()->GetGoldYield();
-//    this->totalGold -= maintenance;
+    this->GPT = totalCivYield->GetGoldYield();
+    this->totalGold += GPT;
+    this->totalGold -= maintenance;
+    GptAdjusted = GPT - maintenance;
 
-    if(this->totalGold < 0)
+    if(this->GptAdjusted < 0)
     {
         losingGold = true;
     }
@@ -233,6 +278,11 @@ int Civilization::getCityIndex()
 bool Civilization::isCivAI()
 {
     return this->isAIPlayer;
+}
+
+bool Civilization::HasCivMetPlayer()
+{
+    return hasMetPlayer;
 }
 
 void Civilization::loadTechs(QString filename)
@@ -288,8 +338,10 @@ void Civilization::IncrementCapitalsControlled()
 
 void Civilization::SetAtWar(int enemyCivListIndex)
 {
-    this->atWarWithCivListIndex.push_back(enemyCivListIndex);
-    this->atWar = true;
+    if(!this->atWarWithCivListIndex.contains(enemyCivListIndex)){
+        this->atWarWithCivListIndex.push_back(enemyCivListIndex);
+        this->atWar = true;
+    }
 }
 
 void Civilization::MakePeace(int enemyCivListIndex)
@@ -321,14 +373,24 @@ void Civilization::WriteData(QJsonObject &obj) const
     obj["totalcivyield"] = yo;
 
     obj["totalgold"] = totalGold;
+    obj["maintenance"] = maintenance;
+    obj["gpt"] = GPT;
+    obj["gptadjusted"] = GptAdjusted;
     obj["losinggold"] = losingGold;
     obj["totalscience"] = totalScience;
     obj["totalculture"] = totalCulture;
     obj["accumulatedscience"] = accumulatedScience;
     obj["capitalscontrolled"] = capitalsControlled;
     obj["militarystrength"] = militaryStrength;
-
+    obj["cityfounded"] = cityFounded;
+    obj["hasmetplayer"] = hasMetPlayer;
     obj["atwar"] = atWar;
+    QJsonArray warVec;
+    foreach(int i, atWarWithCivListIndex)
+    {
+        warVec.push_back(i);
+    }
+    obj["atwarwithvector"] = warVec;
 
     QJsonArray units;
     foreach(Unit* u, this->UnitList)
@@ -397,13 +459,24 @@ void Civilization::ReadData(const QJsonObject &obj)
     alive = obj["alive"].toBool();
 
     totalGold = obj["totalgold"].toInt();
+    maintenance = obj["maintenance"].toInt();
+    GPT = obj["gpt"].toInt();
+    GptAdjusted = obj["gptadjusted"].toInt();
     losingGold = obj["losinggold"].toBool();
     totalScience = obj["totalscience"].toInt();
     totalCulture = obj["totalculture"].toInt();
     accumulatedScience = obj["accumulatedscience"].toInt();
     capitalsControlled = obj["capitalscontrolled"].toInt();
     militaryStrength = obj["militarystrength"].toInt();
+    cityFounded = obj["cityfounded"].toBool();
     atWar = obj["atwar"].toBool();
+    hasMetPlayer = obj["hasmetplayer"].toBool();
+
+    QJsonArray warVec = obj["atwarwithvector"].toArray();
+    for(int i = 0; i < warVec.size(); i++)
+    {
+        atWarWithCivListIndex.push_back(warVec.at(i).toInt());
+    }
 
     QJsonArray uArray = obj["units"].toArray();
     for(int i = 0; i < uArray.size(); i++)
@@ -493,6 +566,11 @@ void Civilization::setCurrentTech(Technology *tech)
     currentTech = tech;
 }
 
+void Civilization::Puchased(int purchaseAmount)
+{
+    totalGold -= purchaseAmount;
+}
+
 void Civilization::setNextTech(Technology *tech)
 {
     nextTech = tech;
@@ -527,6 +605,14 @@ void Civilization::loadCities(QString filename)
     }
 }
 
+void Civilization::loadCities(QJsonArray arr)
+{
+    for(int i = 0; i < arr.size(); i++)
+    {
+        this->initialCityList.push_back(arr.at(i).toString());
+    }
+}
+
 /*
  * The following threat related functions are for the AI's use.
  */
@@ -550,6 +636,11 @@ void Civilization::clearThreats()
     this->highThreats.clear();
     this->midThreats.clear();
     this->lowThreats.clear();
+}
+
+void Civilization::MeetPlayer()
+{
+    this->hasMetPlayer = true;
 }
 
 QVector<Unit *> Civilization::getLowThreats()
@@ -627,6 +718,21 @@ int Civilization::queueSize()
     return this->cityFounding.size();
 }
 
+int Civilization::GetMaintenance()
+{
+    return maintenance;
+}
+
+int Civilization::GetGptAdjusted()
+{
+    return GptAdjusted;
+}
+
+int Civilization::GetGPT()
+{
+    return GPT;
+}
+
 bool Civilization::isAtWar()
 {
     return this->atWar;
@@ -649,6 +755,7 @@ void Civilization::AddUnit(Unit *unit)
  */
 void Civilization::RemoveCity(int cityIndex)
 {
+    qDebug() << "   Removing city";
     this->currentCityList.removeAt(cityIndex);
     for(int i = 0; i < currentCityList.size(); i++)
     {
@@ -664,6 +771,8 @@ void Civilization::RemoveCity(int cityIndex)
     {
         this->alive = false;
     }
+
+    qDebug() << "   --done";
 }
 
 /*

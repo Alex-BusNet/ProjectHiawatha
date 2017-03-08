@@ -29,8 +29,12 @@ City::City()
     this->isCaptial = false;
     this->isOriginalCapital = false;
     this->fullyExpanded = false;
-    this->hasWorker=false;
+    this->hasWorker = false;
+    this->hasGarrison = false;
     this->cityID = -1;
+    this->goldYield = 0;
+    this->productionYield = 0;
+    this->scienceYield = 0;
 
     this->StationedMilitary = NULL;
     this->StationedWorkers = NULL;
@@ -40,7 +44,6 @@ City::City()
 
 City::~City()
 {
-    qDebug() << "   City Dec'tor called for" << this->name;
     foreach(Unit* unit, initialUnitList)
     {
         if(unit != NULL)
@@ -82,8 +85,6 @@ City::~City()
 
     if(cityTotalYield != NULL)
         delete cityTotalYield;
-
-    qDebug() << "   --City Deconstructed";
 }
 
 QVector<Unit *> City::getInitialUnitList()
@@ -224,7 +225,6 @@ Update_t City::UpdateProgress()
 
     if(turnsToBorderGrowth == 0 && !fullyExpanded)
     {
-        qDebug() << "       Update City Borders" << this->GetName();
         //Gets the first available tile from the tile queue, and adds it to cityControlledTiles.
         foreach(Tile* tile, this->tileQueue)
         {
@@ -313,9 +313,9 @@ Update_t City::UpdateProgress()
         this->productionFinished = true;
 
         if(this->getIsUnit())
-            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, true});
+            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, true, cityID/100});
         else
-            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, false});
+            QueueData::enqueue(CityProdData{this->cityIndex, this->productionIndex, false, cityID/100});
     }
 
     if(this->cityHealth < this->maxHealth)
@@ -672,6 +672,9 @@ void City::WriteCitySaveData(QJsonObject &obj) const
     obj["scienceyield"] = scienceYield;
     obj["growthcost"] = growthCost;
     obj["foodsurplus"] = foodSurplus;
+
+    obj["hasworker"] = hasWorker;
+    obj["hasgarrison"] = hasGarrison;
 }
 
 void City::ReadCitySaveData(const QJsonObject &obj)
@@ -720,6 +723,14 @@ void City::ReadCitySaveData(const QJsonObject &obj)
     scienceYield = obj["scienceyield"].toInt();
     growthCost = obj["growthcost"].toInt();
     foodSurplus = obj["foodsurplus"].toInt();
+
+    hasWorker = obj["hasWorker"].toBool();
+    hasGarrison = obj["hasGarrison"].toBool();
+}
+
+void City::setPurchased(bool p)
+{
+    this->purchased = p;
 }
 
 void City::SetCitizenCount(int count)
@@ -994,6 +1005,11 @@ bool City::MSDIntersects(QPolygon targetMSD)
 
     //MSDs do not intersect
     return false;
+}
+
+bool City::wasPurchased()
+{
+    return this->purchased;
 }
 
 void City::loadUnits(QString filename)

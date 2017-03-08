@@ -85,6 +85,8 @@ public:
     void WriteCitySaveData(QJsonObject &obj) const;
     void ReadCitySaveData(const QJsonObject &obj);
 
+    void setPurchased(bool p);
+
     QString GetName();
     QString getProductionName();
 
@@ -143,7 +145,7 @@ public:
     bool getHasWorker();
     bool HasGarrisonUnit();
     bool MSDIntersects(QPolygon targetMSD);
-
+    bool wasPurchased();
     ~City();
 
     int loadedCityTileIndex;
@@ -176,7 +178,7 @@ private:
     bool initialized;
     bool stagnant;
     bool fullyExpanded;
-
+    bool purchased;
     int productionYield;
     int scienceYield;
     int goldYield;

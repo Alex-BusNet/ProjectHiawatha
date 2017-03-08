@@ -19,6 +19,6 @@ typedef struct {int gold, production, research, food, culture;} YieldStruct;
 typedef struct{int IconIndex; QString ToolTipMessage;} Notification;
 typedef struct{bool atWar; QVector<int> warringCivListIndex;} WarData;
 
-typedef struct{int cityIndex; int producedUnitIndex; bool isUnit;} CityProdData;
+typedef struct{int cityIndex; int producedUnitIndex; bool isUnit; int civIndex;} CityProdData;
 
 #endif // DATATYPES_H
