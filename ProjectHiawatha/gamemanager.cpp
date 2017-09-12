@@ -13,6 +13,7 @@
 #include <random>
 #include <QTime>
 #include "queuedata.h"
+//#define DEBUG
 
 QPen gmPen(Qt::black);
 QBrush gmBrush(Qt::black);
@@ -694,7 +695,9 @@ void GameManager::TurnController()
             // turn and move on before the AI thread has completly finished.
             future.waitForFinished();
 #endif
+            qDebug() <<"Ending turn for" << currentTurn;
             EndTurn();
+            qDebug() << "--";
             AiTurnInProgress = false;
         }
     }
@@ -713,26 +716,27 @@ void GameManager::StartTurn()
         {
             Victory();
         }
-    }
-    for(int i = 0; i < civList.size(); i++)
-    {
-        if(i == 0)
+//    }
+        for(int i = 0; i < civList.size(); i++)
         {
-            delete endGameText;
-            endGameText = new QString("Capitals Controlled:");
-            endGameText->append(QString("\nYou      %1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
-        }
-        else
-        {
-            if(civList.at(i)->alive && civList.at(i)->HasCivMetPlayer())
-                endGameText->append(QString("\n%1     %2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+            if(i == 0)
+            {
+                delete endGameText;
+                endGameText = new QString("Capitals Controlled:");
+                endGameText->append(QString("\nYou      %1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+            }
             else
-                endGameText->append(QString("\nUnmet Player %1    %2/%3").arg(i).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+            {
+                if(civList.at(i)->alive && civList.at(i)->HasCivMetPlayer())
+                    endGameText->append(QString("\n%1     %2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+                else
+                    endGameText->append(QString("\nUnmet Player %1    %2/%3").arg(i).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+            }
         }
-    }
 
-    endGameProgress->setText(*endGameText);
-    endGameProgress->setAlignment(Qt::AlignRight);
+        endGameProgress->setText(*endGameText);
+        endGameProgress->setAlignment(Qt::AlignRight);
+    }
 
     //Update the progress in all cities the Civ controls.
     Update_t update = civList.at(currentTurn)->UpdateProgress();
@@ -854,7 +858,6 @@ void GameManager::StartTurn()
     //--------------------------------------------------------
     // The following section updates the science yield of the
     // active civ object
-
     int scienceYield = civList.at(currentTurn)->getCivYield()->GetScienceYield();
     civList.at(currentTurn)->setAccumulatedScience(scienceYield);
 
@@ -1821,7 +1824,7 @@ void GameManager::InitVariables(bool fullscreen)
     {
         this->setFixedSize(1400, 700);
         this->setWindowTitle("Project Hiawatha");
-        gameView->setFixedWidth(1195);
+//        gameView->setFixedWidth(1195);
         this->setWindowFlags(Qt::WindowMinimizeButtonHint);
     }
     else
@@ -1853,7 +1856,7 @@ void GameManager::InitVariables(bool fullscreen)
 
 void GameManager::LoadJsonData()
 {
-    QFile buildExport("Data/buildings.json");
+    QFile buildExport("Assets/Data/buildings.json");
 
     if(!buildExport.open(QIODevice::ReadOnly))
     {
@@ -1866,7 +1869,7 @@ void GameManager::LoadJsonData()
         BuildingData = build.array();
     }
 
-    QFile unitExport("Data/units.json");
+    QFile unitExport("Assets/Data/units.json");
 
     if(!unitExport.open(QIODevice::ReadOnly))
     {
@@ -1880,7 +1883,7 @@ void GameManager::LoadJsonData()
 
     }
 
-    QFile techExport("Data/techList.json");
+    QFile techExport("Assets/Data/techList.json");
 
     if(!techExport.open(QIODevice::ReadOnly))
     {
@@ -2043,8 +2046,8 @@ void GameManager::InitButtons()
     connect(help, SIGNAL(clicked(bool)), this, SLOT(OpenHelp()));
     help->setShortcut(QKeySequence(Qt::Key_Z));
 
-//    toggleFoW = new QPushButton("Toggle FoW");
-//    connect(toggleFoW, SIGNAL(clicked(bool)), this, SLOT(toggleFog()));
+    toggleFoW = new QPushButton("Toggle FoW");
+    connect(toggleFoW, SIGNAL(clicked(bool)), this, SLOT(toggleFog()));
 
 }
 
@@ -2079,9 +2082,9 @@ void GameManager::InitLayouts()
     gameLayout->addWidget(techTree);
 
 //    if(this->isFullScreen())
-//        ns->setGeometry(this->width() - 150, 20, 50, this->height() - 40);
+        ns->setGeometry(this->width() - 150, 20, 50, this->height() - 40);
 //    else
-        gameLayout->addWidget(ns);
+//        gameLayout->addWidget(ns);
 
     gameLayout->setGeometry(QRect(100, 20, this->width(), this->height()));
     diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
@@ -2098,6 +2101,9 @@ void GameManager::InitLayouts()
     playerControlButtons->addWidget(frame);
     playerControlButtons->addWidget(techLabel);
     playerControlButtons->addWidget(techText);
+#ifdef DEBUG
+    playerControlButtons->addWidget(toggleFoW);
+#endif
     playerControlButtons->addWidget(goldFocus);
     playerControlButtons->addWidget(productionFocus);
     playerControlButtons->addWidget(scienceFocus);
@@ -2189,7 +2195,7 @@ void GameManager::InitRenderData()
 {
     renderer->DrawHexScene(map, gameView);
     InitYieldDisplay();
-
+    qDebug() << "Init yield Finished";
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
@@ -2236,9 +2242,13 @@ void GameManager::InitRenderData()
         }
         else
         {
-            endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
+            if(civList.at(i)->HasCivMetPlayer())
+                endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
+            else
+                endGameText->append(QString("\nUnmet Player %1     1/%2").arg(i).arg(civList.size()));
         }
 
+        qDebug() << "Drawing Units";
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
@@ -2940,11 +2950,7 @@ void GameManager::toggleDiplomacy()
     else
     {
         diplo->hide();
-<<<<<<< HEAD
-        diplo->UpdateLeader();
-=======
         diplo->UpdateLeader(0);
->>>>>>> 0dbe840785365bb31166bc65f0a7ad73b46e92a1
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
         diploVisible = false;
     }
@@ -3244,7 +3250,6 @@ void GameManager::parseItem()
     this->showTechTreeButton->setEnabled(false);
     this->showCity(civList[0]->GetCityAt(clv->currentRow()));
 }
-<<<<<<< HEAD
 
 void GameManager::toggleFog()
 {
@@ -3283,6 +3288,3 @@ void GameManager::toggleFog()
 
     toggleOn = !toggleOn;
 }
-
-=======
->>>>>>> 0dbe840785365bb31166bc65f0a7ad73b46e92a1

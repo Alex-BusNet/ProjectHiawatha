@@ -27,9 +27,6 @@ Civilization::Civilization(Nation name, bool isAI, QString leaderName)
 {
     this->name=name;
     this->LeaderName = leaderName;
-    //set color
-    //spawn a city, and initialize (based on nation)
-    //call updatecityyield and updatecivyield to initialize
     this->totalCivYield = new Yield(0, 0, 0, 0, 0);
     this->cityIndex = 0;
     this->totalGold = 0;
@@ -270,6 +267,11 @@ QString Civilization::GetNextCityName()
 
 }
 
+/*
+ * City Index is used when a new city is founded
+ * in order to grab relevant data, such as city name
+ * that is stored in the civ object.
+ */
 int Civilization::getCityIndex()
 {
     return this->cityIndex;
@@ -566,7 +568,7 @@ void Civilization::setCurrentTech(Technology *tech)
     currentTech = tech;
 }
 
-void Civilization::Puchased(int purchaseAmount)
+void Civilization::Purchased(int purchaseAmount)
 {
     totalGold -= purchaseAmount;
 }

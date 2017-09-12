@@ -413,7 +413,7 @@ void CityScreen::on_purchase_clicked()
             Building* b = new Building();
             b->ReadBuildingSaveData(buildingList.at(ui->listWidget->currentRow()).toObject());
             currentCity->addBuilding(b);
-             playerCiv->Puchased(unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt());
+            playerCiv->Purchased(unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt());
 
         }else
         {
@@ -430,13 +430,10 @@ void CityScreen::on_purchase_clicked()
             currentCity->setProductionIndex(ui->listWidget_2->currentRow());
             currentCity->setIsUnit(true);
             QueueData::enqueue(CityProdData{currentCity->GetCityIndex(), currentCity->getProductionIndex(), true, 0});
-            playerCiv->Puchased(unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt());
+            playerCiv->Purchased(unitList.at(ui->listWidget_2->currentRow()).toObject()["cost"].toInt());
 
-
-
-
-
-        }else
+        }
+        else
         {
             QMessageBox* mBox = new QMessageBox();
             mBox->setText("Insufficient Funds");

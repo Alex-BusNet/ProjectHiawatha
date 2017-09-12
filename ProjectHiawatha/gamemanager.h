@@ -74,7 +74,7 @@ private:
     QPushButton *rangeAttack;
     QPushButton *fortifyUnit;
     QPushButton *help;
-//    QPushButton *toggleFoW;
+    QPushButton *toggleFoW;
 
     QFuture<void> civInit, mapInit;
 
@@ -218,7 +218,7 @@ public slots:
     void OpenHelp();
 
     void parseItem();
-//    void toggleFog();
+    void toggleFog();
 };
 
 #endif // GAMEWINDOW_H

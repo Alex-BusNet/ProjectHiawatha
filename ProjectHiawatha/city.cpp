@@ -628,6 +628,7 @@ void City::WriteCitySaveData(QJsonObject &obj) const
     obj["name"] = name;
     obj["citytileindex"] = cityTile->GetTileIndex();
     obj["cityid"] = cityID;
+    obj["cityindex"] = cityIndex;
     obj["population"] = citizens;
     obj["controlledby"] = controllingCiv;
     obj["turnstobordergrowth"] = turnsToBorderGrowth;
@@ -681,6 +682,7 @@ void City::ReadCitySaveData(const QJsonObject &obj)
 {
     name = obj["name"].toString();
     cityID = obj["cityid"].toInt();
+    cityIndex = obj["cityindex"].toInt();
     citizens = obj["population"].toInt();
     controllingCiv = static_cast<Nation>(obj["controlledby"].toInt());
     turnsToBorderGrowth = obj["turnstobordergrowth"].toInt();

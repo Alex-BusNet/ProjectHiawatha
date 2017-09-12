@@ -42,7 +42,7 @@ public:
     void IncrementCapitalsControlled();
     void SetAtWar(int enemyCivListIndex);
     void setCurrentTech(Technology* tech);
-    void Puchased(int purchaseAmount);
+    void Purchased(int purchaseAmount);
     void setTechIndex();
     void setNextTech(Technology* tech);
     void loadCities(QString filename);
