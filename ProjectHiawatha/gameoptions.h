@@ -50,6 +50,7 @@ private:
     QPixmap pic14;  //("../ProjectHiawatha/Assets/Leaders/Oda_Nobunga.jpg");
     QPixmap pic15;  //("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
     QPixmap pic16;  //("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
+    QPixmap pic17;  //("../ProjectHiawatha/Assets/Leaders/Random.jpg");
 };
 
 #endif // GAMEOPTIONS_H

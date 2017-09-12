@@ -49,7 +49,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QListWidgetItem* item14 = new QListWidgetItem(tr("Japan"), ui->listWidget);
     QListWidgetItem* item15 = new QListWidgetItem(tr("Persia"), ui->listWidget);
     QListWidgetItem* item16 = new QListWidgetItem(tr("Arabia"), ui->listWidget);
-
+    QListWidgetItem* item17 = new QListWidgetItem(tr("Random"), ui->listWidget);
 
     QIcon* icon1 = new QIcon();
     QIcon* icon2 = new QIcon();
@@ -67,6 +67,8 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     QIcon* icon14 = new QIcon();
     QIcon* icon15 = new QIcon();
     QIcon* icon16 = new QIcon();
+    QIcon* icon17 = new QIcon();
+
     //add the icon that correspond to the civ
     icon1->addFile("Assets/Leaders/Icons/CHINA.png");
     icon2->addFile("Assets/Leaders/Icons/GERMANY2.png");
@@ -84,6 +86,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     icon14->addFile("Assets/Leaders/Icons/JAPAN.png");
     icon15->addFile("Assets/Leaders/Icons/PERSIA.png");
     icon16->addFile("Assets/Leaders/Icons/ARABIA.png");
+    icon17->addFile("Assets/Leaders/Icons/unknown.png");
 
     item1->setIcon(*icon1);
     item2->setIcon(*icon2);
@@ -101,6 +104,7 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     item14->setIcon(*icon14);
     item15->setIcon(*icon15);
     item16->setIcon(*icon16);
+    item17->setIcon(*icon17);
 
     ui->listWidget->addItem(item1);
     ui->listWidget->addItem(item2);
@@ -118,14 +122,15 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     ui->listWidget->addItem(item14);
     ui->listWidget->addItem(item15);
     ui->listWidget->addItem(item16);
+    ui->listWidget->addItem(item17);
 
     ui->comboBox->addItem("Duel: 40x24 - 2 Players",0);
     ui->comboBox->addItem("Tiny: 56x36 - 4 Players",0);
     ui->comboBox->addItem("Small: 66x42 - 6 Players",0);
     ui->comboBox->addItem("Standard: 80x52 - 8 Players",0);
-    //Larger maps will be added in future iterations of the software
     ui->comboBox->addItem("Large: 104x64 - 10 Players",0);
     ui->comboBox->addItem("Huge: 128x80 - 12 Players",0);
+
     //Initialize the pics that correpsond to the civs
     pic = QPixmap("Assets/Leaders/Mao.jpg");
     pic2 = QPixmap("Assets/Leaders/George_head.jpg");
@@ -143,13 +148,14 @@ GameOptions::GameOptions(QWidget *parent, bool fullscreen) :
     pic14 = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
     pic15 = QPixmap("Assets/Leaders/Cyrus.jpg");
     pic16 = QPixmap("Assets/Leaders/Harun-Rashid.jpg");
+    pic17 = QPixmap("Assets/Leaders/Random.jpg");
 
-    ui->label_3->setText("Gandhi");
-    ui->label->setPixmap(pic4);
+    ui->label_3->setText("Random");
+    ui->label->setPixmap(pic17);
 
     ui->label->setScaledContents(true);
     ui->pushButton->setFlat(true);
-
+    ui->listWidget->setCurrentRow(ui->listWidget->count() - 1);
 }
 
 GameOptions::~GameOptions()
@@ -262,7 +268,8 @@ void GameOptions::on_pushButton_clicked()
     case 15:
         player = Arabia;
         break;
-    default:player = India;
+    default:
+        player = Random;
 
     }
     //Play a notification
@@ -346,8 +353,8 @@ void GameOptions::updateLeader()
         ui->label->setPixmap(pic16);
         break;
     default:
-        ui->label_3->setText("Gandhi");
-        ui->label->setPixmap(pic4);
+        ui->label_3->setText("Random");
+        ui->label->setPixmap(pic17);
         break;
     }
 }

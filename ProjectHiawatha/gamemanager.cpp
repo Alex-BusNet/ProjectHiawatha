@@ -505,6 +505,15 @@ void GameManager::InitCivs(Nation player, int numAI)
         QJsonDocument doc = QJsonDocument::fromJson(byte);
         QJsonArray civRefData = doc.array();
 
+        srand(time(0));
+        int civNum;
+        QVector<int> selNat;
+
+        if(player == Random)
+        {
+            player = (Nation)(rand() % 16);
+        }
+
         QJsonObject obj = civRefData.at(player).toObject();
         Civilization* civ = new Civilization(obj, false);
 
@@ -517,17 +526,13 @@ void GameManager::InitCivs(Nation player, int numAI)
         civList.push_back(civ);
         diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), player, true);
 
-        srand(time(0));
-        int civNum;
-        QVector<int> selNat;
-
         selNat.push_back(player);
 
         for(int i = 0; i < numAI; i++)
         {
     newCivRand:
             // The modulo number at the end indicates the
-            // max number of civs in the game.
+            // max number of civs in the game minus the random option.
             civNum = rand() % 16;
 
             // look to see if the selected civ has already been chosen
