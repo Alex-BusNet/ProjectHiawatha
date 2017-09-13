@@ -33,6 +33,7 @@ public:
     void addItem(QGraphicsItem *item);
     GameScene *GetScene();
     void ConfigureGraphicsView();
+    void SetCityScreenZoom();
 
     virtual void wheelEvent(QWheelEvent *e);
 

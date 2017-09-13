@@ -174,7 +174,6 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
 {
     QList<Tile*> neighbors;
 
-
     int maxTiles = 1;
     for(int i=1;i<(range+1);i++){
         maxTiles+=(6*i);
@@ -1018,8 +1017,9 @@ newrand:
             civs.at(i)->UpdateCivYield();
         }
     }
-
+#ifdef DEBUG
     qDebug() << "SpawnCivs complete";
+#endif
 }
 
 void Map::GenerateBiomes()

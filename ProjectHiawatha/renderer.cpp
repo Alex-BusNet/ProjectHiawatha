@@ -8,6 +8,7 @@
 #include <chrono>
 #include "resources.h"
 #include "unitcontroller.h"
+//#define DEBUG
 
 //======================================
 //  Render Layers
@@ -492,51 +493,59 @@ QDir::setCurrent(bin.absolutePath());
 
     synch.waitForFinished();
 
+#ifdef DEBUG
     std::chrono::steady_clock::time_point begin;
     std::chrono::steady_clock::time_point end;
 
     begin = std::chrono::steady_clock::now();
+#endif
 
     foreach(QGraphicsPolygonItem *pi, tiles)
     {
         view->addItem(pi);
     }
 
+#ifdef DEBUG
     end = std::chrono::steady_clock::now();
     qDebug() << "   Tile polygons added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
 
     begin = std::chrono::steady_clock::now();
+#endif
+
     foreach(QGraphicsEllipseItem *ei, tileCircles)
     {
         ei->setPen(circlePen);
         view->addItem(ei);
     }
-
+#ifdef DEBUG
     end = std::chrono::steady_clock::now();
     qDebug() << "   Tile circles added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
 
     begin = std::chrono::steady_clock::now();
-
+#endif
     foreach(QGraphicsPixmapItem *pi, fogOfWar)
     {
         view->addItem(pi);
     }
 
+#ifdef DEBUG
     end = std::chrono::steady_clock::now();
     qDebug() << "   Fog of War added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
 
     begin = std::chrono::steady_clock::now();
+#endif
 
     foreach(QGraphicsPixmapItem *pi, resourcePixmap)
     {
        view->addItem(pi);
     }
 
+#ifdef DEBUG
     end = std::chrono::steady_clock::now();
     qDebug() << "   Resource pixmaps added in:" << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms";
+#endif //DEBUG
 
-#endif
-    qDebug() << "DrawHexScene finished";
+#endif //__APPLE__
 }
 
 void Renderer::UpdateScene(Map *map, GameView *view, QQueue<SelectData> *data)

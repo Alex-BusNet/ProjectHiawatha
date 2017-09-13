@@ -94,6 +94,17 @@ void GameView::ConfigureGraphicsView()
     this->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 }
 
+void GameView::SetCityScreenZoom()
+{
+    while(zoomScale != 4)
+    {
+        if(zoomScale < 4)
+            zoomIn();
+        else if(zoomScale > 4)
+            zoomOut();
+    }
+}
+
 void GameView::wheelEvent(QWheelEvent *e)
 {
     if(e->delta() > 0)

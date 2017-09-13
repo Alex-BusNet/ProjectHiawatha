@@ -44,7 +44,8 @@ private:
     About *about;
     Diplomacy *diplo;
     QDesktopWidget widget;
-
+    QWidget *unitButtonsWidget;
+    QWidget *playerButtonsWidget;
     QTimer *updateTimer;
 
     AI_Controller *ac;

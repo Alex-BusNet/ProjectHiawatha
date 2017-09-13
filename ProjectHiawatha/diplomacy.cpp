@@ -19,7 +19,7 @@ Diplomacy::Diplomacy(QWidget *parent) : QWidget(parent)
     leaderListArea = new QListWidget(this);
     leaderImage = new QLabel("?");
 
-    this->setFixedSize(1000, 500);
+//    this->setFixedSize(1000, 500);
     leaderListArea->setViewMode(QListWidget::ListMode);
     leaderListArea->setAcceptDrops(false);
     leaderListArea->setMaximumSize(650, 500);

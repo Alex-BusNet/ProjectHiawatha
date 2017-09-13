@@ -39,7 +39,6 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->progressBar->setMinimum(0);
     ui->label->setText("Cost: ");
     ui->ItemBG->setPixmap(QPixmap("Assets/UI/CityScreenBackground_alt2.png"));
-
 }
 
 CityScreen::~CityScreen()

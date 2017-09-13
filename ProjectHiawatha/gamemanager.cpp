@@ -700,9 +700,7 @@ void GameManager::TurnController()
             // turn and move on before the AI thread has completly finished.
             future.waitForFinished();
 #endif
-            qDebug() <<"Ending turn for" << currentTurn;
             EndTurn();
-            qDebug() << "--";
             AiTurnInProgress = false;
         }
     }
@@ -1773,6 +1771,8 @@ void GameManager::InitVariables(bool fullscreen)
     ns = new NotificationSystem(this);
     about = new About();
     diplo = new Diplomacy(this);
+    unitButtonsWidget = new QWidget(this);
+    playerButtonsWidget = new QWidget(this);
     diplo->hide();
     warbox = new QMessageBox();
     warbox->addButton(QMessageBox::Cancel);
@@ -1830,12 +1830,11 @@ void GameManager::InitVariables(bool fullscreen)
     {
         this->setFixedSize(1400, 700);
         this->setWindowTitle("Project Hiawatha");
-//        gameView->setFixedWidth(1195);
         this->setWindowFlags(Qt::WindowMinimizeButtonHint);
     }
     else
     {
-        gameView->setMaximumWidth(widget.screenGeometry(0).width() - 200);
+        gameView->setMaximumWidth(widget.screenGeometry(0).width());
         this->setWindowState(Qt::WindowFullScreen);
     }
 
@@ -2062,10 +2061,10 @@ void GameManager::InitButtons()
 void GameManager::InitLayouts()
 {
     vLayout->setMargin(2);
-
+    int spacerSize = (this->height() - 700) + 280;
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addWidget(showDiplomacy);
-    unitControlButtons->addSpacerItem(new QSpacerItem(100, 500, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
+    unitControlButtons->addSpacerItem(new QSpacerItem(100, spacerSize, QSizePolicy::Fixed, QSizePolicy::Minimum));
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -2085,17 +2084,20 @@ void GameManager::InitLayouts()
     unitControlButtons->setGeometry(QRect(0, 20, 100, this->height() - 20));
     unitControlButtons->setSizeConstraint(QVBoxLayout::SetFixedSize);
 
-    gameLayout->addLayout(unitControlButtons);
+//    unitControlButtons->setGeometry(QRect(0, 20, 100, 20));
+//    gameLayout->addLayout(unitControlButtons);
+
+    unitButtonsWidget->setLayout(unitControlButtons);
+    unitButtonsWidget->setGeometry(QRect(0, 25, 100, this->height()- 40));
+    unitButtonsWidget->setStyleSheet("QWidget { background-color: transparent } QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }");
+
     gameLayout->addWidget(gameView);
-    gameLayout->addWidget(techTree);
 
-//    if(this->isFullScreen())
-        ns->setGeometry(this->width() - 150, 20, 50, this->height() - 40);
-//    else
-//        gameLayout->addWidget(ns);
+    techTree->setGeometry(150, 20, techTree->width(), techTree->height());
+    techTree->setVisible(false);
+    ns->setGeometry(this->width() - 170, 20, 50, this->height() - 40);
 
-    gameLayout->setGeometry(QRect(100, 20, this->width(), this->height()));
-    diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
+    diplo->setGeometry(150, 25, gameView->width(), gameView->height());
 
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::HLine);
@@ -2112,16 +2114,22 @@ void GameManager::InitLayouts()
 #ifdef DEBUG
     playerControlButtons->addWidget(toggleFoW);
 #endif
-//    playerControlButtons->addWidget(devMode);
     playerControlButtons->addWidget(goldFocus);
     playerControlButtons->addWidget(productionFocus);
     playerControlButtons->addWidget(scienceFocus);
     playerControlButtons->addWidget(foodFocus);
     playerControlButtons->addWidget(cultureFocus);
     playerControlButtons->addWidget(endTurn);
-    playerControlButtons->setGeometry(QRect(this->width() - 100, 20, 100, this->height() - 20));
+//    playerControlButtons->setGeometry(QRect(this->width() - 100, 20, 100, this->height() - 40));
 
-    gameLayout->addLayout(playerControlButtons);
+    playerButtonsWidget->setLayout(playerControlButtons);
+    playerButtonsWidget->setGeometry(QRect(this->width() - 120, 20, 120, this->height() - 40));
+    QString playerButtonStyle = "QWidget { background-color: transparent }";
+    playerButtonStyle += "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 150px; }";
+    playerButtonStyle += "QListWidget { background-color: grey; color: white; border: 3px inset black; }";
+    playerButtonStyle += "QLabel { color: black; }";
+    playerButtonsWidget->setStyleSheet(playerButtonStyle);
+//    gameLayout->addLayout(playerControlButtons);
 
     vLayout->addLayout(gameLayout);
     vLayout->addSpacing(20);
@@ -2204,7 +2212,7 @@ void GameManager::InitRenderData()
 {
     renderer->DrawHexScene(map, gameView);
     InitYieldDisplay();
-    qDebug() << "Init yield Finished";
+
     for(int i = 0; i < civList.size(); i++)
     {
         renderer->LoadCities(civList.at(i)->GetCityList(), gameView);
@@ -2247,7 +2255,7 @@ void GameManager::InitRenderData()
             }
 
             endGameText = new QString("Capitals Controlled:");
-            endGameText->append(QString("\nYou  1/%1").arg(civList.size()));
+            endGameText->append(QString("\nYou      1/%1").arg(civList.size()));
         }
         else
         {
@@ -2257,7 +2265,6 @@ void GameManager::InitRenderData()
                 endGameText->append(QString("\nUnmet Player %1     1/%2").arg(i).arg(civList.size()));
         }
 
-        qDebug() << "Drawing Units";
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
 
         for(int j = 0; j < civList.at(i)->GetCityList().size(); j++)
@@ -2827,8 +2834,9 @@ void GameManager::showCity(City* city)
         cityScreen->updateWidget();
 
         gameView->centerOn(city->GetCityTile()->GetCenter());
+        gameView->SetCityScreenZoom();
 
-        cityScreen->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, gameView->width(), gameView->height());
+        cityScreen->setGeometry(120, gameView->pos().y() + 2, gameView->width()- 150, gameView->height());
 
         gameView->setDragMode(QGraphicsView::NoDrag);
 
@@ -2936,7 +2944,7 @@ void GameManager::showTechTree()
         techTree->loadData(civList.at(0)->getCurrentTech(),civList.at(0)->getNextTech(),civList.at(0)->getAccumulatedScience());
         techTree->loadTechList("Assets/Techs/Technology.txt");
         techTree->updateWidget(civList.at(0)->getNextTech()->getIndex()+1);
-        techTree->setGeometry(gameView->pos().x() + 2, gameView->pos().y() + 3, gameView->width() - 6, gameView->height() - 150);
+        techTree->setGeometry(150, 25, gameView->width() - 6, gameView->height() - 150);
         techTree->show();
         techTreeVisible = true;
     }
@@ -2952,7 +2960,7 @@ void GameManager::toggleDiplomacy()
 {
     if(!diploVisible)
     {
-        diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, this->width(), this->height());
+        diplo->setGeometry(gameView->pos().x() + 5, gameView->pos().y() + 2, gameView->width(), gameView->height());
         diplo->show();
         diploVisible = true;
     }
