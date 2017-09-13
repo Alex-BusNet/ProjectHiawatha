@@ -719,21 +719,21 @@ void GameManager::StartTurn()
         {
             Victory();
         }
-//    }
+
         for(int i = 0; i < civList.size(); i++)
         {
             if(i == 0)
             {
                 delete endGameText;
                 endGameText = new QString("Capitals Controlled:");
-                endGameText->append(QString("\nYou      %1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+                endGameText->append(QString("\nYou\t%1/%2").arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
             }
             else
             {
                 if(civList.at(i)->alive && civList.at(i)->HasCivMetPlayer())
-                    endGameText->append(QString("\n%1     %2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+                    endGameText->append(QString("\n%1\t%2/%3").arg(civList.at(i)->GetLeaderName()).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
                 else
-                    endGameText->append(QString("\nUnmet Player %1    %2/%3").arg(i).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
+                    endGameText->append(QString("\nUnmet Player %1\t%2/%3").arg(i).arg(civList.at(i)->GetCapitalsControlled()).arg(civList.size()));
             }
         }
 
@@ -1053,7 +1053,7 @@ void GameManager::StartTurn()
         foodText->setText(QString("%1").arg(civList.at(0)->getCivYield()->GetFoodYield()));
         sciText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalScience()).arg(civList.at(0)->getCivYield()->GetScienceYield()));
         culText->setText(QString("%1 (+%2)").arg(civList.at(0)->GetTotalCulture()).arg(civList.at(0)->getCivYield()->GetCultureYield()));
-        techText->setText(QString(" %1 / %2").arg(accumulatedScience).arg(techCost));
+        techLabel->setText(QString("%3\n %1 / %2").arg(accumulatedScience).arg(techCost).arg(civList.at(0)->getCurrentTech()->getName()));
 
         goldText->setToolTip(QString("GPT: %1\nMaintenance: -%2").arg(civList.at(0)->GetGPT()).arg(civList.at(0)->GetMaintenance()));
 
@@ -2110,7 +2110,7 @@ void GameManager::InitLayouts()
     playerControlButtons->addWidget(endGameProgress);
     playerControlButtons->addWidget(frame);
     playerControlButtons->addWidget(techLabel);
-    playerControlButtons->addWidget(techText);
+//    playerControlButtons->addWidget(techText);
 #ifdef DEBUG
     playerControlButtons->addWidget(toggleFoW);
 #endif
@@ -2127,7 +2127,7 @@ void GameManager::InitLayouts()
     QString playerButtonStyle = "QWidget { background-color: transparent }";
     playerButtonStyle += "QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 150px; }";
     playerButtonStyle += "QListWidget { background-color: grey; color: white; border: 3px inset black; }";
-    playerButtonStyle += "QLabel { color: black; }";
+    playerButtonStyle += "QLabel { color: black; max-width: 170px; }";
     playerButtonsWidget->setStyleSheet(playerButtonStyle);
 //    gameLayout->addLayout(playerControlButtons);
 
@@ -2196,15 +2196,8 @@ QDir::setCurrent(bin.absolutePath());
     Yieldinfo->addWidget(culLabel);
     Yieldinfo->addWidget(culText);
 
-//    if(!this->isFullScreen())
-//    {
-        Yieldinfo->addSpacerItem(new QSpacerItem(1000, 20, QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
-//    }
-//    else
-//    {
-//        float space = (static_cast<float>(widget.screenGeometry(widget.primaryScreen()).width()) / 1.2f) * 0.75f;
-//        Yieldinfo->addSpacing(ceil(space));
-//    }
+    Yieldinfo->addSpacerItem(new QSpacerItem(1000, 20, QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
+
     vLayout->insertLayout(0, Yieldinfo);
 }
 
@@ -2255,14 +2248,14 @@ void GameManager::InitRenderData()
             }
 
             endGameText = new QString("Capitals Controlled:");
-            endGameText->append(QString("\nYou      1/%1").arg(civList.size()));
+            endGameText->append(QString("\nYou\t1/%1").arg(civList.size()));
         }
         else
         {
             if(civList.at(i)->HasCivMetPlayer())
                 endGameText->append(QString("\n%1     1/%2").arg(civList.at(i)->GetLeaderName()).arg(civList.size()));
             else
-                endGameText->append(QString("\nUnmet Player %1     1/%2").arg(i).arg(civList.size()));
+                endGameText->append(QString("\nUnmet Player %1\t1/%2").arg(i).arg(civList.size()));
         }
 
         renderer->DrawUnits(civList.at(i)->GetUnitList(), map, gameView);
@@ -2294,6 +2287,8 @@ void GameManager::InitRenderData()
     }
 
     endGameProgress->setText(*endGameText);
+    endGameProgress->setAlignment(Qt::AlignRight);
+    endGameProgress->setStyleSheet("QLabel { background-color: #145e88; border: 1px solid #f6b300; color: white; max-width: 130px; }");
 
     ////Keep this statement. I need it at different points
     /// in the debugging process. -Port
@@ -2314,7 +2309,8 @@ void GameManager::InitRenderData()
     #endif
     statusMessage = " ";
 
-    techLabel->setText(QString(" %1 ").arg(civList.at(0)->getCurrentTech()->getName()));
+    techLabel->setText(QString("%1\n %2/%3").arg(civList.at(0)->getCurrentTech()->getName()).arg(civList.at(0)->getAccumulatedScience()).arg(civList.at(0)->getCurrentTech()->getCost()));
+    techLabel->setStyleSheet("QLabel { background-color: #145e88; border: 1px solid #f6b300; color: white; }");
     diplo->UpdateLeader(0);
 }
 
@@ -3310,12 +3306,14 @@ void GameManager::enterDevMode()
 {
     if(!devModeOn)
     {
+        statusMessage = "--------<< Loading Developer Mode >>--------";
         renderer->EnableDevMode(gameView);
         toggleFog();
         devModeOn = true;
     }
     else
     {
+        statusMessage = "--------<< Leaving Developer Mode >>--------";
         toggleFog();
 
         for(int i = 0; i < map->GetBoardSize(); i++)
@@ -3324,4 +3322,6 @@ void GameManager::enterDevMode()
 
         devModeOn = false;
     }
+
+    statusMessage = "";
 }
