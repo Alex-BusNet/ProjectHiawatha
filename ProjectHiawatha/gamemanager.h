@@ -24,6 +24,7 @@
 #include <chrono>
 #include "about.h"
 #include "diplomacy.h"
+#include <QShortcut>
 #include <QDesktopWidget>
 
 class GameManager : public QWidget
@@ -75,6 +76,7 @@ private:
     QPushButton *fortifyUnit;
     QPushButton *help;
     QPushButton *toggleFoW;
+    QShortcut *devMode;
 
     QFuture<void> civInit, mapInit;
 
@@ -137,7 +139,7 @@ private:
     bool countTime;
     bool citySelected, redrawTile, isTileSelected, cityTileSelected, updateFoW;
     bool focusChanged;
-    bool toggleOn;
+    bool toggleOn, devModeOn;
     bool civLoadFailed;
     bool renderInitFinished;
 
@@ -218,7 +220,10 @@ public slots:
     void OpenHelp();
 
     void parseItem();
+
+private slots:
     void toggleFog();
+    void enterDevMode();
 };
 
 #endif // GAMEWINDOW_H

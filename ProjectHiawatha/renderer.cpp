@@ -1320,6 +1320,41 @@ void Renderer::PrepareForDelete(GameView *view)
     }
 }
 
+void Renderer::EnableDevMode(GameView *view)
+{
+    foreach(QGraphicsPixmapItem* p, tilePixmap)
+    {
+        if(!view->items().contains(p))
+            view->addItem(p);
+    }
+
+    foreach(QGraphicsPixmapItem* p, ordersIcon)
+    {
+        if(!view->items().contains(p))
+            view->addItem(p);
+    }
+
+    foreach(QGraphicsPixmapItem* p, fortifiedIcon)
+    {
+        if(!view->items().contains(p))
+            view->addItem(p);
+    }
+
+    foreach(QGraphicsPixmapItem* p, tileImprovementIcons)
+    {
+        if(!view->items().contains(p))
+            view->addItem(p);
+    }
+}
+
+void Renderer::DisableDevMode(int index, GameView *view)
+{
+    view->removeItem(tilePixmap.at(index));
+    view->removeItem(ordersIcon.at(index));
+    view->removeItem(fortifiedIcon.at(index));
+    view->removeItem(tileImprovementIcons.at(index));
+}
+
 /*
  * DrawCityBorders is user to draw a city's borders for the first time.
  */

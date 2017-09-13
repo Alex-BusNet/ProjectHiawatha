@@ -1814,6 +1814,7 @@ void GameManager::InitVariables(bool fullscreen)
     techTreeVisible = false;
     diploVisible = false;
     toggleOn = false;
+    devModeOn = false;
     relocateUnit = false;
     turnEnded = false;
     turnStarted = true;
@@ -1934,7 +1935,7 @@ void GameManager::InitButtons()
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
     moveUnit->setEnabled(false);
-    moveUnit->setShortcut(QKeySequence(Qt::RightButton));
+    moveUnit->setShortcut(QKeySequence(Qt::Key_X));
 
     endTurn = new QPushButton("End Turn");
     connect(endTurn, SIGNAL(clicked(bool)), this, SLOT(nextTurn()));
@@ -2054,6 +2055,8 @@ void GameManager::InitButtons()
     toggleFoW = new QPushButton("Toggle FoW");
     connect(toggleFoW, SIGNAL(clicked(bool)), this, SLOT(toggleFog()));
 
+    devMode = new QShortcut(QKeySequence(Qt::Key_Home), this);
+    connect(devMode, SIGNAL(activated()), this, SLOT(enterDevMode()));
 }
 
 void GameManager::InitLayouts()
@@ -2109,6 +2112,7 @@ void GameManager::InitLayouts()
 #ifdef DEBUG
     playerControlButtons->addWidget(toggleFoW);
 #endif
+//    playerControlButtons->addWidget(devMode);
     playerControlButtons->addWidget(goldFocus);
     playerControlButtons->addWidget(productionFocus);
     playerControlButtons->addWidget(scienceFocus);
@@ -3292,4 +3296,24 @@ void GameManager::toggleFog()
     }
 
     toggleOn = !toggleOn;
+}
+
+void GameManager::enterDevMode()
+{
+    if(!devModeOn)
+    {
+        renderer->EnableDevMode(gameView);
+        toggleFog();
+        devModeOn = true;
+    }
+    else
+    {
+        toggleFog();
+
+        for(int i = 0; i < map->GetBoardSize(); i++)
+            if(!map->GetTileAt(i)->DiscoveredByPlayer)
+                renderer->DisableDevMode(i, gameView);
+
+        devModeOn = false;
+    }
 }

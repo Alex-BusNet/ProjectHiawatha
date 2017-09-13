@@ -61,6 +61,9 @@ public:
 
     void PrepareForDelete(GameView *view);
 
+    void EnableDevMode(GameView *view);
+    void DisableDevMode(int index, GameView *view);
+
 private:
 
     QVector<QGraphicsPolygonItem*> tiles;
