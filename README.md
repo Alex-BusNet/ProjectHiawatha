@@ -2,10 +2,10 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/rtbp4acd1gwb92ht/branch/master?svg=true&passingText=Dev-Unstable%20-%20OK&failingText=Dev-Unstable%20-%20Failed)](https://ci.appveyor.com/project/Alex-BusNet/projecthiawatha/branch/Dev-Unstable)
 
 # Project Hiawatha
-A Civilization knock-off written in C++ with Qt 5.7.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
+A Civilization knock-off written in C++ with Qt 5.9.0 by Paul Jackemeyer, Alex Portolese, and Sam Stein
 For the latest features, use the Dev-Unstable branch. For the most stable version, use the master branch.
 
-##Contents:
+## Contents:
 [Main Features](#main-features)
 
 [Leaders and Civilizations](#leaders-and-civilizations)
@@ -14,7 +14,7 @@ For the latest features, use the Dev-Unstable branch. For the most stable versio
 
 [Software](#software)
 
-###Main Features
+### Main Features
 
 1. Random Map Generation
 2. AI
@@ -23,7 +23,7 @@ For the latest features, use the Dev-Unstable branch. For the most stable versio
 5. Strategic and Luxury Resources
 6. War
 
-####Leaders and Civilizations
+#### Leaders and Civilizations
 
 1. <b> Alexander the Great </b>(Greece)
 2. <b> Otto Von Bismark </b>(Germany)
@@ -42,7 +42,7 @@ For the latest features, use the Dev-Unstable branch. For the most stable versio
 15. <b> Ramesses </b>(Egypt)
 16. <b> Josef Stalin </b>(Russia)
 
-###Secondary Goals
+### Secondary Goals
 
 1. Multiplayer
 2. Diplomacy
@@ -51,4 +51,4 @@ For the latest features, use the Dev-Unstable branch. For the most stable versio
 5. More Civs
 
 ###Software
-Built with [Qt 5.7.0](https://www.qt.io/download-open-source/)
+Built with [Qt 5.9.0](https://www.qt.io/download-open-source/)
