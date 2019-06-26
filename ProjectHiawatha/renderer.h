@@ -14,6 +14,7 @@
 #include <QGraphicsProxyWidget>
 #include <QProgressBar>
 #include <QQueue>
+#define DEBUG
 
 class Renderer
 {
@@ -93,6 +94,8 @@ private:
 
     QVector<QGraphicsLineItem*> gridLines;
     QVector<QGraphicsTextItem*> gridCoords;
+    QVector<QGraphicsPolygonItem*> mebs;
+    QVector<QGraphicsPolygonItem*> msds;
 
     QPolygon borders;
     CivColors *cc;

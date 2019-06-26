@@ -22,7 +22,8 @@ Unit::Unit()
     this->unlocked = 0;
     this->isGarrisoned=false;
     this->pixmapIndex = -1;
-    this->dataMapIndex = -1;
+    //this->dataMapIndex = -1;
+    this->unitTile = NULL;
     this->healthBarIndex = -1;
     this->unitListIndex = -1;
 
@@ -30,10 +31,11 @@ Unit::Unit()
 
 
 
-Unit::Unit(Nation owner, UnitType type)
+Unit::Unit(Nation owner, UnitType type, int civIdx)
 {
     SetUnitIcon(type);
 
+    this->civIndex = civIdx;
     this->belongsTo = owner;
     this->RequiresOrders = true;
     this->Updated = false;
@@ -48,7 +50,7 @@ Unit::Unit(Nation owner, UnitType type)
     this->uses = 1;
     this->isGarrisoned=false;
     this->pixmapIndex = -1;
-    this->dataMapIndex = -1;
+    this->unitTile = NULL;
     this->healthBarIndex = -1;
     this->unitListIndex = -1;
 }
@@ -73,7 +75,7 @@ Unit::Unit(int index)
     this->unlocked = 0;
     this->isGarrisoned=false;
     this->pixmapIndex = -1;
-    this->dataMapIndex = -1;
+    this->unitTile = NULL;
     this->healthBarIndex = -1;
     this->unitListIndex = -1;
 }
@@ -99,6 +101,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/worker.png");
+        this->name = "Worker";
         break;
     case SETTLER:
         this->NonCombat = true;
@@ -107,6 +110,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/settler.png");
+        this->name = "Settler";
         break;
     case WARRIOR:
         this->NonCombat = false;
@@ -114,6 +118,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/warrior.png");
+        this->name = "Warrior";
         break;
     case ARCHER:
         this->NonCombat = false;
@@ -121,6 +126,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/archer.png");
+        this->name = "Archer";
         break;
     case SPEARMAN:
         this->NonCombat = false;
@@ -128,6 +134,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/spearman.png");
+        this->name = "Spearman";
         break;
     case PIKEMAN:
         this->NonCombat = false;
@@ -135,6 +142,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/pikeman.png");
+        this->name = "Pikeman";
         break;
     case HORSEMAN:
         this->NonCombat = false;
@@ -142,6 +150,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/horseman.png");
+        this->name = "Horseman";
         break;
     case SCOUT:
         this->NonCombat = false;
@@ -149,6 +158,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/scout.png");
+        this->name = "Scout";
         break;
     case HORSE_ARCHER:
         break;
@@ -158,6 +168,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = true;
         this->unitIcon = new QImage("Assets/Units/catapult.png");
+        this->name = "Catapult";
         break;
     case TREBUCHET:
         break;
@@ -169,6 +180,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/galley.png");
+        this->name = "Galley";
         break;
     case KNIGHT:
         this->NonCombat = false;
@@ -176,6 +188,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/knight.png");
+        this->name = "Knight";
         break;
     case CROSSBOWMAN:
         this->NonCombat = false;
@@ -183,6 +196,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/crossbowman.png");
+        this->name = "Crossbowman";
         break;
     case LANDSNACK:
         break;
@@ -194,6 +208,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/swordsman.png");
+        this->name = "Swordsman";
         break;
     case MUSKETMAN:
         this->NonCombat = false;
@@ -201,6 +216,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/musketman.png");
+        this->name = "Musketman";
         break;
     case RIFLEMAN:
         this->NonCombat = false;
@@ -208,6 +224,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/rifleman.png");
+        this->name = "Rifleman";
         break;
     case CARAVEL:
         this->naval = true;
@@ -215,6 +232,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/caravel.png");
+        this->name = "Caravel";
         break;
     case CANNON:
         this->NonCombat = false;
@@ -222,6 +240,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = true;
         this->unitIcon = new QImage("Assets/Units/cannon.png");
+        this->name = "Cannon";
         break;
     case LANCER:
         break;
@@ -231,6 +250,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/cavalry.png");
+        this->name = "Cavalary";
         break;
     case INFANTRY:
         this->NonCombat = false;
@@ -238,6 +258,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/infantry.png");
+        this->name = "Infantry";
         break;
     case FRIGATE:
         this->naval = true;
@@ -245,6 +266,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/frigate.png");
+        this->name = "Frigate";
         break;
     case IRONCLAD:
         this->naval = true;
@@ -252,6 +274,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/ironclad.png");
+        this->name = "Ironclad";
         break;
     case ARTILLERY:
         this->NonCombat = false;
@@ -259,6 +282,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = true;
         this->unitIcon = new QImage("Assets/Units/artillery.png");
+        this->name = "Artillery";
         break;
     case TANK:
         this->NonCombat = false;
@@ -266,6 +290,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/tank.png");
+        this->name = "Tank";
         break;
     case PARATROOPER:
         break;
@@ -279,6 +304,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/battleship.png");
+        this->name = "Battleship";
         break;
     case CARRIER:
         this->naval = true;
@@ -286,6 +312,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/carrier.png");
+        this->name = "Aircraft Carrier";
         break;
     case SUBMARINE:
         this->naval = true;
@@ -293,6 +320,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/submarine.png");
+        this->name = "Submarine";
         break;
     case NUKE:
         break;
@@ -304,6 +332,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/Helicopter Gunship.png");
+        this->name = "Helicopter Gunship";
         break;
     case MECHANIZED_INFANTRY:
         this->NonCombat = false;
@@ -311,6 +340,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/Mechanized Infantry.png");
+        this->name = "Mechanized Infantry";
         break;
     case MODERN_ARMOR:
         this->NonCombat = false;
@@ -318,6 +348,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = true;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/Modern Armor.png");
+        this->name = "Modern Armor";
         break;
     case FIGHTER:
         this->NonCombat = false;
@@ -325,6 +356,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/fighter.png");
+        this->name = "Fighter Plane";
         break;
     case BOMBER:
         this->NonCombat = false;
@@ -332,6 +364,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = true;
         this->unitIcon = new QImage("Assets/Units/bomber.png");
+        this->name = "Bomber Plane";
         break;
     case JET_FIGHTER:
         this->NonCombat = false;
@@ -339,6 +372,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = false;
         this->unitIcon = new QImage("Assets/Units/Jet Fighter.png");
+        this->name = "Fighter Jet";
         break;
     case STEALTH_BOMBER:
         this->NonCombat = false;
@@ -346,6 +380,7 @@ void Unit::SetUnitIcon(UnitType type)
         this->isMelee = false;
         this->isSiege = true;
         this->unitIcon = new QImage("Assets/Units/Stealth Bomber.png");
+        this->name = "Stealth Bomber";
         break;
     case GDR:
         break;
@@ -357,9 +392,10 @@ void Unit::SetUnitIcon(UnitType type)
 
 }
 
-void Unit::SetOwner(Nation owner)
+void Unit::SetOwner(Nation owner, int idx)
 {
     this->belongsTo = owner;
+    this->civIndex = idx;
 }
 
 void Unit::SetName(QString str)
@@ -372,16 +408,26 @@ void Unit::setUnlocked(int unlock)
     this->unlocked = unlock;
 }
 
-void Unit::SetPositionIndex(int tileMapIndex)
+/*void Unit::SetPositionIndex(int tileMapIndex)
 {
     this->dataMapIndex = tileMapIndex;
 }
+*/
 
+void Unit::SetPosition(Tile* tile)
+{
+    this->unitTile = tile;
+    this->colPosition = tile->GetTileID().column;
+    this->rowPosition = tile->GetTileID().row;
+}
+
+/*
 void Unit::SetPosition(int column, int row)
 {
     this->colPosition = column;
     this->rowPosition = row;
 }
+*/
 
 void Unit::SetMovementPoints(int pts)
 {
@@ -434,7 +480,7 @@ void Unit::WriteUnitSaveData(QJsonObject &obj) const
     obj["rangestr"] = rangeStrength;
     obj["belongsto"] = belongsTo;
     obj["movepoints"] = movementPoints;
-    obj["datamaploc"] = dataMapIndex;
+    obj["datamaploc"] = unitTile->GetTileIndex(); //dataMapIndex;
     obj["fortified"] = isFortified;
     obj["healthbarindex"] = healthBarIndex;
     obj["pixmapindex"] = pixmapIndex;
@@ -463,7 +509,8 @@ void Unit::ReadUnitSaveData(const QJsonObject &obj)
     rangeStrength = obj["rangestr"].toInt();
     belongsTo = static_cast<Nation>(obj["belongsto"].toInt());
     movementPoints = obj["movepoints"].toInt();
-    dataMapIndex = obj["datamaploc"].toInt();
+    /// TODO: Figure out how to save the tile the unit is on
+    //dataMapIndex = obj["datamaploc"].toInt();
     isFortified = obj["fortified"].toBool();
     healthBarIndex = obj["healthBarIndex"].toInt();
     pixmapIndex = obj["pixmapindex"].toInt();
@@ -484,7 +531,8 @@ void Unit::ReadUnitSaveData(const QJsonObject &obj)
 
 int Unit::GetTileIndex()
 {
-    return this->dataMapIndex;
+//    return this->dataMapIndex;
+    return this->unitTile->GetTileIndex();
 }
 
 int Unit::GetTargetTileIndex()
@@ -599,6 +647,11 @@ Tile *Unit::GetNextTileInPath()
     return this->path.first();
 }
 
+Tile *Unit::GetUnitTile()
+{
+    return this->unitTile;
+}
+
 UnitType Unit::GetUnitType()
 {
     return this->type;
@@ -691,6 +744,30 @@ void Unit::DealDamage(int damage)
 
 void Unit::UpdatePath()
 {
+    if(this->GetNextTileInPath()->ContainsUnit())
+    {
+        // If the unit in the next tile is not moving or the unit in
+        // our way is trying to move onto the tile we occupy, then
+        // clear the path otherwise wait for the unit to move.
+        if(this->GetNextTileInPath()->GetOccupyingUnit()->RequiresOrders
+                || this->GetNextTileInPath()->GetOccupyingUnit()->GetNextTileInPath()->GetTileIndex() == this->unitTile->GetTileIndex())
+        {
+            this->ClearPath();
+            this->RequiresOrders = true;
+            return;
+        }
+    }
+
+//    this->unitTile->ContainsUnit = false;
+    this->unitTile->SetOccupyingUnit(NULL);
+
+    if(this->unitTile->Selected)
+        this->unitTile->Selected = false;
+
+    this->unitTile = this->GetNextTileInPath();
+//    this->unitTile->ContainsUnit = true;
+    this->unitTile->SetOccupyingUnit(this);
+
     this->path.removeFirst();
 }
 
@@ -700,4 +777,9 @@ void Unit::ClearPath()
     {
         this->path.removeFirst();
     }
+}
+
+int Unit::GetOwningCivIndex()
+{
+    return this->civIndex;
 }

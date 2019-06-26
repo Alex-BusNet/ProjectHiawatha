@@ -114,6 +114,7 @@ public:
     int GetMaintenance();
     int GetGptAdjusted();
     QVector<int> lowThreatIndex, midThreatIndex, highThreatIndex;
+
 private:
     Nation name;
 

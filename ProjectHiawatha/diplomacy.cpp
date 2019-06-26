@@ -355,7 +355,7 @@ void Diplomacy::selectLeader(QListWidgetItem *item)
                 first = false;
             }
             war.append(UnitController::NationName(wh.nation));
-            war.append("\n\t");
+            war.append(QString("\n\tWar started on turn %1.").arg(wh.warStartedOn));
         }
     }
     atWarWith->setText(war);

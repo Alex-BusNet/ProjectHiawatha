@@ -130,6 +130,8 @@ private:
     int playersAliveCount;
     float year, yearPerTurn;
 
+    unsigned int unitControlButtonsVisible = 0xEFFF; // 15 items to toggle visibility.
+
     QString currentProductionName;
     bool cityScreenVisible;
     bool techTreeVisible;
@@ -165,6 +167,9 @@ private:
     void InitRenderData();
     void DeinitRenderer();
     void SaveGame();
+
+    void toggleWidgetVisiblityAll();
+    void setUnitButtonVisibility(unsigned int visibleButtons);
 
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();

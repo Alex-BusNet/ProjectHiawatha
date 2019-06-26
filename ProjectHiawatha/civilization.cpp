@@ -179,6 +179,7 @@ Update_t Civilization::UpdateProgress()
     turn++;
 
     Update_t redraw{false, false, false, false};
+
     foreach(City* city, this->currentCityList)
     {
         Update_t cityProgress = city->UpdateProgress();
@@ -217,7 +218,7 @@ Update_t Civilization::UpdateProgress()
      * cost = (n * b*(1 + g*m)/100)^(1 + g / d)
      * n = number of units
      * b = base cost of units
-     * m = mulitplier (1)
+     * m = multiplier (1)
      * d = divisor (1)
      * g = game progress factor
      *      g = currentTurn / approx. endTurn
@@ -500,7 +501,7 @@ void Civilization::ReadData(const QJsonObject &obj)
     QJsonArray cArray = obj["cities"].toArray();
     for(int i = 0; i < cArray.size(); i++)
     {
-        City* city = new City();
+        City* city = new City(this->civIndex);
         city->ReadCitySaveData(cArray.at(i).toObject());
         this->currentCityList.push_back(city);
     }
@@ -551,6 +552,15 @@ QVector<int> Civilization::GetCivListIndexAtWar()
 void Civilization::setTechIndex()
 {
     this->techIndex++;
+	if(techIndex < techList.size())
+	{
+        this->currentTech = techList.at(techIndex);
+		
+		if((techIndex + 1) < techList.size())
+            this->nextTech = techList.at(techIndex + 1);
+		else
+            this->nextTech = currentTech;
+    }
 }
 
 Technology *Civilization::getCurrentTech()

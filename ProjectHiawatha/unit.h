@@ -14,17 +14,18 @@ class Unit
 {
 public:
     Unit();
-    Unit(Nation owner, UnitType type);
+    Unit(Nation owner, UnitType type, int civIdx);
     Unit(int index);
     ~Unit();
 
     void setUnitType(UnitType type);
     void SetUnitIcon(UnitType type);
-    void SetOwner(Nation owner);
+    void SetOwner(Nation owner, int idx);
     void SetName(QString str);
     void setUnlocked(int unlock);
-    void SetPosition(int column, int row);
-    void SetPositionIndex(int tileMapIndex);
+    //void SetPosition(int column, int row);
+    //void SetPositionIndex(int tileMapIndex);
+    void SetPosition(Tile* tile);
     void SetPixmapIndex(int index);
     void SetUnitListIndex(int index);
     void SetUnitTargetTileIndex(int tileIndex);
@@ -40,12 +41,15 @@ public:
     void SetPath(QList<Tile*> newPath);
     void SetTechIndex(int index);
     void SetUnitImage(QImage *image);
+
     void Use();
+
     void DealDamage(int damage);
 
     void UpdatePath();
     void ClearPath();
 
+    int GetOwningCivIndex();
     int GetTileIndex();
     int GetTargetTileIndex();
     int GetTileColumn();
@@ -69,6 +73,7 @@ public:
     QString GetName();
     QList<Tile*> GetPath();
     Tile* GetNextTileInPath();
+    Tile* GetUnitTile();
     UnitType GetUnitType();
     QImage* GetUnitIcon();
     Nation GetOwner();
@@ -95,11 +100,14 @@ private:
     QImage *unitIcon;
     QString name;
     Nation belongsTo;
+    int civIndex;
 //    Tile *position;
     int colPosition, targetColPos;
     int rowPosition, targetRowPos;
 
-    int pixmapIndex, dataMapIndex, unitListIndex, targetTileIndex, healthBarIndex;
+    Tile* unitTile; // Tile the unit is occupying
+
+    int pixmapIndex, /*dataMapIndex,*/ unitListIndex, targetTileIndex, healthBarIndex;
     bool NonCombat;
     bool Settler;
     //Flag to indicate of it is a naval or a land unit

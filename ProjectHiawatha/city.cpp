@@ -6,7 +6,7 @@
 #include <QJsonArray>
 #include "queuedata.h"
 
-City::City()
+City::City(int civIndex)
 {
     this->cityTotalYield = new Yield(1,1,1,1,1);
     this->turnsToBorderGrowth = 0;
@@ -32,6 +32,7 @@ City::City()
     this->hasWorker = false;
     this->hasGarrison = false;
     this->cityID = -1;
+    this->civIndex = -1;
     this->goldYield = 0;
     this->productionYield = 0;
     this->scienceYield = 0;
@@ -378,7 +379,7 @@ void City::SetName(QString name)
 void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
-    tile->SetGoverningCity(this->cityID);
+    tile->SetGoverningCity(this, this->civIndex);
     tile->CanAlwaysBeSeen = true;
 
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
@@ -549,8 +550,7 @@ void City::RemoveGarrisonMilitary()
 
 void City::AddControlledTile(Tile *tile)
 {
-    tile->SetControllingCiv(this->controllingCiv, this->cityTile->GetControllingCivListIndex());
-    tile->SetGoverningCity(this->cityID);
+    tile->SetGoverningCity(this, this->civIndex);
     this->cityControlledTiles.push_back(tile);
 }
 
@@ -612,7 +612,7 @@ void City::InitializeCity()
 {
     foreach(Tile* tile, this->cityControlledTiles)
     {
-        tile->SetGoverningCity(this->cityID);
+        tile->SetGoverningCity(this, this->civIndex);
     }
 
     this->turnsToBorderGrowth = floor((20 + (10*pow(this->cityControlledTiles.size() - 1, 1.1))) / this->cityTotalYield->GetCultureYield());
@@ -1175,6 +1175,11 @@ int City::GetCityRenderIndex()
 int City::GetCityID()
 {
     return this->cityID;
+}
+
+int City::GetCivIndex()
+{
+    return this->civIndex;
 }
 
 int City::GetCityHealth()

@@ -69,6 +69,7 @@ private:
     GameView* view;
     Renderer* renderer;
     int totalGold;
+    int w, h;
 
 };
 

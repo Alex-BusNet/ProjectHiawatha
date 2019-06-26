@@ -489,7 +489,7 @@ void Map::GenerateMap()
         }
 
         board.at(i)->SetControllingCivListIndex(-1);
-        board.at(i)->SetOccupyingCivListIndex(-1);
+        board.at(i)->SetOccupyingUnit(NULL);
     }
 }
 
@@ -539,8 +539,6 @@ newloc:
         else
             goto newloc;
     }
-
-
 }
 
 /*
@@ -563,7 +561,7 @@ void Map::GetTileQueue(City *city)
 
         foreach(Tile* sTile, surroundingTiles)
         {
-            if(sTile->GetGoverningCity() != city->GetCityID())
+            if(sTile->GetGoverningCityID() != city->GetCityID())
             {
                 if(city->borderQueue.size() > 1)
                 {
@@ -620,7 +618,7 @@ void Map::DefineCityBordersNew(City *city)
                 continue;
             }
 
-            if(neighbor->GetGoverningCity() == city->GetCityID())
+            if(neighbor->GetGoverningCityID() == city->GetCityID())
             {
                 //Generate a new line that is the bordering edge of the tileQueue and controlled tile
                 QLine* l = new QLine();
@@ -724,7 +722,7 @@ void Map::DefineCityBordersNew(City *city)
  */
 City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
 {
-    City* city = new City();
+    City* city = new City(founder->getCivIndex());
     QList<Tile*> initialTiles = GetNeighbors(board.at(cityTileIndex));
 
     foreach(Tile* tile, initialTiles)
@@ -878,12 +876,12 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     {
 newrand:
         index = (static_cast<double>(rand()) / RAND_MAX) * (board.size());
-        if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN || board.at(index)->ContainsUnit)
+        if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN || board.at(index)->ContainsUnit())
         {
             goto newrand;
         }
 
-        if(!board.at(index)->ContainsUnit && !board.at(index)->HasCity)
+        if(!board.at(index)->ContainsUnit() && !board.at(index)->HasCity)
         {
             if(lastIndex == index)
             {
@@ -892,14 +890,15 @@ newrand:
 
             lastIndex = index;
 
-            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
+            board.at(index)->SetControllingCivListIndex(i);
 
             city = this->CreateCity(index, civs.at(i), true);
 
             if(!city->IsInitialized())
             {
                 if(board.at(index)->GetControllingCivListIndex() == -1)
-                    board.at(index)->SetControllingCiv(NO_NATION, -1);
+                    board.at(index)->SetControllingCivListIndex(-1);
+
                 goto newrand;
             }
 
@@ -913,7 +912,7 @@ newrand:
                     civs.at(i)->SetCityIndex(0);
                     foreach(Tile* tile, city->GetControlledTiles())
                     {
-                        tile->SetControllingCiv(NO_NATION, -1);
+                        tile->SetControllingCivListIndex(-1);
                         if(tile->IsWorked)
                         {
                             tile->IsWorked = false;
@@ -921,7 +920,7 @@ newrand:
                     }
 
                     delete city;
-                    board.at(index)->SetControllingCiv(NO_NATION, -1);
+                    board.at(index)->SetControllingCivListIndex(-1);
                     goto newrand;
                 }
             }
@@ -935,7 +934,7 @@ newrand:
                         civs.at(i)->SetCityIndex(0);
                         foreach(Tile* tile, city->GetControlledTiles())
                         {
-                            tile->SetControllingCiv(NO_NATION, -1);
+                            tile->SetControllingCivListIndex(-1);
                             if(tile->IsWorked)
                             {
                                 tile->IsWorked = false;
@@ -943,16 +942,14 @@ newrand:
                         }
 
                         delete city;
-                        board.at(index)->SetControllingCiv(NO_NATION, -1);
+                        board.at(index)->SetControllingCivListIndex(-1);
                         goto newrand;
                     }
                 }
             }
 
-            board.at(index)->SetControllingCivListIndex(i);
             board.at(index)->HasCity = true;
-            board.at(index)->SetControllingCiv(civs.at(i)->getCiv(), i);
-            board.at(index)->SetGoverningCity(city->GetCityID());
+            board.at(index)->SetGoverningCity(city, i);
 
             QList<Tile*> cityMEB = this->GetNeighborsRange(board.at(index), 4);
             city->SetMaximumExpansionBorderTiles(cityMEB);
@@ -967,21 +964,17 @@ newrand:
 
             civs.at(i)->AddCity(city);
 
-            unit = new Unit(civs.at(i)->getCiv(), WORKER);
-            unit->SetOwner(civs.at(i)->getCiv());
+            unit = new Unit(civs.at(i)->getCiv(), WORKER, i);
             unit->RequiresOrders = true;
-            unit->SetName("Worker");
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
-                    if(!tile->ContainsUnit && !tile->HasCity)
+                    if(!tile->ContainsUnit() && !tile->HasCity)
                     {
-                        unit->SetPositionIndex(tile->GetTileIndex());
-                        unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                        tile->SetOccupyingCivListIndex(i);
-                        tile->ContainsUnit = true;
+                        unit->SetPosition(tile);
+                        tile->SetOccupyingUnit(unit);
                         break;
                     }
                 }
@@ -990,23 +983,19 @@ newrand:
             unit->SetUnitListIndex(0);
             civs.at(i)->AddUnit(unit);
 
-            unit = new Unit(civs.at(i)->getCiv(), WARRIOR);
-            unit->SetOwner(civs.at(i)->getCiv());
+            unit = new Unit(civs.at(i)->getCiv(), WARRIOR, i);
             unit->RequiresOrders = true;
             unit->SetStrength(6);
             unit->SetMovementPoints(2);
-            unit->SetName("Warrior");
 
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
-                    if(!tile->ContainsUnit && !tile->HasCity)
+                    if(!tile->ContainsUnit() && !tile->HasCity)
                     {
-                        unit->SetPositionIndex(tile->GetTileIndex());
-                        unit->SetPosition(tile->GetTileID().column, tile->GetTileID().row);
-                        tile->SetOccupyingCivListIndex(i);
-                        tile->ContainsUnit = true;
+                        unit->SetPosition(tile);
+                        tile->SetOccupyingUnit(unit);
                         break;
                     }
                 }

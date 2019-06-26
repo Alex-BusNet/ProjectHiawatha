@@ -41,7 +41,7 @@ Tile::Tile(int _posX, int _posY)
     IsWorked = false;
     HasRoad = false;
     HasCity = false;
-    ContainsUnit = false;
+    //ContainsUnit = false;
     Selected = false;
     DiscoveredByPlayer = false;
     IsSeenByPlayer = false;
@@ -110,9 +110,9 @@ Tile::Tile(int _posX, int _posY)
 
     Checked = false;
     owner = NO_NATION;
-    this->governingCity = -1;
+    this->governingCity = NULL;
     outlinePen.setColor(QColor(255, 255, 255, 0));
-    occupyingCivListIndex = -1;
+    occupyingUnit = NULL;
     controllingCivListIndex = -1;
     continent = 0;
     container = 0;
@@ -128,6 +128,11 @@ Tile::~Tile()
 {
     if(yield != NULL)
         delete yield;
+}
+
+bool Tile::ContainsUnit()
+{
+    return (this->occupyingUnit != NULL);
 }
 
 TileType Tile::GetTileType()
@@ -160,10 +165,13 @@ Nation Tile::GetControllingCiv()
     return this->owner;
 }
 
+/*
+ * OBSOLETE - Function has been merged with SetGoverningCity
 void Tile::SetControllingCiv(Nation civ, int civListIndex)
 {
     this->owner = civ;
     this->controllingCivListIndex = civListIndex;
+
     if(controllingCivListIndex == 0)
         CanAlwaysBeSeen = true;
 
@@ -175,15 +183,43 @@ void Tile::SetControllingCiv(Nation civ, int civListIndex)
         this->governingCity = -1;
     }
 }
+*/
 
-int Tile::GetGoverningCity()
+City *Tile::GetGoverningCity()
 {
     return this->governingCity;
 }
 
-void Tile::SetGoverningCity(int cityID)
+int Tile::GetGoverningCityID()
 {
-    this->governingCity = cityID;
+    if(this->governingCity == NULL)
+        return -1;
+    else
+        return this->governingCity->GetCityID();
+}
+
+void Tile::SetGoverningCity(City *city, int civListIndex)
+{
+    this->governingCity = city;
+
+    if(city != NULL)
+        this->owner = city->GetControllingCiv();
+    else
+        this->owner = NO_NATION;
+
+    this->controllingCivListIndex = civListIndex;
+
+    if(civListIndex == 0)
+    {
+        CanAlwaysBeSeen = true;
+    }
+    else if(civListIndex == -1)
+    {
+        this->CanAlwaysBeSeen = false;
+        this->DiscoveredByPlayer = false;
+        this->IsSeenByPlayer = false;
+    }
+
 }
 
 void Tile::SetTilePen(QPen pen)
@@ -484,9 +520,10 @@ int Tile::fCost()
     return gCost + hCost;
 }
 
-void Tile::SetOccupyingCivListIndex(int index)
+void Tile::SetOccupyingUnit(Unit* unit)
 {
-    this->occupyingCivListIndex = index;
+//    this->occupyingCivListIndex = index;
+    this->occupyingUnit = unit;
 }
 
 void Tile::SetControllingCivListIndex(int index)
@@ -494,9 +531,10 @@ void Tile::SetControllingCivListIndex(int index)
     this->controllingCivListIndex = index;
 }
 
-int Tile::GetOccupyingCivListIndex()
+// Updates: (ARP - 6/23/2019) Function used to be GetOccupyingCivListIndex
+Unit* Tile::GetOccupyingUnit()
 {
-    return this->occupyingCivListIndex;
+    return this->occupyingUnit;
 }
 
 int Tile::GetControllingCivListIndex()
@@ -537,10 +575,10 @@ void Tile::WriteTileSaveData(QJsonObject &obj) const
     obj["tileworked"] = IsWorked;
     obj["improvement"] = improvement;
     obj["hascity"] = HasCity;
-    obj["containsunit"] = ContainsUnit;
-    obj["occupyingcivlistindex"] = occupyingCivListIndex;
+    //obj["containsunit"] = ContainsUnit;
+    //obj["occupyingcivlistindex"] = occupyingCivListIndex;
     obj["controllingcivlistindex"] = controllingCivListIndex;
-    obj["governedby"] = governingCity;
+    //obj["governedby"] = governingCity;
     obj["owner"] = owner;
     obj["movecost"] = moveCost;
     obj["canalwaysbeseen"] = CanAlwaysBeSeen;
@@ -564,10 +602,10 @@ void Tile::ReadTileSaveData(const QJsonObject &obj)
     IsWorked = obj["tileworked"].toBool();
     improvement = static_cast<TileImprovement>(obj["improvement"].toInt());
     HasCity = obj["hascity"].toBool();
-    ContainsUnit = obj["containsunit"].toBool();
-    occupyingCivListIndex = obj["occupyingcivlistindex"].toInt();
+    //ContainsUnit = obj["containsunit"].toBool();
+    //occupyingCivListIndex = obj["occupyingcivlistindex"].toInt();
     controllingCivListIndex = obj["controllingcivlistindex"].toInt();
-    governingCity = obj["governedby"].toInt();
+    //governingCity = obj["governedby"].toInt();
     owner = static_cast<Nation>(obj["owner"].toInt());
     moveCost = obj["movecost"].toInt();
     CanAlwaysBeSeen = obj["canalwaysbeseen"].toBool();

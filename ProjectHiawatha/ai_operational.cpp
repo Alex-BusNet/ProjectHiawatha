@@ -41,7 +41,7 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player){
         for(int i = 0; i<civ->GetCityList().length();i++){
              QVector<Tile*> borderingTiles=civ->GetCityAt(i)->tileQueue;
              for(int j=0; j<borderingTiles.length();j++){
-                 if(0==borderingTiles.at(j)->GetOccupyingCivListIndex()){
+                 if(0==borderingTiles.at(j)->GetOccupyingUnit()->GetOwningCivIndex()){
 #ifdef DEBUG
                     qDebug()<<"Enemy Near";
 #endif

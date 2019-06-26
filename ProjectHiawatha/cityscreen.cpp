@@ -36,9 +36,11 @@ CityScreen::CityScreen(QWidget *parent) :
     ui->tabWidget->setTabText(0, "Buildings");
     ui->tabWidget->setTabText(1, "Units");
     ui->tabWidget->setTabText(2, "Completed Buildings");
+    ui->tabWidget->setCurrentIndex(0);
     ui->progressBar->setMinimum(0);
     ui->label->setText("Cost: ");
-    ui->ItemBG->setPixmap(QPixmap("Assets/UI/CityScreenBackground_alt2.png"));
+    this->w = ui->picture->width();
+    this->h = ui->picture->height();
 }
 
 CityScreen::~CityScreen()
@@ -325,7 +327,7 @@ void CityScreen::on_listWidget_itemSelectionChanged()
     temp += " turns)";
 //    ui->description->setText(buildings.at(ui->listWidget->currentRow())->getDescription());
     ui->description->setText(obj["description"].toString());
-    ui->picture->setPixmap(pic);
+    ui->picture->setPixmap(pic.scaled(w, h));
     ui->label->setText(temp);
     update();
 }

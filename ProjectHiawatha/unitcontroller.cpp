@@ -25,13 +25,13 @@ UnitController::~UnitController()
  * of the adjacent tile to the target tile (stored as hCost), and the summation of
  * the two (known as fCost). The algorithm determines what direction it travels by looking at
  * the fCost of all surrounding tiles and choosing the lowest one, if there is a tie in lowest
- * fCosts, then the lower hCost of the two is used, if hCosts tie, then one of the two is chosed
+ * fCosts, then the lower hCost of the two is used, if hCosts tie, then one of the two is chosen
  * and the algorithm proceeds. Tiles that are determined to be impassable (indicated by a tile's walkable flag or the AtWar check)
  * then a gCost and hCost are not calculated for that tile. As tiles are searched, any tile that is determined
  * to be a valid tile, and has not already been searched, is added to the openSet, as tiles are checked, they are
  * added to the closedSet. As new tiles are searched and are determined to be valid options, the neighboring
  * tiles' parent attribute is set to the current tile. Tiles that have been determined to be part of the path will
- * always a higher fCost, preventing the algorithm from revistiing a tile it has already visited. Once FindPath
+ * always a higher fCost, preventing the algorithm from revisiting a tile it has already visited. Once FindPath
  * reaches it's destination the end tile and start tile are sent to RetracePath.
  */
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
@@ -43,7 +43,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
         return;
     }
 
-    if(endTile->ContainsUnit && !unit->isPathEmpty())
+    if(endTile->ContainsUnit() && !unit->isPathEmpty())
     {
         endTile = unit->GetPath().at(unit->GetPath().size() - 2);
     }
@@ -86,7 +86,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
         openSet.removeOne(currentHex);
         closedSet.insert(currentHex);
 
-        // If we haved reached our destination,
+        // If we have reached our destination,
         // Quit searching and retrace the path
         // back to the start.
         if(currentHex == endTile)
@@ -115,7 +115,7 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
                 warCheckFailed = false;
             }
 
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit || warCheckFailed)
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit() || warCheckFailed)
             {
                 warCheckFailed = false;
                 continue;
@@ -145,38 +145,18 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
     }
 }
 
-void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
+/*
+ * Moves the unit to the next tile in their path.
+ *
+ * Updates: (ARP - 6/23/2019) Moved movement update logic to unit class
+ *                            (units now have a pointer to the tile object
+ *                             they occupy)
+ */
+void UnitController::MoveUnit(Unit *unit) //, Map *map, int civListIndex)
 {
-    if(map->GetTileAt(unit->GetNextTileInPath()->GetTileIndex())->ContainsUnit)
-    {
-        unit->ClearPath();
-        unit->RequiresOrders = true;
-        return;
-
-    }
-
     if(!unit->isPathEmpty())
     {
-        // Clear the data from the current tile
-        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
-        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
-
-        if(map->GetTileAt(unit->GetTileIndex())->Selected)
-                map->GetTileAt(unit->GetTileIndex())->Selected = false;
-
-        //update the unit's position
-        unit->SetPositionIndex(unit->GetNextTileInPath()->GetTileIndex());
-        unit->SetPosition(unit->GetNextTileInPath()->GetTileID().column, unit->GetNextTileInPath()->GetTileID().row);
-        map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(civListIndex);
-
-        // Set the data for the unit's new tile
-        map->GetTileAt(unit->GetTileIndex())->ContainsUnit = true;
-
-        // Remove the point from path
-        if(!unit->isPathEmpty())
-        {
-            unit->UpdatePath();
-        }
+        unit->UpdatePath();
     }
 }
 
@@ -184,12 +164,12 @@ void UnitController::MoveUnit(Unit *unit, Map *map, int civListIndex)
  * Attack is used for unit-to-unit combat. Attackers are granted a 1.5 bonus
  * to their attack, this is to prevent two units of the same type from dealing
  * equal damage to each other (assuming both the attacker and target are melee units).
- * a 40% reduction in damge taken is granted to the target if they are fortified
+ * a 40% reduction in damage taken is granted to the target if they are fortified
  * and attackers will only deal 80% of the normal damage dealt if they attack from water.
  * if the attacker, target, or both are ranged type units, then the attacking unit will
  * not take any damage. However, if both units are melee type, then the attacker will
- * recieve some damage equal to a ratio of the target's current health to their overall strength
- * mulitplied by the ratio of the fortify bonus over the attack bonus.
+ * receive some damage equal to a ratio of the target's current health to their overall strength
+ * multiplied by the ratio of the fortify bonus over the attack bonus.
  */
 void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 {
@@ -245,9 +225,9 @@ void UnitController::Attack(Unit *attacker, Unit *target, bool attackFromWater)
 }
 
 /*
- * AttackCity functions similarly to Attack however there is no damage received calulation.
- * Melee units that attack a city will automatically recieve a 80% damage penalty for attacking
- * cities and also will take on damage for attacking. If a unit is classified as siege type, then it will receive a 400% bouns to the
+ * AttackCity functions similarly to Attack however there is no damage received calculation.
+ * Melee units that attack a city will automatically receive a 80% damage penalty for attacking
+ * cities and also will take on damage for attacking. If a unit is classified as siege type, then it will receive a 400% bonus to the
  * damage it deals to the city. Range units do not receive any bonus or penalty for attacking cities.
  */
 void UnitController::AttackCity(Unit *attacker, City *city)
@@ -285,15 +265,15 @@ void UnitController::AttackCity(Unit *attacker, City *city)
 }
 
 /*
- * FoundCity is used to set up premilimary information when a player tries to found a city.
+ * FoundCity is used to set up preliminary information when a player tries to found a city.
  */
 void UnitController::FoundCity(Unit *unit, Tile *CurrentTile, Civilization *currentCiv)
 {
     if(unit->isSettler() && (CurrentTile->GetTileType() == (WATER | MOUNTAIN | ICE)) )
     {
-       City* newCity = new City();
+       City* newCity = new City(currentCiv->getCivIndex());
        currentCiv->AddCity(newCity);
-       CurrentTile->HasCity = true;
+//       CurrentTile->HasCity = true;
 
     }else{
         //QMESSAGEBOX SAYING CANT FOUND CITY HERE
@@ -379,41 +359,46 @@ bool UnitController::BuildImprovement(Unit *unit, Tile *currentTile, Civilizatio
 }
 
 /*
- * FindUnitAtTile searces the supplied unit list and searches the list until the
+ * FindUnitAtTile searches the supplied unit list and searches the list until the
  * tile index matches the unit's tile index.
+ *
+ * Updates: (ARP - 6/23/2019) OBSOLETE, units now store pointer to tile object they
+ *                              occupy, and tiles store what unit is on them.
  */
 Unit* UnitController::FindUnitAtTile(Tile *tile, QVector<Unit *> unitList)
 {
-    int tIndex = tile->GetTileIndex();
-    foreach(Unit* unit, unitList)
-    {
-        if(unit->GetTileIndex() == tIndex)
-        {
-            return unit;
-        }
-    }
+//    int tIndex = tile->GetTileIndex();
+//    foreach(Unit* unit, unitList)
+//    {
+//        if(unit->GetTileIndex() == tIndex)
+//        {
+//            return unit;
+//        }
+//    }
 
-    return new Unit(NO_NATION, WORKER);
+//    return new Unit(NO_NATION, WORKER);
 }
 
 /*
  * FindCityAtTile functions identically to FindUnitAtTile, only taking a City object in
  * place of a Unit object.
+ *
+ * Updates: (ARP - 6/23/2019) OBSOLETE, tiles now store pointer to city that controls it.
  */
 City *UnitController::FindCityAtTile(Tile *tile, QVector<City *> cityList)
 {
-    int tIndex = tile->GetTileIndex();
-    int cIndex;
-    foreach(City* city, cityList)
-    {
-        cIndex = (city->GetCityTile()->GetTileIndex());
-        if(cIndex == tIndex)
-        {
-            return city;
-        }
-    }
+//    int tIndex = tile->GetTileIndex();
+//    int cIndex;
+//    foreach(City* city, cityList)
+//    {
+//        cIndex = (city->GetCityTile()->GetTileIndex());
+//        if(cIndex == tIndex)
+//        {
+//            return city;
+//        }
+//    }
 
-    return new City();
+//    return new City();
 }
 
 /*
@@ -445,7 +430,7 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
         {
             foreach(int i, wDat.warringCivListIndex)
             {
-                if(i == target->GetOccupyingCivListIndex() || i == target->GetControllingCivListIndex())
+                if((i == target->GetOccupyingUnit()->GetOwningCivIndex()) || (i == target->GetControllingCivListIndex()))
                 {
                     return false;
                 }
@@ -464,7 +449,7 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
 /*
  * GetDistance calculates the distance, in pixels between two tiles.
  * This distance is an approximate value and does not follow true
- * mathmatical formulas for calculating distance.
+ * mathematical formulas for calculating distance.
  */
 int UnitController::GetDistance(Tile *a, Tile *b)
 {
@@ -514,7 +499,7 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
         j--;
     }
 
-    if(end->ContainsUnit)
+    if(end->ContainsUnit())
     {
         path.removeLast();
     }

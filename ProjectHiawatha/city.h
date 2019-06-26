@@ -20,7 +20,7 @@ class Unit;
 class City
 {
 public:
-    City();
+    City(int civIndex);
 
     enum Focus {GOLD_FOCUS, PRODUCTION_FOCUS, SCIENCE_FOCUS, FOOD_FOCUS, CULTURE_FOCUS};
 
@@ -119,6 +119,7 @@ public:
     int GetCityIndex();
     int GetCityRenderIndex();
     int GetCityID();
+    int GetCivIndex();
     int GetCityHealth();
     int GetMaxHealth();
     int GetCityStrength();
@@ -183,9 +184,10 @@ private:
     int scienceYield;
     int goldYield;
 
-    int cityIndex;
+    int cityIndex; // Index in the owning civ's city vector
+    int civIndex; // Index in the GameManager's civList vector
     int cityRenderIndex;
-    int cityID;
+    int cityID; // Unique ID for each city
 
 
     int growthCost;

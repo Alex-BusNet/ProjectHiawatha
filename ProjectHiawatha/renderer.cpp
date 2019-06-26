@@ -8,7 +8,6 @@
 #include <chrono>
 #include "resources.h"
 #include "unitcontroller.h"
-//#define DEBUG
 
 //======================================
 //  Render Layers
@@ -1158,6 +1157,20 @@ void Renderer::DecThread5()
             if(cb != NULL)
                 delete cb;
         }
+
+#ifdef DEBUG
+        foreach(QGraphicsPolygonItem* meb, mebs)
+        {
+            if(meb != NULL)
+                delete meb;
+        }
+
+        foreach(QGraphicsPolygonItem* msd, msds)
+        {
+            if(msd != NULL)
+                delete msd;
+        }
+#endif
     }
 
     if(!cityLabels.isEmpty())
@@ -1374,6 +1387,25 @@ void Renderer::DrawCityBorders(City *city, GameView *view, Nation owner)
     cityBorders.push_back(view->addPolygon(city->GetCityBorders(), outlinePen));
     cityBorders.last()->setPen(outlinePen);
     cityBorders.last()->setZValue(3);
+
+#ifdef DEBUG
+    if(city->GetCityID() < 100)
+    {
+        outlinePen.setColor(Qt::green);
+        foreach(Tile* t, city->borderQueue)
+        {
+            tileCircles.at(t->GetTileIndex())->setPen(outlinePen);
+        }
+        outlinePen.setColor(Qt::transparent);
+        foreach(Tile* t, city->GetControlledTiles())
+        {
+            tileCircles.at(t->GetTileIndex())->setPen(outlinePen);
+        }
+
+       mebs.push_back(view->addPolygon(city->GetMaximumExpansionBorder()));
+       msds.push_back(view->addPolygon(city->GetMinimumSettleDistance()));
+    }
+#endif
 }
 
 /*
@@ -1672,6 +1704,7 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
     QImage *unitImage;
     unitImage = unit->GetUnitIcon();
     QRgb color = cc->GetCivColor(unit->GetOwner()).rgba();
+
     for(int j = 0; j < 32; j++)
     {
         for(int k = 0; k < 32; k++)
@@ -1683,13 +1716,14 @@ void Renderer::AddUnit(Unit *unit, Map *map, GameView *view)
             }
         }
     }
+
     unit->SetUnitImage(unitImage);
     unitPix = new QPixmap(unitPix->fromImage(*unitImage));
     unitPixmap.push_back(view->addPixmap(*unitPix));
     unitPixmap.last()->setZValue(3);
     unitPixmap.last()->setScale(1.0f);
     unit->SetPixmapIndex(unitPixmap.size() - 1);
-    unitPixmap.last()->setPos(map->GetTileAt(unit->GetTileIndex())->GetItemTexturePoint());
+    unitPixmap.last()->setPos(unit->GetUnitTile()->GetItemTexturePoint());
     AddUnitHealthBars(unit, map, view);
 }
 

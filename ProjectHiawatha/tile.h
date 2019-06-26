@@ -18,6 +18,7 @@
 
 
 //class City;
+class Unit;
 
 class Tile
 {
@@ -28,8 +29,8 @@ public:
 
     bool HasRoad; // Movement Cost calculation flag
     bool IsWorked; // Yield calculation flag
-    bool ContainsUnit; // Civ spawning flag
-    bool HasCity; // Civ spawning flag
+    bool ContainsUnit(); // Civ spawning flag. Updated to be function - ARP 6/23/2019
+    bool HasCity; // Civ spawning flag. Updated to be function - ARP 6/23/2019
     bool Checked; // Map Gen Flag
     bool Selected; // Unit selection Render flag
     bool Walkable; // Map Gen path finding flag
@@ -51,10 +52,11 @@ public:
     //void SetTileResource();
 
     Nation GetControllingCiv();
-    void SetControllingCiv(Nation civ, int civListIndex);
+//    void SetControllingCiv(Nation civ, int civListIndex);
 
-    int GetGoverningCity();
-    void SetGoverningCity(int cityID);
+    City* GetGoverningCity();           // Changed from integer type to City* type - ARP 6/23/2019
+    int GetGoverningCityID();
+    void SetGoverningCity(City* city, int civListIndex);  // Changed from integer type to City* type - ARP 6/23/2019
 
     void SetTilePen(QPen pen);
     QPen GetTilePen();
@@ -107,9 +109,10 @@ public:
     int fCost();
     TileID parent;
 
-    void SetOccupyingCivListIndex(int index);
+    void SetOccupyingUnit(Unit* unit);
     void SetControllingCivListIndex(int index);
-    int GetOccupyingCivListIndex();
+
+    Unit* GetOccupyingUnit();
     int GetControllingCivListIndex();
 
     void SetResource(Strategic strat, Luxury lux);
@@ -121,22 +124,30 @@ public:
 
 private:
     TileType type;
+
     Yield* yield;
+
     TileImprovement improvement;
+
     TileID tileID;
+
     QPixmap tileTexture;
+
     Biome biome;
+
     Nation owner;
-    //Resource resource;
+
     QPen outlinePen;
-    int governingCity;
+
+    City* governingCity;       // Changed from integer type to City* type - ARP 6/23/2019
     int continent, container;
 
     int moveCost;
-    int occupyingCivListIndex;
+//    int occupyingCivListIndex;
     int controllingCivListIndex;
     int tileIndex;
 
+    Unit* occupyingUnit;        // Replaces the 'occupyingCivListIndex' variable - ARP 6/23/2019
     Strategic stratResource;
     Luxury luxResource;
 
