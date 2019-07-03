@@ -1063,6 +1063,8 @@ void GameManager::StartTurn()
 
         endTurn->setEnabled(true);
     }
+
+    state = IDLE;
 }
 
 void GameManager::EndTurn()
@@ -1078,6 +1080,7 @@ void GameManager::EndTurn()
     if(currentTurn == 0)
     {
         statusMessage = " ";
+        /*
         moveUnit->setEnabled(false);
 
         buildFarm->setEnabled(false);
@@ -1095,6 +1098,9 @@ void GameManager::EndTurn()
         attackCity->setEnabled(false);
         rangeAttack->setEnabled(false);
         fortifyUnit->setEnabled(false);
+        */
+
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
 
         goldFocus->setEnabled(false);
         productionFocus->setEnabled(false);
@@ -1268,6 +1274,260 @@ nextCivAlive:
     }
 }
 
+void GameManager::NewUpdateTileData()
+{
+    switch(state)
+    {
+    case IDLE:
+        if(processedData.newData)
+        {
+            // Clear any existing selected tile
+            if(unitTile != NULL)
+            {
+                unitTile->Selected = false;
+                selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
+                this->redrawTile = true;
+            }
+
+            // Get the new tile
+            unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
+
+            if(unitTile->Selected)
+            {
+                unitTile->Selected = false;
+                selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
+                this->redrawTile = true;
+            }
+
+            // If there is a unit on the selected tile, set the control buttons
+            if(unitTile->ContainsUnit())
+            {
+                unitToMove = unitTile->GetOccupyingUnit();
+
+                if(unitToMove != NULL)
+                {
+                    if(unitToMove->GetUnitType() == WORKER)
+                        setUnitButtonVisibility(unitTile->GetWorkerButtons());
+                    else if(unitToMove->GetUnitType() == SETTLER)
+                        setUnitButtonVisibility(SETTLER_BUTTONS_VISIBLE);
+                    else if(!unitToMove->isNonCombat())
+                    {
+                        QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
+
+                        setUnitButtonVisibility(BASIC_BUTTONS_VISIBLE);
+
+                        foreach(Tile *tile, tiles)
+                        {
+                            if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0)) && (tile->HasCity || tile->ContainsUnit()))
+                            {
+                                int tileIndex = tile->GetTileIndex();
+
+                                if(tile->HasCity && tile->GetControllingCivListIndex() != 0)
+                                {
+#ifdef DEBUG
+                                    qDebug() << "   Tile:" << tile->GetTileIDString() << "controlled by:" << tile->GetControllingCivListIndex() << "occupied by" << tile->GetOccupyingUnit()->GetOwningCivIndex();
+#endif
+                                    selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                                    tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+                                }
+                                else if(tile->ContainsUnit() && !tile->HasCity && tile->GetOccupyingCivListIndex() != 0)
+                                {
+                                    selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                                    tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+
+                                    if(unitToMove->isMelee)
+                                    {
+                                        unitControlButtonsVisible = MELEE_BUTTONS_VISIBLE;
+                                        setUnitButtonVisibility(unitControlButtonsVisible);
+                                    }
+                                    else if(!unitToMove->isMelee)
+                                    {
+                                        unitControlButtonsVisible = RANGE_BUTTONS_VISIBLE;
+                                        setUnitButtonVisibility(unitControlButtonsVisible);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                this->redrawTile = true;
+                selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), true, false});
+                tileModifiedQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
+            }
+        }
+
+        break;
+
+    case MOVE_UNIT:
+        if(processedData.newData)
+        {
+            targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
+
+            if(!WarCheck(targetTile))
+            {
+                if(targetTile->ContainsUnit())
+                    statusMessage = "--------<< You cannot move there >>--------";
+                else
+                {
+                    //Even though we aren't technically invading all the time,
+                    //  this is set to simply allow the move processing to occur
+                    state = INVADE;
+                }
+            }
+        }
+
+        break;
+
+    case ATTACK_MELEE:
+    case ATTACK_RANGE:
+        if(processedData.newData)
+        {
+            targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
+
+            if(WarCheck(targetTile))
+            {
+                // In the event a tile is selected that doesn't contain a unit,
+                //  find a neighboring tile that has an enemy unit. Assumes the player
+                //  clicked around the intended tile.
+                if(!targetTile->ContainsUnit())
+                {
+                    QList<Tile*> neighbors = map->GetNeighbors(targetTile);
+
+                    foreach(Tile* tile, neighbors)
+                    {
+                        if(tile->ContainsUnit() && !tile->HasCity)
+                        {
+                            if(tile->GetOccupyingUnit()->GetOwningCivIndex() != currentTurn)
+                            {
+                                if(!uc->AtPeaceWith(tile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
+                                {
+                                    targetTile = tile;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        ProcessAttackUnit();
+        state = IDLE;
+        break;
+
+    case ATTACK_CITY:
+    case FIND_CITY:
+        state = IDLE;
+        targetCity = uc->FindCityAtTile(targetTile, civList.at(targetTile->GetControllingCivListIndex())->GetCityList());
+
+        if(currentTurn == 0)
+        {
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
+
+            unitControlButtonsVisible |= 0x00008;
+            setUnitButtonVisibility(unitControlButtonsVisible);
+        }
+
+        if(!uc->AtPeaceWith(targetCity->GetCityTile(), WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
+        {
+            uc->AttackCity(unitToMove, targetCity);
+
+            //City Conquering Logic
+            if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
+            {
+                if(currentTurn == 0)
+                    statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
+
+                int targetIndex = targetTile->GetControllingCivListIndex();
+
+                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetIndex));
+
+                if(civList.at(targetIndex)->GetCityList().size() == 0)
+                {
+                    if(!civList.at(targetIndex)->GetUnitList().isEmpty())
+                    {
+                        foreach(Unit* unit, civList.at(targetIndex)->GetUnitList())
+                        {
+                            unit->GetUnitTile()->SetOccupyingUnit(NULL);
+                            renderer->RemoveUnit(unit, gameView);
+                        }
+
+                        for(int i = 0; i < civList.at(targetIndex)->GetUnitList().size(); i++)
+                        {
+                            civList.at(targetIndex)->RemoveUnit(i);
+                        }
+                    }
+
+                    playersAliveCount--;
+                }
+            }
+
+            renderer->UpdateUnits(map, gameView, unitToMove, false);
+            renderer->UpdateCityHealthBar(targetCity, gameView);
+            renderer->SetUnitNeedsOrders(unitTile->GetTileIndex(), false);
+            this->redrawTile = true;
+        }
+        break;
+
+    case AI_FOUND_CITY:
+    case FOUND_CITY:
+        break;
+
+    case INVADE:
+        // INVADE is used to set the path which the unit will follow.
+        // Used in general movement and invasion movement.
+        unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
+        unitToMove->SetUnitTargetTileIndex(targetTile->GetTileIndex());
+
+        if(unitToMove->isFortified)
+        {
+            unitToMove->isFortified = false;
+            renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+        }
+
+        uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()});
+
+        relocateUnit = false;
+        processedData.relocateOrderGiven = false;
+        unitTile->Selected = false;
+        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
+        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+
+        unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
+        setUnitButtonVisibility(unitControlButtonsVisible);
+
+        this->redrawTile = true;
+
+        state = IDLE;
+        break;
+
+    case CONQUER:
+        break;
+
+    case AI_DECLARE_WAR:
+        break;
+
+     default:
+        if(unitToMove != NULL)
+        {
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            if(!tileModifiedQueue->isEmpty())
+            {
+                renderer->UpdateScene(map, gameView, tileModifiedQueue);
+            }
+        }
+
+        unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
+        setUnitButtonVisibility(unitControlButtonsVisible);
+        redrawTile = true;
+        state = IDLE;
+        break;
+    }
+}
+
+
 // TODO: Rewrite UpdateTileData()
 /*
  * UpdateTileData() is the function that handles all of the tile selection, unit combat,
@@ -1359,175 +1619,158 @@ void GameManager::UpdateTileData()
 
         unitToMove = unitTile->GetOccupyingUnit(); //uc->FindUnitAtTile(unitTile, civList.at(currentTurn)->GetUnitList());
 
-        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
-        tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+#ifdef DEBUG
+      qDebug() << "unitToMove null: " << (unitToMove == NULL);
+#endif
 
-        if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (unitToMove->RequiresOrders || unitToMove->isFortified))
+        if(unitToMove != NULL)
         {
-            if(unitToMove->isFortified)
+            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), true, false});
+            tileModifiedQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+
+            if(unitToMove->GetOwner() == civList.at(currentTurn)->getCiv() && (unitToMove->RequiresOrders || unitToMove->isFortified))
             {
-                renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
-                unitToMove->isFortified = false;
-            }
-
-            //map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
-            unitTile->Selected = true;
-            moveUnit->setEnabled(true);
-            this->redrawTile = true;
-
-            if(unitToMove->isNonCombat())
-            {
-//                attackUnit->setEnabled(false);
-//                attackCity->setEnabled(false);
-//                rangeAttack->setEnabled(false);
-//                fortifyUnit->setEnabled(false);
-
-                if(unitToMove->GetUnitType() == SETTLER)
+                if(unitToMove->isFortified)
                 {
-                    //if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
-                    if(!unitTile->HasCity)
-                    {
-                        unitControlButtonsVisible = SETTLER_BUTTONS_VISIBLE;
-                        setUnitButtonVisibility(unitControlButtonsVisible);
-//                        foundCity->setEnabled(true);
+                    renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
+                    unitToMove->isFortified = false;
+                }
 
-//                        buildFarm->setEnabled(false);
-//                        buildMine->setEnabled(false);
-//                        buildPlantation->setEnabled(false);
-//                        buildTradePost->setEnabled(false);
-//                        buildRoad->setEnabled(false);
-//                        buildCamp->setEnabled(false);
-//                        buildPasture->setEnabled(false);
-//                        buildFishBoat->setEnabled(false);
-//                        buildOilWell->setEnabled(false);
-//                        buildQuarry->setEnabled(false);
+                //map->GetTileAt(unitToMove->GetTileIndex())->Selected = true;
+                unitTile->Selected = true;
+                moveUnit->setEnabled(true);
+                this->redrawTile = true;
+
+                if(unitToMove->isNonCombat())
+                {
+                    if(unitToMove->GetUnitType() == SETTLER)
+                    {
+                        //if(!map->GetTileAt(unitToMove->GetTileIndex())->HasCity)
+                        if(!unitTile->HasCity)
+                        {
+                            unitControlButtonsVisible = SETTLER_BUTTONS_VISIBLE;
+                            setUnitButtonVisibility(unitControlButtonsVisible);
+    //                        foundCity->setEnabled(true);
+
+    //                        buildFarm->setEnabled(false);
+    //                        buildMine->setEnabled(false);
+    //                        buildPlantation->setEnabled(false);
+    //                        buildTradePost->setEnabled(false);
+    //                        buildRoad->setEnabled(false);
+    //                        buildCamp->setEnabled(false);
+    //                        buildPasture->setEnabled(false);
+    //                        buildFishBoat->setEnabled(false);
+    //                        buildOilWell->setEnabled(false);
+    //                        buildQuarry->setEnabled(false);
+                        }
+                    }
+                    else if (unitToMove->GetUnitType() == WORKER)
+                    {
+                        //if(map->GetTileAt(unitToMove->GetTileIndex())->GetControllingCiv() == civList.at(currentTurn)->getCiv())
+                        if(unitTile->GetControllingCivListIndex() == currentTurn)
+                        {
+                            unitControlButtonsVisible = unitTile->GetWorkerButtons();
+    /*
+                            //if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveFarm)
+                            if(!unitTile->CanHaveFarm)
+                                unitControlButtonsVisible &= 0xF7FFF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveMine)
+                            if(!unitTile->CanHaveMine)
+                                unitControlButtonsVisible &= 0xFBFFF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHavePlantation)
+                            if(!unitTile->CanHavePlantation)
+                                unitControlButtonsVisible &= 0xFEFFF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveTrade)
+                            if(!unitTile->CanHaveTrade)
+                                unitControlButtonsVisible &= 0xFDFFF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveCamp)
+                            if(!unitTile->CanHaveCamp)
+                                unitControlButtonsVisible &= 0xFFEFF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveFishBoat)
+                            if(!unitTile->CanHaveFishBoat)
+                                unitControlButtonsVisible &= 0xFFDFF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveOilWell)
+                            if(!unitTile->CanHaveOilWell)
+                                unitControlButtonsVisible &= 0xFFF7F;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHavePasture)
+                            if(!unitTile->CanHavePasture)
+                                unitControlButtonsVisible &= 0xFFFBF;
+
+    //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveQuarry)
+                            if(!unitTile->CanHaveQuarry)
+                                unitControlButtonsVisible &= 0xFFBFF;
+    */
+                        }
+
+                        setUnitButtonVisibility(unitControlButtonsVisible);
                     }
                 }
-                else if (unitToMove->GetUnitType() == WORKER)
+                else //Combat Unit button controls
                 {
-                    //if(map->GetTileAt(unitToMove->GetTileIndex())->GetControllingCiv() == civList.at(currentTurn)->getCiv())
-                    if(unitTile->GetControllingCivListIndex() == currentTurn)
-                    {
-                        unitControlButtonsVisible = WORKER_BUTTONS_VISIBLE;
-
-                        //if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveFarm)
-                        if(!unitTile->CanHaveFarm)
-                            unitControlButtonsVisible &= 0xF7FFF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveMine)
-                        if(!unitTile->CanHaveMine)
-                            unitControlButtonsVisible &= 0xFBFFF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHavePlantation)
-                        if(!unitTile->CanHavePlantation)
-                            unitControlButtonsVisible &= 0xFEFFF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveTrade)
-                        if(!unitTile->CanHaveTrade)
-                            unitControlButtonsVisible &= 0xFDFFF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveCamp)
-                        if(!unitTile->CanHaveCamp)
-                            unitControlButtonsVisible &= 0xFFEFF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveFishBoat)
-                        if(!unitTile->CanHaveFishBoat)
-                            unitControlButtonsVisible &= 0xFFDFF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveOilWell)
-                        if(!unitTile->CanHaveOilWell)
-                            unitControlButtonsVisible &= 0xFFF7F;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHavePasture)
-                        if(!unitTile->CanHavePasture)
-                            unitControlButtonsVisible &= 0xFFFBF;
-
-//                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveQuarry)
-                        if(!unitTile->CanHaveQuarry)
-                            unitControlButtonsVisible &= 0xFFBFF;
-                    }
+                    if(unitToMove->isMelee)
+                        unitControlButtonsVisible = MELEE_BUTTONS_VISIBLE;
+                    else if(!unitToMove->isMelee)
+                        unitControlButtonsVisible = RANGE_BUTTONS_VISIBLE;
 
                     setUnitButtonVisibility(unitControlButtonsVisible);
-                }
-            }
-            else //Combat Unit button controls
-            {
-//                attackCity->setEnabled(false);
-//                attackUnit->setEnabled(false);
-//                rangeAttack->setEnabled(false);
-//                foundCity->setEnabled(false);
-//                buildFarm->setEnabled(false);
-//                buildMine->setEnabled(false);
-//                buildPlantation->setEnabled(false);
-//                buildTradePost->setEnabled(false);
-//                buildRoad->setEnabled(false);
-//                buildCamp->setEnabled(false);
-//                buildPasture->setEnabled(false);
-//                buildFishBoat->setEnabled(false);
-//                buildOilWell->setEnabled(false);
-//                buildQuarry->setEnabled(false);
 
-//                fortifyUnit->setEnabled(true);
-                if(unitToMove->isMelee)
-                    unitControlButtonsVisible = MELEE_BUTTONS_VISIBLE;
-                else if(!unitToMove->isMelee)
-                    unitControlButtonsVisible = RANGE_BUTTONS_VISIBLE;
+                    QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
 
-                setUnitButtonVisibility(unitControlButtonsVisible);
-
-                QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
-
-                foreach(Tile *tile, tiles)
-                {
-                    if(((tile->GetOccupyingUnit()->GetOwningCivIndex() > 0) || (tile->GetControllingCivListIndex() > 0)) && (tile->HasCity || tile->ContainsUnit()))
+                    foreach(Tile *tile, tiles)
                     {
-                        int tileIndex = tile->GetTileIndex();
-
-                        if(tile->HasCity && tile->GetControllingCivListIndex() != 0)
+                        if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0)) && (tile->HasCity || tile->ContainsUnit()))
                         {
-                            qDebug() << "   Tile:" << tile->GetTileIDString() << "controlled by:" << tile->GetControllingCivListIndex() << "occupied by" << tile->GetOccupyingUnit()->GetOwningCivIndex();
-                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
-                            attackCity->setEnabled(true);
-                        }
-                        else if(tile->ContainsUnit() && !tile->HasCity && tile->GetOccupyingUnit()->GetOwningCivIndex() != 0)
-                        {
-                            selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                            tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+                            int tileIndex = tile->GetTileIndex();
 
-                            if(unitToMove->isMelee)
+                            if(tile->HasCity && tile->GetControllingCivListIndex() != 0)
                             {
-                                unitControlButtonsVisible = MELEE_BUTTONS_VISIBLE;
-                                setUnitButtonVisibility(unitControlButtonsVisible);
-//                                attackUnit->setEnabled(true);
+                                qDebug() << "   Tile:" << tile->GetTileIDString() << "controlled by:" << tile->GetControllingCivListIndex() << "occupied by" << tile->GetOccupyingUnit()->GetOwningCivIndex();
+                                selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                                tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
+                                attackCity->setEnabled(true);
                             }
-                            else if(!unitToMove->isMelee)
+                            else if(tile->ContainsUnit() && !tile->HasCity && tile->GetOccupyingCivListIndex() != 0)
                             {
-                                unitControlButtonsVisible = RANGE_BUTTONS_VISIBLE;
-                                setUnitButtonVisibility(unitControlButtonsVisible);
+                                selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
+                                tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
 
-//                                attackUnit->setEnabled(false);
-//                                rangeAttack->setEnabled(true);
+                                if(unitToMove->isMelee)
+                                {
+                                    unitControlButtonsVisible = MELEE_BUTTONS_VISIBLE;
+                                    setUnitButtonVisibility(unitControlButtonsVisible);
+                                }
+                                else if(!unitToMove->isMelee)
+                                {
+                                    unitControlButtonsVisible = RANGE_BUTTONS_VISIBLE;
+                                    setUnitButtonVisibility(unitControlButtonsVisible);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        else
-        {
-            unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
-            setUnitButtonVisibility(unitControlButtonsVisible);
-
-            if(currentTurn == 0)
+            else
             {
-                if(unitToMove->GetOwner() != civList.at(0)->getCiv())
-                    statusMessage = "--------<< You do not own that unit >>--------";
-                else
-                    statusMessage = "--------<< You cannot give orders to this unit >>-------";
-            }
+                unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
+                setUnitButtonVisibility(unitControlButtonsVisible);
 
-            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+                if(currentTurn == 0)
+                {
+                    if(unitToMove->GetOwner() != civList.at(0)->getCiv())
+                        statusMessage = "--------<< You do not own that unit >>--------";
+                    else
+                        statusMessage = "--------<< You cannot give orders to this unit >>-------";
+                }
+
+                selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
+            }
         }
     }
     else if(state == FIND_CITY)
@@ -1983,7 +2226,6 @@ void GameManager::InitButtons()
 
     moveUnit = new QPushButton("Move Unit");
     connect(moveUnit, SIGNAL(clicked(bool)), this, SLOT(moveUnitTo()));
-    moveUnit->setEnabled(false);
     moveUnit->setShortcut(QKeySequence(Qt::Key_X));
 
     endTurn = new QPushButton("End Turn");
@@ -1992,62 +2234,50 @@ void GameManager::InitButtons()
 
     buildFarm = new QPushButton("Build Farm");
     connect(buildFarm, SIGNAL(clicked(bool)), this, SLOT(buildNewFarm()));
-    buildFarm->setEnabled(false);
     buildFarm->setShortcut(QKeySequence(Qt::Key_F));
 
     buildMine = new QPushButton("Build Mine");
     connect(buildMine, SIGNAL(clicked(bool)), this, SLOT(buildNewMine()));
-    buildMine->setEnabled(false);
     buildMine->setShortcut(QKeySequence(Qt::Key_S));
 
     buildPlantation = new QPushButton("Build Plantation");
     connect(buildPlantation, SIGNAL(clicked(bool)), this, SLOT(buildNewPlantation()));
-    buildPlantation->setEnabled(false);
     buildPlantation->setShortcut(QKeySequence(Qt::Key_D));
 
     buildTradePost = new QPushButton ("Build Trading Post");
     connect(buildTradePost, SIGNAL(clicked(bool)), this, SLOT(buildNewTradePost()));
-    buildTradePost->setEnabled(false);
     buildTradePost->setShortcut(QKeySequence(Qt::Key_G));
 
     buildRoad = new QPushButton("Build Road");
     connect(buildRoad, SIGNAL(clicked(bool)), this, SLOT(buildNewRoad()));
-    buildRoad->setEnabled(false);
     buildRoad->setShortcut(QKeySequence(Qt::Key_H));
 
     buildCamp = new QPushButton("Build Camp");
     connect(buildCamp, SIGNAL(clicked(bool)), this, SLOT(buildNewCamp()));
-    buildCamp->setEnabled(false);
     // Shortcut
 
     buildPasture = new QPushButton("Build Pasture");
     connect(buildPasture, SIGNAL(clicked(bool)), this, SLOT(buildNewPasture()));
-    buildPasture->setEnabled(false);
     // Shortcut
 
     buildFishBoat = new QPushButton("Build Fishing Boat");
     connect(buildFishBoat, SIGNAL(clicked(bool)), this, SLOT(buildNewFishBoat()));
-    buildFishBoat->setEnabled(false);
     // Shortcut
 
     buildQuarry = new QPushButton("Build Quarry");
     connect(buildQuarry, SIGNAL(clicked(bool)), this, SLOT(buildNewQuarry()));
-    buildQuarry->setEnabled(false);
     // Shortcut
 
     buildOilWell = new QPushButton("Build Oil Well");
     connect(buildOilWell, SIGNAL(clicked(bool)), this, SLOT(buildNewOilWell()));
-    buildOilWell->setEnabled(false);
     // Shortcut
 
     foundCity = new QPushButton("Found City");
     connect(foundCity, SIGNAL(clicked(bool)), this, SLOT(foundNewCity()));
-    foundCity->setEnabled(false);
     foundCity->setShortcut(QKeySequence(Qt::Key_Q));
 
     attackUnit = new QPushButton("Attack");
     connect(attackUnit, SIGNAL(clicked(bool)), this, SLOT(attackMelee()));
-    attackUnit->setEnabled(false);
     attackUnit->setShortcut(QKeySequence(Qt::Key_W));
 
     goldFocus = new QPushButton("Gold Focus");
@@ -2084,17 +2314,14 @@ void GameManager::InitButtons()
 
     attackCity = new QPushButton("Attack City");
     connect(attackCity, SIGNAL(clicked(bool)), this, SLOT(AttackCity()));
-    attackCity->setEnabled(false);
     attackCity->setShortcut(QKeySequence(Qt::Key_E));
 
     rangeAttack = new QPushButton("Range Attack");
     connect(rangeAttack, SIGNAL(clicked(bool)), this, SLOT(RangeAttack()));
-    rangeAttack->setEnabled(false);
     rangeAttack->setShortcut(QKeySequence(Qt::Key_R));
 
     fortifyUnit = new QPushButton("Fortify");
     connect(fortifyUnit, SIGNAL(clicked(bool)), this, SLOT(Fortify()));
-    fortifyUnit->setEnabled(false);
     fortifyUnit->setShortcut(QKeySequence(Qt::Key_A));
 
     help = new QPushButton("Help");
@@ -2114,7 +2341,7 @@ void GameManager::InitLayouts()
     int spacerSize = (this->height() - 500) + 280;
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addWidget(showDiplomacy);
-    unitControlButtons->addSpacerItem(new QSpacerItem(100, spacerSize, QSizePolicy::Fixed, QSizePolicy::Expanding));
+    unitControlButtons->addSpacerItem(new QSpacerItem(100, spacerSize, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -2558,9 +2785,42 @@ void GameManager::setUnitButtonVisibility(unsigned int visibleButtons)
         moveUnit->setVisible(false);
 }
 
+bool GameManager::WarCheck(Tile *t)
+{
+    playerToWar = false;
+
+    if((t->ContainsUnit() || t->HasCity) && (t->GetControllingCivListIndex() != 0) && (t->GetControllingCivListIndex() != -1))
+    {
+        if(uc->AtPeaceWith(t, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
+        {
+            if(gameTurn == 1)
+            {
+                statusMessage = "--------<< You cannot declare war on the first turn. >>--------";
+                state = IDLE;
+            }
+            else
+            {
+                warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
+
+                warbox->setWindowFlags(Qt::FramelessWindowHint);
+
+                connect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                connect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+
+                warbox->exec();
+
+                disconnect(warbox->button(QMessageBox::Ok), SIGNAL(clicked(bool)), this, SLOT(WarDeclared()));
+                disconnect(warbox->button(QMessageBox::Cancel), SIGNAL(clicked(bool)), this, SLOT(WarAvoided()));
+            }
+        }
+    }
+
+    return playerToWar;
+}
+
 void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilization *tCiv)
 {
-    City* city = new City(-1);
+//    City* city = new City(-1);
 
     tCity->SetCityID(100*aCiv->getCivIndex() + aCiv->GetCityList().size());
     tCity->SetControllingCiv(aCiv->getCiv());
@@ -2578,14 +2838,13 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     tCity->setProductionName("No Current Production");
     tCity->setProductionIndex(0);
     tCity->setProductionFinished(false);
-
     tCity->GetCityTile()->SetControllingCivListIndex(aCiv->getCivIndex());
 
-    QJsonObject cityInfo;
-    tCity->WriteCitySaveData(cityInfo);
+    //QJsonObject cityInfo;
+    //tCity->WriteCitySaveData(cityInfo);
 
-    city->ReadCitySaveData(cityInfo);
-    city->SetCityTile(map->GetTileAt(city->loadedCityTileIndex));
+    //city->ReadCitySaveData(cityInfo);
+    //city->SetCityTile(map->GetTileAt(city->loadedCityTileIndex));
 
     if(tCity->IsCityCaptial())
     {
@@ -2594,11 +2853,11 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
             ns->PostNotification(Notification{0, QString("%1 has lost their Capital! %2 Now controls %3 capitals.").arg(tCiv->GetLeaderName()).arg(aCiv->GetLeaderName()).arg(aCiv->GetCapitalsControlled())});
             aCiv->IncrementCapitalsControlled();
             tCiv->SetCaptialsControlled(0);
-            city->SetCityAsCapital(false, true);
+            tCity->SetCityAsCapital(false, true);
         }
         else
         {
-            city->SetCityAsCapital(false, false);
+            tCity->SetCityAsCapital(false, false);
             statusMessage = QString("--------<< %1 have conquered the city of %2 >>--------").arg(aCiv->GetLeaderName()).arg(tCity->GetName());
         }
     }
@@ -2607,6 +2866,8 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
          statusMessage = QString("--------<< %1 have conquered the city of %2 >>--------").arg(aCiv->GetLeaderName()).arg(tCity->GetName());
     }
 
+
+/*
     foreach(int i, city->controlledTilesIndex)
     {
         Tile* tile = map->GetTileAt(i);
@@ -2649,11 +2910,20 @@ void GameManager::ProcessCityConquer(City *tCity, Civilization *aCiv, Civilizati
     city->InitializeCity();
     renderer->AddCity(city, gameView, true);
     aCiv->AddCity(city);
+*/
+    tCity->UpdateCityStatus();
+    tCity->UpdateCityYield();
 
-    if(aCiv->getCiv() == civList.at(0)->getCiv())
-        clv->addItem(city->GetName());
-    else if(tCiv->getCiv() == civList.at(0)->getCiv())
-        clv->takeItem(tCity->GetCityIndex());
+    if(civList.at(currentTurn)->isCivAI())
+    {
+        if(aCiv->getCiv() == civList.at(currentTurn)->getCiv())
+            clv->addItem(tCity->GetName());
+        else if(tCiv->getCiv() == civList.at(currentTurn)->getCiv())
+            clv->takeItem(tCity->GetCityIndex());
+    }
+
+    tCiv->RemoveCity(tCity->GetCityIndex());
+    aCiv->AddCity(tCity);
 }
 
 void GameManager::ProcessAttackUnit()
@@ -3034,10 +3304,10 @@ void GameManager::updateTiles()
 {
     processedData = gameView->GetScene()->ProcessTile(relocateUnit);
 
-    if(processedData.newData || state == FOUND_CITY)
-    {
-        this->UpdateTileData();
-    }
+    //if(processedData.newData || state == FOUND_CITY)
+    //{
+        this->NewUpdateTileData();
+    //}
 
     TurnController();
 
@@ -3150,6 +3420,7 @@ void GameManager::buildNewRoad()
 //        map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3163,6 +3434,7 @@ void GameManager::buildNewFarm()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(FARM, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3177,6 +3449,7 @@ void GameManager::buildNewPlantation()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(PLANTATION, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3191,6 +3464,7 @@ void GameManager::buildNewTradePost()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(TRADE_POST, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
     this->redrawTile = true;
@@ -3204,6 +3478,7 @@ void GameManager::buildNewMine()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(MINE, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3218,6 +3493,7 @@ void GameManager::buildNewCamp()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(CAMP, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3232,6 +3508,7 @@ void GameManager::buildNewPasture()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(PASTURE, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3246,6 +3523,7 @@ void GameManager::buildNewOilWell()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(OIL_WELL, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3260,6 +3538,7 @@ void GameManager::buildNewFishBoat()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(FISHING_BOAT, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3274,6 +3553,7 @@ void GameManager::buildNewQuarry()
         renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(),false);
         renderer->RemoveUnit(unitToMove,gameView);
         renderer->SetTileImprovement(QUARRY, map->GetTileAt(unitToMove->GetTileIndex()), gameView);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
     }
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
@@ -3388,12 +3668,14 @@ void GameManager::WarDeclared()
     civList.at(targetTile->GetOccupyingUnit()->GetOwningCivIndex())->SetAtWar(currentTurn);
 
     diplo->DeclareWarOn(targetTile->GetOccupyingUnit()->GetOwner(), targetTile->GetOccupyingUnit()->GetOwningCivIndex(), civList.at(0)->getCiv(), 0);
+    playerToWar = true;
 }
 
 void GameManager::WarAvoided()
 {
     state = IDLE;
     relocateUnit = false;
+    playerToWar = false;
 }
 
 /*

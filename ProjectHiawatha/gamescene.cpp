@@ -1,6 +1,7 @@
 #include "gamescene.h"
 #include <QDebug>
 #include <qmath.h>
+//#define DEBUG
 
 GameScene::GameScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -97,10 +98,13 @@ TileData GameScene::ProcessTile(bool unitAwaitingRelocation)
 
             lastScreenPos = mrScreenPos;
             lastScenePos = mrScenePos;
+
         }
 
         //Save the last mouse release position values
-
+#ifdef DEBUG
+    qDebug() << "Selected Row: " << row << "\tSelected Column: " << column;
+#endif
     }
     else
     {

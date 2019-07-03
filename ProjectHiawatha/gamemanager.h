@@ -145,6 +145,7 @@ private:
     bool toggleOn, devModeOn;
     bool civLoadFailed;
     bool renderInitFinished;
+    bool playerToWar; // Used for return value from WarCheck();
 
     Nation playerCiv;
     ActionState state;
@@ -157,6 +158,7 @@ private:
     void StartTurn();
     void EndTurn();
 
+    void NewUpdateTileData();
     void UpdateTileData();
 
     void InitVariables(bool fullscreen);
@@ -171,6 +173,7 @@ private:
     void toggleWidgetVisiblityAll();
     void setUnitButtonVisibility(unsigned int visibleButtons);
 
+    bool WarCheck(Tile* t);
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();
     void ProcessPeace(int makePeaceWithIndex);

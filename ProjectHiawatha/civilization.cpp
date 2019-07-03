@@ -753,6 +753,7 @@ bool Civilization::isAtWar()
 void Civilization::AddCity(City *city)
 {
     this->currentCityList.push_back(city);
+    city->SetCityIndex(this->currentCityList.size());
 }
 
 void Civilization::AddUnit(Unit *unit)
@@ -769,6 +770,7 @@ void Civilization::RemoveCity(int cityIndex)
 {
     qDebug() << "   Removing city";
     this->currentCityList.removeAt(cityIndex);
+
     for(int i = 0; i < currentCityList.size(); i++)
     {
         currentCityList.at(i)->SetCityIndex(i);

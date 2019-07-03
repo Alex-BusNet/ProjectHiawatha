@@ -75,6 +75,10 @@ public:
     void SetMoveCost(int cost);
     int GetMoveCost();
 
+
+    void SetWorkerButtons();
+    unsigned int GetWorkerButtons();
+
     void SetTileIndex(int index);
     int GetTileIndex();
     QString GetTileIDString();
@@ -113,6 +117,7 @@ public:
     void SetControllingCivListIndex(int index);
 
     Unit* GetOccupyingUnit();
+    int GetOccupyingCivListIndex();
     int GetControllingCivListIndex();
 
     void SetResource(Strategic strat, Luxury lux);
@@ -146,6 +151,7 @@ private:
 //    int occupyingCivListIndex;
     int controllingCivListIndex;
     int tileIndex;
+    unsigned int workerButtons;
 
     Unit* occupyingUnit;        // Replaces the 'occupyingCivListIndex' variable - ARP 6/23/2019
     Strategic stratResource;

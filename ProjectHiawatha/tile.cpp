@@ -288,6 +288,147 @@ int Tile::GetMoveCost()
     return this->moveCost;
 }
 
+void Tile::SetWorkerButtons()
+{
+    switch(this->type)
+    {
+    case WATER:
+        this->workerButtons = 0x30003; // Movement only
+        break;
+    case GRASS:
+        this->workerButtons = 0x3A803; // Farm, road, and trade
+        break;
+    case DESERT:
+        this->workerButtons = 0x3A803; // Farm, road, and trade
+        break;
+    case MOUNTAIN:
+        this->workerButtons = NO_BUTTONS_VISIBLE;
+        break;
+    case ICE:
+        this->workerButtons = NO_BUTTONS_VISIBLE;
+        break;
+    case COAST:
+        //This may or may not be added.
+        //It is going to require some logic to get the right texture.
+        break;
+    case HILL:
+        this->workerButtons = 0x3E803; // Farm, mine, road, and trade
+        break;
+    case FOREST:
+        this->workerButtons = 0x3A803; // Farm, road, and trade
+        break;
+    case SNOW:
+        this->workerButtons = NO_BUTTONS_VISIBLE;
+        break;
+    case PLAINS_TILE:
+        this->workerButtons = 0x3A803; // Farm, road, and trade
+        break;
+    default:
+        this->workerButtons = NO_BUTTONS_VISIBLE;
+        break;
+    }
+
+    switch(this->stratResource)
+    {
+    case NO_STRATEGIC:
+        break;
+    case IRON:
+        this->workerButtons |= 0x04000; // Add mine
+        break;
+    case HORSES:
+        this->workerButtons |= 0x00040; // Add Pasture
+        break;
+    case URANIUM:
+        this->workerButtons |= 0x04000; // Add Mine
+        break;
+    case ALUMINUM:
+        this->workerButtons |= 0x04000; // Add Mine
+        break;
+    case COAL:
+        this->workerButtons |= 0x04000; // Add Mine
+        break;
+    case OIL:
+        this->workerButtons |= 0x00080; // Add Oil well
+        break;
+    }
+
+    switch(this->luxResource)
+    {
+    case NO_LUXURY:
+        break;
+    case WHEAT:
+        this->workerButtons |= 0x08000; // Add farm
+        break;
+    case CATTLE:
+        this->workerButtons |= 0x00040; // Add Pasture
+        break;
+    case DEER:
+        this->workerButtons |= 0x00100; // Add camp
+        break;
+    case FISH:
+        this->workerButtons |= 0x00200; // Add Fish Boat
+        break;
+    case WHALES:
+        this->workerButtons |= 0x00200; // Add Fish Boat
+        break;
+    case BANANAS:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case GOLD_RESOURCE:
+        this->workerButtons |= 0x04000; // Add Mine
+        break;
+    case GEMS:
+        this->workerButtons |= 0x04000; // Add Mine
+        break;
+    case MARBLE:
+        this->workerButtons |= 0x00400; // Add Quarry
+        break;
+    case IVORY:
+        this->workerButtons |= 0x00100; // Add Camp
+        break;
+    case DYES:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case SPICES:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case SILK:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case SUGAR:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case COTTON:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case PEARLS:
+        this->workerButtons |= 0x00200; // Add Fish Boat
+        break;
+    case INCENSE:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case WINE:
+        this->workerButtons |= 0x01000; // Add Plantation
+        break;
+    case SILVER:
+        this->workerButtons |= 0x04000; // Add Mine
+        break;
+    case FURS:
+        this->workerButtons |= 0x00100; // Add Camp
+        break;
+    case SHEEP:
+        this->workerButtons |= 0x00040; // Add Pasture
+        break;
+    default:
+        break;
+    }
+}
+
+unsigned int Tile::GetWorkerButtons()
+{
+    return this->workerButtons;
+}
+
 void Tile::SetTileIndex(int index)
 {
     this->tileIndex = index;
@@ -422,22 +563,27 @@ void Tile::SetTileTexture(TileType type)
     case WATER:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
         CanHaveFishBoat = true;
+//        this->workerButtons = 0x30203;
         break;
     case GRASS:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/grass.png");
         CanHaveFarm = true;
         CanHaveTrade = true;
+//        this->workerButtons = 0x3A003;
         break;
     case DESERT:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/desert.png");
         CanHaveFarm = true;
         CanHaveTrade = true;
+//        this->workerButtons = 0x3A003;
         break;
     case MOUNTAIN:
-         this->tileTexture = QPixmap("Assets/Textures/Scaled/mountain.png");
+        this->tileTexture = QPixmap("Assets/Textures/Scaled/mountain.png");
+//        this->workerButtons = NO_BUTTONS_VISIBLE;
         break;
     case ICE:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/snow.png");
+//        this->workerButtons = NO_BUTTONS_VISIBLE;
         break;
     case COAST:
         //This may or may not be added.
@@ -448,22 +594,27 @@ void Tile::SetTileTexture(TileType type)
         CanHaveFarm = true;
         CanHaveTrade = true;
         CanHaveMine = true;
+//        this->workerButtons = 0x3E003;
         break;
     case FOREST:
          this->tileTexture = QPixmap("Assets/Textures/Scaled/forest.png");
         CanHaveFarm = true;
         CanHaveTrade = true;
+//        this->workerButtons = 0x3A003;
         break;
     case SNOW:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/snow.png");
+//        this->workerButtons = NO_BUTTONS_VISIBLE;
         break;
     case PLAINS_TILE:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/plains.png");
         CanHaveFarm = true;
         CanHaveTrade = true;
+//        this->workerButtons = 0x3A003;
         break;
     default:
         this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
+//        this->workerButtons = NO_BUTTONS_VISIBLE;
         break;
     }
 }
@@ -537,6 +688,14 @@ Unit* Tile::GetOccupyingUnit()
     return this->occupyingUnit;
 }
 
+int Tile::GetOccupyingCivListIndex()
+{
+    if(this->occupyingUnit != NULL)
+        return this->occupyingUnit->GetOwningCivIndex();
+    else
+        return -1;
+}
+
 int Tile::GetControllingCivListIndex()
 {
     return this->controllingCivListIndex;
@@ -546,6 +705,7 @@ void Tile::SetResource(Strategic strat, Luxury lux)
 {
     this->stratResource = strat;
     this->luxResource = lux;
+
 }
 
 int Tile::GetStratResource()

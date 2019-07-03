@@ -1309,6 +1309,8 @@ void Map::GenerateResources()
         {
             board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
         }
+
+        board.at(i)->SetWorkerButtons();
     }
 }
 

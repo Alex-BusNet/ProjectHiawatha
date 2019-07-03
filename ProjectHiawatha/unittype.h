@@ -15,6 +15,7 @@ const unsigned int MELEE_BUTTONS_VISIBLE = 0x30013;
 const unsigned int RANGE_BUTTONS_VISIBLE = 0x30007;
 const unsigned int SETTLER_BUTTONS_VISIBLE = 0x30023;
 const unsigned int NO_BUTTONS_VISIBLE = 0x30000;
+const unsigned int BASIC_BUTTONS_VISIBLE = 0x30003;
 
 /*
  * b19 = <Empty>
