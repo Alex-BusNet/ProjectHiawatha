@@ -20,7 +20,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
      qDebug()<<"         Operational AI Called";
 #endif
     uc = new UnitController();
-    threatScan(civ, player);
+    threatScan(civ, player, map);
     if(civ->isAtWar()){
         theaterAtWar(civ, player);
     }
@@ -31,7 +31,7 @@ AI_Operational::AI_Operational(QVector<Tile *> CityToBeFounded, Civilization *ci
     //also passes the city founding vector and 3 vectors of threatening units
     //Pass position vector for military units
 
-void AI_Operational::threatScan(Civilization *civ, Civilization *player){
+void AI_Operational::threatScan(Civilization *civ, Civilization *player, Map *map){
 #ifdef DEBUG
     qDebug()<<"Threatscan";
 #endif
@@ -41,12 +41,12 @@ void AI_Operational::threatScan(Civilization *civ, Civilization *player){
         for(int i = 0; i<civ->GetCityList().length();i++){
              QVector<Tile*> borderingTiles=civ->GetCityAt(i)->tileQueue;
              for(int j=0; j<borderingTiles.length();j++){
-                 if(0==borderingTiles.at(j)->GetOccupyingCivListIndex()){
+                 if(player->getCiv()==map->GetODFromTileAt(borderingTiles.at(j)->GetTileIndex()).OccupantNation){
 #ifdef DEBUG
                     qDebug()<<"Enemy Near";
 #endif
                     QVector<Unit*> tempVec = civ->getMidThreats();
-                    unit = uc->FindUnitAtTile(borderingTiles.at(j),player->GetUnitList());
+                    unit = uc->FindUnitAtTile(borderingTiles.at(j), player->GetUnitList());
                     tempVec.push_back(unit);
                     civ->setMidThreats(tempVec);
 #ifdef DEBUG

@@ -37,20 +37,21 @@ UnitController::~UnitController()
 void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *unit, WarData wDat)
 {
     bool warCheckFailed = false;
+    OccupantData endOD = map->GetODFromTileAt(endTile->GetTileIndex());
 
     if(startTile==endTile)
     {
         return;
     }
 
-    if(endTile->ContainsUnit() && !unit->isPathEmpty())
+    if((endOD.OccupantNation != NO_NATION) && (!unit->isPathEmpty()))
     {
         endTile = unit->GetPath().at(unit->GetPath().size() - 2);
     }
 
     if(endTile->HasCity)
     {
-        if(!unit->isMelee && !AtPeaceWith(endTile, wDat))
+        if(!unit->isMelee && !AtPeaceWith(map->GetDataAt(endTile->GetTileIndex()), wDat))
         {
 //            if(unit->GetOwner() != endTile->GetControllingCiv())
                 return;
@@ -98,8 +99,10 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
         // Get the tiles adjacent to currentHex
         QList<Tile*> neighborList = map->GetNeighbors(currentHex);
 
+        OccupantData neighborOD;
         foreach(Tile* neighbor, neighborList)
         {
+            neighborOD = map->GetODFromTileAt(neighbor->GetTileIndex());
             //Skip the tile if it
             //  -Is impassable terrain
             //  -Has already been searched
@@ -108,14 +111,14 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
             //      AND is not controlled/occupied by NO_NATION (-1)
             if(neighbor->GetControllingCiv() != unit->GetOwner())
             {
-                warCheckFailed = this->AtPeaceWith(neighbor, wDat);
+                warCheckFailed = this->AtPeaceWith(map->GetDataAt(neighbor->GetTileIndex()), wDat);
             }
             else
             {
                 warCheckFailed = false;
             }
 
-            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || neighbor->ContainsUnit() || warCheckFailed)
+            if(!neighbor->Walkable || map->setContains(closedSet, neighbor) || (neighborOD.OccupantNation != NO_NATION) || warCheckFailed)
             {
                 warCheckFailed = false;
                 continue;
@@ -152,11 +155,11 @@ void UnitController::FindPath(Tile *startTile, Tile *endTile, Map *map, Unit *un
  *                            (units now have a pointer to the tile object
  *                             they occupy)
  */
-void UnitController::MoveUnit(Unit *unit) //, Map *map, int civListIndex)
+void UnitController::MoveUnit(Unit *unit, Map *map)//, int civListIndex)
 {
     if(!unit->isPathEmpty())
     {
-        unit->UpdatePath();
+        unit->UpdatePath(map);
     }
 }
 
@@ -452,7 +455,7 @@ bool UnitController::AtPeaceWith(MapData *targetMd, WarData wDat)
  */
 bool UnitController::UnitInRange(Map *map, MapData *md, int unitRange, Nation self)
 {
-    QVector<Tile*> tiles = map->GetNeighborsRange(md->tile, unitRange);
+    QList<Tile*> tiles = map->GetNeighborsRange(md->tile, unitRange);
     OccupantData tod;
 
     foreach(Tile* t, tiles)
@@ -499,6 +502,7 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
 {
     QList<Tile*> path;
     Tile *current = end;
+    OccupantData endOD = map->GetODFromTileAt(end->GetTileIndex());
 
     do
     {
@@ -519,7 +523,7 @@ void UnitController::RetracePath(Tile *start, Tile *end, Map *map, Unit *unit)
         j--;
     }
 
-    if(end->ContainsUnit())
+    if(endOD.OccupantNation != NO_NATION)
     {
         path.removeLast();
     }

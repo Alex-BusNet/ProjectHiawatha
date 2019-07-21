@@ -6,9 +6,12 @@
 #include <QJsonObject>
 #include "nation.h"
 #include "unittype.h"
+#include "datatypes.h"
+#include "map.h"
 #include "tile.h"
 
 class Tile;
+class Map;
 
 class Unit
 {
@@ -46,7 +49,7 @@ public:
 
     void DealDamage(int damage);
 
-    void UpdatePath();
+    void UpdatePath(Map *map);
     void ClearPath();
 
     int GetOwningCivIndex();
@@ -77,6 +80,7 @@ public:
     UnitType GetUnitType();
     QImage* GetUnitIcon();
     Nation GetOwner();
+    OccupantData GetOccupantData();
 
     void WriteUnitSaveData(QJsonObject &obj) const;
     void ReadUnitSaveData(const QJsonObject &obj);
@@ -99,17 +103,18 @@ public:
 private:
     QImage *unitIcon;
     QString name;
-    Nation belongsTo;
-    int civIndex;
+    //Nation belongsTo;
+    OccupantData unitOccupantData;
+//    int civIndex;
 //    Tile *position;
     int colPosition, targetColPos;
     int rowPosition, targetRowPos;
 
     Tile* unitTile; // Tile the unit is occupying
 
-    int pixmapIndex, /*dataMapIndex,*/ unitListIndex, targetTileIndex, healthBarIndex;
-    bool NonCombat;
-    bool Settler;
+    int pixmapIndex, /*dataMapIndex, unitListIndex,*/ targetTileIndex, healthBarIndex;
+    //bool NonCombat;
+    //bool Settler;
     //Flag to indicate of it is a naval or a land unit
     bool naval;
     int movementPoints;

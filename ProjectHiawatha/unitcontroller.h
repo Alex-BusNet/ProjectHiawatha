@@ -17,7 +17,7 @@ public:
     ~UnitController();
 
     void FindPath(Tile *startTile, Tile* endTile, Map *map, Unit *unit, WarData wDat);
-    void MoveUnit(Unit *unit);
+    void MoveUnit(Unit *unit, Map *map);
 
     void Attack(Unit* attacker, Unit* target, bool attackFromWater);
     void AttackCity(Unit* attacker, City* city);

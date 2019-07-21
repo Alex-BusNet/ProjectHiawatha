@@ -35,8 +35,11 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, int mapSizeX, int map
 #endif
     civInit.waitForFinished();
     this->playersAliveCount = civList.size();
+    this->inPrimaryState = true;
 
     InitRenderData();
+
+    lastData = NULL; //map->GetDataAt(1);
 
     currentTurn = 0;
     gameTurn = 0;
@@ -282,6 +285,8 @@ GameManager::GameManager(QWidget *parent, bool fullscreen, bool loadLatest)
 
     techText->setText(QString(" %1 / %2").arg(civList.at(0)->getAccumulatedScience()).arg(civList.at(0)->getCurrentTech()->getCost()));
 
+    clickedData = NULL;
+    lastData = NULL;
     turnStarted = false;
     updateTimer->start();
 }
@@ -391,6 +396,7 @@ GameManager::~GameManager()
     delete rangeAttack;
     delete fortifyUnit;
     delete help;
+    delete spacer;
 
     delete goldFocus;
     delete productionFocus;
@@ -464,6 +470,15 @@ GameManager::~GameManager()
 
     if(updateTimer != NULL)
         delete updateTimer;
+
+    if(lastData != NULL)
+        delete lastData;
+
+    if(clickedData != NULL)
+        delete clickedData;
+
+    if(targetData != NULL)
+        delete targetData;
 
 #ifndef __APPLE__
     if(!derender.isFinished())
@@ -1140,7 +1155,7 @@ void GameManager::EndTurn()
                 }
             }
 
-            uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i));
+            uc->MoveUnit(civList.at(currentTurn)->GetUnitAt(i), map);
 
             if(currentTurn == 0)
             {
@@ -1304,6 +1319,9 @@ void GameManager::NewUpdateTileData()
 {
     if(processedData.newData)
     {
+#ifdef DEBUG
+        qDebug() << "Primary action";
+#endif
         if(inPrimaryState) // Primary Action State
         {
             clickedData = map->GetDataFromCoord(processedData.column, processedData.row);
@@ -1311,17 +1329,50 @@ void GameManager::NewUpdateTileData()
             // Occupant == NO_NATION means tile is empty
             if (clickedData->od.OccupantNation == NO_NATION)
             {
-                lastData->tile->Selected = false;
-                selectedTileQueue->enqueue(SelectData{lastData->tile->GetTileIndex(), false, false});
-                this->redrawTile = true;
+#ifdef DEBUG
+                qDebug() << "  Tile Empty";
+                qDebug() << "  lastData null:" << (lastData == NULL);
+#endif
+                if(lastData != NULL)
+                {
+                    if(lastData->tile != NULL)
+                    {
+                        lastData->tile->Selected = false;
+                        selectedTileQueue->enqueue(SelectData{lastData->tile->GetTileIndex(), false, false});
+                        this->redrawTile = true;
+                        this->setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
+                    }
+                }
             }
             else if(clickedData->od.OccupantNation == civList.at(currentTurn)->getCiv())
             {
+#ifdef DEBUG
+                qDebug() << "  Unit Found";
+                qDebug() << "  lastData null:" << (lastData == NULL);
+                if(lastData != NULL)
+                {
+                    qDebug() << "    lastData tile null:" << (lastData->tile == NULL);
+                }
+#endif
+                if ((lastData != NULL) && (lastData->tile != NULL))
+                {
+#ifdef DEBUG
+                    qDebug() << "    Deselecting last tile";
+#endif
+                    lastData->tile->Selected = false;
+                    selectedTileQueue->enqueue(SelectData{lastData->tile->GetTileIndex(), false, false});
+                    //this->redrawTile = true;
+                    this->setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
+                }
+
                 unitToMove = civList.at(clickedData->od.civIndex)->GetUnitAt(clickedData->od.unitIndex);
 
                 // This shouldn't be null, but check just to be sure
                 if(unitToMove != NULL)
                 {
+#ifdef DEBUG
+                    qDebug() << "    Unit Type:" << unitToMove->GetName();
+#endif
                     if(unitToMove->GetUnitType() == WORKER)
                         setUnitButtonVisibility(clickedData->tile->GetWorkerButtons());
                     else if(unitToMove->GetUnitType() == SETTLER)
@@ -1335,17 +1386,22 @@ void GameManager::NewUpdateTileData()
                             else
                                 setUnitButtonVisibility(RANGE_BUTTONS_VISIBLE);
                         }
-
-                        this->redrawTile = true;
-                        selectedTileQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), true, false});
-                        tileModifiedQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), false, false});
+                        else
+                            setUnitButtonVisibility(BASIC_BUTTONS_VISIBLE);
                     }
+
+                    this->redrawTile = true;
+                    selectedTileQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), true, false});
+                    tileModifiedQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), false, false});
 
                 }
             }
         }
         else // Secondary Action State
         {
+#ifdef DEBUG
+            qDebug() << "Secondary action";
+#endif
             targetData = map->GetDataFromCoord(processedData.column, processedData.row);
 
             switch(state)
@@ -1472,9 +1528,9 @@ void GameManager::NewUpdateTileData()
                 break;
             }
         }
-    }
 
-    lastData = clickedData;
+        lastData = clickedData;
+    }
 }
 
 
@@ -2285,15 +2341,18 @@ void GameManager::InitButtons()
 
     devMode = new QShortcut(QKeySequence(Qt::Key_Home), this);
     connect(devMode, SIGNAL(activated()), this, SLOT(enterDevMode()));
+
+    int spacerSize = (this->height() - 280);
+    spacer = new QSpacerItem(100, spacerSize, QSizePolicy::Fixed, QSizePolicy::Expanding);
 }
 
 void GameManager::InitLayouts()
 {
     vLayout->setMargin(2);
-    int spacerSize = (this->height() - 500) + 280;
+
     unitControlButtons->addWidget(showTechTreeButton);
     unitControlButtons->addWidget(showDiplomacy);
-    unitControlButtons->addSpacerItem(new QSpacerItem(100, spacerSize, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
+    unitControlButtons->addSpacerItem(spacer);
     unitControlButtons->addWidget(attackCity);
     unitControlButtons->addWidget(rangeAttack);
     unitControlButtons->addWidget(attackUnit);
@@ -2311,14 +2370,19 @@ void GameManager::InitLayouts()
     unitControlButtons->addWidget(buildRoad);
     unitControlButtons->addWidget(moveUnit);
     unitControlButtons->setGeometry(QRect(0, 20, 100, this->height() - 20));
-    unitControlButtons->setSizeConstraint(QVBoxLayout::SetFixedSize);
+    //unitControlButtons->setSizeConstraint(QVBoxLayout::SetFixedSize);
 
 //    unitControlButtons->setGeometry(QRect(0, 20, 100, 20));
 //    gameLayout->addLayout(unitControlButtons);
 
     unitButtonsWidget->setLayout(unitControlButtons);
     unitButtonsWidget->setGeometry(QRect(0, 25, 100, this->height()- 40));
-    unitButtonsWidget->setStyleSheet("QWidget { background-color: transparent } QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }");
+
+#ifdef DEBUG
+    unitButtonsWidget->setStyleSheet("QWidget { background-color: transparent; border: 1px solid red; } QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }");
+#else
+    unitButtonsWidget->setStyleSheet("QWidget { background-color: transparent; } QPushButton { background-color: #4899C8; border: 1px solid black; border-radius: 6px; font: 10px; max-width: 100px; }");
+#endif
 
     gameLayout->addWidget(gameView);
 
@@ -2641,7 +2705,6 @@ void GameManager::toggleWidgetVisiblityAll()
     clv->setVisible(!clv->isVisible());
     exitGame->setVisible(!exitGame->isVisible());
     endTurn->setVisible(!endTurn->isVisible());
-    moveUnit->setVisible(!moveUnit->isVisible());
     showTechTreeButton->setVisible(!showTechTreeButton->isVisible());
     showDiplomacy->setVisible(!showDiplomacy->isVisible());
     help->setVisible(!help->isVisible());
@@ -2657,85 +2720,235 @@ void GameManager::toggleWidgetVisiblityAll()
 
 void GameManager::setUnitButtonVisibility(unsigned int visibleButtons)
 {
+#ifdef DEBUG
+    qDebug() << "Setting unit buttons: 0b" << hex << visibleButtons;
+#endif
+
     if(visibleButtons & 0x08000)
-        buildFarm->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildFarm) == -1)
+        {
+            buildFarm->setVisible(true);
+            this->unitControlButtons->addWidget(buildFarm);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildFarm) > -1)
+    {
         buildFarm->setVisible(false);
+        this->unitControlButtons->removeWidget(buildFarm);
+    }
 
     if(visibleButtons & 0x04000)
-        buildMine->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildMine) == -1)
+        {
+            buildMine->setVisible(true);
+            this->unitControlButtons->addWidget(buildMine);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildMine) > -1)
+    {
         buildMine->setVisible(false);
+        this->unitControlButtons->removeWidget(buildMine);
+    }
 
     if(visibleButtons & 0x02000)
-        buildTradePost->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildTradePost) == -1)
+        {
+            buildTradePost->setVisible(true);
+            this->unitControlButtons->addWidget(buildTradePost);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildTradePost) > -1)
+    {
         buildTradePost->setVisible(false);
+        this->unitControlButtons->removeWidget(buildTradePost);
+    }
 
     if(visibleButtons & 0x01000)
-        buildPlantation->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildPlantation) == -1)
+        {
+            buildPlantation->setVisible(true);
+            this->unitControlButtons->addWidget(buildPlantation);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildPlantation) > -1)
+    {
         buildPlantation->setVisible(false);
+        this->unitControlButtons->removeWidget(buildPlantation);
+    }
 
     if(visibleButtons & 0x00800)
-        buildRoad->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildRoad) == -1)
+        {
+            buildRoad->setVisible(true);
+            this->unitControlButtons->addWidget(buildRoad);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildRoad) > -1)
+    {
         buildRoad->setVisible(false);
+        this->unitControlButtons->removeWidget(buildRoad);
+    }
 
     if(visibleButtons & 0x00400)
-        buildQuarry->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildQuarry) == -1)
+        {
+            buildQuarry->setVisible(true);
+            this->unitControlButtons->addWidget(buildQuarry);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildQuarry) > -1)
+    {
         buildQuarry->setVisible(false);
+        this->unitControlButtons->removeWidget(buildQuarry);
+    }
 
     if(visibleButtons & 0x00200)
-        buildFishBoat->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildFishBoat) == -1)
+        {
+            buildFishBoat->setVisible(true);
+            this->unitControlButtons->addWidget(buildFishBoat);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildFishBoat) > -1)
+    {
         buildFishBoat->setVisible(false);
+        this->unitControlButtons->removeWidget(buildFishBoat);
+    }
 
     if(visibleButtons & 0x00100)
-        buildCamp->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildCamp) == -1)
+        {
+            buildCamp->setVisible(true);
+            this->unitControlButtons->addWidget(buildCamp);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildCamp) > -1)
+    {
         buildCamp->setVisible(false);
+        this->unitControlButtons->removeWidget(buildCamp);
+    }
 
     if(visibleButtons & 0x00080)
-        buildOilWell->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildOilWell) == -1)
+        {
+            buildOilWell->setVisible(true);
+            this->unitControlButtons->addWidget(buildOilWell);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildOilWell) > -1)
+    {
         buildOilWell->setVisible(false);
+        this->unitControlButtons->removeWidget(buildOilWell);
+    }
 
     if(visibleButtons & 0x00040)
-        buildPasture->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(buildPasture) == -1)
+        {
+            buildPasture->setVisible(true);
+            this->unitControlButtons->addWidget(buildPasture);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(buildPasture) > -1)
+    {
         buildPasture->setVisible(false);
+        this->unitControlButtons->removeWidget(buildPasture);
+    }
 
     if(visibleButtons & 0x00020)
-        foundCity->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(foundCity) == -1)
+        {
+            foundCity->setVisible(true);
+            this->unitControlButtons->addWidget(foundCity);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(foundCity) > -1)
+    {
         foundCity->setVisible(false);
+        this->unitControlButtons->removeWidget(foundCity);
+    }
 
     if(visibleButtons & 0x00010)
-        attackUnit->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(attackUnit) == -1)
+        {
+            attackUnit->setVisible(true);
+            this->unitControlButtons->addWidget(attackUnit);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(attackUnit) > -1)
+    {
         attackUnit->setVisible(false);
+        this->unitControlButtons->removeWidget(attackUnit);
+    }
 
     if(visibleButtons & 0x00008)
-        attackCity->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(attackCity) == -1)
+        {
+            attackCity->setVisible(true);
+            this->unitControlButtons->addWidget(attackCity);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(attackCity) > -1)
+    {
         attackCity->setVisible(false);
+        this->unitControlButtons->removeWidget(attackCity);
+    }
 
     if(visibleButtons & 0x00004)
-        rangeAttack->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(rangeAttack) == -1)
+        {
+            rangeAttack->setVisible(true);
+            this->unitControlButtons->addWidget(rangeAttack);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(rangeAttack) > -1)
+    {
         rangeAttack->setVisible(false);
+        this->unitControlButtons->removeWidget(rangeAttack);
+    }
 
     if(visibleButtons & 0x00002)
-        fortifyUnit->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(fortifyUnit) == -1)
+        {
+            fortifyUnit->setVisible(true);
+            this->unitControlButtons->addWidget(fortifyUnit);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(fortifyUnit) > -1)
+    {
         fortifyUnit->setVisible(false);
+        this->unitControlButtons->removeWidget(fortifyUnit);
+    }
 
     if(visibleButtons & 0x00001)
-        moveUnit->setVisible(true);
-    else
+    {
+        if(this->unitControlButtons->indexOf(moveUnit) == -1)
+        {
+            moveUnit->setVisible(true);
+            this->unitControlButtons->addWidget(moveUnit);
+        }
+    }
+    else if(this->unitControlButtons->indexOf(moveUnit) > -1)
+    {
         moveUnit->setVisible(false);
+        this->unitControlButtons->removeWidget(moveUnit);
+    }
+
+    //spacer->changeSize(100, this->height() - (unitControlButtons->count() * 10), QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 }
 
 bool GameManager::WarCheck(MapData *md) //Tile *t)
@@ -3012,7 +3225,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
                 {
                     while(!aiUnit->isPathEmpty())
                     {
-                        aiUnit->UpdatePath();
+                        aiUnit->UpdatePath(map);
                     }
 
                     aiUnit->RequiresOrders = true;
@@ -3026,7 +3239,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
             foreach(Tile* tile, city->GetControlledTiles())
             {
                 OccupantData tod = map->GetODFromTileAt(tile->GetTileIndex());
-                if((tod.OccupantNation != NO_NATION) && tile->GetOccupyingUnit()->GetOwningCivIndex() == makePeaceWithIndex)
+                if((tod.OccupantNation != NO_NATION) && (tod.civIndex == makePeaceWithIndex))
                 {
                     Unit *unit = uc->FindUnitAtTile(tile, civList.at(makePeaceWithIndex)->GetUnitList());
 
@@ -3061,7 +3274,7 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
                     }
                     else
                     {
-                        uc->MoveUnit(unit);
+                        uc->MoveUnit(unit, map);
                         renderer->UpdateUnits(map, gameView, unit, true);
                     }
                 }
@@ -3199,12 +3412,17 @@ void GameManager::zoomOut()
 
 void GameManager::showCity(City* city)
 {
-    if(!cityScreenVisible)
+    if(!cityScreenVisible && (city != NULL))
     {
+#ifdef DEBUG
+        qDebug() << "Opening City screen";
+#endif
+
         if(cityScreen != NULL)
         {
             delete cityScreen;
         }
+
         cityScreen = new CityScreen(this);
         cityScreen->loadBuildings("Assets/Data/buildings.json");
         cityScreen->loadUnits("Assets/Data/units.json");
@@ -3232,6 +3450,9 @@ void GameManager::showCity(City* city)
     }
     else
     {
+#ifdef DEBUG
+        qDebug() << "Closing City Screen";
+#endif
         this->goldFocus->setEnabled(false);
         this->productionFocus->setEnabled(false);
         this->scienceFocus->setEnabled(false);
@@ -3242,15 +3463,18 @@ void GameManager::showCity(City* city)
         gameView->setDragMode(QGraphicsView::ScrollHandDrag);
 
         toggleWidgetVisiblityAll();
-        setUnitButtonVisibility(unitControlButtonsVisible);
+        setUnitButtonVisibility(NO_BUTTONS_VISIBLE);
 
-        // Error caused here after closing city screen
-        if(cityScreen != NULL)
-            delete cityScreen;
+        // deleting the city screen here causes a crash
+        // (pure virtual method called)
+//        if(cityScreen != NULL)
+//            delete cityScreen;
 
+        cityScreen = NULL;
         cityScreenVisible = false;
     }
 }
+
 
 /*
  * updateTiles() is run by the updateTimer every 50 ms
@@ -3314,6 +3538,10 @@ void GameManager::updateTiles()
 
 void GameManager::moveUnitTo()
 {
+#ifdef DEBUG
+    qDebug() << "MoveUnitTo()";
+#endif
+
     if(moveUnit->isEnabled())
     {
         state = MOVE_UNIT;
@@ -3523,6 +3751,10 @@ void GameManager::buildNewQuarry()
 
 void GameManager::attackMelee()
 {
+#ifdef DEBUG
+    qDebug() << "attackMelee()";
+#endif
+
     state = ATTACK_MELEE;
     inPrimaryState = false;
 }
@@ -3594,12 +3826,20 @@ void GameManager::SetCultureFocus()
 
 void GameManager::AttackCity()
 {
+#ifdef DEBUG
+    qDebug() << "AttackCity()";
+#endif
+
     state = ATTACK_CITY;
     inPrimaryState = false;
 }
 
 void GameManager::RangeAttack()
 {
+#ifdef DEBUG
+    qDebug() << "RangeAttack()";
+#endif
+
     state = ATTACK_RANGE;
     inPrimaryState = false;
 }
@@ -3614,24 +3854,24 @@ void GameManager::Fortify()
  * WarDecalred is used when the player goes to attack
  * a unit they are not at war with.
  */
-void GameManager::WarDeclared()
+void GameManager::WarDeclared(int targetCivIndex)
 {
-    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
+    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetCivIndex)->GetLeaderName())});
 
-    if(targetTile->HasCity)
-    {
-        state = FIND_CITY;
-    }
-    else if(targetTile->ContainsUnit())
-    {
-        state = IDLE;
-        ProcessAttackUnit();
-    }
+//    if(targetTile->HasCity)
+//    {
+//        state = FIND_CITY;
+//    }
+//    else if(targetTile->ContainsUnit())
+//    {
+//        state = IDLE;
+//        ProcessAttackUnit();
+//    }
 
-    civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
-    civList.at(targetTile->GetOccupyingUnit()->GetOwningCivIndex())->SetAtWar(currentTurn);
+    civList.at(currentTurn)->SetAtWar(targetCivIndex);
+    civList.at(targetCivIndex)->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(targetTile->GetOccupyingUnit()->GetOwner(), targetTile->GetOccupyingUnit()->GetOwningCivIndex(), civList.at(0)->getCiv(), 0);
+    diplo->DeclareWarOn(civList.at(targetCivIndex)->getCiv(), targetCivIndex, civList.at(currentTurn)->getCiv(), currentTurn);
     playerToWar = true;
 }
 
@@ -3646,15 +3886,15 @@ void GameManager::WarAvoided()
  * WarByInvasion is used when the player moves into
  * territory controlled by an AI.
  */
-void GameManager::WarByInvasion()
+void GameManager::WarByInvasion(int targetCivIndex)
 {
-    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName())});
+    ns->PostNotification(Notification{5, QString("%1 has declared war on %2!").arg(civList.at(currentTurn)->GetLeaderName()).arg(civList.at(targetCivIndex)->GetLeaderName())});
 
     state = INVADE;
-    civList.at(currentTurn)->SetAtWar(targetTile->GetControllingCivListIndex());
-    civList.at(targetTile->GetControllingCivListIndex())->SetAtWar(currentTurn);
+    civList.at(currentTurn)->SetAtWar(targetCivIndex);
+    civList.at(targetCivIndex)->SetAtWar(currentTurn);
 
-    diplo->DeclareWarOn(civList.at(targetTile->GetControllingCivListIndex())->getCiv(), targetTile->GetControllingCivListIndex(), civList.at(0)->getCiv(), 0);
+    diplo->DeclareWarOn(civList.at(targetCivIndex)->getCiv(), targetCivIndex, civList.at(0)->getCiv(), 0);
 }
 
 void GameManager::OpenHelp()

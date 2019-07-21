@@ -333,7 +333,7 @@ void Tile::SetWorkerButtons()
     case NO_STRATEGIC:
         break;
     case IRON:
-        this->workerButtons |= 0x04000; // Add mine
+        this->workerButtons |= 0x04000; // Add Mine
         break;
     case HORSES:
         this->workerButtons |= 0x00040; // Add Pasture
@@ -357,13 +357,13 @@ void Tile::SetWorkerButtons()
     case NO_LUXURY:
         break;
     case WHEAT:
-        this->workerButtons |= 0x08000; // Add farm
+        this->workerButtons |= 0x08000; // Add Farm
         break;
     case CATTLE:
         this->workerButtons |= 0x00040; // Add Pasture
         break;
     case DEER:
-        this->workerButtons |= 0x00100; // Add camp
+        this->workerButtons |= 0x00100; // Add Camp
         break;
     case FISH:
         this->workerButtons |= 0x00200; // Add Fish Boat

@@ -926,6 +926,9 @@ newrand:
 
             t->SetControllingCivListIndex(i);
 
+            //========================
+            // Spawn Capital
+            //========================
             city = this->CreateCity(index, civs.at(i), true);
 
             if(!city->IsInitialized())
@@ -998,6 +1001,9 @@ newrand:
 
             civs.at(i)->AddCity(city);
 
+            //========================
+            // Spawn Worker Unit
+            //========================
             unit = new Unit(civs.at(i)->getCiv(), WORKER, i);
             unit->RequiresOrders = true;
 
@@ -1008,6 +1014,7 @@ newrand:
                     if((this->GetDataAt(tile->GetTileIndex())->od.OccupantNation == NO_NATION) && !tile->HasCity)
                     {
                         unit->SetPosition(tile);
+                        this->SetOccupantDataAt(tile->GetTileIndex(), OccupantData{civs.at(i)->getCiv(), i, 0, true});
                         break;
                     }
                 }
@@ -1016,6 +1023,9 @@ newrand:
             unit->SetUnitListIndex(0);
             civs.at(i)->AddUnit(unit);
 
+            //========================
+            // Spawn Warrior Unit
+            //========================
             unit = new Unit(civs.at(i)->getCiv(), WARRIOR, i);
             unit->RequiresOrders = true;
             unit->SetStrength(6);
@@ -1028,6 +1038,7 @@ newrand:
                     if((this->GetDataAt(tile->GetTileIndex())->od.OccupantNation == NO_NATION) && !tile->HasCity)
                     {
                         unit->SetPosition(tile);
+                        this->SetOccupantDataAt(tile->GetTileIndex(), OccupantData{civs.at(i)->getCiv(), i, 1, false});
                         break;
                     }
                 }

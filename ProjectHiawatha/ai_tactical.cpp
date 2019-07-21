@@ -104,7 +104,7 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
                                 canHit=true;
                                 uc->Attack(unitlist.at(i),targetunits.at(0),false);
                                 while(!unitlist.at(i)->isPathEmpty()){
-                                    unitlist.at(i)->UpdatePath();
+                                    unitlist.at(i)->UpdatePath(map);
                                 }
                             }
                         }
@@ -127,7 +127,7 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
                                  canHit=true;
                                  uc->Attack(unitlist.at(i),targetunits.at(0),false);
                                  while(!unitlist.at(i)->isPathEmpty()){
-                                     unitlist.at(i)->UpdatePath();
+                                     unitlist.at(i)->UpdatePath(map);
                                  }
                              }
                          }
@@ -171,7 +171,7 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
 #endif
                             uc->AttackCity(unitlist.at(i),cityTarget);
                             while(!unitlist.at(i)->isPathEmpty()){
-                                unitlist.at(i)->UpdatePath();
+                                unitlist.at(i)->UpdatePath(map);
                             }//Clear remaining movement
 #ifdef DEBUG
                             qDebug()<<"test"<<unitlist.at(i)->GetTargetTileIndex();
@@ -215,7 +215,7 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
 #endif
                             uc->AttackCity(unitlist.at(i),cityTarget);
                             while(!unitlist.at(i)->isPathEmpty()){
-                                unitlist.at(i)->UpdatePath();
+                                unitlist.at(i)->UpdatePath(map);
                             }//Clear remaining movement
 #ifdef DEBUG
                             qDebug()<<"Ranged Attack from "<<unitlist.at(i)->GetTargetTileIndex();
@@ -287,7 +287,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
                              canHit=true;
                              uc->Attack(unitlist.at(i),threatVec.at(0),false);
                              while(!unitlist.at(i)->isPathEmpty()){
-                                 unitlist.at(i)->UpdatePath();
+                                 unitlist.at(i)->UpdatePath(map);
                              }
 #ifdef DEBUG
     qDebug()<<unitlist.at(i)->GetTargetTileIndex();
@@ -321,7 +321,7 @@ void AI_Tactical::highThreatProcessing(Civilization *civ, Map *map){
                               canHit=true;
                               uc->Attack(unitlist.at(i),threatVec.at(0),false);
                               while(!unitlist.at(i)->isPathEmpty()){
-                                  unitlist.at(i)->UpdatePath();
+                                  unitlist.at(i)->UpdatePath(map);
                               }
 #ifdef DEBUG
     qDebug()<<unitlist.at(i)->GetTargetTileIndex();
@@ -399,7 +399,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
 //                            civ->setCityFounding(AIQueueData{ATTACK_RANGE, unitlist.at(i), threatVec.at(0)});
                             uc->Attack(unitlist.at(i),threatVec.at(0),false);
                             while(!unitlist.at(i)->isPathEmpty()){
-                                unitlist.at(i)->UpdatePath();
+                                unitlist.at(i)->UpdatePath(map);
                             }
 #ifdef DEBUG
      qDebug()<<unitlist.at(i)->GetTargetTileIndex();
@@ -434,7 +434,7 @@ void AI_Tactical::lowThreatProcessing(Civilization *civ, Map *map){
 //                             civ->setCityFounding(AIQueueData{ATTACK_RANGE, unitlist.at(i), threatVec.at(0)});
                              uc->Attack(unitlist.at(i),threatVec.at(0),false);
                              while(!unitlist.at(i)->isPathEmpty()){
-                                 unitlist.at(i)->UpdatePath();
+                                 unitlist.at(i)->UpdatePath(map);
                              }
 #ifdef DEBUG
     qDebug()<<unitlist.at(i)->GetTargetTileIndex();

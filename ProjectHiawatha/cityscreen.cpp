@@ -57,7 +57,8 @@ CityScreen::~CityScreen()
 //            delete u;
 //    }
 
-    delete ui;
+    // Game crashes here (called when exiting city screen)
+    //delete ui;
 }
 
 

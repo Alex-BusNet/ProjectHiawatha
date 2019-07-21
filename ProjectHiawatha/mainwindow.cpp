@@ -28,6 +28,7 @@ QDir::setCurrent(bin.absolutePath());
     buttonBorder = new QPixmap("Assets/Menu/mainMenuBackground.png");
     ui->mainBackground->setPixmap(*bkgnd);
     ui->menuButtonBorder->setPixmap(*buttonBorder);
+    ui->loadGame->setVisible(false);
     this->setStyleSheet(MainStyle);
 
     if(!QDir("Saves").exists())

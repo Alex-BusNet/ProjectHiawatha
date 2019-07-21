@@ -20,8 +20,8 @@ const unsigned int BASIC_BUTTONS_VISIBLE = 0x30003;
 /*
  * b19 = <Empty>
  * b18 = <Empty>
- * b17 = Show Tech tree
- * b16 = Show Diplo
+ * b17 = Technology Tree
+ * b16 = Diplomacy
  *
  * b15 = Build Farm
  * b14 = Build Mine

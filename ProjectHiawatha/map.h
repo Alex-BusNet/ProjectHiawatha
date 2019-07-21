@@ -9,6 +9,9 @@
 #include <QThread>
 #include <QVector>
 
+class Civilization;
+class City;
+
 class Map
 {
 public:

@@ -98,6 +98,8 @@ private:
     QVBoxLayout *vLayout;
     QHBoxLayout *Yieldinfo;
 
+    QSpacerItem *spacer;
+
     QLabel *goldLabel, *goldText;
     QLabel *prodLabel, *prodText;
     QLabel *sciLabel, *sciText;
@@ -228,9 +230,9 @@ public slots:
     void AttackCity();
     void RangeAttack();
     void Fortify();
-    void WarDeclared();
+    void WarDeclared(int targetCivIndex);
     void WarAvoided();
-    void WarByInvasion();
+    void WarByInvasion(int targetCivIndex);
     void WarByDiplomacy();
     void MakePeace();
     void OpenHelp();
