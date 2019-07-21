@@ -781,5 +781,5 @@ void Unit::ClearPath()
 
 int Unit::GetOwningCivIndex()
 {
-    return this->civIndex;
+        return this->civIndex;
 }

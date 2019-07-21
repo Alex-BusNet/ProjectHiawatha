@@ -7,11 +7,11 @@
 #include <QPoint>
 #include <QPolygon>
 #include <queue>
+#include "datatypes.h"
 #include "nation.h"
 #include "building.h"
 #include "tile.h"
 #include "yield.h"
-#include "datatypes.h"
 #include "unit.h"
 
 class Tile;

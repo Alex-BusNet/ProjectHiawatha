@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include "datatypes.h"
 #include "tile.h"
 #include "yield.h"
 
@@ -25,6 +26,11 @@ public:
     Tile* GetTileAt(int index);
     Tile *GetTileFromCoord(int column, int row);
     Tile* GetTileFromCoord(TileID id);
+    OccupantData GetODFromTileAt(int index);
+    OccupantData GetODFromCoord(int column, int row);
+    MapData *GetDataAt(int index);
+    MapData *GetDataFromCoord(int column, int row);
+
     QPixmap *GetTilePixmap(int index);
 
     int GetMapSizeX();
@@ -37,7 +43,7 @@ public:
 //    void run();
     void SpawnCivs(QVector<Civilization*> civs);
     void GetTileQueue(City *city);
-
+    void SetOccupantDataAt(int index, OccupantData newOd);
     void DefineCityBordersNew(City* city);
 
     City *CreateCity(int cityTileIndex, Civilization *founder, bool isCapital);
@@ -46,7 +52,8 @@ public:
     void ReadMapSaveData(QJsonObject &obj);
 
 private:
-    QVector<Tile*> board;
+//    QVector<Tile*> board;
+    QVector<MapData*> board;
     QVector<QPixmap*> terrain;
 
     //May be changed later

@@ -1,6 +1,7 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include "datatypes.h"
 #include "tileType.h"
 #include "tileimprovement.h"
 #include "biome.h"
@@ -14,11 +15,11 @@
 #include <QRect>
 #include <stdint.h>
 #include "resources.h"
-#include "datatypes.h"
 
 
-//class City;
+class City;
 class Unit;
+class Yield;
 
 class Tile
 {
@@ -29,7 +30,7 @@ public:
 
     bool HasRoad; // Movement Cost calculation flag
     bool IsWorked; // Yield calculation flag
-    bool ContainsUnit(); // Civ spawning flag. Updated to be function - ARP 6/23/2019
+    //bool ContainsUnit(); // Civ spawning flag. Updated to be function - ARP 6/23/2019
     bool HasCity; // Civ spawning flag. Updated to be function - ARP 6/23/2019
     bool Checked; // Map Gen Flag
     bool Selected; // Unit selection Render flag
@@ -113,11 +114,11 @@ public:
     int fCost();
     TileID parent;
 
-    void SetOccupyingUnit(Unit* unit);
+    //void SetOccupyingUnit(Unit* unit);
     void SetControllingCivListIndex(int index);
 
-    Unit* GetOccupyingUnit();
-    int GetOccupyingCivListIndex();
+    //Unit* GetOccupyingUnit();
+    //int GetOccupyingCivListIndex();
     int GetControllingCivListIndex();
 
     void SetResource(Strategic strat, Luxury lux);
@@ -153,7 +154,7 @@ private:
     int tileIndex;
     unsigned int workerButtons;
 
-    Unit* occupyingUnit;        // Replaces the 'occupyingCivListIndex' variable - ARP 6/23/2019
+    //Unit* occupyingUnit;        // Replaces the 'occupyingCivListIndex' variable - ARP 6/23/2019
     Strategic stratResource;
     Luxury luxResource;
 

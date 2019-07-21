@@ -422,7 +422,7 @@ void UnitController::HealUnit(Unit *unit)
  * occupied by NO_NATION (-1) and is not occupied
  * by the civListIndex passed in WarData
  */
-bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
+bool UnitController::AtPeaceWith(MapData *targetMd, WarData wDat)
 {
     if(wDat.atWar)
     {
@@ -430,7 +430,7 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
         {
             foreach(int i, wDat.warringCivListIndex)
             {
-                if((i == target->GetOccupyingUnit()->GetOwningCivIndex()) || (i == target->GetControllingCivListIndex()))
+                if((i == targetMd->od.civIndex) || (i == targetMd->tile->GetControllingCivListIndex()))
                 {
                     return false;
                 }
@@ -438,12 +438,32 @@ bool UnitController::AtPeaceWith(Tile *target, WarData wDat)
         }
     }
 
-    if(target->GetControllingCiv() == NO_NATION)
+    if(targetMd->tile->GetControllingCiv() == NO_NATION)
     {
         return false;
     }
 
     return true;
+}
+
+/*
+ * Runs check to see if a unit is within range of the current unit,
+ * and is not owned by the current civ
+ */
+bool UnitController::UnitInRange(Map *map, MapData *md, int unitRange, Nation self)
+{
+    QVector<Tile*> tiles = map->GetNeighborsRange(md->tile, unitRange);
+    OccupantData tod;
+
+    foreach(Tile* t, tiles)
+    {
+        tod = map->GetODFromTileAt(t->GetTileIndex());
+
+        if((tod.OccupantNation != NO_NATION) && (tod.OccupantNation != self))
+            return true;
+    }
+
+    return false;
 }
 
 /*

@@ -438,8 +438,8 @@ GameManager::~GameManager()
     if(unitToMove != NULL)
         delete unitToMove;
 
-    if(targetUnit != NULL)
-        delete targetUnit;
+//    if(targetUnit != NULL)
+//        delete targetUnit;
 
     if(targetCity != NULL)
         delete targetCity;
@@ -674,7 +674,7 @@ void GameManager::TurnController()
                     {
                         state = FIND_CITY;
                         unitToMove = data.unit;
-                        targetTile = map->GetTileAt(data.unit->GetTargetTileIndex());
+                        targetData = map->GetDataAt(data.unit->GetTargetTileIndex());
                     }
                     else if(state == AI_DECLARE_WAR)
                     {
@@ -966,25 +966,29 @@ void GameManager::StartTurn()
 
             foreach(Tile* t, civList.at(cpd.civIndex)->GetCityAt(cpd.cityIndex)->GetControlledTiles())
             {
+                OccupantData tod = map->GetODFromTileAt(t->GetTileIndex());
+
                 if(u->isNaval())
                 {
-                    if(t->ContainsUnit() || !(t->GetTileType() == WATER)) { continue; }
+                    if((tod.civIndex != -1) || !(t->GetTileType() == WATER)) { continue; }
                     else
                     {
-                            t->SetOccupyingUnit(u);
+//                            t->SetOccupyingUnit(u);
                             u->SetPosition(t);
 //                            t->ContainsUnit = true;
+                            map->SetOccupantDataAt(t->GetTileIndex(), OccupantData{u->GetOwner(), currentTurn, u->GetUnitListIndex(), u->isNonCombat()});
                             break;
                     }
                 }
                 else
                 {
-                    if(t->ContainsUnit() || !(t->Walkable) || (t->GetTileType() == WATER)) { continue; }
+                    if((tod.civIndex != -1) || !(t->Walkable) || (t->GetTileType() == WATER)) { continue; }
                     else
                     {
-                            t->SetOccupyingUnit(u);
+//                            t->SetOccupyingUnit(u);
                             u->SetPosition(t);
 //                            t->ContainsUnit = true;
+                            map->SetOccupantDataAt(t->GetTileIndex(), OccupantData{u->GetOwner(), currentTurn, u->GetUnitListIndex(), u->isNonCombat()});
                             break;
                     }
                 }
@@ -1220,7 +1224,8 @@ void GameManager::EndTurn()
             renderer->SetUnitNeedsOrders(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), false);
 //            map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->ContainsUnit = false;
 //            map->GetTileAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex())->SetOccupyingCivListIndex(-1);
-            civList.at(currentTurn)->GetUnitAt(i)->GetUnitTile()->SetOccupyingUnit(NULL);
+//            civList.at(currentTurn)->GetUnitAt(i)->GetUnitTile()->SetOccupyingUnit(NULL);
+            map->SetOccupantDataAt(civList.at(currentTurn)->GetUnitAt(i)->GetTileIndex(), DEFAULT_OCCUPANT);
             renderer->RemoveUnit(civList.at(currentTurn)->GetUnitAt(i), gameView);
             civList.at(currentTurn)->RemoveUnit(i);
         }
@@ -1274,257 +1279,202 @@ nextCivAlive:
     }
 }
 
+/*
+ * Updated version of updateTileData().
+ *
+ * Primary Action:
+ *  1) Tile is clicked
+ *  2) If tile has unit, select tile, and load unit action buttons
+ *  3) If tile does not have unit, deselect previous tile (if one exists)
+ *
+ * Secondary Action:
+ *  1) If move unit, then check if clicked tile has no unit
+ *      1.a) If tile has unit, cancel and return to primary action state
+ *      1.b) If tile has no unit, check if tile is controlled
+ *          1.b.1) If tile is controlled, do war check. If not at war, ask user to continue.
+ *          1.b.2) If user cancels, return to primary action state, else invade.
+ *  2) If attack unit, check if clicked tile has unit.
+ *      2.a) Do war check on unit, if not at war, ask user to continue.
+ *      2.b) If user cancels, return to primary action state, else declare war and attack.
+ *  3) If attack city, check if tile has citty. If no city, return to primary action state.
+ *      3.a) Do war check on city, if not at war, ask user to continue.
+ *      3.b) If user cancels, return to primary action state, else delcare war and attack.
+ */
 void GameManager::NewUpdateTileData()
 {
-    switch(state)
+    if(processedData.newData)
     {
-    case IDLE:
-        if(processedData.newData)
+        if(inPrimaryState) // Primary Action State
         {
-            // Clear any existing selected tile
-            if(unitTile != NULL)
+            clickedData = map->GetDataFromCoord(processedData.column, processedData.row);
+
+            // Occupant == NO_NATION means tile is empty
+            if (clickedData->od.OccupantNation == NO_NATION)
             {
-                unitTile->Selected = false;
-                selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
+                lastData->tile->Selected = false;
+                selectedTileQueue->enqueue(SelectData{lastData->tile->GetTileIndex(), false, false});
                 this->redrawTile = true;
             }
-
-            // Get the new tile
-            unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
-
-            if(unitTile->Selected)
+            else if(clickedData->od.OccupantNation == civList.at(currentTurn)->getCiv())
             {
-                unitTile->Selected = false;
-                selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
-                this->redrawTile = true;
-            }
+                unitToMove = civList.at(clickedData->od.civIndex)->GetUnitAt(clickedData->od.unitIndex);
 
-            // If there is a unit on the selected tile, set the control buttons
-            if(unitTile->ContainsUnit())
-            {
-                unitToMove = unitTile->GetOccupyingUnit();
-
+                // This shouldn't be null, but check just to be sure
                 if(unitToMove != NULL)
                 {
                     if(unitToMove->GetUnitType() == WORKER)
-                        setUnitButtonVisibility(unitTile->GetWorkerButtons());
+                        setUnitButtonVisibility(clickedData->tile->GetWorkerButtons());
                     else if(unitToMove->GetUnitType() == SETTLER)
                         setUnitButtonVisibility(SETTLER_BUTTONS_VISIBLE);
                     else if(!unitToMove->isNonCombat())
                     {
-                        QList<Tile*> tiles = map->GetNeighborsRange(unitTile, unitToMove->GetRange());
-
-                        setUnitButtonVisibility(BASIC_BUTTONS_VISIBLE);
-
-                        foreach(Tile *tile, tiles)
+                        if(uc->UnitInRange(map, clickedData, unitToMove->GetRange(), civList.at(currentTurn)->getCiv()))
                         {
-                            if(((tile->GetOccupyingCivListIndex() > 0) || (tile->GetControllingCivListIndex() > 0)) && (tile->HasCity || tile->ContainsUnit()))
-                            {
-                                int tileIndex = tile->GetTileIndex();
-
-                                if(tile->HasCity && tile->GetControllingCivListIndex() != 0)
-                                {
-#ifdef DEBUG
-                                    qDebug() << "   Tile:" << tile->GetTileIDString() << "controlled by:" << tile->GetControllingCivListIndex() << "occupied by" << tile->GetOccupyingUnit()->GetOwningCivIndex();
-#endif
-                                    selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                                    tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
-                                }
-                                else if(tile->ContainsUnit() && !tile->HasCity && tile->GetOccupyingCivListIndex() != 0)
-                                {
-                                    selectedTileQueue->enqueue(SelectData {tileIndex, false, true});
-                                    tileModifiedQueue->enqueue(SelectData {tileIndex, false, false});
-
-                                    if(unitToMove->isMelee)
-                                    {
-                                        unitControlButtonsVisible = MELEE_BUTTONS_VISIBLE;
-                                        setUnitButtonVisibility(unitControlButtonsVisible);
-                                    }
-                                    else if(!unitToMove->isMelee)
-                                    {
-                                        unitControlButtonsVisible = RANGE_BUTTONS_VISIBLE;
-                                        setUnitButtonVisibility(unitControlButtonsVisible);
-                                    }
-                                }
-                            }
+                            if(unitToMove->isMelee)
+                                setUnitButtonVisibility(MELEE_BUTTONS_VISIBLE);
+                            else
+                                setUnitButtonVisibility(RANGE_BUTTONS_VISIBLE);
                         }
+
+                        this->redrawTile = true;
+                        selectedTileQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), true, false});
+                        tileModifiedQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), false, false});
                     }
-                }
 
-                this->redrawTile = true;
-                selectedTileQueue->enqueue(SelectData{unitTile->GetTileIndex(), true, false});
-                tileModifiedQueue->enqueue(SelectData{unitTile->GetTileIndex(), false, false});
-            }
-        }
-
-        break;
-
-    case MOVE_UNIT:
-        if(processedData.newData)
-        {
-            targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
-
-            if(!WarCheck(targetTile))
-            {
-                if(targetTile->ContainsUnit())
-                    statusMessage = "--------<< You cannot move there >>--------";
-                else
-                {
-                    //Even though we aren't technically invading all the time,
-                    //  this is set to simply allow the move processing to occur
-                    state = INVADE;
                 }
             }
         }
-
-        break;
-
-    case ATTACK_MELEE:
-    case ATTACK_RANGE:
-        if(processedData.newData)
+        else // Secondary Action State
         {
-            targetTile = map->GetTileFromCoord(processedData.column, processedData.row);
+            targetData = map->GetDataFromCoord(processedData.column, processedData.row);
 
-            if(WarCheck(targetTile))
+            switch(state)
             {
-                // In the event a tile is selected that doesn't contain a unit,
-                //  find a neighboring tile that has an enemy unit. Assumes the player
-                //  clicked around the intended tile.
-                if(!targetTile->ContainsUnit())
+            case MOVE_UNIT:
+                if(targetData->od.OccupantNation == NO_NATION)
                 {
-                    QList<Tile*> neighbors = map->GetNeighbors(targetTile);
-
-                    foreach(Tile* tile, neighbors)
+                    if(!this->WarCheck(targetData))
                     {
-                        if(tile->ContainsUnit() && !tile->HasCity)
+                        if(targetData->od.OccupantNation == NO_NATION)
                         {
-                            if(tile->GetOccupyingUnit()->GetOwningCivIndex() != currentTurn)
+                            statusMessage = "--------<< You cannot move there >>--------";
+                        }
+                        else
+                        {
+                            unitToMove->SetUnitTargetTile(targetData->tile->GetTileID().column, targetData->tile->GetTileID().row);
+                            unitToMove->SetUnitTargetTileIndex(targetData->tile->GetTileIndex());
+
+                            if(unitToMove->isFortified)
                             {
-                                if(!uc->AtPeaceWith(tile, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
-                                {
-                                    targetTile = tile;
-                                    break;
-                                }
+                                unitToMove->isFortified = false;
+                                renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
                             }
+
+                            uc->FindPath(clickedData->tile, targetData->tile, map, unitToMove, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()});
+
+                            relocateUnit = false;
+                            processedData.relocateOrderGiven = false;
+                            clickedData->tile->Selected = false;
+                            renderer->SetUnitNeedsOrders(clickedData->tile->GetTileIndex(), false);
+                            selectedTileQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), false, false});
+
+                            unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
+                            setUnitButtonVisibility(unitControlButtonsVisible);
+
+                            this->redrawTile = true;
+
+                            state = IDLE;
                         }
                     }
                 }
-            }
-        }
 
-        ProcessAttackUnit();
-        state = IDLE;
-        break;
+                inPrimaryState = true;
+                break;
 
-    case ATTACK_CITY:
-    case FIND_CITY:
-        state = IDLE;
-        targetCity = uc->FindCityAtTile(targetTile, civList.at(targetTile->GetControllingCivListIndex())->GetCityList());
+            case ATTACK_MELEE:
+            case ATTACK_RANGE:
+                if(WarCheck(targetData))
+                {
+                    if((targetData->od.OccupantNation == NO_NATION) || (targetData->od.civIndex == currentTurn))
+                    {
+                        inPrimaryState = true;
+                        break;
+                    }
 
-        if(currentTurn == 0)
-        {
-            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-            selectedTileQueue->enqueue(SelectData{targetCity->GetCityTile()->GetTileIndex(), false, false});
+                    ProcessAttackUnit();
+                }
 
-            unitControlButtonsVisible |= 0x00008;
-            setUnitButtonVisibility(unitControlButtonsVisible);
-        }
+                inPrimaryState = true;
+                break;
 
-        if(!uc->AtPeaceWith(targetCity->GetCityTile(), WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
-        {
-            uc->AttackCity(unitToMove, targetCity);
+            case ATTACK_CITY:
+                targetCity = targetData->tile->GetGoverningCity();
 
-            //City Conquering Logic
-            if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
-            {
                 if(currentTurn == 0)
-                    statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
-
-                int targetIndex = targetTile->GetControllingCivListIndex();
-
-                ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetIndex));
-
-                if(civList.at(targetIndex)->GetCityList().size() == 0)
                 {
-                    if(!civList.at(targetIndex)->GetUnitList().isEmpty())
-                    {
-                        foreach(Unit* unit, civList.at(targetIndex)->GetUnitList())
-                        {
-                            unit->GetUnitTile()->SetOccupyingUnit(NULL);
-                            renderer->RemoveUnit(unit, gameView);
-                        }
+                    selectedTileQueue->enqueue(SelectData{clickedData->tile->GetTileIndex(), false, false});
+                    selectedTileQueue->enqueue(SelectData{targetData->tile->GetTileIndex(), false, false});
 
-                        for(int i = 0; i < civList.at(targetIndex)->GetUnitList().size(); i++)
+                    setUnitButtonVisibility(BASIC_BUTTONS_VISIBLE);
+                }
+
+                if(WarCheck(targetData))
+                {
+                    uc->AttackCity(unitToMove, targetCity);
+
+                    //City Conquering Logic
+                    if(targetCity->GetCityHealth() <= 0 && unitToMove->isMelee)
+                    {
+                        if(currentTurn == 0)
+                            statusMessage = QString("--------<< %1 Has Been Conquered! >>--------").arg(targetCity->GetName());
+
+                        int targetIndex = targetData->tile->GetControllingCivListIndex();
+
+                        ProcessCityConquer(targetCity, civList.at(currentTurn), civList.at(targetIndex));
+
+                        if(civList.at(targetIndex)->GetCityList().size() == 0)
                         {
-                            civList.at(targetIndex)->RemoveUnit(i);
+                            if(!civList.at(targetIndex)->GetUnitList().isEmpty())
+                            {
+                                foreach(Unit* unit, civList.at(targetIndex)->GetUnitList())
+                                {
+//                                    unit->GetUnitTile()->SetOccupyingUnit(NULL);
+                                    renderer->RemoveUnit(unit, gameView);
+                                }
+
+                                for(int i = 0; i < civList.at(targetIndex)->GetUnitList().size(); i++)
+                                {
+                                    civList.at(targetIndex)->RemoveUnit(i);
+                                }
+                            }
+
+                            playersAliveCount--;
                         }
                     }
 
-                    playersAliveCount--;
+                    renderer->UpdateUnits(map, gameView, unitToMove, false);
+                    renderer->UpdateCityHealthBar(targetCity, gameView);
+                    renderer->SetUnitNeedsOrders(clickedData->tile->GetTileIndex(), false);
+                    this->redrawTile = true;
                 }
-            }
 
-            renderer->UpdateUnits(map, gameView, unitToMove, false);
-            renderer->UpdateCityHealthBar(targetCity, gameView);
-            renderer->SetUnitNeedsOrders(unitTile->GetTileIndex(), false);
-            this->redrawTile = true;
-        }
-        break;
+                inPrimaryState = true;
+                break;
 
-    case AI_FOUND_CITY:
-    case FOUND_CITY:
-        break;
-
-    case INVADE:
-        // INVADE is used to set the path which the unit will follow.
-        // Used in general movement and invasion movement.
-        unitToMove->SetUnitTargetTile(targetTile->GetTileID().column, targetTile->GetTileID().row);
-        unitToMove->SetUnitTargetTileIndex(targetTile->GetTileIndex());
-
-        if(unitToMove->isFortified)
-        {
-            unitToMove->isFortified = false;
-            renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
-        }
-
-        uc->FindPath(unitTile, targetTile, map, unitToMove, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()});
-
-        relocateUnit = false;
-        processedData.relocateOrderGiven = false;
-        unitTile->Selected = false;
-        renderer->SetUnitNeedsOrders(unitToMove->GetTileIndex(), false);
-        selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-
-        unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
-        setUnitButtonVisibility(unitControlButtonsVisible);
-
-        this->redrawTile = true;
-
-        state = IDLE;
-        break;
-
-    case CONQUER:
-        break;
-
-    case AI_DECLARE_WAR:
-        break;
-
-     default:
-        if(unitToMove != NULL)
-        {
-            selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
-            if(!tileModifiedQueue->isEmpty())
-            {
-                renderer->UpdateScene(map, gameView, tileModifiedQueue);
+            case CONQUER:
+            case INVADE:
+            case FOUND_CITY:
+            case AI_FOUND_CITY:
+            case FIND_CITY:
+            case IDLE:
+            default:
+                inPrimaryState = true;
+                break;
             }
         }
-
-        unitControlButtonsVisible = NO_BUTTONS_VISIBLE;
-        setUnitButtonVisibility(unitControlButtonsVisible);
-        redrawTile = true;
-        state = IDLE;
-        break;
     }
+
+    lastData = clickedData;
 }
 
 
@@ -1536,6 +1486,7 @@ void GameManager::NewUpdateTileData()
  */
 void GameManager::UpdateTileData()
 {
+    /*
     if(!processedData.relocateOrderGiven && state == IDLE)
     {
         unitTile = map->GetTileFromCoord(processedData.column, processedData.row);
@@ -1706,7 +1657,7 @@ void GameManager::UpdateTileData()
     //                        if(!map->GetTileAt(unitToMove->GetTileIndex())->CanHaveQuarry)
                             if(!unitTile->CanHaveQuarry)
                                 unitControlButtonsVisible &= 0xFFBFF;
-    */
+
                         }
 
                         setUnitButtonVisibility(unitControlButtonsVisible);
@@ -2052,6 +2003,7 @@ void GameManager::UpdateTileData()
 //        fortifyUnit->setEnabled(false);
         redrawTile = true;
     }
+    */
 }
 
 void GameManager::InitVariables(bool fullscreen)
@@ -2099,8 +2051,8 @@ void GameManager::InitVariables(bool fullscreen)
     unitToMove = NULL;
     targetUnit = NULL;
     targetCity = NULL;
-    unitTile = NULL;
-    targetTile = NULL;
+//    unitTile = NULL;
+//    targetTile = NULL;
     state = IDLE;
 
     cityScreenVisible = false;
@@ -2493,12 +2445,13 @@ void GameManager::InitRenderData()
             {
                 foreach(Tile* n, map->GetNeighborsRange(ci->GetCityTile(), 3))
                 {
+                    OccupantData tod = map->GetODFromTileAt(n->GetTileIndex());
                     if(n->DiscoveredByPlayer)
                     {
                         viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), DISCOVERED});
                         renderer->SetTileTooltip(n->GetTileIndex(), *n->GetYield(), n->GetControllingCiv(), n->GetTileIDString());
 
-                        if(!n->IsSeenByPlayer && !n->ContainsUnit())
+                        if(!n->IsSeenByPlayer && (tod.OccupantNation == NO_NATION))
                         {
                             viewUpdateTiles->enqueue(ViewData{n->GetTileIndex(), HIDDEN});
                         }
@@ -2785,13 +2738,12 @@ void GameManager::setUnitButtonVisibility(unsigned int visibleButtons)
         moveUnit->setVisible(false);
 }
 
-bool GameManager::WarCheck(Tile *t)
+bool GameManager::WarCheck(MapData *md) //Tile *t)
 {
     playerToWar = false;
-
-    if((t->ContainsUnit() || t->HasCity) && (t->GetControllingCivListIndex() != 0) && (t->GetControllingCivListIndex() != -1))
+    if(((md->od.OccupantNation != NO_NATION) || md->tile->HasCity) && (md->tile->GetControllingCivListIndex() != currentTurn) && (md->tile->GetControllingCivListIndex() != -1))
     {
-        if(uc->AtPeaceWith(t, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
+        if(uc->AtPeaceWith(md, WarData{civList.at(currentTurn)->isAtWar(), civList.at(currentTurn)->GetCivListIndexAtWar()}))
         {
             if(gameTurn == 1)
             {
@@ -2800,7 +2752,7 @@ bool GameManager::WarCheck(Tile *t)
             }
             else
             {
-                warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(targetTile->GetControllingCivListIndex())->GetLeaderName()));
+                warbox->setText(QString("You are not at war with %1.\nIf you continue, this will be a declaration of war. \nContinue?").arg(civList.at(md->od.civIndex)->GetLeaderName()));
 
                 warbox->setWindowFlags(Qt::FramelessWindowHint);
 
@@ -2936,7 +2888,7 @@ void GameManager::ProcessAttackUnit()
         renderer->SetFortifyIcon(unitToMove->GetTileIndex(), true);
     }
 
-    targetUnit = targetTile->GetOccupyingUnit();
+    targetUnit = civList.at(targetData->od.civIndex)->GetUnitAt(targetData->od.unitIndex);
 
     selectedTileQueue->enqueue(SelectData{unitToMove->GetTileIndex(), false, false});
 
@@ -2969,7 +2921,8 @@ void GameManager::ProcessAttackUnit()
         int listIndex = unitToMove->GetOwningCivIndex();
         //map->GetTileAt(unitToMove->GetTileIndex())->SetOccupyingCivListIndex(-1);
         //map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
-        unitToMove->GetUnitTile()->SetOccupyingUnit(NULL);
+//        unitToMove->GetUnitTile()->SetOccupyingUnit(NULL);
+        map->SetOccupantDataAt(unitToMove->GetTileIndex(), DEFAULT_OCCUPANT);
         renderer->RemoveUnit(unitToMove, gameView);
         civList.at(listIndex)->RemoveUnit(unitToMove->GetUnitListIndex());
     }
@@ -2992,7 +2945,8 @@ void GameManager::ProcessAttackUnit()
         int listIndex = unitToMove->GetOwningCivIndex();
         //map->GetTileAt(unitToMove->GetTileIndex())->SetOccupyingCivListIndex(-1);
         //map->GetTileAt(unitToMove->GetTileIndex())->ContainsUnit = false;
-        unitToMove->GetUnitTile()->SetOccupyingUnit(NULL);
+//        unitToMove->GetUnitTile()->SetOccupyingUnit(NULL);
+        map->SetOccupantDataAt(targetUnit->GetTileIndex(), DEFAULT_OCCUPANT);
         renderer->RemoveUnit(targetUnit, gameView);
         civList.at(listIndex)->RemoveUnit(targetUnit->GetUnitListIndex());
     }
@@ -3017,17 +2971,20 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
         {
             foreach(Tile* tile, city->GetControlledTiles())
             {
-                if(tile->ContainsUnit() && tile->GetOccupyingUnit()->GetOwningCivIndex() == 0)
+                OccupantData tod = map->GetODFromTileAt(tile->GetTileIndex());
+                if((tod.OccupantNation != NO_NATION) && (tod.civIndex == 0))
                 {
                     Unit *unit = uc->FindUnitAtTile(tile, civList.at(currentTurn)->GetUnitList());
 
                     foreach(Tile* outside, city->tileQueue)
                     {
-                        if(!outside->ContainsUnit())
+                        OccupantData outsideOd = map->GetODFromTileAt(outside->GetTileIndex());
+                        if(outsideOd.OccupantNation == NO_NATION)
                         {
 //                            map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
 //                            map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
-                            unit->GetUnitTile()->SetOccupyingUnit(NULL);
+//                            unit->GetUnitTile()->SetOccupyingUnit(NULL);
+                            map->SetOccupantDataAt(unit->GetTileIndex(), DEFAULT_OCCUPANT);
 
 //                            if(map->GetTileAt(unit->GetTileIndex())->Selected)
 //                                    map->GetTileAt(unit->GetTileIndex())->Selected = false;
@@ -3068,7 +3025,8 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
         {
             foreach(Tile* tile, city->GetControlledTiles())
             {
-                if(tile->ContainsUnit() && tile->GetOccupyingUnit()->GetOwningCivIndex() == makePeaceWithIndex)
+                OccupantData tod = map->GetODFromTileAt(tile->GetTileIndex());
+                if((tod.OccupantNation != NO_NATION) && tile->GetOccupyingUnit()->GetOwningCivIndex() == makePeaceWithIndex)
                 {
                     Unit *unit = uc->FindUnitAtTile(tile, civList.at(makePeaceWithIndex)->GetUnitList());
 
@@ -3076,11 +3034,13 @@ void GameManager::ProcessPeace(int makePeaceWithIndex)
                     {
                         foreach(Tile* outside, city->tileQueue)
                         {
-                            if(!outside->ContainsUnit())
+                            OccupantData outsideOd = map->GetODFromTileAt(outside->GetTileIndex());
+                            if(outsideOd.OccupantNation == NO_NATION)
                             {
 //                                map->GetTileAt(unit->GetTileIndex())->ContainsUnit = false;
 //                                map->GetTileAt(unit->GetTileIndex())->SetOccupyingCivListIndex(-1);
-                                unit->GetUnitTile()->SetOccupyingUnit(NULL);
+//                                unit->GetUnitTile()->SetOccupyingUnit(NULL);
+                                map->SetOccupantDataAt(unit->GetTileIndex(), DEFAULT_OCCUPANT);
 
     //                            if(map->GetTileAt(unit->GetTileIndex())->Selected)
     //                                    map->GetTileAt(unit->GetTileIndex())->Selected = false;
@@ -3358,6 +3318,7 @@ void GameManager::moveUnitTo()
     {
         state = MOVE_UNIT;
         relocateUnit = true;
+        inPrimaryState = false;
     }
 }
 
@@ -3563,6 +3524,7 @@ void GameManager::buildNewQuarry()
 void GameManager::attackMelee()
 {
     state = ATTACK_MELEE;
+    inPrimaryState = false;
 }
 
 void GameManager::SetGoldFocus()
@@ -3633,11 +3595,13 @@ void GameManager::SetCultureFocus()
 void GameManager::AttackCity()
 {
     state = ATTACK_CITY;
+    inPrimaryState = false;
 }
 
 void GameManager::RangeAttack()
 {
     state = ATTACK_RANGE;
+    inPrimaryState = false;
 }
 
 void GameManager::Fortify()

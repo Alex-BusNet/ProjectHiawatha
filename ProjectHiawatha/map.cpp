@@ -74,12 +74,13 @@ Map::~Map()
 
     if(!board.isEmpty())
     {
-        foreach(Tile* t, board)
+        foreach(MapData* md, board)
         {
-            if(t != NULL)
-                delete t;
+            if(md->tile != NULL)
+                delete md->tile;
         }
     }
+
 }
 
 void Map::InitHexMap()
@@ -97,14 +98,14 @@ void Map::InitTerrain()
 {
     for(int i = 0; i < board.size(); i++)
     {
-        QPixmap *pix = new QPixmap(board.at(i)->GetTileTexture());
+        QPixmap *pix = new QPixmap(this->GetTileAt(i)->GetTileTexture());
         terrain.push_back(pix);
     }
 }
 
 Tile *Map::GetTileAt(int index)
 {
-    return this->board.at(index);
+    return this->board.at(index)->tile;
 }
 
 int Map::GetBoardSize()
@@ -116,12 +117,12 @@ int Map::GetBoardSize()
 // ptIndex = a value 0-6 for the desired point on the hexagon
 QPoint Map::GetHexTilePoint(int boardIndex, int ptIndex)
 {
-    return this->board.at(boardIndex)->GetHexPoint(ptIndex);
+    return this->GetTileAt(boardIndex)->GetHexPoint(ptIndex);
 }
 
 TileType Map::GetTileTypeAt(int index)
 {
-    return this->board.at(index)->GetTileType();
+    return this->GetTileAt(index)->GetTileType();
 }
 
 QPixmap *Map::GetTilePixmap(int index)
@@ -156,7 +157,8 @@ QList<Tile *> Map::GetNeighbors(Tile *node)
 
             if(checkX >= 0 && checkX < (mapSizeX * 2) && checkY >= 0 && checkY < mapSizeY)
             {
-                neighbors.push_back(board.at((checkX / 2) + (mapSizeX * checkY)));
+                neighbors.push_back(this->GetTileFromCoord(checkX, checkY));
+//                neighbors.push_back(mapSizeboard.at((checkX / 2) + (X * checkY)));
             }
         }
     }
@@ -204,40 +206,41 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
             {
                 int boardIndex = (checkX / 2) + (mapSizeX * checkY);
 
-                    if(checkX < node->GetTileID().column)
+                if(checkX < node->GetTileID().column)
+                {
+                    if(abs(yMin) != yMax)
                     {
-                        if(abs(yMin) != yMax)
+                        if(node->GetTileID().column- (range + (range - (abs(yMin) % range))) > (checkX + 1))
                         {
-                            if(node->GetTileID().column- (range + (range - (abs(yMin) % range))) > (checkX + 1))
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            if(node->GetTileID().column - (range + (abs(yMin) % range)) > checkX)
-                            {
-                                continue;
-                            }
+                            continue;
                         }
                     }
-                    else if(checkX > node->GetTileID().column)
+                    else
                     {
-                        if(abs(yMin) != yMax)
+                        if(node->GetTileID().column - (range + (abs(yMin) % range)) > checkX)
                         {
-                            if(node->GetTileID().column + (range + (range - (abs(yMin) % range))) < checkX)
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            if(node->GetTileID().column + (range + (abs(yMin) % range)) < checkX)
-                            {
-                                continue;
-                            }
+                            continue;
                         }
                     }
+                }
+                else if(checkX > node->GetTileID().column)
+                {
+                    if(abs(yMin) != yMax)
+                    {
+                        if(node->GetTileID().column + (range + (range - (abs(yMin) % range))) < checkX)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if(node->GetTileID().column + (range + (abs(yMin) % range)) < checkX)
+                        {
+                            continue;
+                        }
+                    }
+                }
+
                 bool addtile=true;
                 for(int i=0;i<neighbors.length();i++){
                     if(neighbors.at(i)->GetTileIndex()==boardIndex){
@@ -245,7 +248,7 @@ QList<Tile *> Map::GetNeighborsRange(Tile *node, int range)
                     }
                 }
                 if(addtile&&(neighbors.length()<maxTiles)){
-                    boardTile = board.at(boardIndex);
+                    boardTile = this->GetTileAt(boardIndex); //board.at(boardIndex);
                     neighbors.push_back(boardTile);
                 }
             }
@@ -343,7 +346,7 @@ QList<Tile *> Map::GetMaximumExpasionTiles(Tile *cityCenter)
                     }
                 }
 
-                boardTile = board.at(boardIndex);
+                boardTile = this->GetTileAt(boardIndex); //board.at(boardIndex);
                 neighbors.push_back(boardTile);
             }
 
@@ -385,12 +388,32 @@ bool Map::setContains(QSet<Tile *> set, Tile *tile)
 
 Tile* Map::GetTileFromCoord(int column, int row)
 {
-    return this->board.at((column / 2) + (mapSizeX * row));
+    return this->board.at((column / 2) + (mapSizeX * row))->tile;
 }
 
 Tile *Map::GetTileFromCoord(TileID id)
 {
-    return this->board.at((id.column / 2) + (mapSizeX * id.row));
+    return this->board.at((id.column / 2) + (mapSizeX * id.row))->tile;
+}
+
+OccupantData Map::GetODFromTileAt(int index)
+{
+    return board.at(index)->od;
+}
+
+OccupantData Map::GetODFromCoord(int column, int row)
+{
+    return this->board.at((column/2) + (mapSizeX * row))->od;
+}
+
+MapData *Map::GetDataAt(int index)
+{
+    return this->board.at(index);
+}
+
+MapData* Map::GetDataFromCoord(int column, int row)
+{
+    return this->board.at((column / 2) + (mapSizeX * row));
 }
 
 void Map::GenerateMap()
@@ -420,76 +443,77 @@ void Map::GenerateMap()
     for(int i = 0; i < board.size(); i++)
     {
         val = d(gen);
+        Tile* t = this->GetTileAt(i);
+
         if(val == 0)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() == 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() == 0))
             {
-                board.at(i)->SetTileType(WATER);
-                board.at(i)->SetTileTexture(WATER);
-                board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
-                board.at(i)->Walkable = true;
+                t->SetTileType(WATER);
+                t->SetTileTexture(WATER);
+                t->GetYield()->ChangeYield(1, 0, 0, 1, 0);
+               t->Walkable = true;
             }
         }
         else if (val == 1)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() != 0))
             {
-                board.at(i)->SetTileType(GRASS);
-                board.at(i)->SetTileTexture(GRASS);
-                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 2, 0);
-                board.at(i)->SetMoveCost(1);
+                t->SetTileType(GRASS);
+                t->SetTileTexture(GRASS);
+                t->GetYield()->ChangeYield(0, 0, 0, 2, 0);
+                t->SetMoveCost(1);
             }
         }
         else if (val == 2)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() != 0))
             {
-                board.at(i)->SetTileType(DESERT);
-                board.at(i)->SetTileTexture(DESERT);
-                board.at(i)->SetMoveCost(1);
+                t->SetTileType(DESERT);
+                t->SetTileTexture(DESERT);
+                t->SetMoveCost(1);
             }
         }
         else if(val == 3)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() != 0))
             {
-                board.at(i)->SetTileType(MOUNTAIN);
-                board.at(i)->SetTileTexture(MOUNTAIN);
-                board.at(i)->Walkable = false;
+                t->SetTileType(MOUNTAIN);
+                t->SetTileTexture(MOUNTAIN);
+                t->Walkable = false;
             }
         }
         else if(val == 4)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() != 0))
             {
-                board.at(i)->SetTileType(HILL);
-                board.at(i)->SetTileTexture(HILL);
-                board.at(i)->SetMoveCost(2);
+                t->SetTileType(HILL);
+                t->SetTileTexture(HILL);
+                t->SetMoveCost(2);
             }
         }
         else if(val == 5)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() != 0))
             {
-                board.at(i)->SetTileType(FOREST);
-                board.at(i)->SetTileTexture(FOREST);
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 1, 0);
-                board.at(i)->SetMoveCost(2);
+                t->SetTileType(FOREST);
+                t->SetTileTexture(FOREST);
+                t->GetYield()->ChangeYield(0, 1, 0, 1, 0);
+                t->SetMoveCost(2);
             }
         }
         else if(val == 6)
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN && (board.at(i)->GetContinent() != 0))
+            if((t->GetTileBiome() != POLE) && (t->GetTileBiome() != OCEAN) && (t->GetContinent() != 0))
             {
-                board.at(i)->SetTileType(PLAINS_TILE);
-                board.at(i)->SetTileTexture(PLAINS_TILE);
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 1, 0);
-                board.at(i)->SetMoveCost(1);
+                t->SetTileType(PLAINS_TILE);
+                t->SetTileTexture(PLAINS_TILE);
+                t->GetYield()->ChangeYield(0, 1, 0, 1, 0);
+                t->SetMoveCost(1);
             }
         }
 
-        board.at(i)->SetControllingCivListIndex(-1);
-        board.at(i)->SetOccupyingUnit(NULL);
+        t->SetControllingCivListIndex(-1);
     }
 }
 
@@ -497,17 +521,19 @@ void Map::GenerateMapEdge()
 {
     for(int i = 0; i < board.size(); i++)
     {
-        if(board.at(i)->GetTileBiome() == Biome::POLE)
+        Tile* t = this->GetTileAt(i);
+        if(t->GetTileBiome() == POLE)
         {
-            board.at(i)->SetTileTexture(ICE);
-            board.at(i)->SetTileType(ICE);
-            board.at(i)->Walkable = false;
+            t->SetTileTexture(ICE);
+            t->SetTileType(ICE);
+            t->Walkable = false;
         }
-        if(board.at(i)->GetTileBiome() == OCEAN)
+
+        if(t->GetTileBiome() == OCEAN)
         {
-            board.at(i)->SetTileTexture(WATER);
-            board.at(i)->SetTileType(WATER);
-            board.at(i)->Walkable = true;
+            t->SetTileTexture(WATER);
+            t->SetTileType(WATER);
+            t->Walkable = true;
         }
     }
 }
@@ -526,9 +552,9 @@ void Map::CleanMap()
 newloc:
         index = rand() % board.size();
 
-        if(board.at(index)->GetTileType() == WATER)
+        if(board.at(index)->tile->GetTileType() == WATER)
         {
-            foreach(Tile* t, GetNeighborsRange(board.at(index), this->oceanScaleFactor / 2))
+            foreach(Tile* t, GetNeighborsRange(board.at(index)->tile, this->oceanScaleFactor / 2))
             {
                 if((t->GetTileType() == WATER))
                 {
@@ -601,6 +627,11 @@ void Map::GetTileQueue(City *city)
             surroundCount++;
         }
     }
+}
+
+void Map::SetOccupantDataAt(int index, OccupantData newOd)
+{
+    this->board.at(index)->od = newOd;
 }
 
 void Map::DefineCityBordersNew(City *city)
@@ -723,7 +754,7 @@ void Map::DefineCityBordersNew(City *city)
 City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
 {
     City* city = new City(founder->getCivIndex());
-    QList<Tile*> initialTiles = GetNeighbors(board.at(cityTileIndex));
+    QList<Tile*> initialTiles = GetNeighbors(this->GetTileAt(cityTileIndex));
 
     foreach(Tile* tile, initialTiles)
     {
@@ -740,7 +771,7 @@ City* Map::CreateCity(int cityTileIndex, Civilization *founder, bool isCapital)
     else
         city->SetCityAsCapital(false, false);
 
-    city->SetCityTile(board.at(cityTileIndex));    
+    city->SetCityTile(this->GetTileAt(cityTileIndex));
     city->SetControllingCiv(founder->getCiv());
     city->GetCityTile()->SetYield(5,5,5,5,5);
 
@@ -771,8 +802,9 @@ void Map::WriteMapSaveData(QJsonObject &obj) const
     obj["oceanscalefactor"] = oceanScaleFactor;
 
     QJsonArray tileArray;
-    foreach(Tile* t, board)
+    foreach(MapData* md, board)
     {
+        Tile* t = md->tile;
         QJsonObject tileObj;
         t->WriteTileSaveData(tileObj);
         tileArray.append(tileObj);
@@ -792,7 +824,7 @@ void Map::ReadMapSaveData(QJsonObject &obj)
     QJsonArray tArray = obj["tiledata"].toArray();
     for(int i = 0; i < board.size(); i++)
     {
-        board.at(i)->ReadTileSaveData(tArray.at(i).toObject());
+        board.at(i)->tile->ReadTileSaveData(tArray.at(i).toObject());
     }
 
     InitTerrain();
@@ -831,7 +863,7 @@ void Map::GenerateTiles()
             tile->SetTileID(row, column, tile);
             tile->SetTileIndex(board.size());
 
-            board.push_back(tile);
+            board.push_back(new MapData{tile,  DEFAULT_OCCUPANT});
 
             //flat:
 //            posX += 74;
@@ -876,12 +908,14 @@ void Map::SpawnCivs(QVector<Civilization*> civs)
     {
 newrand:
         index = (static_cast<double>(rand()) / RAND_MAX) * (board.size());
-        if(board.at(index)->GetTileType() == ICE || board.at(index)->GetTileType() == WATER || board.at(index)->GetTileType() == MOUNTAIN || board.at(index)->ContainsUnit())
+        Tile* t = this->GetTileAt(index);
+        OccupantData tod = this->GetODFromTileAt(index);
+        if((t->GetTileType() == ICE) || (t->GetTileType() == WATER) || (t->GetTileType() == MOUNTAIN) || (tod.OccupantNation != NO_NATION))
         {
             goto newrand;
         }
 
-        if(!board.at(index)->ContainsUnit() && !board.at(index)->HasCity)
+        if((tod.OccupantNation == NO_NATION) && !t->HasCity)
         {
             if(lastIndex == index)
             {
@@ -890,14 +924,14 @@ newrand:
 
             lastIndex = index;
 
-            board.at(index)->SetControllingCivListIndex(i);
+            t->SetControllingCivListIndex(i);
 
             city = this->CreateCity(index, civs.at(i), true);
 
             if(!city->IsInitialized())
             {
-                if(board.at(index)->GetControllingCivListIndex() == -1)
-                    board.at(index)->SetControllingCivListIndex(-1);
+                if(t->GetControllingCivListIndex() == -1)
+                    t->SetControllingCivListIndex(-1);
 
                 goto newrand;
             }
@@ -920,16 +954,16 @@ newrand:
                     }
 
                     delete city;
-                    board.at(index)->SetControllingCivListIndex(-1);
+                    t->SetControllingCivListIndex(-1);
                     goto newrand;
                 }
             }
 
             for(int k = 0; k < board.size(); k++)
             {
-                if(board.at(k)->GetTileType() == ICE || board.at(k)->GetTileBiome() == OCEAN)
+                if(board.at(k)->tile->GetTileType() == ICE || board.at(k)->tile->GetTileBiome() == OCEAN)
                 {
-                    if(city->GetMinimumSettleDistance().boundingRect().intersects(board.at(k)->GetTilePolygon().boundingRect()))
+                    if(city->GetMinimumSettleDistance().boundingRect().intersects(board.at(k)->tile->GetTilePolygon().boundingRect()))
                     {
                         civs.at(i)->SetCityIndex(0);
                         foreach(Tile* tile, city->GetControlledTiles())
@@ -942,16 +976,16 @@ newrand:
                         }
 
                         delete city;
-                        board.at(index)->SetControllingCivListIndex(-1);
+                        t->SetControllingCivListIndex(-1);
                         goto newrand;
                     }
                 }
             }
 
-            board.at(index)->HasCity = true;
-            board.at(index)->SetGoverningCity(city, i);
+            t->HasCity = true;
+            t->SetGoverningCity(city, i);
 
-            QList<Tile*> cityMEB = this->GetNeighborsRange(board.at(index), 4);
+            QList<Tile*> cityMEB = this->GetNeighborsRange(t, 4);
             city->SetMaximumExpansionBorderTiles(cityMEB);
             city->FilterMEBList();
 
@@ -971,10 +1005,9 @@ newrand:
             {
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
-                    if(!tile->ContainsUnit() && !tile->HasCity)
+                    if((this->GetDataAt(tile->GetTileIndex())->od.OccupantNation == NO_NATION) && !tile->HasCity)
                     {
                         unit->SetPosition(tile);
-                        tile->SetOccupyingUnit(unit);
                         break;
                     }
                 }
@@ -992,10 +1025,9 @@ newrand:
             {
                 if(tile->GetTileType() != MOUNTAIN && tile->GetTileType() != WATER && tile->GetTileType() != ICE)
                 {
-                    if(!tile->ContainsUnit() && !tile->HasCity)
+                    if((this->GetDataAt(tile->GetTileIndex())->od.OccupantNation == NO_NATION) && !tile->HasCity)
                     {
                         unit->SetPosition(tile);
-                        tile->SetOccupyingUnit(unit);
                         break;
                     }
                 }
@@ -1016,58 +1048,60 @@ void Map::GenerateBiomes()
     //Generate Ice Caps
     for(int i = 0; i < board.size(); i++)
     {
-        if(board.at(i)->GetTileID().row <= 1)
+        Tile* t = this->GetTileAt(i);
+        if(t->GetTileID().row <= 1)
         {
-            board.at(i)->SetTileBiome(Biome::POLE);
-            board.at(i)->SetContinent(0);
+            t->SetTileBiome(Biome::POLE);
+            t->SetContinent(0);
         }
-        else if(board.at(i)->GetTileID().row >= mapSizeY - 2)
+        else if(t->GetTileID().row >= mapSizeY - 2)
         {
-            board.at(i)->SetTileBiome(Biome::POLE);
-            board.at(i)->SetContinent(0);
+            t->SetTileBiome(Biome::POLE);
+            t->SetContinent(0);
         }
     }
 
     //Generate Ocean Borders
     for(int i = 0; i < board.size(); i++)
     {
-        if(board.at(i)->GetTileID().column <= (this->oceanScaleFactor - 1))
+        Tile* t = this->GetTileAt(i);
+        if(t->GetTileID().column <= (this->oceanScaleFactor - 1))
         {
-            if(board.at(i)->GetTileBiome() != POLE)
+            if(t->GetTileBiome() != POLE)
             {
-                board.at(i)->SetTileBiome(OCEAN);
-                board.at(i)->SetContinent(0);
+                t->SetTileBiome(OCEAN);
+                t->SetContinent(0);
             }
         }
-        else if((board.at(i)->GetTileID().column > (mapSizeX) - this->oceanScaleFactor) && (board.at(i)->GetTileID().column < (mapSizeX) + this->oceanScaleFactor))
+        else if((t->GetTileID().column > (mapSizeX) - this->oceanScaleFactor) && (t->GetTileID().column < (mapSizeX) + this->oceanScaleFactor))
         {
-            if(board.at(i)->GetTileBiome() != POLE)
+            if(t->GetTileBiome() != POLE)
             {
-                board.at(i)->SetTileBiome(OCEAN);
-                board.at(i)->SetContinent(0);
+                t->SetTileBiome(OCEAN);
+                t->SetContinent(0);
             }
         }
-        else if(board.at(i)->GetTileID().column >= (mapSizeX * 2) - this->oceanScaleFactor)
+        else if(t->GetTileID().column >= (mapSizeX * 2) - this->oceanScaleFactor)
         {
-            if(board.at(i)->GetTileBiome() != POLE)
+            if(t->GetTileBiome() != POLE)
             {
-                board.at(i)->SetTileBiome(OCEAN);
-                board.at(i)->SetContinent(0);
+                t->SetTileBiome(OCEAN);
+                t->SetContinent(0);
             }
         }
 
-        if((board.at(i)->GetTileID().column > this->oceanScaleFactor) && (board.at(i)->GetTileID().column < (mapSizeX - this->oceanScaleFactor)))
+        if((t->GetTileID().column > this->oceanScaleFactor) && (t->GetTileID().column < (mapSizeX - this->oceanScaleFactor)))
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
-                board.at(i)->SetContainer(1);
+            if(t->GetTileBiome() != POLE && t->GetTileBiome() != OCEAN)
+                t->SetContainer(1);
         }
-        else if((board.at(i)->GetTileID().column > (mapSizeX + this->oceanScaleFactor)) && (board.at(i)->GetTileID().column < (mapSizeX * 2) - this->oceanScaleFactor))
+        else if((t->GetTileID().column > (mapSizeX + this->oceanScaleFactor)) && (t->GetTileID().column < (mapSizeX * 2) - this->oceanScaleFactor))
         {
-            if(board.at(i)->GetTileBiome() != POLE && board.at(i)->GetTileBiome() != OCEAN)
-                board.at(i)->SetContainer(2);
+            if(t->GetTileBiome() != POLE && t->GetTileBiome() != OCEAN)
+                t->SetContainer(2);
         }
         else
-            board.at(i)->SetContainer(0);
+            t->SetContainer(0);
     }
 
     //Set up continents
@@ -1080,13 +1114,13 @@ void Map::GenerateBiomes()
         {
 newindex:
             index = rand() % board.size();
-
-            if(board.at(index)->GetContainer() == j)
+            Tile* t = this->GetTileAt(index);
+            if(t->GetContainer() == j)
             {
                 range = ((rand() % oceanScaleFactor) + 1) * 2;
-                foreach(Tile* t, GetNeighborsRange(board.at(index), range))
+                foreach(Tile* ti, GetNeighborsRange(board.at(index)->tile, range))
                 {
-                    t->SetContinent(j);
+                    ti->SetContinent(j);
                 }
             }
             else
@@ -1146,171 +1180,172 @@ void Map::GenerateResources()
 
     for(int i = 0; i < board.size(); i++)
     {
-        if((board.at(i)->GetTileType() == GRASS) || (board.at(i)->GetTileType() == HILL) || (board.at(i)->GetTileType() == FOREST) || (board.at(i)->GetTileType() == PLAINS_TILE) && (board.at(i)->GetContinent() != 0))
+        Tile *t = this->GetTileAt(i);
+        if((t->GetTileType() == GRASS) || (t->GetTileType() == HILL) || (t->GetTileType() == FOREST) || (t->GetTileType() == PLAINS_TILE) && (t->GetContinent() != 0))
         {
             resource = d(gen);
             switch(resource)
             {
             case NO_STRATEGIC:
-                board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+                t->SetResource(NO_STRATEGIC, NO_LUXURY);
                 break;
             case IRON:
-                board.at(i)->SetResource(IRON, NO_LUXURY);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
+                t->SetResource(IRON, NO_LUXURY);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case HORSES:
-                board.at(i)->SetResource(HORSES, NO_LUXURY);
-                board.at(i)->CanHavePasture = true;
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
+                t->SetResource(HORSES, NO_LUXURY);
+                t->CanHavePasture = true;
+                t->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case URANIUM:
-                board.at(i)->SetResource(URANIUM, NO_LUXURY);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
+                t->SetResource(URANIUM, NO_LUXURY);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case ALUMINUM:
-                board.at(i)->SetResource(ALUMINUM, NO_LUXURY);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
+                t->SetResource(ALUMINUM, NO_LUXURY);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case COAL:
-                board.at(i)->SetResource(COAL, NO_LUXURY);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
+                t->SetResource(COAL, NO_LUXURY);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case OIL:
-                board.at(i)->SetResource(OIL, NO_LUXURY);
-                board.at(i)->CanHaveOilWell = true;
-                board.at(i)->GetYield()->ChangeYield(0, 1, 0, 0, 0);
+                t->SetResource(OIL, NO_LUXURY);
+                t->CanHaveOilWell = true;
+                t->GetYield()->ChangeYield(0, 1, 0, 0, 0);
                 break;
             case NO_LUXURY:
-                board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+                t->SetResource(NO_STRATEGIC, NO_LUXURY);
                 break;
             case WHEAT:
-                board.at(i)->SetResource(NO_STRATEGIC, WHEAT);
-                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
+                t->SetResource(NO_STRATEGIC, WHEAT);
+                t->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case CATTLE:
-                board.at(i)->SetResource(NO_STRATEGIC, CATTLE);
-                board.at(i)->CanHavePasture = true;
-                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
+                t->SetResource(NO_STRATEGIC, CATTLE);
+                t->CanHavePasture = true;
+                t->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case DEER:
-                board.at(i)->SetResource(NO_STRATEGIC, DEER);
-                board.at(i)->CanHaveCamp = true;
-                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
+                t->SetResource(NO_STRATEGIC, DEER);
+                t->CanHaveCamp = true;
+                t->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case FISH:
-                if(board.at(i)->GetTileType() == WATER)
+                if(t->GetTileType() == WATER)
                 {
-                    board.at(i)->SetResource(NO_STRATEGIC, FISH);
-                    board.at(i)->CanHaveFishBoat = true;
-                    board.at(i)->GetYield()->ChangeYield(0, 0, 0, 2, 0);
+                    t->SetResource(NO_STRATEGIC, FISH);
+                    t->CanHaveFishBoat = true;
+                    t->GetYield()->ChangeYield(0, 0, 0, 2, 0);
                 }
                 break;
             case WHALES:
-                if(board.at(i)->GetTileType() == WATER)
+                if(t->GetTileType() == WATER)
                 {
-                    board.at(i)->SetResource(NO_STRATEGIC, WHALES);
-                    board.at(i)->CanHaveFishBoat = true;
-                    board.at(i)->GetYield()->ChangeYield(1, 0, 0, 1, 0);
+                    t->SetResource(NO_STRATEGIC, WHALES);
+                    t->CanHaveFishBoat = true;
+                    t->GetYield()->ChangeYield(1, 0, 0, 1, 0);
                 }
                 break;
             case BANANAS:
-                board.at(i)->SetResource(NO_STRATEGIC, BANANAS);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(0, 0, 0, 1, 0);
+                t->SetResource(NO_STRATEGIC, BANANAS);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(0, 0, 0, 1, 0);
                 break;
             case GOLD_RESOURCE:
-                board.at(i)->SetResource(NO_STRATEGIC, GOLD_RESOURCE);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, GOLD_RESOURCE);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case GEMS:
-                board.at(i)->SetResource(NO_STRATEGIC, GEMS);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(3, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, GEMS);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(3, 0, 0, 0, 0);
                 break;
             case MARBLE:
-                board.at(i)->SetResource(NO_STRATEGIC, MARBLE);
-                board.at(i)->CanHaveQuarry = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, MARBLE);
+                t->CanHaveQuarry = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case IVORY:
-                board.at(i)->SetResource(NO_STRATEGIC, IVORY);
-                board.at(i)->CanHaveCamp = true;
-                board.at(i)->GetYield()->ChangeYield(1, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, IVORY);
+                t->CanHaveCamp = true;
+                t->GetYield()->ChangeYield(1, 0, 0, 0, 0);
                 break;
             case DYES:
-                board.at(i)->SetResource(NO_STRATEGIC, DYES);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, DYES);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SPICES:
-                board.at(i)->SetResource(NO_STRATEGIC, SPICES);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, SPICES);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SILK:
-                board.at(i)->SetResource(NO_STRATEGIC, SILK);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, SILK);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SUGAR:
-                board.at(i)->SetResource(NO_STRATEGIC, SUGAR);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, SUGAR);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case COTTON:
-                board.at(i)->SetResource(NO_STRATEGIC, COTTON);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, COTTON);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case PEARLS:
-                if(board.at(i)->GetTileType() == WATER)
+                if(t->GetTileType() == WATER)
                 {
-                    board.at(i)->SetResource(NO_STRATEGIC, PEARLS);
-                    board.at(i)->CanHaveFishBoat = true;
-                    board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                    t->SetResource(NO_STRATEGIC, PEARLS);
+                    t->CanHaveFishBoat = true;
+                    t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 }
                 break;
             case INCENSE:
-                board.at(i)->SetResource(NO_STRATEGIC, INCENSE);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, INCENSE);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case WINE:
-                board.at(i)->SetResource(NO_STRATEGIC, WINE);
-                board.at(i)->CanHavePlantation = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, WINE);
+                t->CanHavePlantation = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SILVER:
-                board.at(i)->SetResource(NO_STRATEGIC, SILVER);
-                board.at(i)->CanHaveMine = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, SILVER);
+                t->CanHaveMine = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case FURS:
-                board.at(i)->SetResource(NO_STRATEGIC, FURS);
-                board.at(i)->CanHaveCamp = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, FURS);
+                t->CanHaveCamp = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             case SHEEP:
-                board.at(i)->SetResource(NO_STRATEGIC, SHEEP);
-                board.at(i)->CanHavePasture = true;
-                board.at(i)->GetYield()->ChangeYield(2, 0, 0, 0, 0);
+                t->SetResource(NO_STRATEGIC, SHEEP);
+                t->CanHavePasture = true;
+                t->GetYield()->ChangeYield(2, 0, 0, 0, 0);
                 break;
             default:
-                board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+                t->SetResource(NO_STRATEGIC, NO_LUXURY);
                 break;
             }
         }
         else
         {
-            board.at(i)->SetResource(NO_STRATEGIC, NO_LUXURY);
+            t->SetResource(NO_STRATEGIC, NO_LUXURY);
         }
 
-        board.at(i)->SetWorkerButtons();
+        t->SetWorkerButtons();
     }
 }
 

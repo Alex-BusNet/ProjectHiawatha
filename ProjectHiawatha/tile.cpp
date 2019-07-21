@@ -112,7 +112,7 @@ Tile::Tile(int _posX, int _posY)
     owner = NO_NATION;
     this->governingCity = NULL;
     outlinePen.setColor(QColor(255, 255, 255, 0));
-    occupyingUnit = NULL;
+    //occupyingUnit = NULL;
     controllingCivListIndex = -1;
     continent = 0;
     container = 0;
@@ -130,10 +130,10 @@ Tile::~Tile()
         delete yield;
 }
 
-bool Tile::ContainsUnit()
-{
-    return (this->occupyingUnit != NULL);
-}
+//bool Tile::ContainsUnit()
+//{
+//    return (this->occupyingUnit != NULL);
+//}
 
 TileType Tile::GetTileType()
 {
@@ -671,11 +671,11 @@ int Tile::fCost()
     return gCost + hCost;
 }
 
-void Tile::SetOccupyingUnit(Unit* unit)
-{
-//    this->occupyingCivListIndex = index;
-    this->occupyingUnit = unit;
-}
+//void Tile::SetOccupyingUnit(Unit* unit)
+//{
+////    this->occupyingCivListIndex = index;
+//    this->occupyingUnit = unit;
+//}
 
 void Tile::SetControllingCivListIndex(int index)
 {
@@ -683,18 +683,18 @@ void Tile::SetControllingCivListIndex(int index)
 }
 
 // Updates: (ARP - 6/23/2019) Function used to be GetOccupyingCivListIndex
-Unit* Tile::GetOccupyingUnit()
-{
-    return this->occupyingUnit;
-}
+//Unit* Tile::GetOccupyingUnit()
+//{
+//    return this->occupyingUnit;
+//}
 
-int Tile::GetOccupyingCivListIndex()
-{
-    if(this->occupyingUnit != NULL)
-        return this->occupyingUnit->GetOwningCivIndex();
-    else
-        return -1;
-}
+//int Tile::GetOccupyingCivListIndex()
+//{
+//    if(this->occupyingUnit != NULL)
+//        return this->occupyingUnit->GetOwningCivIndex();
+//    else
+//        return -1;
+//}
 
 int Tile::GetControllingCivListIndex()
 {

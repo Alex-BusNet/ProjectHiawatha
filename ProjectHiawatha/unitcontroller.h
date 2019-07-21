@@ -26,7 +26,9 @@ public:
     bool BuildImprovement(Unit* unit, Tile* currentTile, Civilization* currentCiv, TileImprovement improvement);
 
     void HealUnit(Unit* unit);
-    bool AtPeaceWith(Tile* target, WarData wDat);
+    bool AtPeaceWith(MapData *targetMd, WarData wDat);
+
+    bool UnitInRange(Map* map, MapData *md, int unitRange, Nation self);
 
     Unit *FindUnitAtTile(Tile* tile, QVector<Unit *> unitList);
     City *FindCityAtTile(Tile *tile, QVector<City*> cityList);

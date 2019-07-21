@@ -64,11 +64,12 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
     }
 
     for(int i=(targetNeighbor.length()-1);i>=0;i--){
-        if(targetNeighbor.at(i)->ContainsUnit()||MOUNTAIN==targetNeighbor.at(i)->GetTileType()){
+        OccupantData od = map->GetODFromTileAt(targetNeighbor.at(i)->GetTileIndex());
+        if((od.OccupantNation != NO_NATION) || MOUNTAIN==targetNeighbor.at(i)->GetTileType()){
 #ifdef DEBUG
             qDebug()<<"Removing "<<targetNeighbor.at(i)->GetTileIndex();
 #endif
-            if((targetNeighbor.at(i)->ContainsUnit())&&(0==targetNeighbor.at(i)->GetOccupyingUnit()->GetOwningCivIndex())){
+            if((od.OccupantNation != NO_NATION) && (0==od.civIndex)){
                 unit = uc->FindUnitAtTile(targetNeighbor.at(i),player->GetUnitList());
                 targetunits.push_back(unit);
             }
@@ -76,11 +77,12 @@ void AI_Tactical::AtWar(Civilization *civ, Civilization *player, Map *map, City 
         }
     }
     for(int i=(meleeTarget.length()-1);i>=0;i--){
-        if(meleeTarget.at(i)->ContainsUnit()||MOUNTAIN==meleeTarget.at(i)->GetTileType()){
+        OccupantData od = map->GetODFromTileAt(targetNeighbor.at(i)->GetTileIndex());
+        if((od.OccupantNation != NO_NATION) || MOUNTAIN==meleeTarget.at(i)->GetTileType()){
 #ifdef DEBUG
             qDebug()<<"Removing "<<meleeTarget.at(i)->GetTileIndex();
 #endif
-            if((meleeTarget.at(i)->ContainsUnit())&&(0==meleeTarget.at(i)->GetOccupyingUnit()->GetOwningCivIndex())){
+            if((od.OccupantNation != NO_NATION) && (0==od.civIndex)){
                 unit = uc->FindUnitAtTile(meleeTarget.at(i),player->GetUnitList());
                 targetunits.push_back(unit);
             }

@@ -4,6 +4,7 @@
 #include <QVector>
 #include "nation.h"
 
+class Tile;
 
 enum ActionState { MOVE_UNIT, ATTACK_MELEE, ATTACK_RANGE, ATTACK_CITY, FOUND_CITY, AI_FOUND_CITY, FIND_UNIT, FIND_CITY, INVADE, IDLE, CONQUER, AI_DECLARE_WAR, CLEAR };
 enum ViewState { DISCOVERED, HIDDEN, VISIBLE };
@@ -20,5 +21,10 @@ typedef struct{int IconIndex; QString ToolTipMessage;} Notification;
 typedef struct{bool atWar; QVector<int> warringCivListIndex;} WarData;
 
 typedef struct{int cityIndex; int producedUnitIndex; bool isUnit; int civIndex;} CityProdData;
+
+typedef struct{Nation OccupantNation; int civIndex; int unitIndex; bool nonCombat;} OccupantData;
+typedef struct{Tile* tile; OccupantData od;} MapData;
+
+const OccupantData DEFAULT_OCCUPANT{NO_NATION, -1, -1, true};
 
 #endif // DATATYPES_H

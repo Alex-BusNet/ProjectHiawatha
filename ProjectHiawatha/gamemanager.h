@@ -4,9 +4,10 @@
 #include <QTimer>
 #include <QWidget>
 #include <qevent.h>
+#include "datatypes.h"
 #include "cityscreen.h"
 #include "gameview.h"
-#include "map.h"
+//#include "map.h"
 #include "renderer.h"
 #include "unitcontroller.h"
 #include "ai_controller.h"
@@ -122,7 +123,7 @@ private:
     QJsonArray UnitData;
     QJsonArray TechData;
 
-    Tile *unitTile, *targetTile;
+    //Tile *unitTile, *targetTile;
 
     int zoomScale;
     int currentTurn, gameTurn;
@@ -140,7 +141,11 @@ private:
     bool updateUnitPos;
     bool turnEnded, turnStarted;
     bool countTime;
-    bool citySelected, redrawTile, isTileSelected, cityTileSelected, updateFoW;
+    bool citySelected;
+    bool redrawTile;
+    bool isTileSelected;
+    bool cityTileSelected;
+    bool updateFoW;
     bool focusChanged;
     bool toggleOn, devModeOn;
     bool civLoadFailed;
@@ -149,6 +154,8 @@ private:
 
     Nation playerCiv;
     ActionState state;
+    bool inPrimaryState; // true = Primary action state (select), false = Secondary action state (Move, attack)
+    MapData *clickedData, *targetData, *lastData;
 
     void InitCivs(Nation player, int numAI);
     void LoadCivs();
@@ -173,7 +180,7 @@ private:
     void toggleWidgetVisiblityAll();
     void setUnitButtonVisibility(unsigned int visibleButtons);
 
-    bool WarCheck(Tile* t);
+    bool WarCheck(MapData *md); //Tile* t);
     void ProcessCityConquer(City* tCity, Civilization* aCiv, Civilization* tCiv);
     void ProcessAttackUnit();
     void ProcessPeace(int makePeaceWithIndex);
